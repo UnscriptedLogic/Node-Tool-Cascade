@@ -1,0 +1,16 @@
+# Your data and secrets. Never commit these.
+settings.json
+tree.json
+chatgpt-auth.json
+project.json
+project-index.json
+*.tmp
+.env
+.env.*
+!.env.example
+
+# Build output and tooling
+dist/
+node_modules/
+.DS_Store
+npm-debug.log*

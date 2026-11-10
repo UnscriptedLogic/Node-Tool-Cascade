@@ -1,0 +1,37 @@
+{
+  "name": "cascade-design-tree",
+  "version": "1.0.0",
+  "description": "A design tree that places your ideas, grows branches around them, grills you, and answers questions about the graph.",
+  "author": "UnscriptedLogic",
+  "homepage": "https://unscriptedlogic.github.io/Node-Tool-Cascade/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnscriptedLogic/Node-Tool-Cascade.git"
+  },
+  "bugs": {
+    "url": "https://github.com/UnscriptedLogic/Node-Tool-Cascade/issues"
+  },
+  "keywords": [
+    "game-design",
+    "game-development",
+    "decision-tree",
+    "ai",
+    "unity",
+    "unreal",
+    "godot",
+    "design-tools"
+  ],
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "build": "node scripts/build.js",
+    "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}
