@@ -16,7 +16,8 @@ const missing = (env) => NEEDED.filter(k=>!String(env[k] || '').trim());
 
 // The page itself holds nothing private (it only draws what the API returns), so it comes from the static assets.
 export async function adminPage(request,env){
-  const asset = env.ASSETS ? await env.ASSETS.fetch(new Request(new URL('/admin.html',request.url),request)) : new Response('Not found',{ status:404 });
+  // the asset host maps /admin to admin.html; asking for /admin.html would redirect back here
+  const asset = env.ASSETS ? await env.ASSETS.fetch(new Request(new URL('/admin',request.url),request)) : new Response('Not found',{ status:404 });
   const headers = new Headers(asset.headers); headers.set('x-robots-tag','noindex, nofollow'); headers.set('cache-control','no-store');
   return new Response(asset.body,{ status:asset.status, headers });
 }

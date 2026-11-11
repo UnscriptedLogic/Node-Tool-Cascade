@@ -22,7 +22,7 @@ async function admin(w,email){ const s = await w.signIn({ sub:'g-'+email, email 
 
 test('admin online: the page comes from the static assets, marked noindex',{ skip },async()=>{
   const w = await setup(); const { clearAdminCache } = await import('../worker/src/admin.js'); clearAdminCache();
-  for(const p of ['/admin','/admin/']){ const r = await w.call('GET',p); assert.equal(r.text,'static:/admin.html'); }
+  for(const p of ['/admin','/admin/']){ const r = await w.call('GET',p); assert.equal(r.text,'static:/admin','asks the asset host for /admin, which it maps to admin.html (asking for /admin.html redirects)'); }
   const { handleRequest } = await import('../worker/src/index.js');
   const res = await handleRequest(new Request('https://cascade.example/admin'),w.env,w.deps); assert.match(res.headers.get('x-robots-tag'),/noindex/); assert.equal(res.headers.get('cache-control'),'no-store');
 });
