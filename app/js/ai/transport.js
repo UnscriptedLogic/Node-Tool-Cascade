@@ -339,9 +339,28 @@ function demoTreeSummary(prompt,rows){
   const p2 = emo.length ? `The feelings recorded are ${moods.join(', ') || 'mixed'}. ${isGameDomain() ? 'They trace back to travel that is slow, combat cues that are easy to miss and upgrades that do not change play. What is still undecided is mostly how those three fixes relate.' : 'Each traces back to a cause somewhere in the tree. What is still undecided is how those causes relate.'}` : 'No player feelings are recorded yet, so it is hard to say how the design should feel.';
   return p1+'\n\n'+p2;
 }
+function demoBridge(prompt,rows){
+  const m = prompt.match(/TARGET FEELING: (\S+) \| emotion(?: \((\w+)\))? \| (.*)/) || [], fid = m[1], text = m[3] || '';
+  const max = +((prompt.match(/to (\d+) node lines/) || [])[1]) || 9;
+  const real = rows.filter(r=>r.id!==fid && (r.type==='question' || r.type==='answer'));
+  const hits = demoMatches(real,text,true), start = hits[0] || real.find(r=>r.type==='question') || real[0];
+  const L = [];
+  const add = (side,parent,type,txt,wave,links) => { const o = {id:'g'+(L.length+1),side,parent,type,text:txt,wave}; if(links && links.length) o.links = links; L.push(o); return o.id; };
+  if(start){
+    const near = hits.length>0;
+    const f1 = add('forward',start.id,'question',near ? 'What would make this moment lead to that feeling?' : 'What would have to change for this to lead there?',1);
+    const f2 = add('forward',f1,'consequence','People reach a point where that feeling becomes possible',2);
+    const b1 = add('backward',fid,'question','What would actually produce this feeling?',1);
+    add('backward',b1,'answer','A moment where the effort visibly pays off',2,near ? [f2] : []);
+    add('backward',b1,'question','Who feels it first, and when?',2);
+    L.push(near ? {verdict:'bridged',gap:''} : {verdict:'gap',gap:'Nothing in the tree yet says how people get from “'+start.text.slice(0,50)+'” to “'+text.slice(0,50)+'”.'});
+  } else L.push({verdict:'gap',gap:'The tree has no questions or answers to start from yet.'});
+  return L.slice(0,max+1).map(J).join('\n');
+}
 function demoRespond(prompt){
   const rows = demoRows(prompt);
   if(prompt.includes('placement engine')) return demoPlace(prompt,rows);
+  if(prompt.includes('You are bridging a gap')) return demoBridge(prompt,rows);
   if(/You are interviewing an? /.test(prompt)) return demoRound(prompt,rows);
   if(prompt.includes('sharp but fair design interviewer')) return demoPushback(prompt);
   if(prompt.includes('charting a map of decisions')) return demoChart(prompt,rows);

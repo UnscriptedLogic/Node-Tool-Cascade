@@ -3,7 +3,7 @@
 const side = $('#side'), mDest = $('#mDest'), mLists = $('#mLists');
 const gIdle = $('#gIdle'), gSession = $('#gSession'), gCards = $('#gCards'), gNote = $('#gNote'), gDone = $('#gDone');
 let curStab = 'map';
-const G = {active:false,scope:null,cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0};
+const G = {active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0};
 
 function showStab(t){
   curStab = t;
@@ -127,7 +127,7 @@ function chartMap(){
 /* ---- grill ---- */
 function resetG(){
   if(G.ctl) G.ctl.abort();
-  Object.assign(G,{active:false,scope:null,cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0});
+  Object.assign(G,{active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0});
   gCards.textContent = ''; gNote.hidden = true; gDone.hidden = true;
 }
 function renderGrillShell(){
@@ -138,10 +138,10 @@ function renderGrillShell(){
   $('#gNext').hidden = G.resolve || G.done; $('#gNext').disabled = G.busy; $('#gNext').textContent = G.busy ? 'Asking…' : 'Next round';
 }
 function gNoteShow(t){ gNote.textContent = t; gNote.hidden = !t; }
-function startGrill(scopeId){
+function startGrill(scopeId,focus){
   openSide('grill');
   if(!aiAvailable()){ resetG(); renderGrillShell(); const m = $('#gIdleMsg'); m.textContent = aiNeed('Grilling'); m.hidden = false; return; }
-  $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.scope = scopeId || null; renderGrillShell(); nextRound();
+  $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.scope = scopeId || null; G.focus = typeof focus==='string' ? focus : ''; renderGrillShell(); nextRound();
 }
 function startResolve(id){
   const n = S.nodes[id]; if(!n || n.type!=='question') return;
@@ -269,7 +269,7 @@ function roundPrompt(ev){
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${S.order.length ? treeText() : '(empty)'}${ev ? '\n\n'+ev.block : ''}
-${sc ? '\nSCOPE: stay inside this part of the tree: '+sc.text+' ('+G.scope+')\n' : ''}${fog ? '\nFOG (decisions coming that the '+DOM().person+' cannot phrase yet):\n'+fog+'\n' : ''}${hist ? '\nSESSION SO FAR:\n'+hist+'\n' : ''}
+${sc ? '\nSCOPE: stay inside this part of the tree: '+sc.text+' ('+G.scope+')\n' : ''}${G.focus ? '\nGAP TO CLOSE: the '+DOM().person+' wants the tree to lead to a feeling they named, and the two ends do not meet yet. '+G.focus+'\nAsk the questions whose answers would let the existing nodes connect to that feeling.\n' : ''}${fog ? '\nFOG (decisions coming that the '+DOM().person+' cannot phrase yet):\n'+fog+'\n' : ''}${hist ? '\nSESSION SO FAR:\n'+hist+'\n' : ''}
 Write one JSON object per line (NDJSON). No markdown, no commentary. Each line:
 {"id":"q1","parent":"<id of the existing node this question comes out of>","text":"<question, at most 18 words>","why":"<at most 20 words on what answering it unlocks>","ticket":"talk|prototype|research|task","grillable":true}
 

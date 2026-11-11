@@ -112,7 +112,7 @@ world.addEventListener('click',e=>{
   const sm = e.target.closest('.srcmark'); if(sm){ e.stopPropagation(); openNodeSrc(sm.closest('.node').dataset.id); return; }
   const b = e.target.closest('button[data-act]'); if(!b) return;
   const id = b.closest('.node').dataset.id; e.stopPropagation();
-  ({accept:acceptGhost,dismiss:dismissGhost,grow:growNode,back:traceBack,collapse:toggleCollapse,del:(i)=>deleteNode(i,false),delb:(i)=>deleteNode(i,true),open:openLoop,resolve:startResolve,reopen:reopenQ,grill:startGrill,ticket:cycleTicket,block:startBlock,out:toggleOut,sharpen:(i)=>beginEdit(i,{graduate:true}),src:openNodeSrc})[b.dataset.act](id);
+  ({accept:acceptGhost,dismiss:dismissGhost,grow:growNode,back:traceBack,bridge:bridgeTo,collapse:toggleCollapse,del:(i)=>deleteNode(i,false),delb:(i)=>deleteNode(i,true),open:openLoop,resolve:startResolve,reopen:reopenQ,grill:startGrill,ticket:cycleTicket,block:startBlock,out:toggleOut,sharpen:(i)=>beginEdit(i,{graduate:true}),src:openNodeSrc})[b.dataset.act](id);
 });
 addEventListener('keydown',e=>{
   if(e.target.matches && e.target.matches('input,select,textarea,[contenteditable="true"]')) return;

@@ -69,7 +69,7 @@ function paint(n){
     btns.push(['grill','Grill me on this']);
     if(n.src && n.src.length) btns.push(['src','Where this came from']);
     btns.push(['grow','Grow branches from here']);
-    if(n.type==='emotion') btns.push(['back',DOM().traceTip]);
+    if(n.type==='emotion'){ if(hasBridgeGround(n.id)) btns.push(['bridge','Bridge: connect the existing tree to this feeling, from both ends']); btns.push(['back',DOM().traceTip]); }
     if(hasKids) btns.push(['collapse',n.collapsed?'Expand':'Collapse']);
     btns.push(['del',hasKids?'Delete node (its children move up)':'Delete']);
     if(hasKids) btns.push(['delb','Delete node and everything below it']);

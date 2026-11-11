@@ -42,6 +42,7 @@ const ACT = {
   block: svg('<rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/>'),
   out: svg('<circle cx="8" cy="8" r="6.3"/><path d="M5 8h6"/>'),
   sharpen: svg('<path d="m3 13 .8-3L11 2.8l2.2 2.2L6 12.2z"/>'),
+  bridge: svg('<circle cx="3" cy="8" r="1.6"/><circle cx="13" cy="8" r="1.6"/><path d="M4.6 8h6.8" stroke-dasharray="1.6 1.8"/><path d="M6.2 8h3.6"/>'),
   back: svg('<path d="M12.5 12.5V7.5a3 3 0 0 0-3-3H3.5"/><path d="M6 2 3.5 4.5 6 7"/>'),
   delb: svg('<path d="M2.5 4h7M5 4V2.8h2V4M3.5 4l.5 7h4l.5-7"/><path d="M11.5 6v3.5M11.5 9.5l-1.8 2M11.5 9.5l1.8 2"/>'),
   src: svg('<path d="M4 1.8h5.2L12.5 5v9.2H4z"/><path d="M9 1.8V5h3.5"/><path d="M6 8.5h4M6 11h4"/>')

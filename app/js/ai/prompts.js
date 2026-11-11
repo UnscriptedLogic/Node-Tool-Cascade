@@ -113,6 +113,8 @@ function handleAIError(e){
   } else if(c==='rate_limited'){ showNote(['Claude is rate limited right now. Try again in a moment.'],false); }
   else if(c!=='cancelled'){ showNote(['Claude couldn’t answer that one, so it was placed by keyword match.'],false); }
 }
+// an emotion can be bridged to when the tree already holds at least two real questions or answers to start from
+function hasBridgeGround(exceptId){ return S.order.filter(i=>i!==exceptId && S.nodes[i] && !S.nodes[i].ghost && (S.nodes[i].type==='question' || S.nodes[i].type==='answer')).length>=2; }
 function cleanRel(s){ return typeof s==='string' ? s.trim().slice(0,32) : ''; }
 
 async function placeBlock(type,text,wpos,pend,signal){
@@ -140,17 +142,17 @@ async function placeBlock(type,text,wpos,pend,signal){
   const pn = parent && S.nodes[parent];
   if(pn) showNote(['Placed under ',{b:`“${pn.text}”`},res.reason ? ` — ${String(res.reason).slice(0,160)}` : '.'],true);
   else showNote(['Planted as the first node.'],true);
-  if(usedAI && (ntype==='emotion' ? PREFS.autoTrace : ntype==='fog' ? false : PREFS.autoGrow)) await expandFrom(id,signal,ntype==='emotion'?'back':'forward'); else setBusy(null);
+  if(usedAI && (ntype==='emotion' ? PREFS.autoTrace : ntype==='fog' ? false : PREFS.autoGrow)) await expandFrom(id,signal,ntype==='emotion' ? (hasBridgeGround(id) ? 'bridge' : 'back') : 'forward'); else setBusy(null);
 }
 
 async function expandFrom(fid,signal,mode){
-  const back = mode==='back', chart = mode==='chart';
+  const back = mode==='back', chart = mode==='chart', bridge = mode==='bridge';
   const GS = GROW[PREFS.growSize] || GROW.medium;
   if(!aiAvailable()){ showNote([aiNeed(chart ? 'Charting' : 'Growing branches')],false); setBusy(null); return; }
   const f = S.nodes[fid]; if(!f){ setBusy(null); return; }
   f.collapsed = false; stopReveal = false;
   const fr = R[fid]; if(fr){ fr.growing = true; restyle(); }
-  setBusy(chart ? 'Charting the map…' : back ? 'Tracing back…' : 'Growing branches…',true);
+  setBusy(chart ? 'Charting the map…' : bridge ? 'Bridging the gap…' : back ? 'Tracing back…' : 'Growing branches…',true);
   const fwdPrompt = `You grow a ${DOM().treeName} outward from one node, in waves, like dominoes falling.
 
 ${guideBlock()}TREE (id | type | text | parent):
@@ -194,7 +196,9 @@ Rules:
 - fog = a decision you can see coming but cannot yet phrase precisely. Its text is a short noun phrase. Leave out ticket and blockedBy.
 - Only add blockedBy where one decision truly depends on another.
 - Write about ${GS.w1} to ${GS.max-3} questions and 2 to 4 fog items. Do not repeat existing nodes. Never answer any question.`;
-  const prompt = chart ? chartPrompt : back ? backPrompt : fwdPrompt;
+  const bridgePrompt = bridge ? bridgePromptFor(f,GS) : '';
+  const prompt = chart ? chartPrompt : bridge ? bridgePrompt : back ? backPrompt : fwdPrompt;
+  let verdict = null;
   const gmap = Object.create(null), queue = [];
   let done = 0, count = 0, streaming = true, lastWave = 0;
   const parse = (text,final) => {
@@ -217,13 +221,15 @@ Rules:
       layout(false); updateHud(); save();
       return true;
     }
-    if(count>=(back?GS.back:GS.max) || !o || typeof o.text!=='string' || !o.text.trim() || !TYPES.includes(o.type)) return false;
+    if(bridge && o && typeof o.verdict==='string'){ verdict = o; return false; }
+    if(count>=(bridge ? GS.max+2 : back?GS.back:GS.max) || !o || typeof o.text!=='string' || !o.text.trim() || !TYPES.includes(o.type)) return false;
     const pid = (o.parent in gmap) ? gmap[o.parent] : (S.nodes[o.parent] ? o.parent : fid);
     const id = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pid,ghost:true,mood:o.type==='emotion'?(MOODS[o.mood]?o.mood:moodGuess(o.text)):undefined});
-    if(back){
+    if(back || bridge){
       const nn = S.nodes[id];
-      if(pid===fid){ nn.back = true; nn.rel = 'traces back'; }
-      (Array.isArray(o.links)?o.links:[]).slice(0,2).forEach(lid=>{ if(S.nodes[lid] && lid!==id && lid!==fid && lid!==pid) S.links.push({a:id,b:lid,kind:'rel'}); });
+      if(bridge){ nn.side = o.side==='backward' ? 'backward' : 'forward'; nn.rel = nn.side==='backward' ? (pid===fid ? 'traces back' : '') : 'leads toward'; if(nn.side==='backward' && pid===fid) nn.back = true; }
+      else if(pid===fid){ nn.back = true; nn.rel = 'traces back'; }
+      (Array.isArray(o.links)?o.links:[]).slice(0,3).forEach(lid=>{ const real = (String(lid) in gmap) ? gmap[String(lid)] : lid; if(S.nodes[real] && real!==id && real!==pid && (bridge || real!==fid)) S.links.push({a:id,b:real,kind:'rel'}); });
     }
     gmap[String(o.id)] = id; count++;
     layout(false); updateHud(); save();
@@ -255,14 +261,53 @@ Rules:
   if(fr){ fr.growing = false; restyle(); }
   if(count===0 && !stopReveal) showNote(['No new branches came back for that node.'],false);
   else if(chart && !stopReveal) showNote([`Charted ${count} suggestions against the destination. Keep the ones that belong.`],false);
+  else if(bridge && !stopReveal){
+    const gap = verdict && typeof verdict.gap==='string' ? verdict.gap.trim().slice(0,220) : '';
+    if(verdict && verdict.verdict==='gap'){
+      showNote([{b:'Not bridged yet. '},gap || `The tree is too far from “${f.text}” to connect without more of your decisions.`,' Starting a grill to find the missing step.'],false);
+      setBusy(null); updateHud();
+      startGrill(null,`Target feeling: “${f.text}”. Missing step: ${gap || 'nothing in the tree yet leads to it'}`);
+      return;
+    }
+    showNote([{b:'Bridged. '},`Questions now run from the existing tree toward “${f.text}”, and the causes run back from it. Keep the ones that ring true.`],false);
+  }
   else if(back && !stopReveal) showNote(['Traced back from ',{b:`“${f.text}”`},'. Keep the questions that ring true.'],false);
   setBusy(null); updateHud();
+}
+function bridgePromptFor(f,GS){
+  const D = DOM();
+  return `You are bridging a gap in a ${D.treeName}. The tree already holds some questions and answers. The ${D.person} has now named a feeling they want ${D.audience} to have, and does not yet know the steps in between. Work from both ends at once and try to make them meet.
+
+${guideBlock()}TREE (id | type | text | parent):
+${treeText()}
+
+TARGET FEELING: ${f.id} | emotion${f.mood?' ('+f.mood+')':''} | ${f.text}
+
+Write one JSON object per line (NDJSON). No markdown, no commentary, no blank lines. Node lines:
+{"id":"g1","side":"forward|backward","parent":"<existing id or an earlier gN>","type":"question|answer|consequence","text":"<at most 14 words>","links":["<existing ids or earlier gN ids this connects to>"],"wave":1}
+
+- forward: start from existing nodes that could plausibly lead toward the target feeling and ask the next question that would move the ${D.subject} toward it. parent is the existing node it grows from.
+- backward: start from the target feeling and name actions, mechanics or conditions that could produce it, as why-questions or plausible causes. Look at ${D.causeHints}. parent is ${f.id} or an earlier backward line.
+- Where a forward line and a backward line describe the same step, put the other line's id in links so the two chains meet. Where a line touches an existing node, put that node's id in links.
+- Do not answer for the ${D.person}, and do not repeat existing nodes.
+- Write ${GS.w1.replace(/ or .*/,'')} to ${GS.max} node lines, forward lines first.
+
+The final line, always last:
+{"verdict":"bridged|gap","gap":"<one sentence on the missing step, empty if bridged>"}
+Use "bridged" only when a forward chain and a backward chain meet through the links you wrote, or the tree already connects the target to existing nodes. Use "gap" when the existing tree is too far from the feeling to connect without inventing the ${D.person}'s decisions.`;
 }
 function traceBack(id){
   if(!aiAvailable()){ showNote([aiNeed('Tracing back')],false); return; }
   enqueue(async()=>{
     const c = new AbortController(); ctl = c; pushHist();
     try{ await expandFrom(id,c.signal,'back'); } finally{ ctl = null; }
+  });
+}
+function bridgeTo(id){
+  if(!aiAvailable()){ showNote([aiNeed('Bridging')],false); return; }
+  enqueue(async()=>{
+    const c = new AbortController(); ctl = c; pushHist();
+    try{ await expandFrom(id,c.signal,'bridge'); } finally{ ctl = null; }
   });
 }
 function growNode(id){
