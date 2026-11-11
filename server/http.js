@@ -18,7 +18,7 @@ function createRouter(){
   const routes = [];
   const add = (m,p,h,prefix) => { routes.push({ m,p,h,prefix:!!prefix }); };
   return {
-    get:(p,h) => add('GET',p,h), post:(p,h) => add('POST',p,h), getPrefix:(p,h) => add('GET',p,h,true),
+    get:(p,h) => add('GET',p,h), post:(p,h) => add('POST',p,h), getPrefix:(p,h) => add('GET',p,h,true), prefix:(m,p,h) => add(m,p,h,true),
     find:(method,pathname) => routes.find(r=>r.m===method && (r.prefix ? pathname.startsWith(r.p) : pathname===r.p))
   };
 }

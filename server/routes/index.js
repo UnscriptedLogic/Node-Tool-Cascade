@@ -3,5 +3,5 @@
 const { createRouter } = require('../http');
 
 const router = createRouter();
-for(const mod of ['page','session','project','auth','ai']) require('./'+mod)(router);
+for(const mod of ['page','session','library','project','auth','ai']) require('./'+mod)(router);
 module.exports = router;
