@@ -112,7 +112,7 @@ footer{color:var(--muted);font-size:12.5px;margin-top:20px;line-height:1.6}
       <h1>Cascade admin<span class="badge" id="demoBadge" hidden>demo data</span></h1>
       <div class="sub">How the site is used. Anonymous counts only: no content, no names, no emails.</div>
     </div>
-    <button class="btn" id="theme" type="button" aria-label="Switch between light and dark">Theme</button>
+    <span><button class="btn" id="signout" type="button" hidden>Sign out</button> <button class="btn" id="theme" type="button" aria-label="Switch between light and dark">Theme</button></span>
   </header>
 
   <section class="card setup" id="setup" hidden>
@@ -124,6 +124,21 @@ footer{color:var(--muted);font-size:12.5px;margin-top:20px;line-height:1.6}
       <label class="check"><input id="save" type="checkbox"><span>Remember on this computer (saved to scripts/analytics.local.env, which git ignores)</span></label>
       <button class="btn primary" type="submit">Connect</button> <span class="muted" id="setupMsg" role="status"></span>
     </form>
+  </section>
+
+  <section class="card setup" id="signin" hidden>
+    <h2>Sign in</h2>
+    <p class="note">This dashboard is private. Sign in with the Google account that is on the admin list.</p>
+    <div id="gbtn"></div><div class="muted" id="gmsg" role="status"></div>
+  </section>
+  <section class="card setup" id="denied" hidden>
+    <h2>Not on the admin list</h2>
+    <p class="note" id="deniedMsg"></p>
+    <button class="btn" id="deniedOut" type="button">Sign out</button>
+  </section>
+  <section class="card setup" id="unconfigured" hidden>
+    <h2>Not set up yet</h2>
+    <p class="note" id="unconfMsg"></p>
   </section>
 
   <div class="filters" id="filters">
@@ -158,6 +173,8 @@ footer{color:var(--muted);font-size:12.5px;margin-top:20px;line-height:1.6}
 'use strict';
 /* ---------- tiny helpers ---------- */
 const $ = (s,r=document) => r.querySelector(s);
+const ONLINE = location.pathname==='/admin' || location.pathname==='/admin/';
+const API = ONLINE ? '/api/admin' : '/api';
 const NS = 'http://www.w3.org/2000/svg';
 function h(tag,attrs,...kids){ const e = document.createElement(tag); for(const [k,v] of Object.entries(attrs||{})){ if(k==='text') e.textContent = v; else if(k==='on') for(const [ev,fn] of Object.entries(v)) e.addEventListener(ev,fn); else if(v!==false && v!=null) e.setAttribute(k,v===true ? '' : v); } kids.flat().forEach(c=>{ if(c!=null) e.append(c); }); return e; }
 function s(tag,attrs,...kids){ const e = document.createElementNS(NS,tag); for(const [k,v] of Object.entries(attrs||{})){ if(k==='text') e.textContent = v; else if(k==='on') for(const [ev,fn] of Object.entries(v)) e.addEventListener(ev,fn); else if(v!==false && v!=null) e.setAttribute(k,v); } kids.flat().forEach(c=>{ if(c!=null) e.append(c); }); return e; }
@@ -342,8 +359,12 @@ pick('#envSeg','env',v=>v); pick('#daySeg','days',v=>+v);
 async function load(fresh){
   const main = $('#main'); main.classList.add('loading'); $('#error').hidden = true;
   try{
-    const r = await fetch(`/api/stats?env=${state.env}&days=${state.days}${fresh ? '&fresh=1' : ''}`), j = await r.json();
-    if(!r.ok){ if(j.error==='no_credentials' || j.error==='bad_credentials') $('#setup').hidden = false; throw new Error(j.detail || j.error); }
+    const r = await fetch(`${API}/stats?env=${state.env}&days=${state.days}${fresh ? '&fresh=1' : ''}`), j = await r.json();
+    if(!r.ok){
+      if(ONLINE && (r.status===401 || r.status===403)){ main.hidden = true; return start(); }   // the session ended, or this account is not allowed
+      if(j.error==='no_credentials' || j.error==='bad_credentials') $('#setup').hidden = false;
+      throw new Error(j.detail || j.error);
+    }
     $('#setup').hidden = true; main.hidden = false; render(j);
   }catch(e){ $('#error').hidden = false; $('#error').replaceChildren(h('b',{ text:'Could not load the numbers. ' }), document.createTextNode(e.message)); }
   finally{ main.classList.remove('loading'); }
@@ -361,7 +382,36 @@ function applyTheme(t){ if(t) document.documentElement.setAttribute('data-theme'
 $('#theme').addEventListener('click',()=>{ const dark = matchMedia('(prefers-color-scheme: dark)').matches, cur = document.documentElement.getAttribute('data-theme') || (dark ? 'dark' : 'light'); const next = cur==='dark' ? 'light' : 'dark'; applyTheme(next); try{ localStorage.setItem('admin-theme',next); }catch(e){} if(data) render(data); });
 try{ applyTheme(localStorage.getItem('admin-theme')); }catch(e){}
 let resizeT = 0; addEventListener('resize',()=>{ clearTimeout(resizeT); resizeT = setTimeout(()=>{ if(data) document.querySelectorAll('.card').forEach(c=>c._redraw && c._redraw()); },150); });
-fetch('/api/status').then(r=>r.json()).then(st=>{ $('#demoBadge').hidden = !st.demo; if(!st.hasCredentials){ $('#setup').hidden = false; $('#filters').hidden = false; } else load(); }).catch(()=>load());
+// ---------- online: Google sign-in, allowlist, sign out ----------
+function loadGsi(clientId){
+  if(!clientId){ $('#gmsg').textContent = 'Google sign-in is not set up on this server.'; return; }
+  const draw = () => { google.accounts.id.initialize({ client_id:clientId, callback:async (resp)=>{
+      $('#gmsg').textContent = 'Signing in…';
+      try{ const r = await fetch('/api/auth/google',{ method:'POST', headers:{ 'content-type':'application/json' }, body:JSON.stringify({ credential:resp.credential }) }); if(!r.ok) throw new Error('Google sign-in was not accepted.'); start(); }
+      catch(e){ $('#gmsg').textContent = e.message; } }, ux_mode:'popup' });
+    $('#gbtn').textContent = ''; google.accounts.id.renderButton($('#gbtn'),{ theme:'outline', size:'large', text:'signin_with' }); };
+  if(window.google && google.accounts) return draw();
+  const sc = document.createElement('script'); sc.src = 'https://accounts.google.com/gsi/client'; sc.async = true; sc.onload = draw; sc.onerror = () => { $('#gmsg').textContent = 'Could not load Google sign-in. Check your connection.'; };
+  document.head.append(sc);
+}
+async function signOut(){ try{ await fetch('/api/auth/logout',{ method:'POST', headers:{ 'content-type':'application/json' }, body:'{}' }); }catch(e){} start(); }
+$('#signout').addEventListener('click',signOut); $('#deniedOut').addEventListener('click',signOut);
+function show(which){ for(const id of ['signin','denied','unconfigured']) $('#'+id).hidden = id!==which; $('#filters').hidden = which!==null; $('#main').hidden = true; $('#signout').hidden = which!==null; }
+async function start(){
+  try{
+    const st = await (await fetch(API+'/status')).json();
+    $('#demoBadge').hidden = !st.demo;
+    if(ONLINE){
+      $('#setup').hidden = true;
+      if(!st.configured){ show('unconfigured'); $('#unconfMsg').textContent = 'The server is missing: '+st.missing.join(', ')+'. They are set as secrets on the Worker.'; return; }
+      if(!st.signedIn){ show('signin'); $('#signout').hidden = true; loadGsi(st.googleClientId); return; }
+      if(!st.allowed){ show('denied'); $('#deniedMsg').textContent = st.email+' is not on the admin list, so no numbers are shown.'; return; }
+      show(null); $('#signout').hidden = false; load(); return;
+    }
+    if(!st.hasCredentials){ $('#setup').hidden = false; $('#filters').hidden = false; } else load();
+  }catch(e){ if(ONLINE) show('unconfigured'), $('#unconfMsg').textContent = 'Could not reach the server.'; else load(); }
+}
+start();
 </script>
 </body>
 </html>

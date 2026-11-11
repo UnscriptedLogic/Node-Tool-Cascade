@@ -82,6 +82,23 @@ by country, for production or dev over 7, 30 or 90 days, in light or dark, each 
 reads with your token on the server side (the page never receives it), and asks for the account id and token once; saving them is
 optional and goes to `scripts/analytics.local.env`, which git ignores. `node scripts/admin/server.js --demo` shows made-up numbers.
 
+**Dashboard online.** The same dashboard is served at `/admin` on each Worker (https://cascade.unscriptedlogic.com/admin), for
+signed-in Google accounts on an allowlist. Anyone else sees a sign-in prompt, or "not on the admin list", and never any numbers. It
+reads both datasets, so the Production and Dev toggle works from either site. Three secrets make it work, set per Worker:
+
+```bash
+# who may look: comma-separated Google emails (a secret, so no address is in the repo)
+npx wrangler secret put ADMIN_EMAILS -c worker/wrangler.toml
+# your Cloudflare account id
+npx wrangler secret put CF_ACCOUNT_ID -c worker/wrangler.toml
+# a token with Account > Account Analytics > Read (make a new one just for this)
+npx wrangler secret put ANALYTICS_READ_TOKEN -c worker/wrangler.toml
+# dev: add --env dev to each
+```
+
+Until all three exist the page says which are missing. The token only ever lives in the Worker; the page receives finished numbers.
+Responses are `no-store` and marked `noindex`. To take access away, remove the email from `ADMIN_EMAILS`, or delete the token secret.
+
 **Page views.** In the Cloudflare dashboard open *Analytics & Logs > Web Analytics > Add a site*, enter the hostname
 (`cascade.unscriptedlogic.com`, and again for `cascade-dev.unscriptedlogic.com`), choose manual setup, and copy the token from the
 snippet (`data-cf-beacon='{"token": "..."}'`). Put it in `CF_BEACON_TOKEN` in `wrangler.toml` for that environment. The token is

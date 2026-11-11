@@ -12,7 +12,7 @@ routes = [{ pattern = "cascade.unscriptedlogic.com", custom_domain = true }]
 directory = "../dist/web"          # created by `npm run build`
 binding = "ASSETS"
 # the page itself goes through the Worker too, so the page-view counter can be added to it
-run_worker_first = ["/api/*", "/", "/index.html"]
+run_worker_first = ["/api/*", "/", "/index.html", "/admin", "/admin/"]
 
 [[d1_databases]]
 binding = "DB"
@@ -38,7 +38,7 @@ routes = [{ pattern = "cascade-dev.unscriptedlogic.com", custom_domain = true }]
 [env.dev.assets]
 directory = "../dist/web"
 binding = "ASSETS"
-run_worker_first = ["/api/*", "/", "/index.html"]
+run_worker_first = ["/api/*", "/", "/index.html", "/admin", "/admin/"]
 
 [[env.dev.d1_databases]]
 binding = "DB"
