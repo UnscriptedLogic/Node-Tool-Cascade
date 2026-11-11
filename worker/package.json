@@ -1,0 +1,6 @@
+{
+  "name": "cascade-worker",
+  "private": true,
+  "type": "module",
+  "description": "Cascade on Cloudflare Workers + D1. Run from the repo root: npm run worker:dev, npm run worker:deploy."
+}

@@ -1,0 +1,18 @@
+# Cascade on Cloudflare: one Worker serves the web app (static files) and the /api routes, with D1 for storage.
+# Deploy steps are in worker/README.md.
+name = "cascade"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "../dist/web"          # created by `npm run build`
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cascade"
+database_id = "REPLACE_WITH_YOUR_D1_ID"   # printed by `wrangler d1 create cascade`
+
+[vars]
+GOOGLE_CLIENT_ID = "REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com"
