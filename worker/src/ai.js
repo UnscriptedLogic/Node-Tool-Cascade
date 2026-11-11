@@ -6,6 +6,7 @@ import providers from '../../shared/providers.js';
 import sharedUtil from '../../shared/util.js';
 
 const { streamModel, listModels, exchangeOpenRouter } = providers;
+import { record, userHash } from './analytics.js';
 const { ProviderError, clamp, str } = sharedUtil;
 
 export const NAMES = ['openrouter','anthropic','openai','custom','demo'];
@@ -120,7 +121,11 @@ const upstream = (e) => json(e.status===401||e.status===403 ? 401 : e.status===4
 export async function handleAi({ request, path, method, env, store, uid, bodyOf, now }){
   try{
     if(path==='/api/settings' && method==='GET') return json(200,publicSettings(await loadAi(store,uid)));
-    if(path==='/api/settings' && method==='POST'){ await applyPatch(env,store,uid,await bodyOf(),now); return json(200,publicSettings(await loadAi(store,uid))); }
+    if(path==='/api/settings' && method==='POST'){
+      const patch = await bodyOf(); await applyPatch(env,store,uid,patch,now);
+      for(const [n,v] of Object.entries((patch && patch.providers) || {})) if(v && typeof v.key==='string' && v.key.trim()) await record(env,request,'ai_key_saved',{ label:n },{ signedIn:true, visitor:await userHash(env,uid) });
+      return json(200,publicSettings(await loadAi(store,uid)));
+    }
 
     if(path==='/api/models' && method==='POST'){
       const b = await bodyOf();
@@ -164,17 +169,18 @@ async function sample({ request, env, store, uid, bodyOf }){
   const { cfg, why } = await resolveForCall(env,store,uid,ai.active,{});
   if(why) return json(401,{ error:'not_ready', detail:why+' Open Settings.' });
 
+  const t0 = Date.now(), measure = (outcome) => userHash(env,uid).then(visitor=>record(env,request,'ai_call',{ label:ai.active, outcome, ms:Date.now()-t0 },{ signedIn:true, visitor }));
   const { readable, writable } = new TransformStream(), w = writable.getWriter(), te = new TextEncoder();
   const send = (o) => w.write(te.encode('data: '+JSON.stringify(o)+'\n\n')).catch(()=>{});
   let started = false, early = null, release; const first = new Promise(r=>{ release = r; });
   (async()=>{
     try{
       await streamModel(cfg,{ prompt:b.prompt, signal:request.signal, temperature:typeof b.temperature==='number' ? b.temperature : undefined, maxTokens:clamp(+b.maxTokens || 1800,100,8000) },t => { started = true; release(); send({ t }); });
-      started = true; release();
+      started = true; release(); await measure('ok');
     }catch(e){
       if(e && e.name==='AbortError'){ started = true; release(); }
-      else if(!started){ early = e; release(); return; }
-      else await send({ error:e && e.message || 'The provider stopped.' });
+      else if(!started){ early = e; await measure('error'); release(); return; }
+      else { await send({ error:e && e.message || 'The provider stopped.' }); await measure('error'); }
     }
     try{ await w.close(); }catch(e){}
   })();

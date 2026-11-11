@@ -133,6 +133,7 @@ async function placeBlock(type,text,wpos,pend,signal){
   const ntype = BLOCKS.includes(res.type) ? res.type : type;
   if(S.mode==='outer') setMode('detail');
   pushHist(); pend.remove();
+  track('block_created',{label:ntype});   // a person placed this block
   const id = addNode({type:ntype,text,parent,rel:cleanRel(res.relation),mood:MOODS[res.mood]?res.mood:(ntype==='emotion'?moodGuess(text):undefined),spawn:wpos});
   (Array.isArray(res.related)?res.related:[]).slice(0,3).forEach(rid=>{ if(S.nodes[rid] && rid!==parent && rid!==id) S.links.push({a:id,b:rid,kind:'rel'}); });
   S.sel = null; flashId = id; setTimeout(()=>{ if(flashId===id){ flashId=null; kick(); } },7000);
@@ -150,6 +151,7 @@ async function placeBlock(type,text,wpos,pend,signal){
 async function expandFrom(fid,signal,mode){
   const back = mode==='back', chart = mode==='chart', bridge = mode==='bridge';
   const GS = GROW[PREFS.growSize] || GROW.medium;
+  track('grow',{label:chart ? 'chart' : bridge ? 'bridge' : back ? 'back' : 'forward'});
   if(!aiAvailable()){ showNote([aiNeed(chart ? 'Charting' : 'Growing branches')],false); setBusy(null); return; }
   const f = S.nodes[fid]; if(!f){ setBusy(null); return; }
   f.collapsed = false; stopReveal = false;
@@ -265,6 +267,7 @@ Rules:
   else if(chart && !stopReveal) showNote([`Charted ${count} suggestions against the destination. Keep the ones that belong.`],false);
   else if(bridge && !stopReveal){
     const gap = verdict && typeof verdict.gap==='string' ? verdict.gap.trim().slice(0,220) : '';
+    if(verdict) track('bridge_result',{outcome:verdict.verdict==='gap' ? 'gap' : 'bridged'});
     if(verdict && verdict.verdict==='gap'){
       showNote([{b:'Not bridged yet. '},gap || `The tree is too far from “${f.text}” to connect without more of your decisions.`,' Starting a grill to find the missing step.'],false);
       setBusy(null); updateHud();

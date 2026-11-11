@@ -1,9 +1,9 @@
 'use strict';
 /* ================= actions ================= */
-function acceptGhost(id){ pushHist(); acceptChain(id); const r=R[id]; if(r){ r.settle=true; setTimeout(()=>{ r.settle=false; restyle(); },600); } commit(); }
-function dismissGhost(id){ pushHist(); removeSubtree(id); commit(); }
-function keepAll(){ pushHist(); for(const id in S.nodes) S.nodes[id].ghost = false; commit(); }
-function dismissAll(){ pushHist(); Object.values(S.nodes).filter(n=>n.ghost).forEach(n=>removeSubtree(n.id)); commit(); }
+function acceptGhost(id){ pushHist(); { const chain = []; let n = S.nodes[id]; while(n){ chain.push(n.id); n = n.parent && S.nodes[n.parent]; } trackGhosts('block_approved',chain); } acceptChain(id); const r=R[id]; if(r){ r.settle=true; setTimeout(()=>{ r.settle=false; restyle(); },600); } commit(); }
+function dismissGhost(id){ pushHist(); trackGhosts('block_dismissed',[id,...descendants(id)]); removeSubtree(id); commit(); }
+function keepAll(){ pushHist(); trackGhosts('block_approved',Object.keys(S.nodes)); for(const id in S.nodes) S.nodes[id].ghost = false; commit(); }
+function dismissAll(){ pushHist(); trackGhosts('block_dismissed',Object.keys(S.nodes)); Object.values(S.nodes).filter(n=>n.ghost).forEach(n=>removeSubtree(n.id)); commit(); }
 function deleteNode(id,branch){
   const n = S.nodes[id]; if(!n) return;
   if(n.ghost) return dismissGhost(id);

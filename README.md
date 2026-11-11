@@ -88,6 +88,23 @@ questions, using the vocabulary of that domain. Profiles live in `app/js/core/pr
 The **Library** tab keeps several Cascades, grouped in folders. The open Cascade saves itself as you work. The local app stores
 them on your computer; the Cloudflare version stores them in your account (see [worker/README.md](worker/README.md)). Signed in on the web, you can also save your own Claude, OpenAI or OpenRouter key to your account and use it from any device. It is stored encrypted and used only from the server.
 
+## What is measured
+
+The hosted version (cascade.unscriptedlogic.com) counts how it is used, so the project can see what is worth improving. It is
+anonymous and deliberately small:
+
+- **Page views** by Cloudflare Web Analytics, which uses no cookies.
+- **Counts of actions**: visits, blocks placed by a person, AI suggestions kept or dismissed (by block type), which AI provider was
+  used (Claude, OpenAI, OpenRouter, custom) and whether the call worked, sign-ins, Cascades and folders created, and use of grow,
+  bridge, ask, grill and the domain picker.
+- **Never**: tree text, prompts, answers, API keys, names, emails, addresses or browser details. Visitors who are not signed in
+  get a hash that changes daily. Signed-in people get one one-way ID so unique users can be counted.
+- **Off switches**: Do Not Track and Global Privacy Control are honoured, and Settings > Data has a switch. The local app and the
+  static GitHub Pages build send nothing.
+
+The list of events and what each one may carry is in [worker/src/analytics.js](worker/src/analytics.js). To read the numbers, run
+`node scripts/analytics-report.js` (see the setup in [worker/README.md](worker/README.md)).
+
 ## Tech stack
 
 - **Runtime:** Node.js 18+ with no runtime dependencies (built-in modules only).

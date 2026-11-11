@@ -50,7 +50,7 @@ export function d1Store(db){
     async upsertUser(u,id,now){
       await db.prepare(`INSERT INTO users (id,google_sub,email,name,picture,created_at) VALUES (?,?,?,?,?,?)
         ON CONFLICT(google_sub) DO UPDATE SET email=excluded.email, name=excluded.name, picture=excluded.picture`).bind(id,u.sub,u.email,u.name,u.picture,now).run();
-      return db.prepare('SELECT id,email,name,picture FROM users WHERE google_sub=?').bind(u.sub).first();
+      return db.prepare('SELECT id,email,name,picture,created_at FROM users WHERE google_sub=?').bind(u.sub).first();
     },
     async createSession(userId,tokenHash,expiresAt,now){
       await db.prepare('DELETE FROM sessions WHERE expires_at<?').bind(now).run();   // tidy up as we go

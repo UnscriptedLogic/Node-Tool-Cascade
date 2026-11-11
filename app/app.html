@@ -348,6 +348,11 @@
             <div class="frow"><button class="btn" id="dExport" type="button">Export tree</button><button class="btn" id="dImport" type="button">Import tree</button><input type="file" id="dFile" accept="application/json,.json" hidden></div>
             <small id="dMsg"></small>
           </div>
+          <div class="field" id="dStats" hidden>
+            <span class="lbl">Anonymous usage counts</span>
+            <label class="check"><input type="checkbox" id="dStatsOn"><span>Count how this site is used</span></label>
+            <small>Counts only, such as visits, blocks placed or kept, and which AI provider was used. No tree text, prompts, keys or names, and no cookies. Do Not Track turns it off automatically. The local app sends nothing.</small>
+          </div>
           <div class="field" data-modes="local">
             <span class="lbl">Server</span>
             <small id="sInfo"></small>

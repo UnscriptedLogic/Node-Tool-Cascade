@@ -139,6 +139,7 @@ function renderGrillShell(){
 }
 function gNoteShow(t){ gNote.textContent = t; gNote.hidden = !t; }
 function startGrill(scopeId,focus){
+  track('grill');
   openSide('grill');
   if(!aiAvailable()){ resetG(); renderGrillShell(); const m = $('#gIdleMsg'); m.textContent = aiNeed('Grilling'); m.hidden = false; return; }
   $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.scope = scopeId || null; G.focus = typeof focus==='string' ? focus : ''; renderGrillShell(); nextRound();

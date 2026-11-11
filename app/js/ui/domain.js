@@ -13,7 +13,7 @@ function applyDomain(){
 (function(){
   const sel = $('#gDomain');
   Object.keys(DOMAINS).forEach(id=>{ const o = document.createElement('option'); o.value = id; o.textContent = DOMAINS[id].label; sel.appendChild(o); });
-  sel.addEventListener('change',()=>{ PREFS.domain = sel.value; savePrefs(); applyDomain(); updatePreview(); });
+  sel.addEventListener('change',()=>{ PREFS.domain = sel.value; track('domain_set',{label:sel.value}); savePrefs(); applyDomain(); updatePreview(); });
   syncers.push(applyDomain);
   applyDomain();
 })();

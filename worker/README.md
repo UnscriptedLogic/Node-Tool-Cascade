@@ -58,6 +58,27 @@ it, saving a key answers "not set up on this server yet" and nothing is stored. 
 Custom endpoints must be public https hosts. Anything on your own computer or network (Ollama, LM Studio) only works in the local
 app. Anything a user wants to spend is on their own provider account; there is no per-user rate limit here.
 
+## Usage counts
+
+`src/analytics.js` writes anonymous events to Workers Analytics Engine (one dataset per environment: `cascade_events`,
+`cascade_events_dev`), and adds the Cloudflare Web Analytics page-view counter to the page. The events, their labels and what is
+never stored are listed at the top of that file, and are checked on the server: anything off the lists is dropped.
+
+**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*, then:
+
+```bash
+CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... node scripts/analytics-report.js --env prod --days 30
+```
+
+It prints visits and unique visitors per day, blocks created, kept and dismissed (and the kept percentage), AI calls and unique
+users per provider (`anthropic` is Claude, `openai` is OpenAI), sign-ins, feature use and visits by country. The raw rows can be
+queried with SQL in the dashboard or API; the column layout is in `analytics.js`.
+
+**Page views.** In the Cloudflare dashboard open *Analytics & Logs > Web Analytics > Add a site*, enter the hostname
+(`cascade.unscriptedlogic.com`, and again for `cascade-dev.unscriptedlogic.com`), choose manual setup, and copy the token from the
+snippet (`data-cf-beacon='{"token": "..."}'`). Put it in `CF_BEACON_TOKEN` in `wrangler.toml` for that environment. The token is
+public. The Worker adds the snippet to the page, skipping visitors who send Do Not Track.
+
 ## How it works
 
 | Piece | File |
@@ -65,6 +86,7 @@ app. Anything a user wants to spend is on their own provider account; there is n
 | Routes: config, Google sign-in, sessions, library | `src/index.js` |
 | Google ID token check (RS256 against Google's keys, audience, issuer, expiry) | `src/auth.js` |
 | D1 storage: folders, Cascades, users, sessions | `src/d1store.js` |
+| Anonymous usage counts, page-view counter | `src/analytics.js` |
 | AI keys, model calls, streaming | `src/ai.js` (uses `../../shared/providers.js`, the same adapters as the local app) |
 | Library rules shared with the local app | `../shared/library.js` |
 
