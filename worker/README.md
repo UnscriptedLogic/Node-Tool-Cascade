@@ -23,6 +23,20 @@ Saved Cascades and folders live in D1 (SQLite). Nothing here runs the AI: web us
    ```
    Local preview with a local D1: `npm run worker:dev` (apply `schema.sql` without `--remote` first).
 
+## Two environments
+
+| | Branch | Address | Worker | Database | Deploy |
+| --- | --- | --- | --- | --- | --- |
+| Production | `main` | https://cascade.unscriptedlogic.com | `cascade` | `cascade` | `npm run worker:deploy` |
+| Dev | `dev` | https://cascade-dev.unscriptedlogic.com | `cascade-dev` | `cascade-dev` | `npm run worker:deploy:dev` |
+
+The two never share data or sessions. Add both addresses as authorised JavaScript origins on the Google OAuth client. For a new
+environment, create its database (`wrangler d1 create`), apply `schema.sql` to it with `--env <name>`, and add an `[env.<name>]`
+block to `wrangler.toml` (bindings are not inherited).
+
+`.github/workflows/deploy.yml` deploys on every push: `main` to production, `dev` to dev, after the tests pass. It needs the
+repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+
 ## How it works
 
 | Piece | File |

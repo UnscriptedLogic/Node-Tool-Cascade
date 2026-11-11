@@ -1,9 +1,11 @@
 # Cascade on Cloudflare: one Worker serves the web app (static files) and the /api routes, with D1 for storage.
+# Two deployments, each with its own database so testing never touches real data:
+#   production  (main branch)  cascade.unscriptedlogic.com       npm run worker:deploy
+#   dev         (dev branch)   cascade-dev.unscriptedlogic.com   npm run worker:deploy:dev
 # Deploy steps are in worker/README.md.
 name = "cascade"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
-
 routes = [{ pattern = "cascade.unscriptedlogic.com", custom_domain = true }]
 
 [assets]
@@ -14,7 +16,25 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "cascade"
-database_id = "87c74242-a137-4b3a-bc4f-fe8551a5dbbe"   # printed by `wrangler d1 create cascade`
+database_id = "87c74242-a137-4b3a-bc4f-fe8551a5dbbe"
 
 [vars]
+GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
+
+# ---- dev: bindings are not inherited, so they are repeated ----
+[env.dev]
+name = "cascade-dev"
+routes = [{ pattern = "cascade-dev.unscriptedlogic.com", custom_domain = true }]
+
+[env.dev.assets]
+directory = "../dist/web"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "cascade-dev"
+database_id = "1a2b3615-81f0-4662-842e-75547d5ea902"
+
+[env.dev.vars]
 GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"

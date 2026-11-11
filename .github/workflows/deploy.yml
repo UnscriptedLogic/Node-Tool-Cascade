@@ -1,0 +1,32 @@
+name: Deploy to Cloudflare
+
+# main -> cascade.unscriptedlogic.com, dev -> cascade-dev.unscriptedlogic.com.
+# One-time setup: add repository secrets CLOUDFLARE_API_TOKEN (permissions: Workers Scripts Edit, D1 Edit, Account Settings Read,
+# and Zone DNS Edit / Workers Routes Edit for unscriptedlogic.com) and CLOUDFLARE_ACCOUNT_ID.
+on:
+  push:
+    branches: [main, dev]
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          REPO_URL: https://github.com/${{ github.repository }}
+      - name: Deploy
+        run: npx wrangler deploy ${{ github.ref_name == 'dev' && '--env dev' || '' }} -c worker/wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

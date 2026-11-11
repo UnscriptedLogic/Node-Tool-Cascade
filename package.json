@@ -31,8 +31,9 @@
     "start": "node server/server.js",
     "build": "node scripts/build.js",
     "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js test/domain.test.js test/library.test.js test/worker.test.js test/library.ui.test.js test/bridge.test.js",
-    "worker:dev": "npm run build && npx wrangler dev -c worker/wrangler.toml",
-    "worker:deploy": "npm run build && npx wrangler deploy -c worker/wrangler.toml"
+    "worker:dev": "npm run build && npx wrangler dev --env dev -c worker/wrangler.toml",
+    "worker:deploy": "npm run build && npx wrangler deploy -c worker/wrangler.toml",
+    "worker:deploy:dev": "npm run build && npx wrangler deploy --env dev -c worker/wrangler.toml"
   },
   "devDependencies": {
     "jsdom": "^26.0.0"
