@@ -17,4 +17,4 @@ database_name = "cascade"
 database_id = "87c74242-a137-4b3a-bc4f-fe8551a5dbbe"   # printed by `wrangler d1 create cascade`
 
 [vars]
-GOOGLE_CLIENT_ID = "REPLACE_WITH_YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
