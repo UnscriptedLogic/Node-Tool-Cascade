@@ -15,7 +15,8 @@
 - After you drop a block it grows ghost branches in waves: answers, then follow-up questions and consequences, then
   emotions. The sparkle button grows any node on demand.
 - Emotion blocks **trace back** instead: "why" questions about likely causes, linked to existing nodes.
-- Settings > Behavior controls auto-grow, auto trace-back, growth size and creativity.
+- When the tree already has questions or answers, an emotion block is **bridged** instead: new questions grow from your existing nodes toward the feeling while the causes are traced back from it, and the two chains are linked where they meet. If they cannot meet, a grill starts on the missing step. You can also bridge from the Bridge button on any emotion block.
+- Settings > Behavior controls auto-grow, auto trace-back and bridging, growth size and creativity.
 
 ## Goal and steering
 Settings > Goal & steering. Write an overarching goal, optional game context, pillars and things to avoid, and choose

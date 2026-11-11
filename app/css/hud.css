@@ -1,0 +1,56 @@
+/* ---------- HUD ---------- */
+.hud{position:absolute;z-index:6}
+.pill{display:flex;align-items:center;gap:9px;padding:7px 13px;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:13px;color:var(--ink2)}
+#status{left:14px;top:14px;max-width:calc(100% - 260px)}
+#status .dot{width:8px;height:8px;border-radius:50%;background:var(--edge);flex:none}
+#status.busy .dot{background:var(--focus);animation:pulse 1s ease-in-out infinite}
+#ctrl{right:14px;top:14px;display:flex;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;background:var(--paper);overflow:hidden}
+.seg button{border:0;background:none;padding:7px 11px;font-size:13px;color:var(--ink2);min-width:34px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--ink)}
+.btn:hover{border-color:var(--ink2)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+.linkbtn{border:0;background:none;padding:0 2px;color:var(--focus);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#ghostbar{left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:12px;background:var(--paper);border:1.5px dashed var(--ink2);font-size:13.5px;white-space:nowrap}
+#note{left:14px;bottom:18px;max-width:min(380px,calc(50% - 130px));padding:10px 14px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:13px;line-height:1.4;display:flex;gap:12px;align-items:flex-start}
+#note span{flex:1}
+#note b{font-weight:600}
+
+#compose{position:absolute;z-index:8;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:11px 12px 10px;display:flex;flex-direction:column;gap:8px}
+#compose .chead{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--ink2)}
+#compose .ico{display:inline-flex;width:15px;height:15px}
+#compose textarea{width:100%;border:0;resize:none;background:transparent;font:inherit;font-size:14.5px;line-height:1.35;color:var(--ink);outline:none;min-height:58px}
+#compose textarea::placeholder{color:var(--ink2);opacity:.7}
+#compose .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--ink2)}
+.pending{position:absolute;z-index:7;width:224px;pointer-events:none;background:linear-gradient(100deg,var(--paper) 30%,var(--paper2) 50%,var(--paper) 70%);background-size:250% 100%;animation:shimmer 1.2s linear infinite}
+#chip{position:fixed;left:0;top:0;z-index:70;pointer-events:none;width:176px;opacity:.95}
+#empty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;z-index:1;padding:24px}
+#empty p{margin:0;max-width:300px;text-align:center;color:var(--ink2);font-size:15px;line-height:1.45}
+#empty b{display:block;color:var(--ink);font-size:19px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+
+@keyframes pulse{50%{opacity:.35}}
+@keyframes hot{0%{box-shadow:0 0 0 0 var(--focus)}100%{box-shadow:0 0 0 16px transparent}}
+@keyframes breathe{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--focus) 30%,transparent)}}
+@keyframes settle{0%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes shimmer{to{background-position:-250% 0}}
+@media (prefers-reduced-motion: reduce){
+  .node,.node .in{transition:none}
+  .node.hot .in,.node.growing .in,.node.settle .in,.pending,#status.busy .dot{animation:none}
+}
+
+@media (max-width:760px){
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  #rail{order:2;flex-direction:row;align-items:center;padding:9px 10px;border-right:0;border-top:1px solid var(--line);gap:8px;overflow-x:auto;overflow-y:hidden}
+  .brand,.legend,.rail-foot{display:none}
+  .tiles{flex-direction:row;flex:1;gap:6px;min-width:440px}
+  button.tile{padding:9px 4px;justify-content:center;font-size:12px;gap:0}
+  button.tile .ico{display:none}
+  button.tile .txt{flex:none}
+  #status{max-width:calc(100% - 28px);top:58px}
+  #ctrl{left:14px;right:14px;justify-content:space-between}
+  #note{bottom:70px;max-width:calc(100% - 28px)}
+  #ghostbar{bottom:14px}
+}
+

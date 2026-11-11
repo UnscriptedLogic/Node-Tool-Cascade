@@ -62,7 +62,7 @@ function script(prompt){
 async function setup(t){
   mock.log.length = 0; mock.state.script = script;
   const s = await bootServer(t,mock);
-  await fetch(s.base+'/api/settings',{ method:'POST', headers:{ 'content-type':'application/json' }, body:J({ active:'openai', providers:{ openai:{ key:'oa-key-9999', model:'gpt-x-mini' } } }) });
+  await fetch(s.base+'/api/settings',{ method:'POST', headers:{ 'content-type':'application/json' }, body:J({ active:'openai', providers:{ openai:{ key:'oa-key-9999', model:'gpt-x-mini' } }, prefs:{ domain:'game' } }) });
   const a = await page(s); await sleep(500);
   a.escape();   // first run opens Settings; start from the canvas
   return { s, a, root:makeUnity() };

@@ -1,0 +1,43 @@
+{
+  "css": [
+    "css/base.css",
+    "css/rail.css",
+    "css/blocks.css",
+    "css/stage.css",
+    "css/hud.css",
+    "css/goal-settings.css",
+    "css/map.css",
+    "css/ask.css",
+    "css/interaction.css",
+    "css/look-editor.css",
+    "css/project.css",
+    "css/library.css"
+  ],
+  "js": [
+    "js/core/constants.js",
+    "js/core/profiles.js",
+    "js/core/state.js",
+    "js/core/dom.js",
+    "js/core/tree.js",
+    "js/canvas/look.js",
+    "js/canvas/view.js",
+    "js/canvas/layout.js",
+    "js/canvas/edges.js",
+    "js/ui/hud.js",
+    "js/ui/actions.js",
+    "js/ai/prompts.js",
+    "js/ui/compose.js",
+    "js/canvas/interaction.js",
+    "js/ui/controls.js",
+    "js/ai/transport.js",
+    "js/core/server.js",
+    "js/ui/settings.js",
+    "js/ui/domain.js",
+    "js/features/map.js",
+    "js/features/ask.js",
+    "js/ui/look-editor.js",
+    "js/features/project.js",
+    "js/features/library.js",
+    "js/boot.js"
+  ]
+}

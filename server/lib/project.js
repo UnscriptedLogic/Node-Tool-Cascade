@@ -1,5 +1,5 @@
 'use strict';
-// Project folders: read a game project (design notes, code, configs) and turn it into
+// Project folders: read a project (notes, documents, code, configs; game projects get extra care) and turn it into
 //   - an index you can search, so answers can cite the files they came from
 //   - compact per-file digests, so an AI can summarise a whole project without reading every line
 // Everything here is local and read-only. Nothing leaves this machine until the page sends a prompt.
@@ -184,7 +184,7 @@ function digestFile(rel,text,ext){
 }
 
 /* --------------------------- design relevance, to decide what to read first --------------------------- */
-const DESIGN_WORDS = /(player|character|hero|enemy|boss|npc|ability|skill|spell|combat|battle|attack|weapon|damage|health|inventory|item|loot|quest|dialog|dialogue|story|level|world|map|zone|biome|spawn|wave|camera|input|control|movement|move|jump|traverse|travel|stamina|upgrade|progress|economy|shop|crafting|save|checkpoint|game|manager|state|machine|ai|behaviou?r|rule|config|setting|balance|tuning|data|design|gdd|readme|notes|todo|roadmap)/i;
+const DESIGN_WORDS = /(player|character|hero|enemy|boss|npc|ability|skill|spell|combat|battle|attack|weapon|damage|health|inventory|item|loot|quest|dialog|dialogue|story|level|world|map|zone|biome|spawn|wave|camera|input|control|movement|move|jump|traverse|travel|stamina|upgrade|progress|economy|shop|crafting|save|checkpoint|game|manager|state|machine|ai|behaviou?r|rule|config|setting|balance|tuning|data|design|gdd|readme|notes|todo|roadmap|plan|spec|requirement|proposal|decision|strategy|goal|principle|overview|summary|research|method|report|draft|chapter|architecture|adr|rfc)/i;
 const DEMOTE = /(test|tests|spec|mock|editor|tools?|debug|example|sample|demo|migration|generated|\.min\.|vendor|thirdparty|third_party|plugin|stub)/i;
 function relevance(rel,ext,digest,size){
   let s = 0;

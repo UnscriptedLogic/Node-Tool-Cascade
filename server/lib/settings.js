@@ -16,11 +16,13 @@ const ENV = {
   custom:{ key:process.env.CASCADE_CUSTOM_API_KEY, base:process.env.CASCADE_CUSTOM_BASE_URL, model:process.env.CASCADE_CUSTOM_MODEL }
 };
 
-const DEFAULT_PREFS = { goal:'', context:'', pillars:'', avoid:'', steer:'balanced', autoGrow:true, autoTrace:true, growSize:'medium', creativity:0.7, theme:'system', pushback:true, grillStyle:'round', quitOnClose:false , useProject:true, askFiles:true};
+const DOMAINS = ['general','product','research','game'];
+const DEFAULT_PREFS = { domain:'general', goal:'', context:'', pillars:'', avoid:'', steer:'balanced', autoGrow:true, autoTrace:true, growSize:'medium', creativity:0.7, theme:'system', pushback:true, grillStyle:'round', quitOnClose:false , useProject:true, askFiles:true};
 function sanitizePrefs(p){
   p = p && typeof p==='object' ? p : {};
   const out = Object.assign({},DEFAULT_PREFS);
   for(const [k,max] of [['goal',600],['context',1200],['pillars',1200],['avoid',800]]) if(typeof p[k]==='string') out[k] = p[k].slice(0,max);
+  out.domain = DOMAINS.includes(p.domain) ? p.domain : (Object.keys(p).length ? 'game' : 'general');   // saved before domains existed means game design
   if(['light','balanced','strong'].includes(p.steer)) out.steer = p.steer;
   if(['small','medium','large'].includes(p.growSize)) out.growSize = p.growSize;
   if(['system','light','dark'].includes(p.theme)) out.theme = p.theme;

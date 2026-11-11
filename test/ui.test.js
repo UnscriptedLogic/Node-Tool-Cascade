@@ -32,7 +32,7 @@ function scriptedClaude(calls = []){
       : ['What counts as a long trip?','Should travel ever be skippable?','How long is a fight?','What should crossing feel like?'].map((q,i)=>J({ id:'q'+i, parent:'n6', text:q, why:'Matters.', ticket:'talk', grillable:true })).join('\n');
     else if(prompt.includes('sharp but fair design interviewer')) text = prompt.includes('ANSWER: weak answer') ? J({ verdict:'challenge', text:'What about players who never find it?' }) : J({ verdict:'solid', text:'' });
     else if(prompt.includes('charting a map of decisions')) text = [{ id:'t1', parent:'n6', type:'question', text:'Who earns a shortcut?', ticket:'talk', blockedBy:[] },{ id:'t2', parent:'t1', type:'question', text:'What does a shortcut look like?', ticket:'prototype', blockedBy:['t1'] },{ id:'t3', parent:'n6', type:'fog', text:'Camera on long routes' }].map(J).join('\n');
-    else if(prompt.includes('backtrack from a player emotion')){ const f = prompt.match(/EMOTION NODE: (n\d+)/)[1]; text = [{ id:'g1', parent:f, type:'question', text:'Is the ground too empty?', links:['n7'], wave:1 },{ id:'g2', parent:f, type:'question', text:'Is walking too slow?', links:[], wave:1 }].map(J).join('\n'); }
+    else if(prompt.includes('backtrack from an emotion')){ const f = prompt.match(/EMOTION NODE: (n\d+)/)[1]; text = [{ id:'g1', parent:f, type:'question', text:'Is the ground too empty?', links:['n7'], wave:1 },{ id:'g2', parent:f, type:'question', text:'Is walking too slow?', links:[], wave:1 }].map(J).join('\n'); }
     else if(prompt.includes('placement engine')) text = J({ type:'question', parent:'n6', relation:'proposed fix', related:[], mood:null, reason:'Fix for traversal.' });
     else if(prompt.includes('You grow a game-design decision tree')){ const f = prompt.match(/FOCUS NODE: (n\d+)/)[1]; text = [{ id:'g1', parent:f, type:'answer', text:'Forward answer', wave:1 }].map(J).join('\n'); }
     if(o.onText && text) o.onText({ text:text.slice(0,25) });
@@ -74,7 +74,9 @@ test('dragging never selects text: pan, node drag and palette drag block selecti
   assert.equal(ds(a.$('.node .txt')),true); assert.equal(ds(a.$('.brand')),true);
   a.click(tile); assert.equal(ds(a.$('#compose textarea')),false);
   // text you are meant to edit or copy stays selectable
-  const css = fs.readFileSync(path.join(ROOT,'app','app.html'),'utf8');
+  const css = require('../scripts/assemble').assemble({ inline:true });
+  assert.ok(!/\.node:hover \.bar/.test(css),'the block action bar appears on click, not on hover');
+  assert.match(css,/\.node\.sel \.bar\{display:flex/);
   assert.match(css,/#stage,#rail\{user-select:none/);
   assert.match(css,/#stage \[contenteditable="true"\],#side,#compose,#note\{user-select:text/);
   assert.deepEqual(a.errs,[]);
@@ -252,7 +254,7 @@ async function bootServer(t,env = {}){
   return { p, port, base, dir, fetchImpl:(u,o)=>fetch(new URL(u,base+'/'),o) };
 }
 async function page(s,extra = {}){
-  const html = await (await fetch(s.base+'/')).text();
+  const html = require('../scripts/assemble').inlineParts(await (await fetch(s.base+'/')).text());
   return open({ html, url:s.base+'/', fetchImpl:s.fetchImpl, ...extra });
 }
 test('local: first run offers every way to connect, with the demo already working',async(t)=>{

@@ -1,0 +1,45 @@
+/* ---------- ask the graph: threads + spotlight ---------- */
+:root{--t0:var(--focus);--t1:var(--ink);--t2:#B7791F}
+#hlchip{left:14px;top:94px;max-width:min(440px,calc(100% - 260px));font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
+#hlchip .hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hlchip .linkbtn{flex:none;pointer-events:none}
+#th path{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-dasharray:12 9;animation:flow 1.1s linear infinite;opacity:.95}
+#th path.t0{stroke:var(--t0)}
+#th path.t1{stroke:var(--t1)}
+#th path.t2{stroke:var(--t2)}
+@keyframes flow{to{stroke-dashoffset:-21}}
+#world.spot #eg{opacity:.2}
+#world.spot .node{opacity:.28}
+#world.spot .node.in-thread{opacity:1}
+.node.in-thread .in{box-shadow:0 0 0 3px var(--tc)}
+.node.in-thread::before{content:attr(data-step);position:absolute;left:-11px;top:-11px;width:23px;height:23px;border-radius:50%;background:var(--tc);color:var(--bg);font:800 12px/23px var(--font);text-align:center;z-index:6}
+.averdict{display:inline-block;font-size:12px;font-weight:700;padding:3px 11px;border-radius:99px;border:1px solid var(--line);margin:16px 0 9px}
+.averdict.answered{background:#19877A;color:#fff;border-color:#19877A}
+.averdict.partial{background:#F2B33D;color:#2B1E00;border-color:#F2B33D}
+.averdict.unanswered{border-style:dashed;color:var(--ink2)}
+.aanswer{font-size:14px;line-height:1.5;margin-bottom:14px}
+.athread{border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:10px 12px;margin-bottom:10px}
+.athread.off{opacity:.55}
+.ath-head{display:flex;align-items:center;gap:8px;font-size:13.5px}
+.ath-head b{flex:1;min-width:0}
+.ath-head .btn{padding:2px 10px;font-size:12px}
+.swatch{width:12px;height:12px;border-radius:50%;flex:none}
+.ath-why{color:var(--ink2);font-size:12.5px;margin:5px 0 7px;line-height:1.4}
+.ath-steps{margin:0;padding-left:22px;font-size:13px;line-height:1.4}
+.ath-steps li{margin:4px 0;cursor:pointer}
+.ath-steps li:hover{color:var(--focus)}
+.ath-steps i{font-style:normal;font-size:10.5px;font-weight:700;color:var(--ink2);margin-right:6px;text-transform:uppercase;letter-spacing:.03em}
+.gapitem{font-size:13px;line-height:1.4;padding:7px 10px;border:1px dashed var(--edge);border-radius:10px;margin-bottom:6px}
+.asummary{margin-top:14px;border:1.5px dashed var(--ink2);border-radius:12px;padding:12px 14px}
+.asum-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font-size:13px}
+.asum-head .btn{padding:3px 10px;font-size:12px}
+#aSumText{font-size:13.5px;line-height:1.55;white-space:pre-wrap}
+#aChips{margin-top:8px}
+#bye{position:fixed;inset:0;z-index:95;background:var(--bg);display:grid;place-items:center;padding:24px}
+#bye .card{text-align:center}
+#bye b{font-size:20px;display:block;margin-bottom:6px}
+@media (prefers-reduced-motion: reduce){ #th path{animation:none} }
+@media (max-width:760px){ #hlchip{top:184px;max-width:calc(100% - 28px)} }
+.card a{color:var(--focus);font-weight:600}
+.prov .sub a,.prov p a{color:var(--focus);font-weight:600}
+

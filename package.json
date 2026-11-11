@@ -1,7 +1,7 @@
 {
   "name": "cascade-design-tree",
   "version": "1.0.0",
-  "description": "A design tree that places your ideas, grows branches around them, grills you, and answers questions about the graph.",
+  "description": "A decision tree that places your ideas, grows branches around them, grills you, and answers questions about the graph. For any decision, plan or design.",
   "author": "UnscriptedLogic",
   "homepage": "https://unscriptedlogic.github.io/Node-Tool-Cascade/",
   "repository": {
@@ -12,13 +12,14 @@
     "url": "https://github.com/UnscriptedLogic/Node-Tool-Cascade/issues"
   },
   "keywords": [
-    "game-design",
-    "game-development",
     "decision-tree",
     "ai",
-    "unity",
-    "unreal",
-    "godot",
+    "brainstorming",
+    "planning",
+    "questions",
+    "game-design",
+    "product",
+    "research",
     "design-tools"
   ],
   "license": "MIT",
@@ -29,7 +30,10 @@
   "scripts": {
     "start": "node server/server.js",
     "build": "node scripts/build.js",
-    "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js"
+    "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js test/domain.test.js test/library.test.js test/worker.test.js test/library.ui.test.js test/bridge.test.js",
+    "worker:dev": "npm run build && npx wrangler dev --env dev -c worker/wrangler.toml",
+    "worker:deploy": "npm run build && npx wrangler deploy -c worker/wrangler.toml",
+    "worker:deploy:dev": "npm run build && npx wrangler deploy --env dev -c worker/wrangler.toml"
   },
   "devDependencies": {
     "jsdom": "^26.0.0"

@@ -4,10 +4,11 @@ const { JSDOM } = require('jsdom');
 const fs = require('node:fs'), path = require('node:path'), nodeCrypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname,'..','..');
-const APP = fs.readFileSync(path.join(ROOT,'app','app.html'),'utf8');
+const { assemble } = require('../../scripts/assemble');
+const APP = assemble({ inline:true });
 const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
 // Same transformation scripts/build.js performs for the GitHub Pages version.
-const webHtml = () => APP.replace('<!--RUNTIME-->','<script>window.__WEB__=true;</script>').split('__REPO_URL__').join('https://github.com/example/cascade');
+const webHtml = () => assemble({ inline:true, runtime:'<script>window.__WEB__=true;</script>' }).split('__REPO_URL__').join('https://github.com/example/cascade');
 
 function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local } = {}){
   const errs = [], navigated = [], opened = [];
@@ -22,6 +23,8 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
     if(fetchImpl) w.fetch = fetchImpl;
     if(claude) w.claude = claude;
     if(session) for(const [k,v] of Object.entries(session)) w.sessionStorage.setItem(k,v);
+    // the tests exercise the game-design starter tree unless a test says otherwise
+    if(!(local && local['cascade-prefs-v1'])) w.localStorage.setItem('cascade-prefs-v1',JSON.stringify({ domain:'game' }));
     if(local) for(const [k,v] of Object.entries(local)) w.localStorage.setItem(k,v);
     w.addEventListener('error',e=>errs.push(String(e.error || e.message)));
   } });
