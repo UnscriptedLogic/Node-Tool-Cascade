@@ -25,6 +25,7 @@ let saveTimer = 0;
 function save(){
   const payload = JSON.stringify({tree:snap(),view:S.view});
   try{ localStorage.setItem(KEY,payload); }catch(e){}
+  if(typeof libAfterSave==='function') libAfterSave();
   if(LOCAL){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ fetch('/api/tree',{method:'POST',headers:{'content-type':'application/json'},body:payload}).catch(()=>{}); },400); }
 }
 function pushHist(withView){ hist.push({s:snap(),v:withView?{x:S.view.x,y:S.view.y,z:S.view.z}:null}); if(hist.length>40) hist.shift(); updateHud(); }

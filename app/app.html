@@ -26,7 +26,7 @@
       <h2 data-dom-text="feeling">How people feel</h2>
       <ul id="legend"></ul>
     </div>
-    <div class="rail-foot"><button class="btn" id="resetBtn" type="button">Load example</button><button class="btn" id="clearBtn" type="button">Clear graph</button></div>
+    <div class="rail-foot"><button class="btn" id="railLib" type="button" hidden>Library</button><button class="btn" id="resetBtn" type="button">Load example</button><button class="btn" id="clearBtn" type="button">Clear graph</button></div>
   </aside>
 
   <main id="stage" aria-label="Design tree canvas">
@@ -143,6 +143,7 @@
         <button type="button" role="tab" data-tab="goal" aria-selected="false">Goal &amp; steering</button>
         <button type="button" role="tab" data-tab="behavior" aria-selected="false">Behavior</button>
         <button type="button" role="tab" data-tab="look" aria-selected="false">Appearance</button>
+        <button type="button" role="tab" data-tab="library" id="libTab" hidden aria-selected="false">Library</button>
         <button type="button" role="tab" data-tab="project" data-modes="local" aria-selected="false">Project</button>
         <button type="button" role="tab" data-tab="data" data-modes="local web" aria-selected="false">Data</button>
       </nav>
@@ -221,6 +222,22 @@
             <summary>What the AI is told</summary>
             <pre id="gPreview"></pre>
           </details>
+        </section>
+
+        <section class="spane" id="p-library" role="tabpanel" hidden>
+          <h3>Library</h3>
+          <p class="lead">Keep several Cascades and group them in folders. The one you have open saves itself as you work.</p>
+          <div class="field" id="libAccount" hidden>
+            <span class="lbl">Account</span>
+            <small id="libWho"></small>
+            <div id="libGoogle"></div>
+            <div class="frow"><button class="btn" id="libSignOut" type="button" hidden>Sign out</button><button class="btn small" id="libDeleteAccount" type="button" hidden>Delete my account</button></div>
+          </div>
+          <div class="field" id="libTools" hidden>
+            <div class="frow"><button class="btn primary" id="libNew" type="button">New Cascade</button><button class="btn" id="libFolder" type="button">New folder</button><button class="btn" id="libSaveCur" type="button" hidden>Save the tree I have open</button></div>
+            <small id="libStatus" aria-live="polite"></small>
+          </div>
+          <div id="libList"></div>
         </section>
 
         <section class="spane" id="p-behavior" role="tabpanel" hidden>

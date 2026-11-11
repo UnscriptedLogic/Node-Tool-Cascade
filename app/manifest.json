@@ -10,7 +10,8 @@
     "css/ask.css",
     "css/interaction.css",
     "css/look-editor.css",
-    "css/project.css"
+    "css/project.css",
+    "css/library.css"
   ],
   "js": [
     "js/core/constants.js",
@@ -36,6 +37,7 @@
     "js/features/ask.js",
     "js/ui/look-editor.js",
     "js/features/project.js",
+    "js/features/library.js",
     "js/boot.js"
   ]
 }

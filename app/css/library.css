@@ -1,0 +1,16 @@
+/* ---------- library: Cascades in folders ---------- */
+.field select{font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:8px 10px;max-width:100%}
+.btn.small{padding:4px 10px;font-size:12.5px}
+.btn.danger{border-color:#D94A2B;color:#D94A2B}
+#libList{max-width:760px}
+.lib-folder{margin:0 0 20px}
+.lib-fhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--line)}
+.lib-list{list-style:none;margin:0;padding:0}
+.lib-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 10px;border-bottom:1px solid var(--line);border-radius:9px}
+.lib-row.current{background:var(--paper2)}
+.lib-open{border:0;background:none;font:inherit;font-weight:600;color:var(--ink);padding:0;text-align:left;cursor:pointer}
+.lib-open:hover{text-decoration:underline}
+.lib-name-input{font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--focus);border-radius:8px;background:var(--paper);color:var(--ink);min-width:200px}
+.lib-meta{color:var(--ink2);font-size:12.5px;flex:1 1 auto}
+.lib-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lib-actions select{padding:4px 8px;font-size:12.5px}

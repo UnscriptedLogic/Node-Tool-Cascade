@@ -11,3 +11,4 @@ if(new URLSearchParams(location.search).has('code')) finishOpenRouterLogin();
 else if(LOCAL && SRV && SRV.active==='demo'){
   try{ if(!localStorage.getItem('cascade-seen-settings')){ localStorage.setItem('cascade-seen-settings','1'); setTimeout(()=>openSettings('ai'),500); } }catch(e){}
 }
+libInit().catch(()=>{});   // finds the library this page can use, if any
