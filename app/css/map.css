@@ -1,0 +1,61 @@
+/* ---------- map layer + side panel ---------- */
+#ctrl{right:calc(14px + var(--drawer,0px))}
+#ghostbar{left:calc((100% - var(--drawer,0px))/2)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#edges path.block{stroke:var(--focus);stroke-dasharray:7 5;stroke-width:2;opacity:.9}
+.mbadge{display:none;flex:0 0 100%;gap:5px;flex-wrap:wrap;padding-left:23px}
+#world.maplayer .mbadge:not(:empty){display:flex}
+#world.far .mbadge{display:none!important}
+.mchip{font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;border:1px solid color-mix(in srgb,currentColor 35%,transparent);background:color-mix(in srgb,currentColor 10%,transparent);color:inherit;opacity:.9}
+.mchip.settled{background:#19877A;border-color:#19877A;color:#fff}
+.mchip.frontier{background:var(--focus);border-color:var(--focus);color:#fff}
+.mchip.blocked{border-style:dashed}
+.mchip.out,.mchip.fogc{font-style:italic}
+.node.m-frontier .in{box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 32%,transparent)}
+.node.m-blocked .in{opacity:.6}
+.node.m-out .in{opacity:.42;filter:grayscale(1)}
+.node.m-settled .in{border-color:#19877A}
+.node.decided .in{box-shadow:inset 4px 0 0 #19877A}
+.node.linking .in{outline:2px dashed var(--focus);outline-offset:4px}
+
+#side{position:absolute;z-index:7;right:0;top:0;bottom:0;width:380px;background:var(--paper2);border-left:1px solid var(--line);display:flex;flex-direction:column}
+.sidehead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.sidebody{flex:1;min-height:0;overflow-y:auto;padding:16px 16px 48px}
+.msec{margin-bottom:22px}
+.msec h4{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--ink2);display:flex;justify-content:space-between;align-items:center}
+.msec h4 span{font-weight:600}
+.area{width:100%;font:inherit;font-size:14px;line-height:1.4;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 11px;resize:vertical}
+.area:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+.mrow{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.small{font-size:12.5px;color:var(--ink2)}
+#mHint,.gnote{display:block;margin-top:8px;color:var(--ink2);font-size:12.5px;line-height:1.45}
+.prog{height:7px;border-radius:99px;background:var(--line);overflow:hidden;flex:1;min-width:80px}
+.prog i{display:block;height:100%;background:#19877A;width:0;transition:width .4s}
+.mitem{padding:9px 11px;border:1px solid var(--line);background:var(--paper);border-radius:10px;margin-bottom:6px;font-size:13px;line-height:1.38;cursor:pointer}
+.mitem:hover{border-color:var(--ink2)}
+.mitem .dec{color:var(--ink2);margin-top:3px}
+.mrow2{display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap}
+.mrow2 .btn{padding:3px 10px;font-size:12px}
+.chip2{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--paper2);border:1px solid var(--line);color:var(--ink2)}
+.gintro{margin:0 0 14px;font-size:13.5px;line-height:1.5;color:var(--ink2)}
+.ghead{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:12px}
+.gcard{border:2px solid var(--ink);border-radius:3px 14px 14px 14px;background:var(--paper);padding:12px 13px;margin-bottom:12px}
+.gcard.done{border-color:var(--line);border-width:1.5px}
+.gq{font-weight:700;font-size:14.5px;line-height:1.35}
+.gwhy{color:var(--ink2);font-size:12.5px;margin-top:5px;line-height:1.4}
+.gtag{margin-top:7px;font-size:12px;font-weight:600;color:#B7791F}
+.gans{margin-top:10px}
+.gpush{margin-top:9px;padding:8px 11px;border-left:3px solid #D94A2B;background:color-mix(in srgb,#D94A2B 10%,transparent);font-size:13px;line-height:1.42;border-radius:0 8px 8px 0}
+.gbtns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.gbtns .btn{padding:5px 10px;font-size:12.5px}
+.gstate{margin-top:8px;font-size:12.5px;color:var(--ink2);line-height:1.4}
+.gstate .btn{padding:3px 10px;font-size:12px;margin-left:6px}
+.gdone{padding:12px 14px;border:1.5px dashed var(--ink2);border-radius:12px;font-size:13.5px;line-height:1.45;margin-bottom:12px}
+.gfoot{display:flex;gap:8px;margin-top:6px}
+@media (max-width:760px){
+  #side{top:auto;left:0;right:0;width:auto;height:62%;border-left:0;border-top:1px solid var(--line)}
+  #ctrl{flex-wrap:wrap;row-gap:8px;justify-content:flex-start}
+  #status{top:104px}
+  #goalchip{top:144px}
+}
+

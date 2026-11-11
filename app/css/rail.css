@@ -1,0 +1,14 @@
+/* ---------- rail ---------- */
+#rail{background:var(--paper2);border-right:1px solid var(--line);padding:18px 14px 16px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;z-index:5}
+.brand{margin:0;font-weight:800;font-size:24px;letter-spacing:-.03em;line-height:1}
+.brand small{display:block;margin-top:8px;font-weight:400;font-size:12.5px;letter-spacing:0;color:var(--ink2);line-height:1.4}
+.tiles{display:flex;flex-direction:column;gap:9px}
+button.tile{width:100%;text-align:left;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+button.tile:active{cursor:grabbing}
+button.tile.sh-poly{justify-content:center}
+.legend h2{margin:0 0 9px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.legend ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.legend li{display:flex;align-items:center;gap:9px;font-size:13px}
+.legend i{width:12px;height:12px;border-radius:50%;background:var(--c);flex:none}
+.rail-foot{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+

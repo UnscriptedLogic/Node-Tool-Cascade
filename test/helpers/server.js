@@ -14,7 +14,7 @@ async function bootServer(t,mock,env = {}){
   return { p, port, base, dir, fetchImpl:(u,o)=>fetch(new URL(u,base+'/'),o) };
 }
 async function page(s,extra = {}){
-  const html = await (await fetch(s.base+'/')).text();
+  const html = require('../../scripts/assemble').inlineParts(await (await fetch(s.base+'/')).text());
   return open({ html, url:s.base+'/', fetchImpl:s.fetchImpl, ...extra });
 }
 module.exports = { bootServer, page };

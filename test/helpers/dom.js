@@ -4,10 +4,11 @@ const { JSDOM } = require('jsdom');
 const fs = require('node:fs'), path = require('node:path'), nodeCrypto = require('node:crypto');
 
 const ROOT = path.resolve(__dirname,'..','..');
-const APP = fs.readFileSync(path.join(ROOT,'app','app.html'),'utf8');
+const { assemble } = require('../../scripts/assemble');
+const APP = assemble({ inline:true });
 const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
 // Same transformation scripts/build.js performs for the GitHub Pages version.
-const webHtml = () => APP.replace('<!--RUNTIME-->','<script>window.__WEB__=true;</script>').split('__REPO_URL__').join('https://github.com/example/cascade');
+const webHtml = () => assemble({ inline:true, runtime:'<script>window.__WEB__=true;</script>' }).split('__REPO_URL__').join('https://github.com/example/cascade');
 
 function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local } = {}){
   const errs = [], navigated = [], opened = [];

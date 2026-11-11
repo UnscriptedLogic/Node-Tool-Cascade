@@ -23,6 +23,7 @@ const chatgpt = require('./lib/chatgpt');
 const providers = require('./lib/providers');
 const project = require('./lib/project');
 const { pickFolder } = require('./lib/picker');
+const { assemble, APP_DIR } = require('../scripts/assemble');
 
 const PREFERRED = +process.env.PORT || 4173;
 let PORT = PREFERRED;   // the port actually in use; differs when the preferred one is busy
@@ -64,9 +65,16 @@ const server = http.createServer(async (req,res)=>{
       let saved = 'null';
       try{ const raw = fs.readFileSync(TREE_FILE,'utf8'); JSON.parse(raw); saved = raw; }catch(e){}
       const runtime = `<script>window.__LOCAL__=true;window.__SETTINGS__=${inject(pub())};window.__CASCADE_SAVED__=${saved.replace(/</g,'\\u003c')};</script>`;
-      const html = fs.readFileSync(APP_FILE,'utf8').replace('<!--RUNTIME-->',()=>runtime);
+      const html = assemble({ inline:false, runtime });
       res.writeHead(200,{ 'content-type':'text/html; charset=utf-8','cache-control':'no-store' });
       return res.end(html);
+    }
+    if(req.method==='GET' && url.pathname.startsWith('/app/')){   // the page's css and js parts
+      const rel = path.normalize(decodeURIComponent(url.pathname.slice(5)));
+      const file = path.join(APP_DIR,rel);
+      if(rel.startsWith('..') || !/.(css|js)$/.test(rel) || !fs.existsSync(file)) return json(res,404,{ error:'not found' });
+      res.writeHead(200,{ 'content-type':rel.endsWith('.css') ? 'text/css; charset=utf-8' : 'text/javascript; charset=utf-8','cache-control':'no-store' });
+      return res.end(fs.readFileSync(file));
     }
     if(is('GET','/api/ping')) return json(res,200,{ app:'cascade', dir:DATA_DIR, pid:process.pid, port:PORT });
     if(is('GET','/api/settings')) return json(res,200,pub());

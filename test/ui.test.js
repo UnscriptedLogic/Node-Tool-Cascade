@@ -74,7 +74,7 @@ test('dragging never selects text: pan, node drag and palette drag block selecti
   assert.equal(ds(a.$('.node .txt')),true); assert.equal(ds(a.$('.brand')),true);
   a.click(tile); assert.equal(ds(a.$('#compose textarea')),false);
   // text you are meant to edit or copy stays selectable
-  const css = fs.readFileSync(path.join(ROOT,'app','app.html'),'utf8');
+  const css = require('../scripts/assemble').assemble({ inline:true });
   assert.match(css,/#stage,#rail\{user-select:none/);
   assert.match(css,/#stage \[contenteditable="true"\],#side,#compose,#note\{user-select:text/);
   assert.deepEqual(a.errs,[]);
@@ -252,7 +252,7 @@ async function bootServer(t,env = {}){
   return { p, port, base, dir, fetchImpl:(u,o)=>fetch(new URL(u,base+'/'),o) };
 }
 async function page(s,extra = {}){
-  const html = await (await fetch(s.base+'/')).text();
+  const html = require('../scripts/assemble').inlineParts(await (await fetch(s.base+'/')).text());
   return open({ html, url:s.base+'/', fetchImpl:s.fetchImpl, ...extra });
 }
 test('local: first run offers every way to connect, with the demo already working',async(t)=>{
