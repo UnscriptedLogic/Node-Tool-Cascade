@@ -1,5 +1,4 @@
 /* ---------- library: Cascades in folders ---------- */
-.field select{font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:8px 10px;max-width:100%}
 .btn.small{padding:4px 10px;font-size:12.5px}
 .btn.danger{border-color:#D94A2B;color:#D94A2B}
 #libList{max-width:760px}
@@ -14,3 +13,20 @@
 .lib-meta{color:var(--ink2);font-size:12.5px;flex:1 1 auto}
 .lib-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .lib-actions select{padding:4px 8px;font-size:12.5px}
+
+/* one look for every dropdown: same box as .btn, with our own chevron */
+select,.field select,.lib-actions select{
+  -webkit-appearance:none;appearance:none;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;
+  background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none' stroke='%238A94A6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--line);border-radius:8px;padding:6px 28px 6px 12px;max-width:100%;text-overflow:ellipsis}
+select:hover{border-color:var(--ink2)}
+select:focus-visible{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+select option{background:var(--paper);color:var(--ink)}
+.lib-actions select{padding:4px 26px 4px 10px;font-size:12.5px;background-position:right 9px center}
+
+/* which Cascade is open, under the logo */
+.openname{display:block;max-width:100%;margin:-8px 0 0;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font:inherit;font-size:13px;line-height:1.35;text-align:left;cursor:pointer;color:var(--ink);overflow-wrap:anywhere}
+.openname:hover{border-color:var(--ink2)}
+.openname .cf{color:var(--ink2)}
+.openname .cn{font-weight:700}
+.openname.unsaved .cn{font-weight:400;color:var(--ink2);font-style:italic}

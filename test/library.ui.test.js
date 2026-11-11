@@ -19,6 +19,7 @@ test('library UI: appears in the local app, makes Cascades and folders, autosave
   const first = (await j('GET','library')).cascades[0];
   a.type(a.$('.lib-name-input'),'Roadmap'); a.$('.lib-name-input').dispatchEvent(new a.w.KeyboardEvent('keydown',{ key:'Enter', bubbles:true }));
   assert.ok(await until(async()=>(await j('GET','library')).cascades[0].name==='Roadmap'),'renamed');
+  assert.equal(a.$('#openName').hidden,false); assert.equal(a.$('#openName').textContent,'Roadmap','the open Cascade is named under the logo');
 
   // a new, empty Cascade; the one that was open is saved first
   a.click(a.$('#libNew')); assert.ok(await until(async()=>(await j('GET','library')).cascades.length===2));
@@ -40,6 +41,10 @@ test('library UI: appears in the local app, makes Cascades and folders, autosave
   const sel = a.$(`.lib-row[data-id="${first.id}"] select`); a.type(sel,folder.id);
   assert.ok(await until(async()=>(await j('GET','library')).cascades.find(c=>c.id===first.id).folderId===folder.id),'moved into the folder');
   assert.equal(a.$$('.lib-folder[data-folder] .lib-row').length,1);
+  assert.equal(a.$('#openName').textContent,'Experiments','still working in the other Cascade');
+  a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`)); await sleep(400);
+  assert.equal(a.$('#openName').textContent,'Q3 / Roadmap','folder and name');
+  a.click(a.$('#railLib'));
 
   // switch back to the first Cascade: its own (empty or saved) tree and name replace the canvas
   a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`)); await sleep(500);

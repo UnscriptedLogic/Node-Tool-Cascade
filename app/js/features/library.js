@@ -13,7 +13,17 @@ async function libApi(method,path,body){
 }
 const libSignedIn = () => LIB.kind==='local' || !!LIB.user;
 const libCurrent = () => LIB.cascades.find(c=>c.id===LIB.currentId) || null;
-function libRemember(id){ LIB.currentId = id; try{ if(id) localStorage.setItem(LIB_CURRENT,JSON.stringify({ kind:LIB.kind, id })); else localStorage.removeItem(LIB_CURRENT); }catch(e){} }
+function libRemember(id){ LIB.currentId = id; libTitle(); try{ if(id) localStorage.setItem(LIB_CURRENT,JSON.stringify({ kind:LIB.kind, id })); else localStorage.removeItem(LIB_CURRENT); }catch(e){} }
+// "Folder / Name" of the open Cascade, shown under the logo so it is always clear what you are working on
+function libTitle(){
+  const el = $('#openName'); if(!el) return;
+  if(!LIB.kind || !libSignedIn()){ el.hidden = true; return; }
+  const c = libCurrent(), f = c && c.folderId ? LIB.folders.find(x=>x.id===c.folderId) : null;
+  el.hidden = false; el.classList.toggle('unsaved',!c);
+  el.querySelector('.cf').textContent = f ? f.name+' / ' : '';
+  el.querySelector('.cn').textContent = c ? c.name : 'Not in your library yet';
+  el.title = c ? (f ? f.name+' / ' : '')+c.name+'. Open the library.' : 'This tree is not saved in your library. Open the library to save it.';
+}
 function libSetStatus(t){ LIB.status = t; const el = $('#libStatus'); if(el) el.textContent = t; }
 
 // what a saved Cascade holds
@@ -144,6 +154,7 @@ function libCascadeRow(c){
       move, libDeleteBtn('cascade',c)));
 }
 function libRender(){
+  libTitle();
   const list = $('#libList'); if(!list) return;
   const signed = libSignedIn();
   $('#libTools').hidden = !signed;
@@ -206,6 +217,7 @@ async function libInit(){
   $('#libSignOut').addEventListener('click',libSignOut);
   $('#libDeleteAccount').addEventListener('click',libDeleteAccount);
   $('#railLib').addEventListener('click',()=>openSettings('library'));
+  $('#openName').addEventListener('click',()=>openSettings('library'));
   if(LOCAL) LIB.kind = 'local';
   else if(WEB){
     try{
