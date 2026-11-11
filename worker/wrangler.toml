@@ -28,7 +28,7 @@ dataset = "cascade_events"
 GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
 ENV_NAME = "prod"
 # Cloudflare Web Analytics site token for this hostname (public, not a secret). Empty means no page-view counting.
-CF_BEACON_TOKEN = ""
+CF_BEACON_TOKEN = "d9ce13a83c5645e5860b7e15b497d390"
 
 # ---- dev: bindings are not inherited, so they are repeated ----
 [env.dev]
