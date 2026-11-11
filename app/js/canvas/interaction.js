@@ -23,7 +23,7 @@ stage.addEventListener('pointerdown',e=>{
   const nodeEl = e.target.closest('.node');
   if(nodeEl){ nd = {id:nodeEl.dataset.id,sx:e.clientX,sy:e.clientY,drag:false,pid:e.pointerId,set:null,drop:null}; }
   else{
-    pan = {sx:e.clientX,sy:e.clientY,vx:S.view.x,vy:S.view.y}; stage.classList.add('panning');
+    pan = {sx:e.clientX,sy:e.clientY,vx:S.view.x,vy:S.view.y,moved:false}; stage.classList.add('panning');
     if(compose.hidden===false) closeCompose();
     if(S.sel) select(null);
     if(linkFrom){ linkFrom = null; restyle(); }
@@ -33,7 +33,7 @@ stage.addEventListener('pointermove',e=>{
   if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(pinch && ptrs.size>=2){
     const [a,b] = [...ptrs.values()], d = Math.hypot(a.x-b.x,a.y-b.y)||1, r = stage.getBoundingClientRect();
-    zoomAt(d/pinch.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top); pinch.d = d; return;
+    zoomAt(d/pinch.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,true); pinch.d = d; return;
   }
   if(nd && e.pointerId===nd.pid){
     if(!nd.drag && Math.hypot(e.clientX-nd.sx,e.clientY-nd.sy)>6){
@@ -56,7 +56,8 @@ stage.addEventListener('pointermove',e=>{
       kick();
     }
   } else if(pan){
-    S.view.x = pan.vx + (e.clientX-pan.sx); S.view.y = pan.vy + (e.clientY-pan.sy); applyView();
+    if(!pan.moved && Math.hypot(e.clientX-pan.sx,e.clientY-pan.sy)>8) pan.moved = true;
+    S.view.x = pan.vx + (e.clientX-pan.sx); S.view.y = pan.vy + (e.clientY-pan.sy); scheduleView();
   }
 });
 function endPointer(e){
@@ -78,12 +79,18 @@ function endPointer(e){
     } else if(S.nodes[id]){
       const now = Date.now();
       if(linkFrom){ finishBlock(id); lastTap = {id:null,t:0}; }
+      else if(isMinimal()){ select(id); lastTap = {id:null,t:0}; if(!tapSuppressed) openNodeMenu(id,e.clientX,e.clientY); }   // minimal layout: a tap opens the block's menu
       else if(lastTap.id===id && now-lastTap.t<380){ beginEdit(id); lastTap = {id:null,t:0}; }
       else { select(id); lastTap = {id,t:now}; }
     }
     nd = null;
   }
-  if(pan){ pan = null; stage.classList.remove('panning'); save(); }
+  if(pan){
+    const tapped = !pan.moved && e.type==='pointerup' && !ptrs.size;
+    pan = null; stage.classList.remove('panning'); flushView(); save();
+    if(tapped && isMinimal() && !tapSuppressed) openCanvasMenu(e.clientX,e.clientY);   // minimal layout: a tap on empty space opens the menu
+  } else if(!ptrs.size) flushView();
+  if(!ptrs.size) tapSuppressed = false;
 }
 stage.addEventListener('pointerup',endPointer);
 stage.addEventListener('pointercancel',endPointer);
@@ -91,7 +98,7 @@ stage.addEventListener('wheel',e=>{
   if(e.target.closest && e.target.closest('#side')) return;
   e.preventDefault();
   const r = stage.getBoundingClientRect();
-  zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016)),e.clientX-r.left,e.clientY-r.top);
+  zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016)),e.clientX-r.left,e.clientY-r.top,true);
 },{passive:false});
 function beginEdit(id,opts){
   const r = R[id], n = S.nodes[id]; if(!r || !n) return;
@@ -112,7 +119,7 @@ world.addEventListener('click',e=>{
   const sm = e.target.closest('.srcmark'); if(sm){ e.stopPropagation(); openNodeSrc(sm.closest('.node').dataset.id); return; }
   const b = e.target.closest('button[data-act]'); if(!b) return;
   const id = b.closest('.node').dataset.id; e.stopPropagation();
-  ({accept:acceptGhost,dismiss:dismissGhost,grow:growNode,back:traceBack,bridge:bridgeTo,collapse:toggleCollapse,del:(i)=>deleteNode(i,false),delb:(i)=>deleteNode(i,true),open:openLoop,resolve:startResolve,reopen:reopenQ,grill:startGrill,ticket:cycleTicket,block:startBlock,out:toggleOut,sharpen:(i)=>beginEdit(i,{graduate:true}),src:openNodeSrc})[b.dataset.act](id);
+  runNodeAction(b.dataset.act,id);
 });
 addEventListener('keydown',e=>{
   if(e.target.matches && e.target.matches('input,select,textarea,[contenteditable="true"]')) return;

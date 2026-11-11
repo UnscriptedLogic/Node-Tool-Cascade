@@ -64,7 +64,9 @@ app. Anything a user wants to spend is on their own provider account; there is n
 `cascade_events_dev`), and adds the Cloudflare Web Analytics page-view counter to the page. The events, their labels and what is
 never stored are listed at the top of that file, and are checked on the server: anything off the lists is dropped.
 
-**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*, then:
+**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*. On Windows, double-click
+`scripts\analytics-report.bat` (or run `scripts\analytics-report.bat dev 30`): it asks for the token once, hidden, and can save it to
+`scripts/analytics.local.env`, which git ignores. Or from any shell:
 
 ```bash
 CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... node scripts/analytics-report.js --env prod --days 30
@@ -73,6 +75,29 @@ CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... node scripts/analytics-report
 It prints visits and unique visitors per day, blocks created, kept and dismissed (and the kept percentage), AI calls and unique
 users per provider (`anthropic` is Claude, `openai` is OpenAI), sign-ins, feature use and visits by country. The raw rows can be
 queried with SQL in the dashboard or API; the column layout is in `analytics.js`.
+
+**Dashboard.** For charts instead of a table, run `npm run admin` (or double-click `scripts\\admin.bat`) and open
+http://localhost:4400. It shows visits, blocks created and kept, AI use by provider and people per provider, features used and visits
+by country, for production or dev over 7, 30 or 90 days, in light or dark, each chart also as a table. It runs on this computer only,
+reads with your token on the server side (the page never receives it), and asks for the account id and token once; saving them is
+optional and goes to `scripts/analytics.local.env`, which git ignores. `node scripts/admin/server.js --demo` shows made-up numbers.
+
+**Dashboard online.** The same dashboard is served at `/admin` on each Worker (https://cascade.unscriptedlogic.com/admin), for
+signed-in Google accounts on an allowlist. Anyone else sees a sign-in prompt, or "not on the admin list", and never any numbers. It
+reads both datasets, so the Production and Dev toggle works from either site. Three secrets make it work, set per Worker:
+
+```bash
+# who may look: comma-separated Google emails (a secret, so no address is in the repo)
+npx wrangler secret put ADMIN_EMAILS -c worker/wrangler.toml
+# your Cloudflare account id
+npx wrangler secret put CF_ACCOUNT_ID -c worker/wrangler.toml
+# a token with Account > Account Analytics > Read (make a new one just for this)
+npx wrangler secret put ANALYTICS_READ_TOKEN -c worker/wrangler.toml
+# dev: add --env dev to each
+```
+
+Until all three exist the page says which are missing. The token only ever lives in the Worker; the page receives finished numbers.
+Responses are `no-store` and marked `noindex`. To take access away, remove the email from `ADMIN_EMAILS`, or delete the token secret.
 
 **Page views.** In the Cloudflare dashboard open *Analytics & Logs > Web Analytics > Add a site*, enter the hostname
 (`cascade.unscriptedlogic.com`, and again for `cascade-dev.unscriptedlogic.com`), choose manual setup, and copy the token from the

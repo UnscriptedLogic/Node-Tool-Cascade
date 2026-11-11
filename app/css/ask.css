@@ -39,7 +39,6 @@
 #bye .card{text-align:center}
 #bye b{font-size:20px;display:block;margin-bottom:6px}
 @media (prefers-reduced-motion: reduce){ #th path{animation:none} }
-@media (max-width:760px){ #hlchip{top:184px;max-width:calc(100% - 28px)} }
 .card a{color:var(--focus);font-weight:600}
 .prov .sub a,.prov p a{color:var(--focus);font-weight:600}
 

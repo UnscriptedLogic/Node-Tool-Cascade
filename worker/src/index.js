@@ -2,6 +2,7 @@
 import library from '../../shared/library.js';
 import { d1Store } from './d1store.js';
 import { handleAi } from './ai.js';
+import { handleAdmin, adminPage } from './admin.js';
 import { record, handleEvent, withBeacon, userHash } from './analytics.js';
 import { verifyGoogleToken, sha256Hex, newToken, readCookie, sessionCookie, SESSION_DAYS } from './auth.js';
 
@@ -18,6 +19,7 @@ export async function handleRequest(request,env,deps = {}){
   const store = d1Store(env.DB);
 
   if(!path.startsWith('/api/')){
+    if(path==='/admin' || path==='/admin/') return adminPage(request,env);   // the dashboard page; its numbers need a sign-in
     if(!env.ASSETS) return json(404,{ error:'not_found' });
     const asset = await env.ASSETS.fetch(request);
     return method==='GET' ? withBeacon(asset,request,env) : asset;   // page-view counting, unless the visitor opted out
@@ -49,6 +51,7 @@ export async function handleRequest(request,env,deps = {}){
     const user = token ? await store.userForSession(await sha256Hex(token),now()) : null;
 
     if(path==='/api/event' && method==='POST') return handleEvent(request,env,{ signedIn:!!user, visitor:user ? await userHash(env,user.id) : undefined, now });
+    if(path.startsWith('/api/admin/')) return handleAdmin({ request, path, env, user, deps });
     if(path==='/api/auth/me') return json(200,{ user:user ? { email:user.email, name:user.name, picture:user.picture } : null });
     if(path==='/api/auth/logout' && method==='POST'){
       if(token) await store.deleteSession(await sha256Hex(token));

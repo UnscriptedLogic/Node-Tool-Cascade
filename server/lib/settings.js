@@ -17,12 +17,13 @@ const ENV = {
 };
 
 const DOMAINS = ['general','product','research','game'];
-const DEFAULT_PREFS = { domain:'general', goal:'', context:'', pillars:'', avoid:'', steer:'balanced', autoGrow:true, autoTrace:true, growSize:'medium', creativity:0.7, theme:'system', pushback:true, grillStyle:'round', quitOnClose:false , useProject:true, askFiles:true};
+const DEFAULT_PREFS = { mobileLayout:'standard', domain:'general', goal:'', context:'', pillars:'', avoid:'', steer:'balanced', autoGrow:true, autoTrace:true, growSize:'medium', creativity:0.7, theme:'system', pushback:true, grillStyle:'round', quitOnClose:false , useProject:true, askFiles:true};
 function sanitizePrefs(p){
   p = p && typeof p==='object' ? p : {};
   const out = Object.assign({},DEFAULT_PREFS);
   for(const [k,max] of [['goal',600],['context',1200],['pillars',1200],['avoid',800]]) if(typeof p[k]==='string') out[k] = p[k].slice(0,max);
   out.domain = DOMAINS.includes(p.domain) ? p.domain : (Object.keys(p).length ? 'game' : 'general');   // saved before domains existed means game design
+  if(['standard','minimal'].includes(p.mobileLayout)) out.mobileLayout = p.mobileLayout;
   if(['light','balanced','strong'].includes(p.steer)) out.steer = p.steer;
   if(['small','medium','large'].includes(p.growSize)) out.growSize = p.growSize;
   if(['system','light','dark'].includes(p.theme)) out.theme = p.theme;

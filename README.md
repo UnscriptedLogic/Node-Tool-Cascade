@@ -88,6 +88,19 @@ questions, using the vocabulary of that domain. Profiles live in `app/js/core/pr
 The **Library** tab keeps several Cascades, grouped in folders. The open Cascade saves itself as you work. The local app stores
 them on your computer; the Cloudflare version stores them in your account (see [worker/README.md](worker/README.md)). Signed in on the web, you can also save your own Claude, OpenAI or OpenRouter key to your account and use it from any device. It is stored encrypted and used only from the server.
 
+## On a phone
+
+Narrow screens get their own layout, and you can pick between two in **Settings > Behavior** (or add `?layout=minimal` to the address):
+
+- **Standard**: a slim top bar (Fit, Ask, Map, Undo, Settings), a dock of block types at the bottom, a strip of labelled actions for
+  the block you tapped, and bottom sheets for the Ask, Map and Grill panels. The dock's **More** button opens everything else.
+- **Minimal**: nothing on screen but the canvas. Tap empty space for a menu (add a block, ask, map and grill, undo, fit, settings,
+  keep or dismiss suggestions). Tap a block for its menu (edit, grill, grow, bridge, collapse, delete). Drag to pan, pinch to zoom.
+
+Large trees stay smooth: only the blocks near the screen are painted, camera moves are applied once per frame, and the dotted
+grid is moved by the compositor instead of being repainted. On a throttled phone-class CPU, panning a 439-block tree went from
+about 27 s of main-thread work to under 1 s for the same gesture.
+
 ## What is measured
 
 The hosted version (cascade.unscriptedlogic.com) counts how it is used, so the project can see what is worth improving. It is

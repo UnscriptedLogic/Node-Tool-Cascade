@@ -218,6 +218,7 @@ Rules:
     if(chart){
       if(count>=GS.max+4 || !o || typeof o.text!=='string' || !o.text.trim() || (o.type!=='question' && o.type!=='fog')) return false;
       const pidc = (o.parent in gmap) ? gmap[o.parent] : (S.nodes[o.parent] ? o.parent : fid);
+      if(!S.nodes[pidc]) return false;
       const idc = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pidc,ghost:true});
       const nc = S.nodes[idc];
       if(o.type==='question'){ nc.ticket = TICKETS.includes(o.ticket) ? o.ticket : 'talk'; if(Array.isArray(o.blockedBy)) pendingBlocks.push([idc,o.blockedBy]); }
@@ -228,6 +229,7 @@ Rules:
     if(bridge && o && typeof o.verdict==='string'){ verdict = o; return false; }
     if(count>=(bridge ? GS.max+2 : back?GS.back:GS.max) || !o || typeof o.text!=='string' || !o.text.trim() || !TYPES.includes(o.type)) return false;
     const pid = (o.parent in gmap) ? gmap[o.parent] : (S.nodes[o.parent] ? o.parent : fid);
+    if(!S.nodes[pid]) return false;   // its parent was dismissed while the suggestions were still arriving
     const id = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pid,ghost:true,mood:o.type==='emotion'?(MOODS[o.mood]?o.mood:moodGuess(o.text)):undefined});
     if(back || bridge){
       const nn = S.nodes[id];

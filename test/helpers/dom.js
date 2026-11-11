@@ -10,9 +10,11 @@ const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
 // Same transformation scripts/build.js performs for the GitHub Pages version.
 const webHtml = () => assemble({ inline:true, runtime:'<script>window.__WEB__=true;</script>' }).split('__REPO_URL__').join('https://github.com/example/cascade');
 
-function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local } = {}){
+function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local, width, height } = {}){
   const errs = [], navigated = [], opened = [];
   const dom = new JSDOM(html,{ runScripts:'dangerously', pretendToBeVisual:true, url, beforeParse(w){
+    if(width) Object.defineProperty(w,'innerWidth',{ value:width, configurable:true, writable:true });   // a phone-sized window
+    if(height) Object.defineProperty(w,'innerHeight',{ value:height, configurable:true, writable:true });
     w.matchMedia = () => ({ matches:true, addEventListener(){}, removeEventListener(){} });   // also means "reduced motion"
     Object.defineProperty(w.HTMLElement.prototype,'offsetHeight',{ get(){ return 52; } });
     w.document.elementsFromPoint = () => []; w.Element.prototype.setPointerCapture = function(){};

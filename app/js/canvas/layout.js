@@ -19,13 +19,13 @@ function syncDom(vis){
     if(show) paint(S.nodes[id]);
   }
 }
-const clsFor = (n,r) => ['node',n.type,n.ghost&&'ghost',S.sel===n.id&&'sel',r.enter&&'enter',r.hot&&'hot',r.growing&&'growing',r.drag&&'drag',r.drop&&'drop',r.settle&&'settle',n.src&&n.src.length&&'has-src',n.collapsed&&'collapsed',S.layer&&MAP.flag[n.id]&&'m-'+MAP.flag[n.id],S.layer&&n.decided&&'decided',linkFrom===n.id&&'linking',THMAP[n.id]&&'in-thread'].filter(Boolean).join(' ');
+const clsFor = (n,r) => ['node',n.type,r.culled&&'culled',n.ghost&&'ghost',S.sel===n.id&&'sel',r.enter&&'enter',r.hot&&'hot',r.growing&&'growing',r.drag&&'drag',r.drop&&'drop',r.settle&&'settle',n.src&&n.src.length&&'has-src',n.collapsed&&'collapsed',S.layer&&MAP.flag[n.id]&&'m-'+MAP.flag[n.id],S.layer&&n.decided&&'decided',linkFrom===n.id&&'linking',THMAP[n.id]&&'in-thread'].filter(Boolean).join(' ');
 function stepAttr(el,id){
   const t = THMAP[id];
   if(t){ el.dataset.step = t.step; el.style.setProperty('--tc',t.color); }
   else if(el.dataset.step){ delete el.dataset.step; el.style.removeProperty('--tc'); }
 }
-function restyle(){ MAP = computeMap(); for(const id in R){ const n = S.nodes[id]; if(n){ R[id].el.className = clsFor(n,R[id]); stepAttr(R[id].el,id); } } }
+function restyle(){ MAP = computeMap(); for(const id in R){ const n = S.nodes[id]; if(n){ const c = clsFor(n,R[id]); if(R[id].el.className!==c) R[id].el.className = c; stepAttr(R[id].el,id); } } }
 function paint(n){
   const r = R[n.id], el = r.el, blk = el.firstElementChild;
   el.className = clsFor(n,r); stepAttr(el,n.id);
@@ -57,6 +57,11 @@ function paint(n){
     if(n.type==='fog') add(n.state==='out' ? 'Out of scope' : 'Fog','fogc');
     else if(f && !n.ghost) add({settled:'Settled',frontier:'Up next',blocked:'Waiting',out:'Out of scope'}[f],f);
   }
+  const btns = nodeActions(n,hasKids);
+  el.querySelector('.bar').innerHTML = btns.map(([a,t])=>`<button type="button" data-act="${a}" title="${t}" aria-label="${t}">${ACT[a]}</button>`).join('');
+}
+// what can be done to a block: [action, description] pairs, in order. Used by the desktop bar, the phone action strip and the menus.
+function nodeActions(n,hasKids){
   const btns = [];
   if(S.mode==='outer'){ if(isOuter(n)) btns.push(['open','Open in detail view']); }
   else if(n.ghost){ btns.push(['accept','Keep this suggestion'],['dismiss','Dismiss']); }
@@ -74,7 +79,7 @@ function paint(n){
     btns.push(['del',hasKids?'Delete node (its children move up)':'Delete']);
     if(hasKids) btns.push(['delb','Delete node and everything below it']);
   }
-  el.querySelector('.bar').innerHTML = btns.map(([a,t])=>`<button type="button" data-act="${a}" title="${t}" aria-label="${t}">${ACT[a]}</button>`).join('');
+  return btns;
 }
 function layout(initial){
   rebuildKM();

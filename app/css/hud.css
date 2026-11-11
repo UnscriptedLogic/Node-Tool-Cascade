@@ -40,17 +40,4 @@
   .node.hot .in,.node.growing .in,.node.settle .in,.pending,#status.busy .dot{animation:none}
 }
 
-@media (max-width:760px){
-  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
-  #rail{order:2;flex-direction:row;align-items:center;padding:9px 10px;border-right:0;border-top:1px solid var(--line);gap:8px;overflow-x:auto;overflow-y:hidden}
-  .brand,.legend,.rail-foot{display:none}
-  .tiles{flex-direction:row;flex:1;gap:6px;min-width:440px}
-  button.tile{padding:9px 4px;justify-content:center;font-size:12px;gap:0}
-  button.tile .ico{display:none}
-  button.tile .txt{flex:none}
-  #status{max-width:calc(100% - 28px);top:58px}
-  #ctrl{left:14px;right:14px;justify-content:space-between}
-  #note{bottom:70px;max-width:calc(100% - 28px)}
-  #ghostbar{bottom:14px}
-}
 

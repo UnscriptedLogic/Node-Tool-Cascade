@@ -42,6 +42,6 @@ function resetTree(){ cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes;
 function initialView(instant){
   const ex = S.order.find(id=>S.nodes[id] && S.nodes[id].type==='loop' && S.nodes[id].text==='Explore');
   if(ex){ rebuildKM(); const core = S.nodes[ex].parent; fitTo([core,ex,...descendants(ex)].filter(Boolean),{maxZ:1,minZ:.7,pad:40,instant:!!instant}); }
-  else fitTo(visibleIds(),{maxZ:1,minZ:.5,instant:!!instant});
+  else fitTo(visibleIds(),{maxZ:1,minZ:isMobile() ? .6 : .5,instant:!!instant});
 }
 
