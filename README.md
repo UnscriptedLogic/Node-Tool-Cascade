@@ -24,6 +24,59 @@ This is not an answering tool. It's a questioning tool. The AI doesn't agree wit
 
 Hope you find this useful!
 
+## See it work
+
+Everything below was recorded in the app itself with the built-in demo AI, so you can try the same steps without a key.
+Connect a real model in Settings and the questions become specific to your own tree.
+
+![The example tree: loops, questions, answers and the feelings they cause](docs/media/tree.png)
+
+### Branching
+
+Place a block and Cascade finds where it belongs. Ask it to grow from any node and it suggests answers, consequences and
+follow-up questions as ghosts. Keep the ones that ring true, dismiss the rest.
+
+![Growing branches from a question](docs/media/branching.gif)
+
+### Ask the graph
+
+Ask a question in plain words. If a chain of blocks answers it, that thread lights up on the canvas in order. If nothing does,
+you see what is missing.
+
+![Asking the graph what is causing the boredom](docs/media/ask.gif)
+
+### Grill me
+
+Pick a question and let Cascade interview you about it. It asks, you decide. Thin answers get pushed back on, and a settled
+answer lands on the canvas as a decision.
+
+![Being grilled on a question, with pushback on a weak answer](docs/media/grill.gif)
+
+### Bridge to a feeling
+
+Already have questions in the tree, and know the feeling you want people to end up with but not the steps in between? Drag out
+an **Emotion** block and describe it. Cascade works from both ends at once: it asks the next questions that would lead from
+your existing nodes toward the feeling, and traces the feeling back to actions that could cause it. Where the two chains meet,
+they are linked.
+
+![Dropping an emotion and bridging it to the existing tree](docs/media/bridge.gif)
+
+If the ends cannot meet, Cascade says so and starts a grill focused on the missing step, so your answers close the gap.
+
+![A feeling the tree cannot reach yet, followed by a grill on the missing step](docs/media/bridge-gap.gif)
+
+### Domains and the library
+
+Choose what the tree is about, and keep several Cascades in folders. The open one is named in the top-left corner and saves
+as you work.
+
+<p>
+  <img src="docs/media/domains.png" alt="Choosing a domain in Settings" width="49%">
+  <img src="docs/media/library.png" alt="The Library tab with folders and Cascades" width="49%">
+</p>
+
+To refresh these, run `npm i --no-save puppeteer-core gifenc pngjs` and then `node scripts/capture-media.js`.
+
 ## Who it is for
 
 Pick what your tree is about in **Settings > Goal & steering**: General, Product, Research or Game design. The choice sets the
