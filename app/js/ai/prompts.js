@@ -15,11 +15,12 @@ function enqueue(job){
   chain = chain.then(job).catch(e=>console.error(e)).finally(()=>{ queued--; });
   return chain;
 }
-const activeProvider = () => WEB ? WEBAI.provider : LOCAL ? ((SRV && SRV.active) || 'demo') : 'claude';
+const activeProvider = () => CLOUDAI ? ((SRV && SRV.active) || 'demo') : WEB ? WEBAI.provider : LOCAL ? ((SRV && SRV.active) || 'demo') : 'claude';
 function aiAvailable(){
   if(aiOff) return false;
   const p = activeProvider();
   if(p==='demo' && (LOCAL || WEB)) return true;
+  if(CLOUDAI) return !!(SRV && SRV.ready);
   if(WEB) return !!(WEBAI.key && WEBAI.model);
   if(LOCAL) return !!(SRV && SRV.ready);
   return !!sampleFn;
@@ -46,8 +47,9 @@ function callAI(prompt,o){
   const opts = {modelTier:'quick',signal:o.signal};
   if(o.onText) opts.onText = o.onText;
   if(o.cache===false) opts.cache = false;
-  if(LOCAL && typeof o.temperature==='number') opts.temperature = o.temperature;
+  if((LOCAL || CLOUDAI) && typeof o.temperature==='number') opts.temperature = o.temperature;
   if((LOCAL || WEB) && activeProvider()==='demo') return demoSample(prompt,o);
+  if(CLOUDAI) return serverSample(prompt,opts);
   if(WEB) return webSample(prompt,o);
   return sampleFn(prompt,opts);
 }

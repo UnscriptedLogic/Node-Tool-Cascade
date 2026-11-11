@@ -156,7 +156,8 @@
             <p class="lead">This page runs on your Claude account, so there are no keys to enter here.</p>
             <div class="card">To use ChatGPT, OpenRouter, a local model, or Claude with your own API key, run the downloadable version. It adds sign-in with ChatGPT and OpenRouter, provider and model pickers, key storage and a connection test. The goal and behavior settings here work everywhere.</div>
           </div>
-          <div data-modes="web">
+          <div id="aiWeb" data-modes="web">
+            <p class="card" id="aiCloudHint" hidden>Signed-in accounts can save their own Claude, OpenAI, OpenRouter or custom keys and use them from any device. Sign in under <b>Library</b> to set that up.</p>
             <p class="lead">Cascade runs entirely in your browser and has no server of its own. Choose how the AI part works. A key, if you add one, stays in this browser.</p>
             <section class="prov" id="wDemo">
               <header><label class="radio"><input type="radio" name="webProv" id="wDemoRadio" value="demo"><span>Demo (no account)</span></label><span class="tag" id="wDemoTag" hidden>In use</span></header>
@@ -177,8 +178,8 @@
             </section>
             <div class="card">Want to use your own Claude or OpenAI key, sign in with ChatGPT, or run a local model such as Ollama? <a href="__REPO_URL__" target="_blank" rel="noopener">Run Cascade on your computer</a> and all of those are available.</div>
           </div>
-          <div data-modes="local">
-            <p class="lead">Pick who does the thinking. Keys and sign-ins are kept on this computer, and the page can’t read them back. They only go to the provider you choose.</p>
+          <div id="aiLocal" data-modes="local">
+            <p class="lead" id="aiLocalLead">Pick who does the thinking. Keys and sign-ins are kept on this computer, and the page can’t read them back. They only go to the provider you choose.</p>
             <div id="provList"></div>
           </div>
         </section>
