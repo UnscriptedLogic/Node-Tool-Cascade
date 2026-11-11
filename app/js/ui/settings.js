@@ -294,6 +294,8 @@ function sanitizeTree(t){
   return {nodes,order,links,seq};
 }
 function initData(){
+  const stats = $('#dStatsOn'); try{ stats.checked = localStorage.getItem(ANALYTICS_OFF)!=='1'; }catch(e){}
+  stats.addEventListener('change',()=>{ try{ if(stats.checked) localStorage.removeItem(ANALYTICS_OFF); else localStorage.setItem(ANALYTICS_OFF,'1'); }catch(e){} });
   $('#dExport').addEventListener('click',()=>{
     const blob = new Blob([JSON.stringify({app:'cascade',version:1,tree:JSON.parse(snap())},null,2)],{type:'application/json'});
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cascade-tree.json';

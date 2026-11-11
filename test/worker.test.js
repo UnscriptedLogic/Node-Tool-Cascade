@@ -8,7 +8,7 @@ const { CLIENT, ORIGIN, tree, signer, setup } = require('./helpers/worker');
 
 test('worker: config exposes only the public Google client id',{ skip },async()=>{
   const w = await setup(); const r = await w.call('GET','/api/config');
-  assert.deepEqual(r.json,{ cloud:true, googleClientId:CLIENT });
+  assert.deepEqual(r.json,{ cloud:true, analytics:false, googleClientId:CLIENT });
 });
 
 test('worker: the library needs a signed-in session',{ skip },async()=>{

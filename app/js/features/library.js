@@ -195,6 +195,7 @@ async function cloudAiRefresh(){
   $('#aiLocal').hidden = !CLOUDAI; $('#aiWeb').hidden = CLOUDAI;
   $('#aiLocalLead').textContent = 'Pick who does the thinking. Your keys are saved to your account, encrypted, and used from our server only to call the provider you choose. The page can’t read them back.';
   $('#aiCloudHint').hidden = CLOUDAI || !LIB.googleClientId;
+  $('#dStats').hidden = !ANALYTICS.on;
   updateProviders(); updateHud();
 }
 
@@ -237,7 +238,7 @@ async function libInit(){
   else if(WEB){
     try{
       const r = await fetch('/api/config');
-      if(r.ok && (r.headers.get('content-type') || '').includes('json')){ const c = await r.json(); if(c && c.cloud){ LIB.kind = 'cloud'; LIB.googleClientId = c.googleClientId || ''; } }
+      if(r.ok && (r.headers.get('content-type') || '').includes('json')){ const c = await r.json(); if(c && c.cloud){ LIB.kind = 'cloud'; LIB.googleClientId = c.googleClientId || ''; ANALYTICS.on = !!c.analytics; } }
     }catch(e){}
   }
   if(!LIB.kind) return;

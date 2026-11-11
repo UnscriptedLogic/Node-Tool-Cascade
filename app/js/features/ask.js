@@ -79,6 +79,7 @@ function setAskBusy(on){ ['#aGo','#aSumAll','#aSum'].forEach(sel=>{ $(sel).disab
 async function runAsk(q){
   q = (q||'').trim(); if(!q || AN.busy) return;
   if(!S.order.length){ showNote(['The tree is empty, so there is nothing to ask yet.'],false); return; }
+  track('ask');
   let res = null, local = false;
   if(aiAvailable()){
     AN.busy = true; setAskBusy(true); setBusy('Reading the graph…',true);

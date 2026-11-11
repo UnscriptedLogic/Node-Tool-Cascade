@@ -11,15 +11,24 @@ routes = [{ pattern = "cascade.unscriptedlogic.com", custom_domain = true }]
 [assets]
 directory = "../dist/web"          # created by `npm run build`
 binding = "ASSETS"
-run_worker_first = ["/api/*"]
+# the page itself goes through the Worker too, so the page-view counter can be added to it
+run_worker_first = ["/api/*", "/", "/index.html"]
 
 [[d1_databases]]
 binding = "DB"
 database_name = "cascade"
 database_id = "87c74242-a137-4b3a-bc4f-fe8551a5dbbe"
 
+# anonymous usage counts (see worker/src/analytics.js)
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "cascade_events"
+
 [vars]
 GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
+ENV_NAME = "prod"
+# Cloudflare Web Analytics site token for this hostname (public, not a secret). Empty means no page-view counting.
+CF_BEACON_TOKEN = ""
 
 # ---- dev: bindings are not inherited, so they are repeated ----
 [env.dev]
@@ -29,12 +38,18 @@ routes = [{ pattern = "cascade-dev.unscriptedlogic.com", custom_domain = true }]
 [env.dev.assets]
 directory = "../dist/web"
 binding = "ASSETS"
-run_worker_first = ["/api/*"]
+run_worker_first = ["/api/*", "/", "/index.html"]
 
 [[env.dev.d1_databases]]
 binding = "DB"
 database_name = "cascade-dev"
 database_id = "1a2b3615-81f0-4662-842e-75547d5ea902"
 
+[[env.dev.analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "cascade_events_dev"
+
 [env.dev.vars]
 GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
+ENV_NAME = "dev"
+CF_BEACON_TOKEN = ""

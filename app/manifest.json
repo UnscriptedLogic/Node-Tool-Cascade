@@ -15,6 +15,7 @@
   ],
   "js": [
     "js/core/constants.js",
+    "js/core/analytics.js",
     "js/core/profiles.js",
     "js/core/state.js",
     "js/core/dom.js",
