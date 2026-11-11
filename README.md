@@ -1,6 +1,6 @@
 # Cascade
 
-> **A game design tool to help you find and ask better questions to get better answers**
+> **A branching tool to help you find and ask better questions to get better answers. For game design, product work, research, or any decision.**
 
 You ever had those moments where you had a question and realized that you had 2 prominent answers and they both contradict each other? Well this tool helps you expand on both those answers as well as opening up more questions because of those answers to settle the debate.
 
@@ -24,12 +24,27 @@ This is not an answering tool. It's a questioning tool. The AI doesn't agree wit
 
 Hope you find this useful!
 
+## Who it is for
+
+Pick what your tree is about in **Settings > Goal & steering**: General, Product, Research or Game design. The choice sets the
+words the AI uses, the examples, the starter tree and how a project folder is read. The AI still asks specific, probing
+questions, using the vocabulary of that domain. Profiles live in `app/js/core/profiles.js`, so adding one is a single entry.
+
+## Library
+
+The **Library** tab keeps several Cascades, grouped in folders. The open Cascade saves itself as you work. The local app stores
+them on your computer; the Cloudflare version stores them in your account (see [worker/README.md](worker/README.md)).
+
 ## Tech stack
 
 - **Runtime:** Node.js 18+ with no runtime dependencies (built-in modules only).
-- **Frontend:** a single-file vanilla HTML, CSS and JavaScript app (`app/app.html`), no framework and no build step
-  for the local app.
-- **AI providers:** OpenRouter, ChatGPT plan, Anthropic API, OpenAI API, or any OpenAI-compatible endpoint
+- **Frontend:** vanilla HTML, CSS and JavaScript, no framework and no build step for the local app. `app/app.html` is the shell;
+  styles are in `app/css/` and scripts in `app/js/` (`core`, `canvas`, `ui`, `ai`, `features`), loaded in the order listed in
+  `app/manifest.json`. `scripts/assemble.js` inlines them for the web build and the tests.
+- **Server:** `server/server.js` starts `lifecycle.js` (ports, shutdown) and `app.js` (guards and dispatch); `routes/*.js` hold the
+  endpoints and `lib/*` the providers, settings and project scanner. Library rules are shared in `shared/library.js`.
+- **Cloud (optional):** Cloudflare Workers + D1 with Google sign-in, in `worker/`.
+- **AI providers:** OpenRouter, ChatGPT plan (local app), Anthropic API, OpenAI API, or any OpenAI-compatible endpoint
   (Ollama, LM Studio, Groq).
-- **Testing:** Node's built-in test runner with jsdom and local mock providers.
+- **Testing:** Node's built-in test runner with jsdom, local mock providers, and SQLite standing in for D1. `npm test`.
 - **CI and hosting:** GitHub Actions, with the static web build deployed to GitHub Pages.
