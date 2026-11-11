@@ -48,6 +48,7 @@ function bindSeg(sel,key,after){
 }
 function bindCheck(sel,key){ const el = $(sel); el.addEventListener('change',()=>{ PREFS[key] = el.checked; savePrefs(); updatePreview(); }); syncers.push(()=>{ el.checked = !!PREFS[key]; }); }
 bindText('#gGoal','goal'); bindText('#gContext','context'); bindText('#gPillars','pillars'); bindText('#gAvoid','avoid');
+bindSeg('#bLayout','mobileLayout',()=>applyResponsive(true));
 bindSeg('#gSteer','steer',()=>{ $('#steerHelp').textContent = STEER_HELP[PREFS.steer]; updatePreview(); });
 syncers.push(()=>{ $('#steerHelp').textContent = STEER_HELP[PREFS.steer] || ''; });
 bindSeg('#bSize','growSize'); bindSeg('#aTheme','theme',applyTheme);

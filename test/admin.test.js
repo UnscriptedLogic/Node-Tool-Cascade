@@ -78,7 +78,7 @@ function mockCloudflare(){
 }
 async function startAdmin(t,{ env = {}, args = [] } = {}){
   const dir = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-admin-')), port = 4400 + Math.floor(Math.random()*500);
-  const p = spawn(process.execPath,[path.join(__dirname,'..','scripts','admin','server.js'),'--port',String(port),...args],{ env:{ ...process.env, NO_OPEN:'1', CLOUDFLARE_ACCOUNT_ID:'', CLOUDFLARE_API_TOKEN:'', ...env }, stdio:['ignore','pipe','pipe'] });
+  const p = spawn(process.execPath,[path.join(__dirname,'..','scripts','admin','server.js'),'--port',String(port),...args],{ env:{ ...process.env, NO_OPEN:'1', CLOUDFLARE_ACCOUNT_ID:'', CLOUDFLARE_API_TOKEN:'', ADMIN_ENV_FILE:path.join(dir,'none.env'), ...env }, stdio:['ignore','pipe','pipe'] });
   let out = ''; p.stdout.on('data',d=>out += d); p.stderr.on('data',d=>out += d);
   for(let i=0;i<60 && !/Only this computer/.test(out);i++) await new Promise(r=>setTimeout(r,50));
   t.after(()=>{ p.kill(); try{ fs.rmSync(dir,{ recursive:true, force:true }); }catch(e){} });

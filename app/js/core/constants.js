@@ -52,7 +52,7 @@ const LOCAL = !!window.__LOCAL__;
 const WEB = !!window.__WEB__;
 const MODE = LOCAL ? 'local' : WEB ? 'web' : 'artifact';
 const WEBAI_KEY = 'cascade-web-ai-v1';
-const DEFAULT_PREFS = {domain:'general',goal:'',context:'',pillars:'',avoid:'',steer:'balanced',autoGrow:true,autoTrace:true,growSize:'medium',creativity:0.7,theme:'system',pushback:true,grillStyle:'round',quitOnClose:false,useProject:true,askFiles:true};
+const DEFAULT_PREFS = {mobileLayout:'standard',domain:'general',goal:'',context:'',pillars:'',avoid:'',steer:'balanced',autoGrow:true,autoTrace:true,growSize:'medium',creativity:0.7,theme:'system',pushback:true,grillStyle:'round',quitOnClose:false,useProject:true,askFiles:true};
 function loadPrefs(){
   try{
     if(LOCAL && window.__SETTINGS__ && window.__SETTINGS__.prefs) return window.__SETTINGS__.prefs;

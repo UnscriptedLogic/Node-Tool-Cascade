@@ -1,16 +1,18 @@
 'use strict';
 /* ================= view ================= */
+const gridEl = document.getElementById('grid');
+let vz = 0, vgs = 0, vflags = '';
 function applyView(){
   const v = S.view;
   world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.z})`;
-  stage.style.setProperty('--z', v.z);
+  // only the grid layer and (when zoomed far out) the world get variables, and only when they change
   let gs = effLook().canvas.gridSize*v.z; while(gs<12) gs*=2;
-  stage.style.setProperty('--gs', gs+'px');
-  stage.style.setProperty('--gx', (v.x%gs)+'px');
-  stage.style.setProperty('--gy', (v.y%gs)+'px');
-  world.classList.toggle('far', S.mode==='detail' && v.z<.55);
-  world.classList.toggle('outer', S.mode==='outer');
-  world.classList.toggle('maplayer', !!S.layer);
+  if(gs!==vgs){ vgs = gs; gridEl.style.setProperty('--gs', gs+'px'); }
+  gridEl.style.transform = `translate3d(${v.x%gs}px,${v.y%gs}px,0)`;
+  const far = S.mode==='detail' && v.z<.55, flags = (far ? 'f' : '')+(S.mode==='outer' ? 'o' : '')+(S.layer ? 'm' : '');
+  if(flags!==vflags){ vflags = flags; world.classList.toggle('far',far); world.classList.toggle('outer',S.mode==='outer'); world.classList.toggle('maplayer',!!S.layer); }
+  if(far && Math.abs(v.z-vz)>.01){ vz = v.z; world.style.setProperty('--z',v.z.toFixed(2)); }
+  cullNodes();
 }
 const screenToWorld = (cx,cy) => { const r = stage.getBoundingClientRect(); return {x:(cx-r.left-S.view.x)/S.view.z, y:(cy-r.top-S.view.y)/S.view.z}; };
 function fitTo(ids,o){
@@ -21,7 +23,7 @@ function fitTo(ids,o){
   const sw = (stage.clientWidth || 900) - drawerW(), sh = stage.clientHeight || 600, bw = x1-x0, bh = y1-y0;
   const z = clamp(Math.min((sw-2*o.pad)/bw,(sh-2*o.pad)/bh), o.minZ, o.maxZ);
   const t = {z, x: bw*z > sw-2*o.pad ? o.pad - x0*z : sw/2-(x0+bw/2)*z, y: bh*z > sh-2*o.pad ? o.pad + 40 - y0*z : sh/2-(y0+bh/2)*z};
-  if(o.instant){ Object.assign(S.view,t); vAnim=null; applyView(); } else { vAnim=t; kick(); }
+  if(o.instant){ Object.assign(S.view,t); vAnim=null; applyView(); } else { vAnim=t; kickView(); }
 }
 function ensureVisible(id){
   const r = R[id]; if(!r || !r.shown) return;
@@ -29,12 +31,16 @@ function ensureVisible(id){
   const x0 = r.tgt.x*v.z+v.x, y0 = r.tgt.y*v.z+v.y, x1 = x0+r.w*v.z, y1 = y0+r.h*v.z;
   if(x0>=m && y0>=m+30 && x1<=sw-m && y1<=sh-m) return;
   const z = Math.max(v.z,.7);
-  vAnim = {z, x: sw/2-(r.tgt.x+r.w/2)*z, y: sh/2-(r.tgt.y+r.h/2)*z}; kick();
+  vAnim = {z, x: sw/2-(r.tgt.x+r.w/2)*z, y: sh/2-(r.tgt.y+r.h/2)*z}; kickView();
 }
-function zoomAt(f,cx,cy){
+// touch and trackpads fire many events per frame: apply the camera once per frame
+let viewRaf = 0;
+function scheduleView(){ if(!viewRaf) viewRaf = requestAnimationFrame(()=>{ viewRaf = 0; applyView(); }); }
+function flushView(){ if(viewRaf){ cancelAnimationFrame(viewRaf); viewRaf = 0; applyView(); } }
+function zoomAt(f,cx,cy,defer){
   vAnim = null;
   const v = S.view, nz = clamp(v.z*f,.18,1.8), k = nz/v.z;
-  v.x = cx-(cx-v.x)*k; v.y = cy-(cy-v.y)*k; v.z = nz; applyView();
+  v.x = cx-(cx-v.x)*k; v.y = cy-(cy-v.y)*k; v.z = nz; if(defer) scheduleView(); else applyView();
   if(S.mode==='detail' && v.z<.3) setMode('outer');
   else if(S.mode==='outer' && v.z>1.25){
     const w = {x:(cx-v.x)/v.z, y:(cy-v.y)/v.z}; let best=null, bd=1e12;

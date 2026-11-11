@@ -52,10 +52,4 @@
 .gstate .btn{padding:3px 10px;font-size:12px;margin-left:6px}
 .gdone{padding:12px 14px;border:1.5px dashed var(--ink2);border-radius:12px;font-size:13.5px;line-height:1.45;margin-bottom:12px}
 .gfoot{display:flex;gap:8px;margin-top:6px}
-@media (max-width:760px){
-  #side{top:auto;left:0;right:0;width:auto;height:62%;border-left:0;border-top:1px solid var(--line)}
-  #ctrl{flex-wrap:wrap;row-gap:8px;justify-content:flex-start}
-  #status{top:104px}
-  #goalchip{top:144px}
-}
 

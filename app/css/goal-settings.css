@@ -49,13 +49,10 @@
 .seg.big button{padding:8px 15px;font-size:13.5px}
 code{font:12.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--paper2);border:1px solid var(--line);border-radius:5px;padding:1px 5px}
 @media (max-width:760px){
-  #status{top:58px}
-  #goalchip{top:98px;max-width:calc(100% - 28px)}
   .sbody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
   .stabs{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px}
   .stabs button{white-space:nowrap}
   .spanes{padding:20px 16px 70px}
   .shead{padding:12px 16px}
-  #ctrl .iconbtn{flex:none}
 }
 

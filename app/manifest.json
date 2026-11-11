@@ -11,7 +11,8 @@
     "css/interaction.css",
     "css/look-editor.css",
     "css/project.css",
-    "css/library.css"
+    "css/library.css",
+    "css/mobile.css"
   ],
   "js": [
     "js/core/constants.js",
@@ -34,6 +35,7 @@
     "js/core/server.js",
     "js/ui/settings.js",
     "js/ui/domain.js",
+    "js/ui/responsive.js",
     "js/features/map.js",
     "js/features/ask.js",
     "js/ui/look-editor.js",

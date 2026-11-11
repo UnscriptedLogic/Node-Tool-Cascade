@@ -35,7 +35,7 @@ function visibleIds(){
     const n = S.nodes[id]; if(!n) continue;
     if(S.mode==='outer'){ if(isOuter(n)) out.push(id); continue; }
     let p = n.parent, ok = true;
-    while(p){ if(S.nodes[p].collapsed){ ok=false; break; } p = S.nodes[p].parent; }
+    while(p){ const pn = S.nodes[p]; if(!pn || pn.collapsed){ ok = false; break; } p = pn.parent; }   // a missing parent (removed while suggestions were still arriving) hides the orphan
     if(ok) out.push(id);
   }
   return out;

@@ -29,6 +29,7 @@ function updateHud(){
   if(!busyMsg) stxt.textContent = idleText();
   syncExtras(); updateGoalChip(); renderMapIfOpen(); try{ pruneThreads(); }catch(e){}
   try{ syncProjectButtons(); }catch(e){}
+  try{ syncNodeBar(); }catch(e){}
 }
 let noteTimer = 0;
 function showNote(parts,withUndo){
@@ -39,5 +40,5 @@ function showNote(parts,withUndo){
   clearTimeout(noteTimer); noteTimer = setTimeout(()=>{ note.hidden = true; }, 16000);
 }
 function commit(){ layout(false); save(); updateHud(); }
-function select(id){ S.sel = id; restyle(); kick(); }
+function select(id){ S.sel = id; restyle(); kick(); try{ syncNodeBar(); }catch(e){} }
 

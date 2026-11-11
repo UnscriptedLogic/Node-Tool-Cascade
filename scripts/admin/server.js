@@ -16,7 +16,7 @@ const { demoStats } = require('./demo');
 const args = process.argv.slice(2), flag = (n) => args.includes('--'+n), opt = (n,d) => { const i = args.indexOf('--'+n); return i>=0 ? args[i+1] : d; };
 const PORT = +opt('port',process.env.ADMIN_PORT || 4400), HOST = '127.0.0.1', DEMO = flag('demo');
 const API_BASE = process.env.CF_API_BASE || 'https://api.cloudflare.com/client/v4';
-const SAVED = path.join(__dirname,'..','analytics.local.env');
+const SAVED = process.env.ADMIN_ENV_FILE || path.join(__dirname,'..','analytics.local.env');   // the override keeps tests away from a real saved token
 const PAGE = path.join(__dirname,'index.html');
 
 // ---------- credentials: environment, the saved file, or typed into the page ----------

@@ -1,0 +1,94 @@
+/* ---------- small screens ----------
+   body.m is set by js/ui/responsive.js on narrow screens; body.m-standard or body.m-minimal says which layout.
+   Desktop rules above are untouched; everything here is scoped to those classes. */
+
+/* every block is its own layout and style island, so changing one does not restyle the tree */
+.node{contain:layout style}
+
+/* the menu (a popover at the tap in minimal, a bottom sheet from "More" in standard) */
+#ctx{position:fixed;z-index:70;min-width:210px;max-width:min(320px,calc(100vw - 16px));overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+  background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.28);padding:6px}
+#ctx button{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:8px 12px;border:0;background:none;border-radius:10px;font:inherit;font-size:15px;text-align:left;color:inherit;cursor:pointer;touch-action:manipulation}
+#ctx button:hover,#ctx button:focus-visible{background:var(--paper2);outline:none}
+#ctx button:active{background:var(--paper2)}
+#ctx button:disabled{opacity:.4;cursor:default}
+#ctx button.danger{color:#D94A2B}
+#ctx .ic{width:20px;height:20px;display:grid;place-items:center;flex:none;color:var(--ink2)}
+#ctx .ic svg{width:18px;height:18px}
+#ctx .lb{flex:1;min-width:0}
+#ctx .chev{color:var(--ink2);font-size:20px;line-height:1}
+#ctx .ctx-head{display:flex;align-items:center;gap:6px;padding:4px 6px 8px;color:var(--ink2);font-size:13px;border-bottom:1px solid var(--line);margin-bottom:4px}
+#ctx .ctx-head .ctx-back{width:36px;min-height:36px;padding:0;justify-content:center;font-size:22px;flex:none}
+#ctx .ctx-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ctx .ctx-sep{height:1px;background:var(--line);margin:4px 6px}
+#ctx.sheet{left:0;right:0;bottom:0;top:auto;max-width:none;max-height:80dvh;border-radius:18px 18px 0 0;padding:8px 8px calc(10px + env(safe-area-inset-bottom))}
+#ctxBack{position:fixed;inset:0;z-index:69;background:rgba(0,0,0,.35)}
+
+/* the dock's More button and the block action strip exist only on phones in the standard layout */
+.more,#nodebar{display:none}
+#empty .msh,#empty .mmh{display:none}
+
+body.m{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body.m button{touch-action:manipulation}
+body.m input,body.m textarea,body.m select{font-size:16px}   /* keeps iOS from zooming into a field */
+body.m #app{height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+body.m .brand,body.m .legend,body.m .rail-foot,body.m #openName{display:none}
+body.m .node .bar{display:none!important}      /* the per-block bar is replaced by the strip or the menu */
+body.m #empty .dh{display:none}
+body.m-standard #empty .msh,body.m-minimal #empty .mmh{display:inline}
+/* statuses and notes are brief toasts, not permanent bars */
+body.m #status:not(.busy){display:none}
+body.m #side{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:72dvh;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;z-index:30;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -10px 30px rgba(0,0,0,.22)}
+body.m #compose{position:fixed;left:0!important;right:0;top:auto!important;bottom:var(--kb,0px);width:auto!important;border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));z-index:50;box-shadow:0 -10px 30px rgba(0,0,0,.25)}
+body.m #compose textarea{min-height:84px}
+body.m .btn,body.m .seg button{min-height:40px}
+
+/* ---- standard: top bar, block dock, action strip ---- */
+body.m-standard #rail{order:2;flex-direction:row;align-items:stretch;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--line);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;z-index:7}
+body.m-standard #rail::-webkit-scrollbar{display:none}
+body.m-standard .tiles{flex-direction:row;gap:6px;flex:none}
+body.m-standard button.tile{flex:none;flex-wrap:nowrap;width:76px;min-height:54px;flex-direction:column;justify-content:center;align-items:center;gap:3px;padding:6px 2px;font-size:11px;touch-action:pan-x}
+body.m-standard button.tile .ico{display:block}
+body.m-standard button.tile .txt{flex:none;white-space:nowrap}
+body.m-standard .more{display:flex;flex:none;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:70px;min-height:54px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-size:11.5px}
+body.m-standard #ctrl{left:0;right:0;top:0;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;gap:6px;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;background:color-mix(in srgb,var(--paper2) 94%,transparent);border-bottom:1px solid var(--line)}
+body.m-standard #ctrl::-webkit-scrollbar{display:none}
+body.m-standard #ctrl>.seg:first-child,body.m-standard #zOut,body.m-standard #zIn{display:none}   /* pinch zooms; the overview is in More */
+body.m-standard #ctrl .btn,body.m-standard #ctrl .seg{flex:none}
+body.m-standard #goalchip{top:calc(env(safe-area-inset-top) + 62px);left:10px;max-width:calc(100% - 20px)}
+body.m-standard #hlchip{top:calc(env(safe-area-inset-top) + 102px);left:10px;max-width:calc(100% - 20px)}
+body.m-standard #status{top:calc(env(safe-area-inset-top) + 142px);left:10px;max-width:calc(100% - 20px)}
+body.m-standard #nodebar:not([hidden]){display:flex;left:0;right:0;bottom:0;gap:2px;padding:6px 8px;overflow-x:auto;scrollbar-width:none;background:var(--paper);border-top:1px solid var(--line);z-index:6}
+body.m-standard #nodebar::-webkit-scrollbar{display:none}
+body.m-standard #nodebar button{flex:none;min-width:66px;min-height:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px 6px;border:0;background:none;border-radius:10px;font-size:11.5px;color:var(--ink)}
+body.m-standard #nodebar button:active{background:var(--paper2)}
+body.m-standard #nodebar .ic svg{width:20px;height:20px}
+body.m-standard #ghostbar{left:10px;right:10px;bottom:10px;transform:none;justify-content:space-between;gap:8px}
+body.m-standard #stage.nb #ghostbar{bottom:78px}
+body.m-standard #note{left:10px;right:10px;bottom:64px;max-width:none}
+body.m-standard #stage.nb #note{bottom:132px}
+
+/* zoomed far out on a small screen the loop labels would pile on top of each other: keep them close to their own size */
+body.m #world.far .node.loop .in{transform:scale(min(1.3,calc(.85 / var(--z,1))))}
+
+/* ---- minimal: only the canvas ---- */
+body.m-minimal #rail,body.m-minimal #ctrl,body.m-minimal #goalchip,body.m-minimal #hlchip,body.m-minimal #ghostbar,body.m-minimal #nodebar{display:none!important}
+body.m-minimal #app{grid-template-rows:minmax(0,1fr)}
+body.m-minimal #status,body.m-minimal #note{top:calc(env(safe-area-inset-top) + 12px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);max-width:calc(100% - 24px);width:max-content}
+
+/* ---- the settings screens on a phone ---- */
+@media (max-width:760px){
+  .sbody{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .stabs{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:10px;scrollbar-width:none}
+  .stabs button{white-space:nowrap}
+  .spanes{padding:20px 16px calc(70px + env(safe-area-inset-bottom))}
+  .shead{padding:calc(12px + env(safe-area-inset-top)) 16px 12px}
+}
+
+/* short, wide phones (landscape): a slimmer dock, labels off */
+@media (max-height:520px) and (pointer:coarse){
+  body.m-standard button.tile,body.m-standard .more{min-height:40px;width:56px}
+  body.m-standard button.tile .txt,body.m-standard .more span{display:none}
+  body.m-standard #goalchip,body.m-standard #hlchip{display:none}
+}
+@media (prefers-reduced-motion:reduce){ #ctx{transition:none} }
