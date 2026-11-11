@@ -64,7 +64,9 @@ app. Anything a user wants to spend is on their own provider account; there is n
 `cascade_events_dev`), and adds the Cloudflare Web Analytics page-view counter to the page. The events, their labels and what is
 never stored are listed at the top of that file, and are checked on the server: anything off the lists is dropped.
 
-**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*, then:
+**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*. On Windows, double-click
+`scriptsanalytics-report.bat` (or run `scriptsanalytics-report.bat dev 30`): it asks for the token once, hidden, and can save it to
+`scripts/analytics.local.env`, which git ignores. Or from any shell:
 
 ```bash
 CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... node scripts/analytics-report.js --env prod --days 30
