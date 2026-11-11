@@ -52,4 +52,4 @@ dataset = "cascade_events_dev"
 [env.dev.vars]
 GOOGLE_CLIENT_ID = "349036731762-9de8ibpl3761plhjeer80n6c0nekljv1.apps.googleusercontent.com"
 ENV_NAME = "dev"
-CF_BEACON_TOKEN = ""
+CF_BEACON_TOKEN = "187a70a7291e42598d9312d734d5779c"
