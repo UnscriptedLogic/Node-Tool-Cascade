@@ -121,7 +121,7 @@ function demoMatches(rows,text,skipLoop){
   return rows.filter(r=>!(skipLoop && r.type==='loop')).map(r=>[toks(r.text).filter(w=>words.has(w)).length,r]).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).map(x=>x[1]);
 }
 function demoPlace(prompt,rows){
-  const type = (prompt.match(/type chosen by the designer: (\w+)/) || [])[1] || 'question';
+  const type = (prompt.match(/type chosen by the [^:\n]+: (\w+)/) || [])[1] || 'question';
   const text = ((prompt.match(/text: "([\s\S]*?)"\n\nRules:/) || [])[1] || '').replace(/\\"/g,'"');
   if(!rows.length) return J({type,parent:null,relation:'',related:[],mood:null,reason:''});
   const hits = demoMatches(rows,text,type!=='loop'), best = hits[0];
@@ -137,7 +137,7 @@ function demoGrow(prompt,rows){
   const max = +((prompt.match(/At most (\d+) lines/) || [])[1]) || 9;
   const L = [];
   const add = (parent,type,text,wave,mood) => { const o = {id:'g'+(L.length+1),parent,type,text,wave}; if(mood) o.mood = mood; L.push(o); return o.id; };
-  if(/map|bigger|wider|horizontal|travers|slow|distance|route/i.test(ftext)){
+  if(isGameDomain() && /map|bigger|wider|horizontal|travers|slow|distance|route/i.test(ftext)){
     const a = add(fid,'answer','The wider the map, the longer every route takes',1);
     const b = add(fid,'answer','A bigger map only works if landmarks and encounters fill it',1);
     add(b,'question','How many minutes should a typical trip take?',2);
@@ -145,14 +145,14 @@ function demoGrow(prompt,rows){
     add(a,'question','Could movement abilities shorten trips instead?',2);
     add(c,'emotion','Boredom on long empty stretches',3,'boredom');
     add(b,'emotion','Curiosity when a landmark pulls the eye ahead',3,'curiosity');
-  } else if(/upgrade|ability|glide|dash|movement|stat/i.test(ftext)){
+  } else if(isGameDomain() && /upgrade|ability|glide|dash|movement|stat/i.test(ftext)){
     const a = add(fid,'answer','Movement upgrades change how the world is read',1);
     const b = add(fid,'answer','Stat upgrades keep fights balanced but feel flat',1);
     add(a,'question','Which ability should arrive in the first hour?',2);
     const c = add(b,'consequence','Players stop reading upgrade descriptions',2);
     add(c,'emotion','Delight fades once upgrades are only numbers',3,'delight');
     add(a,'emotion','Awe the first time a ledge becomes reachable',3,'awe');
-  } else if(/enemy|combat|fight|wind-?up|telegraph|hit/i.test(ftext)){
+  } else if(isGameDomain() && /enemy|combat|fight|wind-?up|telegraph|hit/i.test(ftext)){
     const a = add(fid,'answer','A distinct silhouette for each attack makes it readable',1);
     const b = add(fid,'answer','Longer wind-ups trade pace for fairness',1);
     add(b,'question','How long can a fight last before it drags?',2);
@@ -160,21 +160,21 @@ function demoGrow(prompt,rows){
     add(a,'emotion','Tension when a cue flashes before a hit',3,'tension');
     add(c,'emotion','Confusion if two attacks look alike',3,'confusion');
   } else if(ftype==='answer'){
-    const a = add(fid,'consequence','Players notice this within the first hour',1);
+    const a = add(fid,'consequence','People notice this soon after it changes',1);
     add(fid,'question','What would change if this turned out to be false?',1);
     add(a,'question','Who will be affected first?',2);
     add(a,'emotion','Curiosity about whether it holds up',3,'curiosity');
   } else if(ftype==='decision'){
-    const a = add(fid,'consequence','Effort shifts toward the first hour of play',1);
+    const a = add(fid,'consequence','Effort shifts toward the first stretch of the work',1);
     add(fid,'question','What does this make harder somewhere else?',1);
-    add(a,'consequence','Later content needs a different pace',2);
+    add(a,'consequence','Later steps need a different pace',2);
     add(a,'emotion','Tension while the new rule settles in',3,'tension');
   } else if(ftype==='emotion'){
     add(fid,'question','What in the design causes this feeling?',1);
-    const b = add(fid,'consequence','Players may stop playing when they feel this',1);
+    const b = add(fid,'consequence','People may disengage when they feel this',1);
     add(b,'question','What would make them stay?',2);
   } else {
-    const a = add(fid,'answer','The answer depends on what the player is trying to do right then',1);
+    const a = add(fid,'answer','The answer depends on what the person is trying to do right then',1);
     const b = add(fid,'answer','A simple rule of thumb would settle it',1);
     add(b,'question','What would a prototype need to show?',2);
     add(a,'emotion','Confusion about what the design wants',3,'confusion');
@@ -188,22 +188,22 @@ function demoBack(prompt,rows){
   const link = (re) => { const r = demoFind(rows,re); return r ? [r.id] : []; };
   const L = [];
   const add = (parent,type,text,wave,links) => { const o = {id:'g'+(L.length+1),parent,type,text,wave}; if(links) o.links = links; L.push(o); return o.id; };
-  if(mood==='boredom'){
+  if(isGameDomain() && mood==='boredom'){
     const a = add(fid,'question','Is the ground between landmarks too empty?',1,link(/apart|empty|nothing in between/i));
     const b = add(fid,'question','Does walking speed fit the size of the map?',1,link(/movement abilities|walking/i));
     add(a,'answer','Landmarks sit more than a minute apart',2);
     add(b,'question','What could shorten a trip without shrinking the world?',2);
-  } else if(mood==='frustration'){
+  } else if(isGameDomain() && mood==='frustration'){
     const a = add(fid,'question','Why do players retrace the same routes?',1,link(/movement abilities|retrac/i));
     const b = add(fid,'question','Is there any way to mark progress on the map?',1);
     add(a,'answer','Routes loop back with no shortcut',2);
     add(b,'question','What would players do with a marker?',2);
-  } else if(mood==='confusion'){
+  } else if(isGameDomain() && mood==='confusion'){
     const a = add(fid,'question','What tells the player a hit is coming?',1,link(/wind-?ups|alike/i));
     const b = add(fid,'question','Do enemy attacks share one silhouette?',1);
     add(a,'answer','The cue appears too late to react',2);
     add(b,'question','Which attacks need their own look?',2);
-  } else if(mood==='delight'){
+  } else if(isGameDomain() && mood==='delight'){
     const a = add(fid,'question','What made the first few upgrades feel good?',1,link(/only raise numbers|upgrade/i));
     const b = add(fid,'question','When does the novelty wear off?',1);
     add(a,'answer','They changed what the player could reach',2);
@@ -211,8 +211,8 @@ function demoBack(prompt,rows){
   } else {
     const a = add(fid,'question','What in the design triggers this feeling?',1);
     const b = add(fid,'question','Who feels it, and at what moment?',1);
-    add(a,'answer','Something the player expected did not happen',2);
-    add(b,'question','Is it the same for new and experienced players?',2);
+    add(a,'answer','Something people expected did not happen',2);
+    add(b,'question','Is it the same for newcomers and experienced people?',2);
   }
   return L.slice(0,max).map(J).join('\n');
 }
@@ -221,7 +221,7 @@ function demoChart(prompt,rows){
   const trav = demoFind(rows,/travers/i,'question'), up = demoFind(rows,/upgrade/i,'question'), com = demoFind(rows,/enemy|combat/i,'question');
   const L = [];
   const add = (o) => { o.id = 't'+(L.length+1); L.push(o); return o.id; };
-  if(trav){
+  if(isGameDomain() && trav){
     const t1 = add({parent:trav.id,type:'question',text:'What counts as a long trip?',ticket:'talk',blockedBy:[],wave:1});
     add({parent:t1,type:'question',text:'How long should crossing the map take?',ticket:'prototype',blockedBy:[t1],wave:1});
     add({parent:(up||trav).id,type:'question',text:'Which movement ability arrives first?',ticket:'talk',blockedBy:[t1],wave:1});
@@ -230,27 +230,28 @@ function demoChart(prompt,rows){
     add({parent:trav.id,type:'fog',text:'Camera behaviour on long routes',wave:2});
     add({parent:(up||trav).id,type:'fog',text:'How fast travel ties into progression',wave:2});
   } else {
-    const t1 = add({parent:root.id,type:'question',text:'Who is this game for?',ticket:'talk',blockedBy:[],wave:1});
-    add({parent:root.id,type:'question',text:'What does a good first ten minutes feel like?',ticket:'talk',blockedBy:[t1],wave:1});
-    add({parent:root.id,type:'question',text:'How long is one session?',ticket:'talk',blockedBy:[],wave:1});
-    add({parent:root.id,type:'fog',text:'Onboarding and tutorials',wave:2});
+    const o = DOM().demoOpen;
+    const t1 = add({parent:root.id,type:'question',text:o[0],ticket:'talk',blockedBy:[],wave:1});
+    add({parent:root.id,type:'question',text:o[3],ticket:'talk',blockedBy:[t1],wave:1});
+    add({parent:root.id,type:'question',text:o[1],ticket:'talk',blockedBy:[],wave:1});
+    add({parent:root.id,type:'fog',text:'Where to start',wave:2});
   }
   return L.map(J).join('\n');
 }
 function demoRound(prompt,rows){
-  if(/SESSION SO FAR/.test(prompt)) return J({done:true,summary:'The big travel and combat questions are decided for now.'});
+  if(/SESSION SO FAR/.test(prompt)) return J({done:true,summary:'The main questions are decided for now.'});
   const sc = prompt.match(/SCOPE: stay inside this part of the tree: (.*) \((\S+)\)/);
   const scopeId = sc ? sc[2] : null, scopeText = sc ? sc[1] : '';
   const trav = demoFind(rows,/travers/i,'question'), com = demoFind(rows,/enemy|combat/i,'question'), up = demoFind(rows,/upgrade/i,'question');
   const pid = (r) => scopeId || (r && r.id) || (rows[0] && rows[0].id) || null;
   const q = (parent,text,why,ticket,grillable) => J({id:'q'+Math.random().toString(36).slice(2,6),parent,text,why,ticket:ticket || 'talk',grillable:grillable !== false});
-  if(/enemy|combat|wind/i.test(scopeText) || (!scopeId && !trav && com)){
+  if(isGameDomain() && (/enemy|combat|wind/i.test(scopeText) || (!scopeId && !trav && com))){
     return [q(pid(com),'How readable must an enemy’s next move be?','It sets the animation budget.'),
       q(pid(com),'Should a fight ever be won by waiting?','It decides whether patience is a strategy.'),
       q(pid(com),'How long should one fight last?','It sets the pacing of the whole loop.'),
       q(pid(com),'What should a near miss feel like?','This needs something to react to.','prototype',false)].join('\n');
   }
-  if(trav || /travers|explor/i.test(scopeText)){
+  if(isGameDomain() && (trav || /travers|explor/i.test(scopeText))){
     return [q(pid(trav),'What counts as a long trip for the player?','It sets how big the map needs to be.'),
       q(pid(trav),'Should the player ever be allowed to skip travel?','It decides whether fast travel exists.'),
       q(pid(trav),'Which matters more: the journey or the arrival?','It shows what the in-between time is for.'),
@@ -258,16 +259,17 @@ function demoRound(prompt,rows){
       q(pid(up),'Should upgrades ever shorten a trip?','It links progression to travel.')].join('\n');
   }
   const r0 = rows.find(r=>r.type==='question') || rows[0];
-  return [q(pid(r0),'Who is this game for?','Everything else is measured against the audience.'),
-    q(pid(r0),'What should a player remember after one session?','It defines the core feeling.'),
-    q(pid(r0),'What would make you cut a feature?','It exposes what you will not compromise on.'),
-    q(pid(r0),'What should the first ten minutes feel like?','This needs something to react to.','prototype',false)].join('\n');
+  const o = DOM().demoOpen;
+  return [q(pid(r0),o[0],'Everything else is measured against the audience.'),
+    q(pid(r0),o[1],'It defines the core feeling.'),
+    q(pid(r0),o[2],'It exposes what you will not compromise on.'),
+    q(pid(r0),o[3],'This needs something to react to.','prototype',false)].join('\n');
 }
 function demoPushback(prompt){
-  const ans = ((prompt.match(/THE DESIGNER'S ANSWER: ([\s\S]*?)\n\nPush back only/) || [])[1] || '').trim();
+  const ans = ((prompt.match(/THE [^\n']+'S ANSWER: ([\s\S]*?)\n\nPush back only/) || [])[1] || '').trim();
   const words = ans.split(/\s+/).filter(Boolean).length;
   const reasoned = /\b(because|so that|since|if|when|which|then|unless|otherwise)\b|\d/i.test(ans);
-  const bank = ['What happens to the players this doesn’t help?','If you’re wrong about this, what would you notice first?','What does this make harder somewhere else in the game?','Is that a decision, or an assumption you haven’t tested?'];
+  const bank = [`What happens to ${DOM().audience} this doesn’t help?`,'If you’re wrong about this, what would you notice first?',`What does this make harder somewhere else in the ${DOM().subject}?`,'Is that a decision, or an assumption you haven’t tested?'];
   if(words<9 || !reasoned) return J({verdict:'challenge',text:bank[ans.length % bank.length]});
   return J({verdict:'solid',text:''});
 }
@@ -280,35 +282,35 @@ function demoAsk(prompt,rows){
   const com = f(/enemy|combat/i,'question'), wind = f(/wind-?ups/i), conf = f(/sudden hits|confus/i,'emotion');
   const T = [], add = (label,ids,why) => { if(ids.filter(Boolean).length>=2) T.push({label,ids,why}); };
   let verdict = 'answered', answer = '', gaps = [];
-  if(/bored|boredom|empty|slow|travers/i.test(question)){
+  if(isGameDomain() && /bored|boredom|empty|slow|travers/i.test(question)){
     add('Empty ground causes boredom',chain(trav,far,bored,skip),'Sparse points of interest leave long empty walks, which bore players into skipping content.');
     add('Walking-only travel',chain(trav,noMove,frus,up),'With no movement abilities the same routes get retraced, and upgrades could change that.');
     answer = 'Travel feels slow because points of interest sit far apart with nothing between them, and walking is the only way to cover the ground. The boredom and the skipped optional areas both follow from that.';
-  } else if(/frustrat|retrac|ability|abilities|movement/i.test(question)){
+  } else if(isGameDomain() && /frustrat|retrac|ability|abilities|movement/i.test(question)){
     add('Retracing the same routes',chain(trav,noMove,frus),'Walking-only movement makes players cross familiar ground again and again.');
     add('Upgrades that do not move you',chain(up,nums,f(/delight fades/i,'emotion')),'Upgrades that only raise numbers do not change how the player moves, so the novelty fades.');
     answer = 'The frustration comes from having no movement abilities, so players retrace routes. Upgrades could address it, but today they mostly raise numbers.';
-  } else if(/confus|enem|combat|wind/i.test(question)){
+  } else if(isGameDomain() && /confus|enem|combat|wind/i.test(question)){
     add('Unreadable wind-ups',chain(com,wind,conf),'Short, similar wind-ups make hits feel sudden and confusing.');
     answer = 'Combat confusion traces back to wind-ups that are short and look alike, so players are hit without warning.';
   } else if(/negative|feeling|emotion|mood|feel/i.test(question)){
     const neg = rows.filter(r=>r.type==='emotion' && /boredom|frustration|confusion/.test(r.mood || r.flags + r.text)).slice(0,3);
     neg.forEach(e=>{ const a = rows.find(r=>r.id===e.parent), qq = a && rows.find(r=>r.id===a.parent); add(e.text,chain(qq,a,e),'This is the chain of reasoning behind this feeling.'); });
-    answer = T.length ? 'The negative feelings in the tree each trace back to a specific design cause: boredom to sparse landmarks, frustration to walking-only travel, and confusion to similar wind-ups.' : '';
+    answer = T.length ? (isGameDomain() ? 'The negative feelings in the tree each trace back to a specific design cause: boredom to sparse landmarks, frustration to walking-only travel, and confusion to similar wind-ups.' : 'Each negative feeling in the tree traces back to a specific cause, shown in the threads below.') : '';
   } else if(/undecided|open|still|unsettled|left|remain/i.test(question)){
     const open = rows.filter(r=>r.type==='question' && !/\[settled\]/.test(r.flags)).slice(0,8);
     if(open.length>1) add('Questions still open',open.map(r=>r.id),'These questions have no settled decision yet.');
-    answer = open.length ? `${open.length} questions are still open, mostly about travel, combat readability and how upgrades change movement.` : '';
+    answer = open.length ? `${open.length} questions are still open. ${isGameDomain() ? 'Most are about travel, combat readability and how upgrades change movement.' : 'The threads below list them.'}` : '';
   } else if(/loop|connect|flow|stage|relate/i.test(question)){
     const loops = rows.filter(r=>r.type==='loop' && r.parent).slice(0,5);
     if(loops.length>1) add('How the loops connect',loops.map(r=>r.id),'These stages feed into each other.');
-    answer = loops.length ? 'Explore, Combat and Upgrade form the core loop: what you find while exploring is fought for, and upgrades change how you explore next.' : '';
+    answer = loops.length ? (isGameDomain() ? 'Explore, Combat and Upgrade form the core loop: what you find while exploring is fought for, and upgrades change how you explore next.' : loops.slice(0,3).map(r=>r.text).join(', ')+' are stages that lead into each other.') : '';
   }
   if(!T.length){
     const hits = demoMatches(rows,question,true).slice(0,3);
     hits.forEach(h=>{ const up2 = rows.find(r=>r.id===h.parent); add(h.text.slice(0,30),chain(up2,h),'Shares words with your question.'); });
     if(T.length){ verdict = 'partial'; answer = 'Demo mode can only match keywords, so these are the closest threads. Connect an AI for a reasoned answer.'; }
-    else { verdict = 'unanswered'; answer = 'Nothing in the tree speaks to that yet.'; gaps = [{text:`What does the design say about “${question.slice(0,60)}”?`,parent:(rows[0]||{}).id || null}]; }
+    else { verdict = 'unanswered'; answer = 'Nothing in the tree speaks to that yet.'; gaps = [{text:`What does the tree say about “${question.slice(0,60)}”?`,parent:(rows[0]||{}).id || null}]; }
   }
   return J({verdict,answer,threads:T.slice(0,3),gaps});
 }
@@ -333,21 +335,21 @@ function demoTreeSummary(prompt,rows){
   const goal = (prompt.match(/OVERARCHING GOAL: (.*)/) || [])[1];
   const qs = rows.filter(r=>r.type==='question'), settled = qs.filter(r=>/\[settled\]/.test(r.flags)), open = qs.length - settled.length;
   const emo = rows.filter(r=>r.type==='emotion'), moods = [...new Set(emo.map(r=>r.mood).filter(Boolean))];
-  const p1 = `The tree holds ${rows.length} blocks and ${qs.length} questions, ${settled.length} of them settled and ${open} still open${goal ? `, measured against the goal “${goal.slice(0,90)}”` : ''}. Most of the weight sits on exploration, with combat readability and upgrades as the other two stages.`;
-  const p2 = emo.length ? `The player feelings recorded are ${moods.join(', ') || 'mixed'}. They trace back to travel that is slow, combat cues that are easy to miss and upgrades that do not change play. What is still undecided is mostly how those three fixes relate.` : 'No player feelings are recorded yet, so it is hard to say how the design should feel.';
+  const p1 = `The tree holds ${rows.length} blocks and ${qs.length} questions, ${settled.length} of them settled and ${open} still open${goal ? `, measured against the goal “${goal.slice(0,90)}”` : ''}. ${isGameDomain() ? 'Most of the weight sits on exploration, with combat readability and upgrades as the other two stages.' : 'The questions are spread across the stages of the tree.'}`;
+  const p2 = emo.length ? `The feelings recorded are ${moods.join(', ') || 'mixed'}. ${isGameDomain() ? 'They trace back to travel that is slow, combat cues that are easy to miss and upgrades that do not change play. What is still undecided is mostly how those three fixes relate.' : 'Each traces back to a cause somewhere in the tree. What is still undecided is how those causes relate.'}` : 'No player feelings are recorded yet, so it is hard to say how the design should feel.';
   return p1+'\n\n'+p2;
 }
 function demoRespond(prompt){
   const rows = demoRows(prompt);
   if(prompt.includes('placement engine')) return demoPlace(prompt,rows);
-  if(prompt.includes('interviewing a game designer')) return demoRound(prompt,rows);
+  if(/You are interviewing an? /.test(prompt)) return demoRound(prompt,rows);
   if(prompt.includes('sharp but fair design interviewer')) return demoPushback(prompt);
   if(prompt.includes('charting a map of decisions')) return demoChart(prompt,rows);
-  if(prompt.includes('analysing a game-design decision tree')) return demoAsk(prompt,rows);
-  if(prompt.includes('Summarise what a game-design decision tree says')) return demoThreadSummary(prompt);
-  if(prompt.includes('Summarise this game-design decision tree')) return demoTreeSummary(prompt,rows);
-  if(prompt.includes('backtrack from a player emotion')) return demoBack(prompt,rows);
-  if(prompt.includes('You grow a game-design decision tree')) return demoGrow(prompt,rows);
+  if(/You are analysing an? [^\n]*decision tree/.test(prompt)) return demoAsk(prompt,rows);
+  if(/Summarise what an? [^\n]*decision tree says/.test(prompt)) return demoThreadSummary(prompt);
+  if(/Summarise this [^\n]*decision tree/.test(prompt)) return demoTreeSummary(prompt,rows);
+  if(/backtrack from an emotion/.test(prompt)) return demoBack(prompt,rows);
+  if(/You grow an? [^\n]*decision tree/.test(prompt)) return demoGrow(prompt,rows);
   return '';
 }
 async function demoSample(prompt,o){

@@ -27,15 +27,15 @@ function aiAvailable(){
 const aiNeed = (what) => (LOCAL || WEB) ? `${what} needs an AI. Connect one in Settings.` : `${what} needs Claude, which isn’t available in this view.`;
 const STEER = {
   light:'Let the goal color your questions lightly. Keep exploring freely.',
-  balanced:'Most of your questions and answers should help the designer move toward the goal. Allow the occasional lateral one.',
+  balanced:'Most of your questions and answers should help the user move toward the goal. Allow the occasional lateral one.',
   strong:'Every question and answer must directly serve the goal. Prefer questions that test whether a specific change would achieve it, and avoid tangents.'
 };
 const GROW = {small:{w1:'2',w2:'2',w3:'2',max:6,back:4},medium:{w1:'2 or 3',w2:'2 to 4',w3:'2 or 3',max:9,back:6},large:{w1:'3 or 4',w2:'4 or 5',w3:'3 or 4',max:13,back:8}};
 function guidance(){
   const P = PREFS, parts = [];
-  if((P.context||'').trim()) parts.push('GAME CONTEXT: '+P.context.trim());
+  if((P.context||'').trim()) parts.push('CONTEXT ABOUT THE '+DOM().subject.toUpperCase()+': '+P.context.trim());
   if((P.goal||'').trim()) parts.push('OVERARCHING GOAL: '+P.goal.trim()+'\nSTEERING: '+(STEER[P.steer]||STEER.balanced));
-  if((P.pillars||'').trim()) parts.push('DESIGN PILLARS AND CONSTRAINTS (respect these): '+P.pillars.trim());
+  if((P.pillars||'').trim()) parts.push('PRINCIPLES AND CONSTRAINTS (respect these): '+P.pillars.trim());
   if((P.avoid||'').trim()) parts.push('AVOID: '+P.avoid.trim());
   if(projectBriefOn()) parts.push('PROJECT BRIEF (what the existing project already does, read from its notes and code. It is context only: the goal and the pillars above always take precedence):\n'+briefText());
   return parts.join('\n\n');
@@ -65,19 +65,19 @@ function parseObj(text){
   try{ return JSON.parse(text.slice(a,b+1)); }catch(e){ throw {code:'invalid_json',message:'bad JSON'}; }
 }
 async function askPlacement(type,text,signal){
-  const prompt = `You are the placement engine inside a game-design decision tree. The tree maps design questions, answers, player emotions, consequences and decisions for one game. A designer just dropped a new block; decide where it belongs.
+  const prompt = `You are the placement engine inside a ${DOM().treeName}. The tree maps design questions, answers, the feelings of ${DOM().audience}, consequences and decisions for one ${DOM().subject}. A ${DOM().person} just dropped a new block; decide where it belongs.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}
 
 NEW BLOCK
-type chosen by the designer: ${type}
+type chosen by the ${DOM().person}: ${type}
 text: "${text.replace(/"/g,'\\"')}"
 
 Rules:
 - Pick the single best parent id from the tree. Prefer the most specific node the block responds to over a broad loop stage. A proposed solution belongs under the problem it addresses.
-- Answers go under questions; emotions under the answer or consequence that causes the feeling; consequences under decisions or answers; follow-up questions under whatever raised them. Loop nodes are stages of the game loop: use them as a parent only when nothing more specific fits, and a new loop block belongs under another loop node. Fog blocks are decisions the designer can see coming but cannot phrase precisely yet; put them beside the area they affect.
-- Keep the designer's type unless it is clearly wrong.${PREFS.goal.trim() ? '\n- If the block pulls away from the overarching goal, still place it where it belongs and say so in the reason.' : ''}
+- Answers go under questions; emotions under the answer or consequence that causes the feeling; consequences under decisions or answers; follow-up questions under whatever raised them. Loop nodes are stages of the ${DOM().subject} loop: use them as a parent only when nothing more specific fits, and a new loop block belongs under another loop node. Fog blocks are decisions the ${DOM().person} can see coming but cannot phrase precisely yet; put them beside the area they affect.
+- Keep the ${DOM().person}'s type unless it is clearly wrong.${PREFS.goal.trim() ? '\n- If the block pulls away from the overarching goal, still place it where it belongs and say so in the reason.' : ''}
 - relation: 2 to 4 words saying how the block connects to its parent (for example "proposed fix", "answers", "follows from", "refines", "contradicts").
 - related: up to 3 other ids that connect to the block without being its parent (same problem from another angle, a conflicting idea, an upgrade that would enable it). Empty list if none.
 - mood: only for emotion blocks, one of ${MOOD_KEYS.join(', ')}. Otherwise null.
@@ -151,7 +151,7 @@ async function expandFrom(fid,signal,mode){
   f.collapsed = false; stopReveal = false;
   const fr = R[fid]; if(fr){ fr.growing = true; restyle(); }
   setBusy(chart ? 'Charting the map…' : back ? 'Tracing back…' : 'Growing branches…',true);
-  const fwdPrompt = `You grow a game-design decision tree outward from one node, in waves, like dominoes falling.
+  const fwdPrompt = `You grow a ${DOM().treeName} outward from one node, in waves, like dominoes falling.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}
@@ -162,10 +162,10 @@ Write one JSON object per line (NDJSON). No markdown, no commentary, no blank li
 {"id":"g1","parent":"<an existing id or an earlier gN>","type":"answer|question|emotion|consequence|decision","text":"<at most 14 words>","mood":"<emotion nodes only>","wave":1}
 
 Wave 1 (${GS.w1} lines): direct responses hanging off the focus node. If it is a question, give plausible answers; if it is an answer or decision, give likely consequences or follow-up questions.
-Wave 2 (${GS.w2} lines): follow-ups beneath wave 1 nodes: the next question a designer should ask, or what this changes in the game.
-Wave 3 (${GS.w3} lines): emotion nodes describing how the player feels, placed under wave 1 or 2 nodes. mood must be one of ${MOOD_KEYS.join(', ')}.
-At most ${GS.max} lines in total, wave 1 first, then 2, then 3. Be specific to this game, write in the same terse voice as the tree, and do not repeat existing nodes.`;
-  const backPrompt = `You help a game designer backtrack from a player emotion to its causes by asking questions.
+Wave 2 (${GS.w2} lines): follow-ups beneath wave 1 nodes: the next question a ${DOM().person} should ask, or what this changes in the ${DOM().subject}.
+Wave 3 (${GS.w3} lines): emotion nodes describing how ${DOM().audience} feel, placed under wave 1 or 2 nodes. mood must be one of ${MOOD_KEYS.join(', ')}.
+At most ${GS.max} lines in total, wave 1 first, then 2, then 3. Be specific to this ${DOM().subject}, write in the same terse voice as the tree, and do not repeat existing nodes.`;
+  const backPrompt = `You help a ${DOM().personFull} backtrack from an emotion felt by ${DOM().audience} to its causes by asking questions.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}
@@ -175,10 +175,10 @@ EMOTION NODE: ${fid} | ${f.type}${f.mood?' ('+f.mood+')':''} | ${f.text}
 Write one JSON object per line (NDJSON). No markdown, no commentary, no blank lines. Each line:
 {"id":"g1","parent":"<${fid} or an earlier gN>","type":"question|answer","text":"<at most 14 words>","links":["<existing ids>"],"wave":1}
 
-Wave 1 (2 or 3 lines): why-questions about what in the design could cause this feeling. parent is ${fid}, type is question. Look at level layout, pacing, mechanics, feedback, rewards and difficulty. links lists up to 2 existing node ids that may already be the cause (empty list if none).
+Wave 1 (2 or 3 lines): why-questions about what in the design could cause this feeling. parent is ${fid}, type is question. Look at ${DOM().causeHints}. links lists up to 2 existing node ids that may already be the cause (empty list if none).
 Wave 2 (2 or 3 lines): under some wave 1 questions, either a plausible root cause as an answer or a sharper follow-up question. parent is the wave 1 question.
-At most ${GS.back} lines in total, wave 1 first. Be specific to this game, terse like the tree, and do not repeat existing nodes.`;
-  const chartPrompt = `You are charting a map of decisions for a game design effort that is too big to settle in one sitting. The destination is fixed: every ticket you write must help reach it, and nothing beyond it belongs on the map.
+At most ${GS.back} lines in total, wave 1 first. Be specific to this ${DOM().subject}, terse like the tree, and do not repeat existing nodes.`;
+  const chartPrompt = `You are charting a map of decisions for work on ${DOM().subjectAn} that is too big to settle in one sitting. The destination is fixed: every ticket you write must help reach it, and nothing beyond it belongs on the map.
 
 ${guideBlock()}DESTINATION: ${(PREFS.goal||'').trim()}
 
@@ -190,7 +190,7 @@ Write one JSON object per line (NDJSON). No markdown, no commentary, no blank li
 
 Rules:
 - A question is a decision to make, written as a question. Never write a build step or a to-do disguised as a question.
-- ticket: talk = settled by discussion (the default). prototype = cannot be decided until the designer has something to look at or play. research = needs a fact from outside the tree. task = nothing to decide, but manual preparation blocks a decision.
+- ticket: talk = settled by discussion (the default). prototype = cannot be decided until the ${DOM().person} has ${DOM().protoHint}. research = needs a fact from outside the tree. task = nothing to decide, but manual preparation blocks a decision.
 - fog = a decision you can see coming but cannot yet phrase precisely. Its text is a short noun phrase. Leave out ticket and blockedBy.
 - Only add blockedBy where one decision truly depends on another.
 - Write about ${GS.w1} to ${GS.max-3} questions and 2 to 4 fog items. Do not repeat existing nodes. Never answer any question.`;

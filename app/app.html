@@ -23,7 +23,7 @@
       <button class="tile blk t-fog" data-type="fog" type="button"><span class="ico"></span><span class="txt">Fog</span></button>
     </div>
     <div class="legend">
-      <h2>Player feeling</h2>
+      <h2 data-dom-text="feeling">How people feel</h2>
       <ul id="legend"></ul>
     </div>
     <div class="rail-foot"><button class="btn" id="resetBtn" type="button">Load example</button><button class="btn" id="clearBtn" type="button">Clear graph</button></div>
@@ -105,7 +105,7 @@
         </section>
         <section id="s-ask" hidden>
           <p class="gintro">Ask the graph a question. If a line of blocks answers it, that thread lights up on the canvas, numbered in order. If nothing answers it, you’ll see what’s missing.</p>
-          <textarea id="aQ" class="area" rows="2" maxlength="300" placeholder="What is making players bored while they travel?"></textarea>
+          <textarea id="aQ" class="area" rows="2" maxlength="300" data-dom-ph="askPlaceholder" placeholder="What is making progress feel slow?"></textarea>
           <div class="chips" id="aChips"><button type="button" class="chip">What is causing the negative feelings?</button><button type="button" class="chip">What is still undecided?</button><button type="button" class="chip">How do the loops connect?</button></div>
           <label class="check small" id="aFilesRow" data-modes="local" hidden style="margin-top:8px"><input type="checkbox" id="aFiles"><span>Also use the project’s files</span></label>
           <div class="mrow"><button class="btn primary" id="aGo" type="button">Ask</button><button class="btn" id="aSumAll" type="button">Summarize the whole tree</button></div>
@@ -183,15 +183,16 @@
 
         <section class="spane" id="p-goal" role="tabpanel" hidden>
           <h3>Goal &amp; steering</h3>
+          <div class="field">
+            <label for="gDomain">What is this tree about?</label>
+            <select id="gDomain"></select>
+            <small id="gDomainHelp"></small>
+          </div>
           <p class="lead">Say what this tree is for. Every placement, branch and trace-back is written with it in mind, so the questions lean toward your goal instead of wandering.</p>
           <div class="field">
             <label for="gGoal">Overarching goal</label>
-            <textarea id="gGoal" rows="3" maxlength="600" placeholder="Make traversal feel like discovery, not a commute"></textarea>
-            <div class="chips" id="gChips">
-              <button type="button" class="chip">Make traversal feel like discovery, not a commute</button>
-              <button type="button" class="chip">Raise tension without raising difficulty</button>
-              <button type="button" class="chip">Get a new player to their first fun moment in five minutes</button>
-            </div>
+            <textarea id="gGoal" rows="3" maxlength="600" data-dom-ph="goalPlaceholder" placeholder="Decide what the team works on this quarter and why"></textarea>
+            <div class="chips" id="gChips"></div>
           </div>
           <div class="field">
             <span class="lbl">Steering</span>
@@ -203,18 +204,18 @@
             <small id="steerHelp"></small>
           </div>
           <div class="field">
-            <label for="gContext">About the game</label>
-            <textarea id="gContext" rows="3" maxlength="1200" placeholder="A third-person exploration game with light combat. Players cross a large open world on foot."></textarea>
-            <small>Genre, camera, audience, anything the AI can’t see in the tree.</small>
+            <label for="gContext" data-dom-text="contextLabel">About the project</label>
+            <textarea id="gContext" rows="3" maxlength="1200" data-dom-ph="contextPlaceholder" placeholder=""></textarea>
+            <small data-dom-text="contextHint"></small>
           </div>
           <div class="field">
-            <label for="gPillars">Pillars and constraints</label>
-            <textarea id="gPillars" rows="3" maxlength="1200" placeholder="No fast travel in the first act. Sessions under 30 minutes. Playable on a gamepad."></textarea>
-            <small>Things the AI should respect when it suggests answers.</small>
+            <label for="gPillars" data-dom-text="pillarsLabel">Principles and constraints</label>
+            <textarea id="gPillars" rows="3" maxlength="1200" data-dom-ph="pillarsPlaceholder" placeholder=""></textarea>
+            <small data-dom-text="pillarsHint"></small>
           </div>
           <div class="field">
             <label for="gAvoid">Avoid</label>
-            <textarea id="gAvoid" rows="2" maxlength="800" placeholder="Anything that needs a tutorial. Loot-box style rewards."></textarea>
+            <textarea id="gAvoid" rows="2" maxlength="800" data-dom-ph="avoidPlaceholder" placeholder=""></textarea>
           </div>
           <details class="card">
             <summary>What the AI is told</summary>
@@ -231,7 +232,7 @@
           </div>
           <div class="field">
             <label class="check"><input type="checkbox" id="bAutoTrace"><span>Trace back when I drop an emotion block</span></label>
-            <small>Asks why the player feels it and links the questions to likely causes in the tree.</small>
+            <small>Asks why the feeling happens and links the questions to likely causes in the tree.</small>
           </div>
           <div class="field">
             <span class="lbl">Growth size</span>
@@ -277,10 +278,10 @@
 
         <section class="spane" id="p-project" role="tabpanel" hidden>
           <h3>Project folder</h3>
-          <p class="lead">Point Cascade at a game project and it learns from it. Reading and searching happen on this computer. When you build a brief, short digests and code excerpts go to the AI you connected, never your keys, and anything that looks like a secret is skipped or redacted first.</p>
+          <p class="lead"><span data-dom-text="projectLead">Point Cascade at a project folder and it learns from it.</span> Reading and searching happen on this computer. When you build a brief, short digests and code excerpts go to the AI you connected, never your keys, and anything that looks like a secret is skipped or redacted first.</p>
           <div class="field">
             <label for="pPath">Folder</label>
-            <div class="frow"><input id="pPath" type="text" spellcheck="false" autocomplete="off" placeholder="/Users/you/Games/MyProject"><button class="btn" id="pPick" type="button">Choose…</button><button class="btn primary" id="pScan" type="button">Scan</button><button class="btn" id="pCancel" type="button" hidden>Stop</button></div>
+            <div class="frow"><input id="pPath" type="text" spellcheck="false" autocomplete="off" data-dom-ph="projectPlaceholder" placeholder="/Users/you/Documents/MyProject"><button class="btn" id="pPick" type="button">Choose…</button><button class="btn primary" id="pScan" type="button">Scan</button><button class="btn" id="pCancel" type="button" hidden>Stop</button></div>
             <small id="pMsg" aria-live="polite"></small>
           </div>
           <details class="card pdetails">

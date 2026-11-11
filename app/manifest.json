@@ -14,6 +14,7 @@
   ],
   "js": [
     "js/core/constants.js",
+    "js/core/profiles.js",
     "js/core/state.js",
     "js/core/dom.js",
     "js/core/tree.js",
@@ -30,6 +31,7 @@
     "js/ai/transport.js",
     "js/core/server.js",
     "js/ui/settings.js",
+    "js/ui/domain.js",
     "js/features/map.js",
     "js/features/ask.js",
     "js/ui/look-editor.js",

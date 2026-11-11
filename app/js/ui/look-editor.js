@@ -91,7 +91,7 @@ STYLE FIELDS (include only what you want to change):
 }
 N (a block style) = { "shape": "rounded|rect|pill|ellipse|diamond|hexagon|parallelogram|tag", "radius": 0-60, "fill": C or "mood", "stroke": C, "strokeWidth": 0-10, "strokeStyle": "solid|dashed|dotted|double|none", "text": C or "auto", "fontSize": 9-30, "fontWeight": 400|500|600|700|800, "italic": true|false, "width": 100-480, "padX": 0-60, "padY": 0-40, "shadow": "none|soft|hard|glow", "pattern": "none|hatch|dots", "opacity": 0.3-1, "icon": true|false, "bar": {"width": 0-14, "color": C} or null, "ring": {"width": 0-6, "color": C, "offset": 0-12} or null }
 C is a hex colour such as "#3566D1".
-"base" applies to every block type, and a type's own entry wins. Emotion blocks normally take their colour from the player mood, so leave the emotion fill alone unless the description asks for it.
+"base" applies to every block type, and a type's own entry wins. Emotion blocks normally take their colour from the mood, so leave the emotion fill alone unless the description asks for it.
 
 DESCRIPTION: ${desc}
 
@@ -182,7 +182,7 @@ function lkColor(label,field,get,set,o){
 }
 function lkPreviewNode(){
   const t = LK.type==='base' ? 'question' : LK.type, node = {type:t,mood:'curiosity'};
-  const blk = mk('div',{class:'blk t-'+t},mk('span',{class:'ico',html:null}),mk('span',{class:'txt',text:{question:'Would a bigger map help?',answer:'Landmarks are too far apart',emotion:'Bored crossing empty ground',consequence:'Players skip optional areas',decision:'Add a glide ability',loop:'Explore',fog:'Camera on long routes'}[t]}));
+  const blk = mk('div',{class:'blk t-'+t},mk('span',{class:'ico',html:null}),mk('span',{class:'txt',text:DOM().blocks[t]}));
   blk.querySelector('.ico').innerHTML = ICONS[t];
   const box = mk('div',{class:'lk-pv',id:'lkPv'},blk);
   box.update = () => { const d = decorate(blk,t,node); blk.className = 'blk t-'+t+(d.poly ? ' sh-poly' : '')+(d.icon ? '' : ' no-ico'); blk.querySelector('.ico').innerHTML = ICONS[t]; box.style.setProperty('--pvw',d.width+'px'); box.querySelector('.txt').style.removeProperty('color'); };
@@ -216,7 +216,7 @@ function buildNodesPane(){
     lkRange('Side bar','barW',()=>S_().bar ? S_().bar.width : 0,v=>lkSetNode('bar',v>0 ? {width:v,color:(S_().bar && S_().bar.color) || 'var(--ink2)'} : null),{min:0,max:10,step:1,unit:'px'}),
     lkRange('Outer ring','ringW',()=>S_().ring ? S_().ring.width : 0,v=>lkSetNode('ring',v>0 ? {width:v,color:(S_().ring && S_().ring.color) || 'var(--line)',offset:(S_().ring && S_().ring.offset) || 3} : null),{min:0,max:5,step:.5,unit:'px'})
   );
-  const moods = mk('div',{class:'field',id:'lkMoods'},mk('span',{class:'lbl',text:'Mood colours'}),mk('small',{text:'Colour is reserved for how the player feels. Change what each feeling looks like.'}));
+  const moods = mk('div',{class:'field',id:'lkMoods'},mk('span',{class:'lbl',text:'Mood colours'}),mk('small',{text:'Colour is reserved for how people feel. Change what each feeling looks like.'}));
   MOOD_KEYS.forEach(k=>{
     const c = mk('input',{type:'color','data-mood':k}); c.addEventListener('pointerdown',lkCheckpoint);
     c.addEventListener('input',()=>{ LOOK.moods = LOOK.moods || {}; LOOK.moods[k] = c.value; lookChanged(); });
@@ -351,7 +351,7 @@ function buildTextPane(){
 `nodes.base | question | answer | emotion | consequence | decision | loop | fog:
   shape: ${SHAPES.join(' | ')}
   radius 0-60 (or four numbers)   fill, stroke, text, iconColor: "#rrggbb"
-  fill "mood" and text "auto" follow the player mood and contrast
+  fill "mood" and text "auto" follow the mood and contrast
   strokeWidth 0-10   strokeStyle: solid | dashed | dotted | double | none
   fontSize 9-30   fontWeight 400-900   italic   icon
   width 100-480   padX 0-60   padY 0-40

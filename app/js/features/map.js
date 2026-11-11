@@ -206,14 +206,14 @@ function trackYes(text){
 }
 async function askPushback(card,text){
   const ev = await projectEvidence(card.text+' '+text,4);
-  const prompt = `You are a sharp but fair design interviewer. A game designer just answered a question. Decide whether the answer needs pushback and, if it does, give it. You never answer for the designer, never suggest an alternative decision and never offer options to pick from.
+  const prompt = `You are a sharp but fair design interviewer. A ${DOM().personFull} just answered a question. Decide whether the answer needs pushback and, if it does, give it. You never answer for the ${DOM().person}, never suggest an alternative decision and never offer options to pick from.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}
 
 QUESTION: ${card.text}
 WHY IT WAS ASKED: ${card.why || 'not stated'}
-THE DESIGNER'S ANSWER: ${text}
+THE ${DOM().person.toUpperCase()}'S ANSWER: ${text}
 ${ev ? '\n'+ev.block+'\n' : ''}
 Push back only when you see a real problem: a hidden assumption, a conflict with something already in the tree or with the destination, an unexamined consequence, or an answer too vague to act on. If the answer holds up, say so.
 ${ev ? 'If the answer conflicts with what the excerpts show, say so and cite the excerpt id like [f2].\n' : ''}Reply with ONLY a JSON object, no markdown:
@@ -247,7 +247,7 @@ function cardAction(card,act){
   if(act==='toproto'){ const q = card.nodeId && S.nodes[card.nodeId]; if(q){ pushHist(); q.ticket = 'prototype'; commit(); card.stateEl.textContent = 'Now a prototype ticket. It stays open on the map.'; } return; }
   pushHist();
   const q = ensureQuestion(card);
-  if(act==='idk'){ q.unknown = true; G.history.push({q:card.text,s:'the designer did not know'}); commit(); finishCard(card,'unknown','Left open on the map. If talking won’t get you there, try a prototype.',card.ticket!=='prototype'); }
+  if(act==='idk'){ q.unknown = true; G.history.push({q:card.text,s:'the '+DOM().person+' did not know'}); commit(); finishCard(card,'unknown','Left open on the map. If talking won’t get you there, try a prototype.',card.ticket!=='prototype'); }
   else if(act==='proto'){ q.ticket = 'prototype'; G.history.push({q:card.text,s:'needs a prototype'}); commit(); finishCard(card,'proto','Now a prototype ticket. It stays open on the map.'); }
   else if(act==='out'){ q.was = q.state || 'open'; q.state = 'out'; G.history.push({q:card.text,s:'out of scope'}); commit(); finishCard(card,'out','Parked as out of scope.'); }
 }
@@ -265,20 +265,20 @@ function roundPrompt(ev){
   const sc = G.scope && S.nodes[G.scope];
   const fog = S.order.filter(id=>S.nodes[id] && S.nodes[id].type==='fog' && S.nodes[id].state!=='out' && !S.nodes[id].ghost).map(id=>`- ${S.nodes[id].text}`).join('\n');
   const hist = G.history.map(h=>h.s==='settled' ? `Q: ${h.q}\nA: ${h.a}` : `Q: ${h.q}\n(${h.s})`).join('\n\n');
-  return `You are interviewing a game designer so they can commit to decisions. You ask, they decide. You are working in rounds: a round is every question whose prerequisites the designer has already settled. Never ask a question that depends on an answer you have not heard yet.
+  return `You are interviewing a ${DOM().personFull} so they can commit to decisions. You ask, they decide. You are working in rounds: a round is every question whose prerequisites the ${DOM().person} has already settled. Never ask a question that depends on an answer you have not heard yet.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${S.order.length ? treeText() : '(empty)'}${ev ? '\n\n'+ev.block : ''}
-${sc ? '\nSCOPE: stay inside this part of the tree: '+sc.text+' ('+G.scope+')\n' : ''}${fog ? '\nFOG (decisions coming that the designer cannot phrase yet):\n'+fog+'\n' : ''}${hist ? '\nSESSION SO FAR:\n'+hist+'\n' : ''}
+${sc ? '\nSCOPE: stay inside this part of the tree: '+sc.text+' ('+G.scope+')\n' : ''}${fog ? '\nFOG (decisions coming that the '+DOM().person+' cannot phrase yet):\n'+fog+'\n' : ''}${hist ? '\nSESSION SO FAR:\n'+hist+'\n' : ''}
 Write one JSON object per line (NDJSON). No markdown, no commentary. Each line:
 {"id":"q1","parent":"<id of the existing node this question comes out of>","text":"<question, at most 18 words>","why":"<at most 20 words on what answering it unlocks>","ticket":"talk|prototype|research|task","grillable":true}
 
 Rules:
 - Ask 3 to 6 questions this round, all independent of each other.
 - Never answer a question yourself, never offer options to pick from, and never hint at the answer.
-- Prefer questions that expose decisions the designer is making without noticing, and that test the destination or the goal.
-- Be specific to this game and this tree. Do not repeat anything already settled or already asked.
-- Set grillable to false and ticket to prototype when the question cannot be settled by talking because the designer needs something to react to. Use research when a fact from outside the tree is needed and task when manual preparation blocks a decision.
+- Prefer questions that expose decisions the ${DOM().person} is making without noticing, and that test the destination or the goal.
+- Be specific to this ${DOM().subject} and this tree. Do not repeat anything already settled or already asked.
+- Set grillable to false and ticket to prototype when the question cannot be settled by talking because the ${DOM().person} needs something to react to. Use research when a fact from outside the tree is needed and task when manual preparation blocks a decision.
 ${ev ? "- The excerpts show what the project already does. Where it has already made a decision, ask whether it is intended instead of asking as if the question were open. Where it conflicts with the tree or the goal, ask about the conflict.\n" : ''}- If nothing is left to ask, write exactly one line instead: {"done":true,"summary":"<at most 25 words on what is now settled>"}`;
 }
 async function nextRound(){
@@ -287,7 +287,7 @@ async function nextRound(){
   G.busy = true; G.failed = false; G.round++; G.cards = []; gCards.textContent = ''; gDone.hidden = true; gNoteShow('');
   renderGrillShell();
   const sc0 = G.scope && S.nodes[G.scope];
-  const ev = await projectEvidence(((sc0 ? sc0.text+' ' : '')+(PREFS.goal||'')+' '+(PREFS.context||'')).trim() || 'game design',5);
+  const ev = await projectEvidence(((sc0 ? sc0.text+' ' : '')+(PREFS.goal||'')+' '+(PREFS.context||'')).trim() || (DOM().subject+' '+DOM().treeName),5);
   const c = new AbortController(); G.ctl = c;
   let done = 0, got = 0, cancelled = false;
   const parse = (text,final) => {

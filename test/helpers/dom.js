@@ -23,6 +23,8 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
     if(fetchImpl) w.fetch = fetchImpl;
     if(claude) w.claude = claude;
     if(session) for(const [k,v] of Object.entries(session)) w.sessionStorage.setItem(k,v);
+    // the tests exercise the game-design starter tree unless a test says otherwise
+    if(!(local && local['cascade-prefs-v1'])) w.localStorage.setItem('cascade-prefs-v1',JSON.stringify({ domain:'game' }));
     if(local) for(const [k,v] of Object.entries(local)) w.localStorage.setItem(k,v);
     w.addEventListener('error',e=>errs.push(String(e.error || e.message)));
   } });

@@ -14,7 +14,7 @@ function nodeLine(id){
   return `${n.type}${n.type==='emotion' && n.mood ? ' ('+n.mood+')' : ''}${n.state==='settled' ? ' [settled]' : n.state==='out' ? ' [out of scope]' : ''}${n.decided ? ' [decision]' : ''}: ${n.text}`;
 }
 function askPrompt(q,ev){
-  return `You are analysing a game-design decision tree to answer the designer's question using only what is in the tree${ev ? ' and the project excerpts below' : ''}.
+  return `You are analysing a ${DOM().treeName} to answer the ${DOM().person}'s question using only what is in the tree${ev ? ' and the project excerpts below' : ''}.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}
@@ -34,7 +34,7 @@ Rules:
 - 2 to 8 nodes per thread and at most 3 threads. Order each thread from the start of the reasoning to its end.
 - Never invent facts that are not in the tree. If the tree cannot answer, use verdict unanswered, an empty threads list and fill gaps.
 - Leave gaps empty when the question is fully answered.${ev ? `
-- The tree is the designer's intent and the excerpts are what the project does today. Say which one the answer rests on in basis, and cite excerpt ids in the answer text like [f1].
+- The tree is the ${DOM().person}'s intent and the excerpts are what the project does today. Say which one the answer rests on in basis, and cite excerpt ids in the answer text like [f1].
 - If the tree and the excerpts disagree, say so plainly in the answer.
 - Excerpts are not tree nodes: never put an excerpt id in a thread.` : ''}`;
 }
@@ -176,7 +176,7 @@ function addGaps(){
 }
 function threadSummaryPrompt(){
   const th = AN.threads.filter(t=>t.on).map((t,i)=>`Thread ${i+1}, ${t.label}${t.why ? ' ('+t.why+')' : ''}:\n`+t.ids.filter(id=>S.nodes[id]).map((id,k)=>`  ${k+1}. ${nodeLine(id)}`).join('\n')).join('\n\n');
-  return `Summarise what a game-design decision tree says in answer to a question, using only the highlighted threads below.
+  return `Summarise what a ${DOM().treeName} says in answer to a question, using only the highlighted threads below.
 
 ${guideBlock()}QUESTION: ${AN.q}
 
@@ -186,7 +186,7 @@ ${th}
 Write ${aNext.checked ? '3 to 5 sentences, then one sentence beginning "Next:" that names the single most useful thing to decide or test next,' : '3 to 5 sentences'} in plain prose. No bullet points, no headings, no markdown. Stay faithful to the nodes: say what is settled and what is still open, and do not add facts or recommendations that are not in them.`;
 }
 function treeSummaryPrompt(){
-  return `Summarise this game-design decision tree for the designer.
+  return `Summarise this ${DOM().treeName} for the ${DOM().person}.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${treeText()}

@@ -110,7 +110,7 @@ async function streamLines(prompt,o){
 
 /* --- the prompts --- */
 function mapPrompt(g,engine){
-  return `You are reading part of a game project (${engine}) so its designer can see what the notes and code already decide.
+  return `You are reading part of a ${DOM().projectNoun}${engine && engine!=='a generic project' ? ' ('+engine+')' : ''} so its ${DOM().person} can see what the notes and code already decide.
 
 FOLDER: ${g.label}
 
@@ -120,10 +120,11 @@ Write one JSON object per line (NDJSON). No markdown, no commentary. Each line i
 {"kind":"mechanic|parameter|state|decision|open|constraint|system","text":"<one plain sentence, at most 28 words>","file":"<a path from above>","line":<line number>}
 
 Rules:
-- Describe what the game does or has decided, in design language, not how the code is organised.
-- parameter: a value that shapes play, with the value ("Walk speed is 6.5 and sprinting multiplies it by 1.6").
-- state: a mode or state machine the game has ("Enemies cycle through Idle, Chase and Attack").
-- decision: a design choice the notes or code clearly make.
+- Describe what the ${DOM().subject} does or has decided, in plain language, not how the files or code are organised.
+- mechanic: a rule or process by which something works.
+- parameter: a value that shapes the outcome, with the value ("The trial lasts 14 days and renewals are 20% cheaper").
+- state: a mode or state machine the ${DOM().subject} has ("An order moves through Draft, Review and Approved").
+- decision: a choice the notes or code clearly make.
 - open: a TODO, FIXME, TBD or visibly unfinished piece, and what is unsettled.
 - constraint: a rule, cap or restriction.
 - system: a major system and the role it plays.
@@ -132,7 +133,7 @@ Rules:
 }
 function briefPrompt(findings,engine){
   const body = findings.map(f=>`${f.kind}: ${f.text} [${(f.refs[0] || {}).file || ''}]`).join('\n');
-  return `You are writing a brief about a game project (${engine}) for a game designer's tool. Below are findings from reading the project's notes and code, in no particular order. Write the brief that the tool reads before every task.
+  return `You are writing a brief about a ${DOM().projectNoun}${engine && engine!=='a generic project' ? ' ('+engine+')' : ''} for a ${DOM().personFull}'s tool. Below are findings from reading the project's notes and code, in no particular order. Write the brief that the tool reads before every task.
 
 FINDINGS:
 ${body}
@@ -145,7 +146,7 @@ function seedPrompt(findings){
   const list = [...findings].sort((a,b)=>order.indexOf(a.kind)-order.indexOf(b.kind)).slice(0,90);
   const f = list.map(x=>`${x.id} | ${x.kind} | ${x.text} | ${x.refs[0] ? x.refs[0].file+':'+x.refs[0].line : ''}`).join('\n');
   const size = {small:10,medium:16,large:24}[PREFS.growSize] || 16;
-  return `You are turning what a game project already contains into a decision tree for its designer. Every node must come from the findings below. You add no facts of your own.
+  return `You are turning what a ${DOM().projectNoun} already contains into a decision tree for its ${DOM().person}. Every node must come from the findings below. You add no facts of your own.
 
 ${guideBlock()}TREE (id | type | text | parent):
 ${S.order.length ? treeText() : '(empty)'}
@@ -161,8 +162,8 @@ Rules:
 - question: something the project leaves open (TODOs, FIXMEs, TBDs), or where the project seems to conflict with the goal, the pillars or something already in the tree. ticket applies to questions only.
 - fog: an area the project hints at but has not defined yet.
 - consequence: only an effect that follows directly from a value or rule in a finding, such as what a stamina limit does to travel.
-- loop: a stage of the game loop, only when the findings clearly show one. If the tree is empty, start with loop nodes and hang the rest beneath them.
-- Do not write emotion nodes unless a finding states how the player feels.
+- loop: one of the ${DOM().loopDesc}, only when the findings clearly show one. If the tree is empty, start with loop nodes and hang the rest beneath them.
+- Do not write emotion nodes unless a finding states how ${DOM().audience} feel.
 - from lists the finding ids that support the node, at least one. Never cite a finding that does not support it.
 - Put each node under the existing node it belongs with. Do not repeat anything already in the tree.
 - At most ${size} lines, the most important first.`;
@@ -270,7 +271,7 @@ async function buildBrief(){
   const mode = !briefText() ? 'build' : stale.length ? 'update' : 'rebuild', work = mode==='update' ? stale : sel;
   const kept = mode==='update' ? PFIND.findings.filter(f=>sel.some(g=>g.label===f.group && have[g.id]===g.fingerprint)) : [];
   projBusy = true; projCtl = new AbortController(); lockProject(true); pMsg('');
-  const engine = (PROJ && PROJ.engineLabel) || 'a game project', fresh = []; let nDone = 0, failed = 0;
+  const engine = (PROJ && PROJ.engineLabel) || '', fresh = []; let nDone = 0, failed = 0;
   try{
     const queue = work.slice();
     const worker = async () => {

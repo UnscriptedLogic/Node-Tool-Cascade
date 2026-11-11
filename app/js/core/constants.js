@@ -17,15 +17,6 @@ const MOODS = {
   tension:    {bg:'#3566D1',fg:'#FFFFFF'}
 };
 const MOOD_KEYS = Object.keys(MOODS);
-const PLACEHOLDER = {
-  fog:'Something about combat pacing we haven’t pinned down',
-  loop:'Exploration',
-  question:'Would a bigger map horizontally solve traversal issues?',
-  answer:'Players don’t know where to go after the first area',
-  emotion:'Frustrated by backtracking through empty terrain',
-  consequence:'Fewer players reach the second biome',
-  decision:'Add a glide ability before the first boss'
-};
 const svg = (d) => `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const ICONS = {
   question: svg('<circle cx="8" cy="8" r="6.3"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.7-.9 1.4"/><path d="M8 11.5v.1"/>'),
@@ -60,7 +51,7 @@ const LOCAL = !!window.__LOCAL__;
 const WEB = !!window.__WEB__;
 const MODE = LOCAL ? 'local' : WEB ? 'web' : 'artifact';
 const WEBAI_KEY = 'cascade-web-ai-v1';
-const DEFAULT_PREFS = {goal:'',context:'',pillars:'',avoid:'',steer:'balanced',autoGrow:true,autoTrace:true,growSize:'medium',creativity:0.7,theme:'system',pushback:true,grillStyle:'round',quitOnClose:false,useProject:true,askFiles:true};
+const DEFAULT_PREFS = {domain:'general',goal:'',context:'',pillars:'',avoid:'',steer:'balanced',autoGrow:true,autoTrace:true,growSize:'medium',creativity:0.7,theme:'system',pushback:true,grillStyle:'round',quitOnClose:false,useProject:true,askFiles:true};
 function loadPrefs(){
   try{
     if(LOCAL && window.__SETTINGS__ && window.__SETTINGS__.prefs) return window.__SETTINGS__.prefs;
@@ -68,6 +59,7 @@ function loadPrefs(){
   }catch(e){ return {}; }
 }
 let PREFS = Object.assign({},DEFAULT_PREFS,loadPrefs());
+if(!loadPrefs().domain && Object.keys(loadPrefs()).length) PREFS.domain = 'game';   // trees saved before domains existed were all game design
 let SRV = LOCAL ? (window.__SETTINGS__ || null) : null;
 let PROJ = LOCAL && SRV && SRV.project ? SRV.project : null;   // the scanned project, if any (local app only)   // public server settings (never contains keys)
 function loadWebAI(){

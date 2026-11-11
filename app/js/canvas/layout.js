@@ -69,7 +69,7 @@ function paint(n){
     btns.push(['grill','Grill me on this']);
     if(n.src && n.src.length) btns.push(['src','Where this came from']);
     btns.push(['grow','Grow branches from here']);
-    if(n.type==='emotion') btns.push(['back','Trace back: why does the player feel this?']);
+    if(n.type==='emotion') btns.push(['back',DOM().traceTip]);
     if(hasKids) btns.push(['collapse',n.collapsed?'Expand':'Collapse']);
     btns.push(['del',hasKids?'Delete node (its children move up)':'Delete']);
     if(hasKids) btns.push(['delb','Delete node and everything below it']);

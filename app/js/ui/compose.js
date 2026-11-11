@@ -8,7 +8,7 @@ function openCompose(type,cx,cy){
   compose.style.width = w+'px'; compose.style.left = x+'px'; compose.style.top = y+'px';
   compose.querySelector('.ico').innerHTML = ICONS[type];
   compose.querySelector('.cname').textContent = LABEL[type];
-  cta.value = ''; cta.placeholder = PLACEHOLDER[type];
+  cta.value = ''; cta.placeholder = DOM().blocks[type];
   comp = {type,wpos:screenToWorld(cx,cy),x,y,w};
   compose.hidden = false; cta.focus();
 }
