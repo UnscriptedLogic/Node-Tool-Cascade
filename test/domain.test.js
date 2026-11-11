@@ -44,3 +44,14 @@ test('domain: browsers that saved preferences before domains existed keep their 
   const a = open({ local:{ 'cascade-prefs-v1':JSON.stringify({ goal:'Make travel fun' }) }, claude:recorder([]) }); await sleep(400);
   assert.equal(legend(a),'Player feeling');
 });
+
+test('domain: project-reading prompts follow the profile, and name an engine only when there is one',async()=>{
+  const prompts = (domain) => open({ local:{ 'cascade-prefs-v1':JSON.stringify({ domain }) }, claude:recorder([]) });
+  const g = prompts('general'); await sleep(300);
+  const grp = { label:'docs', digest:'FILE a.md (md)', excerpts:'' };
+  const map = g.w.eval(`mapPrompt(${JSON.stringify(grp)},'')`), brief = g.w.eval(`briefPrompt([{id:'f1',kind:'decision',text:'We ship monthly.',refs:[{file:'a.md',line:1}]}],'')`);
+  for(const p of [map,brief]) assert.doesNotMatch(p,GAMEY);
+  assert.match(map,/part of a project so its decision-maker/); assert.doesNotMatch(map,/\(\s*\)/);
+  const k = prompts('game'); await sleep(300);
+  assert.match(k.w.eval(`mapPrompt(${JSON.stringify(grp)},'Unity')`),/part of a game project \(Unity\) so its designer/);
+});
