@@ -65,7 +65,7 @@ app. Anything a user wants to spend is on their own provider account; there is n
 never stored are listed at the top of that file, and are checked on the server: anything off the lists is dropped.
 
 **Reading the numbers.** Create an API token with *Account > Account Analytics > Read*. On Windows, double-click
-`scriptsanalytics-report.bat` (or run `scriptsanalytics-report.bat dev 30`): it asks for the token once, hidden, and can save it to
+`scripts\analytics-report.bat` (or run `scripts\analytics-report.bat dev 30`): it asks for the token once, hidden, and can save it to
 `scripts/analytics.local.env`, which git ignores. Or from any shell:
 
 ```bash
