@@ -31,6 +31,21 @@ export function d1Store(db){
     },
     async deleteCascade(uid,id){ await db.prepare('DELETE FROM cascades WHERE id=? AND user_id=?').bind(id,uid).run(); },
 
+    // AI keys (encrypted by ai.js before they get here)
+    async getAi(uid){
+      const a = await db.prepare('SELECT active FROM ai_settings WHERE user_id=?').bind(uid).first();
+      const { results } = await db.prepare('SELECT provider,key_enc,key_hint,model,base_url FROM ai_connections WHERE user_id=?').bind(uid).all();
+      return { active:a ? a.active : 'demo', rows:results };
+    },
+    async setActive(uid,name,now){
+      await db.prepare('INSERT INTO ai_settings (user_id,active) VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET active=excluded.active').bind(uid,name).run();
+    },
+    async putConn(uid,provider,c,now){
+      await db.prepare(`INSERT INTO ai_connections (user_id,provider,key_enc,key_hint,model,base_url,updated_at) VALUES (?,?,?,?,?,?,?)
+        ON CONFLICT(user_id,provider) DO UPDATE SET key_enc=excluded.key_enc, key_hint=excluded.key_hint, model=excluded.model, base_url=excluded.base_url, updated_at=excluded.updated_at`)
+        .bind(uid,provider,c.keyEnc,c.hint,c.model,c.baseUrl,now).run();
+    },
+
     // accounts
     async upsertUser(u,id,now){
       await db.prepare(`INSERT INTO users (id,google_sub,email,name,picture,created_at) VALUES (?,?,?,?,?,?)
@@ -46,6 +61,7 @@ export function d1Store(db){
     },
     async deleteSession(tokenHash){ await db.prepare('DELETE FROM sessions WHERE token_hash=?').bind(tokenHash).run(); },
     async deleteUser(userId){ await db.batch([
+      db.prepare('DELETE FROM ai_connections WHERE user_id=?').bind(userId), db.prepare('DELETE FROM ai_settings WHERE user_id=?').bind(userId),
       db.prepare('DELETE FROM cascades WHERE user_id=?').bind(userId), db.prepare('DELETE FROM folders WHERE user_id=?').bind(userId),
       db.prepare('DELETE FROM sessions WHERE user_id=?').bind(userId), db.prepare('DELETE FROM users WHERE id=?').bind(userId)
     ]); }

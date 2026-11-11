@@ -1,6 +1,7 @@
 // Cascade on Cloudflare: Google sign-in, sessions, and the library API. Everything else is the static web app.
 import library from '../../shared/library.js';
 import { d1Store } from './d1store.js';
+import { handleAi } from './ai.js';
 import { verifyGoogleToken, sha256Hex, newToken, readCookie, sessionCookie, SESSION_DAYS } from './auth.js';
 
 const { handle, LibraryError } = library;
@@ -46,6 +47,12 @@ export async function handleRequest(request,env,deps = {}){
     if(path==='/api/auth/account' && method==='DELETE'){   // delete my account and everything saved in it
       if(!user) return json(401,{ error:'sign_in' });
       await store.deleteUser(user.id); return json(200,{ ok:true },{ 'set-cookie':sessionCookie('') });
+    }
+
+    if(/^\/api\/(settings|models|test|sample|oauth\/openrouter)$/.test(path)){
+      if(!user) return json(401,{ error:'sign_in', detail:'Sign in to use AI from your account.' });
+      const res = await handleAi({ request, path, method, env, store, uid:user.id, bodyOf, now:now() });
+      if(res) return res;
     }
 
     if(!/^\/api\/(library|folders|cascades)(\/|$)/.test(path)) return json(404,{ error:'not_found' });
