@@ -75,6 +75,8 @@ test('dragging never selects text: pan, node drag and palette drag block selecti
   a.click(tile); assert.equal(ds(a.$('#compose textarea')),false);
   // text you are meant to edit or copy stays selectable
   const css = require('../scripts/assemble').assemble({ inline:true });
+  assert.ok(!/\.node:hover \.bar/.test(css),'the block action bar appears on click, not on hover');
+  assert.match(css,/\.node\.sel \.bar\{display:flex/);
   assert.match(css,/#stage,#rail\{user-select:none/);
   assert.match(css,/#stage \[contenteditable="true"\],#side,#compose,#note\{user-select:text/);
   assert.deepEqual(a.errs,[]);
