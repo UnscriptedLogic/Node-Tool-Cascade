@@ -24,7 +24,8 @@ if exist "%SAVED%" (
 
 set "ASKED="
 if "%CLOUDFLARE_ACCOUNT_ID%"=="" (
-  set "CLOUDFLARE_ACCOUNT_ID=e86a4c5eb0682ac2e9544d53ab287600"
+  set "ASKED=1"
+  set /p "CLOUDFLARE_ACCOUNT_ID=Cloudflare account id (32 characters, in the dashboard address): "
 )
 if "%CLOUDFLARE_API_TOKEN%"=="" (
   set "ASKED=1"

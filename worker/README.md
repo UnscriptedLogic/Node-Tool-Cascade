@@ -76,6 +76,12 @@ It prints visits and unique visitors per day, blocks created, kept and dismissed
 users per provider (`anthropic` is Claude, `openai` is OpenAI), sign-ins, feature use and visits by country. The raw rows can be
 queried with SQL in the dashboard or API; the column layout is in `analytics.js`.
 
+**Dashboard.** For charts instead of a table, run `npm run admin` (or double-click `scripts\\admin.bat`) and open
+http://localhost:4400. It shows visits, blocks created and kept, AI use by provider and people per provider, features used and visits
+by country, for production or dev over 7, 30 or 90 days, in light or dark, each chart also as a table. It runs on this computer only,
+reads with your token on the server side (the page never receives it), and asks for the account id and token once; saving them is
+optional and goes to `scripts/analytics.local.env`, which git ignores. `node scripts/admin/server.js --demo` shows made-up numbers.
+
 **Page views.** In the Cloudflare dashboard open *Analytics & Logs > Web Analytics > Add a site*, enter the hostname
 (`cascade.unscriptedlogic.com`, and again for `cascade-dev.unscriptedlogic.com`), choose manual setup, and copy the token from the
 snippet (`data-cf-beacon='{"token": "..."}'`). Put it in `CF_BEACON_TOKEN` in `wrangler.toml` for that environment. The token is
