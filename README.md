@@ -86,7 +86,7 @@ questions, using the vocabulary of that domain. Profiles live in `app/js/core/pr
 ## Library
 
 The **Library** tab keeps several Cascades, grouped in folders. The open Cascade saves itself as you work. The local app stores
-them on your computer; the Cloudflare version stores them in your account (see [worker/README.md](worker/README.md)).
+them on your computer; the Cloudflare version stores them in your account (see [worker/README.md](worker/README.md)). Signed in on the web, you can also save your own Claude, OpenAI or OpenRouter key to your account and use it from any device. It is stored encrypted and used only from the server.
 
 ## Tech stack
 
