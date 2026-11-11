@@ -45,8 +45,9 @@ function libAfterSave(){
 async function libRefresh(){
   if(LIB.kind==='cloud'){
     try{ LIB.user = (await libApi('GET','auth/me')).user; }catch(e){ LIB.user = null; }
-    if(!LIB.user){ LIB.folders = []; LIB.cascades = []; libRender(); return; }
+    if(!LIB.user){ LIB.folders = []; LIB.cascades = []; await cloudAiRefresh(); libRender(); return; }
   }
+  await cloudAiRefresh();
   try{ const l = await libApi('GET','library'); LIB.folders = l.folders; LIB.cascades = l.cascades; }
   catch(e){ libSetStatus('Could not load the library: '+e.message); }
   if(!libCurrent()) libRemember(null);
@@ -183,6 +184,20 @@ function libRender(){
   if(loose.length) list.append(libEl('section',{ class:'lib-folder' }, LIB.folders.length ? libEl('header',{ class:'lib-fhead' },libEl('strong',{ text:'Not in a folder' })) : null, libEl('ul',{ class:'lib-list' }, ...loose.map(libCascadeRow))));
 }
 
+/* ---- AI through the account (cloud only) ---- */
+// Signed in on the cloud, the AI settings screen and every AI call use the account's saved keys, through the server.
+async function cloudAiRefresh(){
+  if(LIB.kind!=='cloud') return;
+  if(LIB.user){
+    try{ SRV = await libApi('GET','settings'); CLOUDAI = true; aiOff = false; initProviderList(); }
+    catch(e){ CLOUDAI = false; SRV = null; }
+  }else{ CLOUDAI = false; SRV = null; }
+  $('#aiLocal').hidden = !CLOUDAI; $('#aiWeb').hidden = CLOUDAI;
+  $('#aiLocalLead').textContent = 'Pick who does the thinking. Your keys are saved to your account, encrypted, and used from our server only to call the provider you choose. The page can’t read them back.';
+  $('#aiCloudHint').hidden = CLOUDAI || !LIB.googleClientId;
+  updateProviders(); updateHud();
+}
+
 /* ---- Google sign-in (cloud only) ---- */
 function libMountGoogle(){
   const host = $('#libGoogle'); if(!LIB.googleClientId){ host.textContent = 'Google sign-in is not set up on this server yet.'; return; }
@@ -202,11 +217,11 @@ async function libGoogleDone(resp){
   try{ const r = await libApi('POST','auth/google',{ credential:resp.credential }); LIB.user = r.user; libSetStatus(''); await libRefresh(); }
   catch(e){ libSetStatus('Sign-in did not work: '+e.message); }
 }
-async function libSignOut(){ try{ await libApi('POST','auth/logout',{}); }catch(e){} LIB.user = null; libRemember(null); LIB.folders = []; LIB.cascades = []; libRender(); }
+async function libSignOut(){ try{ await libApi('POST','auth/logout',{}); }catch(e){} LIB.user = null; cloudAiRefresh(); libRemember(null); LIB.folders = []; LIB.cascades = []; libRender(); }
 async function libDeleteAccount(){
   if(LIB.armed!=='account'){ LIB.armed = 'account'; $('#libDeleteAccount').textContent = 'Really delete my account and every saved Cascade?'; setTimeout(()=>{ if(LIB.armed==='account'){ LIB.armed = null; $('#libDeleteAccount').textContent = 'Delete my account'; } },5000); return; }
   try{ await libApi('DELETE','auth/account'); }catch(e){ libSetStatus('Could not delete the account: '+e.message); return; }
-  LIB.armed = null; $('#libDeleteAccount').textContent = 'Delete my account'; LIB.user = null; libRemember(null); LIB.folders = []; LIB.cascades = []; libRender();
+  LIB.armed = null; $('#libDeleteAccount').textContent = 'Delete my account'; LIB.user = null; cloudAiRefresh(); libRemember(null); LIB.folders = []; LIB.cascades = []; libRender();
 }
 
 /* ---- start-up: find out which library (if any) this page can use ---- */

@@ -14,6 +14,21 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS sessions_user ON sessions(user_id);
+-- the person's own AI provider keys: encrypted before they reach this table (see worker/src/ai.js)
+CREATE TABLE IF NOT EXISTS ai_settings (
+  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  active TEXT NOT NULL DEFAULT 'demo'
+);
+CREATE TABLE IF NOT EXISTS ai_connections (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  provider TEXT NOT NULL,
+  key_enc TEXT NOT NULL DEFAULT '',
+  key_hint TEXT NOT NULL DEFAULT '',
+  model TEXT NOT NULL DEFAULT '',
+  base_url TEXT NOT NULL DEFAULT '',
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (user_id, provider)
+);
 CREATE TABLE IF NOT EXISTS folders (
   id TEXT PRIMARY KEY,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,

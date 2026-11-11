@@ -113,9 +113,9 @@ function suggestModel(list,p){
   return [...pool].sort((a,b)=>rank(a)-rank(b) || (p==='openrouter' ? idx(a)-idx(b) : b.localeCompare(a)))[0];
 }
 function updateProviders(){
-  if(!LOCAL || !SRV) return;
+  if(!(LOCAL || CLOUDAI) || !SRV) return;
   document.querySelectorAll('.prov[data-prov]').forEach(sec=>{
-    const p = sec.dataset.prov, s = SRV.providers[p]; if(!s) return;
+    const p = sec.dataset.prov, s = SRV.providers[p]; sec.hidden = !s; if(!s) return;   // the cloud has no ChatGPT sign-in
     const active = SRV.active===p;
     sec.classList.toggle('active',active);
     sec.querySelector('input[type=radio]').checked = active;
@@ -132,7 +132,7 @@ function updateProviders(){
       sec.querySelector('[data-act=cgSignOut]').hidden = !a;
     } else {
       sec.querySelector('[data-role=keyhint]').textContent = s.hasKey
-        ? (s.source==='env' ? `Using the key from your environment (${s.hint}). Saving one here overrides it.` : `Key saved on this computer (${s.hint}).`)
+        ? (s.source==='env' ? `Using the key from your environment (${s.hint}). Saving one here overrides it.` : `Key saved ${LOCAL ? 'on this computer' : 'to your account, encrypted'} (${s.hint}).`)
         : (p==='custom' ? 'No key saved. Local models usually don’t need one.' : 'No key saved yet.');
       sec.querySelector('[data-act=rmKey]').hidden = !(s.hasKey && s.source==='settings');
       const bi = sec.querySelector('[data-role=base]'); if(document.activeElement!==bi) bi.value = s.baseUrl || '';
@@ -327,12 +327,15 @@ document.querySelector('.stabs').addEventListener('click',e=>{ const b = e.targe
 addEventListener('keydown',e=>{ if(e.key==='Escape' && !settingsEl.hidden && document.getElementById('srcview').hidden){ e.stopPropagation(); closeSettings(); } },true);
 document.querySelectorAll('[data-modes]').forEach(el=>{ el.hidden = !el.dataset.modes.split(' ').includes(MODE); });
 document.body.classList.add('mode-'+MODE);
-if(LOCAL){
+// the provider list is built once, for the local app or for a signed-in cloud account
+let provListBuilt = false;
+function initProviderList(){
+  if(provListBuilt) return; provListBuilt = true;
   const list = $('#provList');
   list.innerHTML = PROV_ORDER.map(provCard).join('');
   list.addEventListener('click',onProvClick); list.addEventListener('change',onProvChange);
-  initServer();
 }
+if(LOCAL){ initProviderList(); initServer(); }
 if(WEB) initWebConnect();
 if(LOCAL || WEB) initData();
 applyTheme();

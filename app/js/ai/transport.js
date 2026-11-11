@@ -94,7 +94,7 @@ async function finishOpenRouterLogin(){
   if(!saved || !saved.verifier) return;
   history.replaceState(null,'',location.pathname+location.hash);
   try{
-    if(LOCAL){ SRV = await postJSON('/api/oauth/openrouter',{code,verifier:saved.verifier}); }
+    if(LOCAL || CLOUDAI){ SRV = await postJSON('/api/oauth/openrouter',{code,verifier:saved.verifier}); }
     else{
       const r = await fetch(OR_SITE+'/api/v1/auth/keys',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code,code_verifier:saved.verifier,code_challenge_method:'S256'})});
       let j = {}; try{ j = await r.json(); }catch(e){}
@@ -103,7 +103,7 @@ async function finishOpenRouterLogin(){
     }
     aiOff = false; updateHud(); openSettings('ai');
     showNote(['Signed in with OpenRouter. Pick a model and you’re set.'],false);
-    if(LOCAL){ const sec = document.querySelector('.prov[data-prov=openrouter]'); if(sec) fetchModels('openrouter',sec,true); }
+    if(LOCAL || CLOUDAI){ const sec = document.querySelector('.prov[data-prov=openrouter]'); if(sec) fetchModels('openrouter',sec,true); }
     else fetchOpenRouterModels(true);
   }catch(e){ showNote([`OpenRouter sign-in didn’t finish: ${e.message}`],false); }
 }

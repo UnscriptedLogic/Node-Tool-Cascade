@@ -37,6 +37,27 @@ block to `wrangler.toml` (bindings are not inherited).
 `.github/workflows/deploy.yml` deploys on every push: `main` to production, `dev` to dev, after the tests pass. It needs the
 repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 
+## AI keys for signed-in users
+
+Signed in, a person can save their own Claude, OpenAI, OpenRouter or custom-endpoint key (Settings > AI model). The page shows the
+same provider screen as the local app. Keys are encrypted with AES-GCM before they reach D1 (bound to the user and provider, so a
+copied row cannot be read as someone else's) and the page only ever sees the last four characters. Model calls go page > Worker >
+provider and stream back, so the key never reaches the browser after it is saved.
+
+Each environment needs its own encryption secret, set once:
+
+```bash
+node -e "process.stdout.write(require('crypto').randomBytes(32).toString('base64url'))" | npx wrangler secret put KEY_SECRET -c worker/wrangler.toml
+# dev:  add --env dev
+```
+
+Keep a copy somewhere safe. If it is lost or changed, saved keys cannot be decrypted and people have to enter them again. Without
+it, saving a key answers "not set up on this server yet" and nothing is stored. The tables for this (`ai_settings`,
+`ai_connections`) are in `schema.sql`, which the deploy workflow applies before each deploy.
+
+Custom endpoints must be public https hosts. Anything on your own computer or network (Ollama, LM Studio) only works in the local
+app. Anything a user wants to spend is on their own provider account; there is no per-user rate limit here.
+
 ## How it works
 
 | Piece | File |
@@ -44,6 +65,7 @@ repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
 | Routes: config, Google sign-in, sessions, library | `src/index.js` |
 | Google ID token check (RS256 against Google's keys, audience, issuer, expiry) | `src/auth.js` |
 | D1 storage: folders, Cascades, users, sessions | `src/d1store.js` |
+| AI keys, model calls, streaming | `src/ai.js` (uses `../../shared/providers.js`, the same adapters as the local app) |
 | Library rules shared with the local app | `../shared/library.js` |
 
 - The browser gets a random session token in an `HttpOnly; Secure; SameSite=Lax` cookie. Only its SHA-256 is stored.

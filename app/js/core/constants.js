@@ -61,6 +61,7 @@ function loadPrefs(){
 }
 let PREFS = Object.assign({},DEFAULT_PREFS,loadPrefs());
 if(!loadPrefs().domain && Object.keys(loadPrefs()).length) PREFS.domain = 'game';   // trees saved before domains existed were all game design
+let CLOUDAI = false;   // signed in on the cloud version: AI settings and calls go through the account's server, like the local app
 let SRV = LOCAL ? (window.__SETTINGS__ || null) : null;
 let PROJ = LOCAL && SRV && SRV.project ? SRV.project : null;   // the scanned project, if any (local app only)   // public server settings (never contains keys)
 function loadWebAI(){
