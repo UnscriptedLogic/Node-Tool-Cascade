@@ -4,11 +4,12 @@
 const fs = require('fs'), path = require('path');
 const { HttpError, str, DATA_DIR } = require('./util');
 const chatgpt = require('./chatgpt');
+const claudecode = require('./claudecode');
 
 const FILE = path.join(DATA_DIR,'settings.json');
-const NAMES = ['chatgpt','openrouter','anthropic','openai','custom','demo'];
+const NAMES = ['chatgpt','claudecode','openrouter','anthropic','openai','custom','demo'];
 const DEFAULT_BASE = { anthropic:'https://api.anthropic.com', openai:'https://api.openai.com/v1', openrouter:'https://openrouter.ai/api/v1', custom:'' };
-const DEFAULT_MODEL = { anthropic:'claude-haiku-5-5' };
+const DEFAULT_MODEL = { anthropic:'claude-haiku-5-5', claudecode:'haiku' };
 const ENV = {
   anthropic:{ key:process.env.ANTHROPIC_API_KEY, base:process.env.ANTHROPIC_BASE_URL, model:process.env.CASCADE_MODEL },
   openai:{ key:process.env.OPENAI_API_KEY, base:process.env.OPENAI_BASE_URL, model:process.env.OPENAI_MODEL },
@@ -32,7 +33,7 @@ function sanitizePrefs(p){
   if(typeof p.creativity==='number' && isFinite(p.creativity)) out.creativity = Math.min(1,Math.max(0,p.creativity));
   return out;
 }
-const hasCreds = (s,n) => n==='chatgpt' ? !!chatgpt.account() : n==='demo' ? false : !!(s.providers[n].key || ENV[n].key);
+const hasCreds = (s,n) => n==='chatgpt' ? !!chatgpt.account() : (n==='demo' || n==='claudecode') ? false : !!(s.providers[n].key || ENV[n].key);
 function load(){
   let o = {}; try{ o = JSON.parse(fs.readFileSync(FILE,'utf8')); }catch(e){}
   const s = { active:null, providers:{}, prefs:sanitizePrefs(o.prefs), look:(o.look && typeof o.look==='object' && !Array.isArray(o.look)) ? o.look : {} };
@@ -53,6 +54,7 @@ function resolveProvider(name,over){
   const st = settings.providers[name] || {}, env = ENV[name] || {};
   const pick = (o,saved,envv,def) => (o || saved || envv || def || '');
   if(name==='chatgpt') return { name, kind:'responses', key:'', base:chatgpt.API_BASE, model:pick(over.model,st.model,'',''), extra:{} };
+  if(name==='claudecode') return { name, kind:'claude-cli', key:'', base:'', model:pick(over.model,st.model,'',DEFAULT_MODEL.claudecode), extra:{} };
   if(name==='demo') return { name, kind:'demo', key:'', base:'', model:'', extra:{} };
   return {
     name, kind: name==='anthropic' ? 'anthropic' : 'openai',
@@ -72,6 +74,7 @@ function problem(cfg){
     if(!cfg.model) return 'Choose a model first. Try Fetch models.';
     return '';
   }
+  if(cfg.name==='claudecode') return claudecode.available() ? '' : 'Claude Code isn’t installed, or Cascade can’t find it.';
   if(cfg.name==='custom' && !cfg.base) return 'Enter a base URL first.';
   if(cfg.name!=='custom' && !cfg.key) return 'Add an API key first.';
   if(!cfg.model) return 'Choose a model first. Try Fetch models.';
@@ -93,6 +96,7 @@ function publicSettings(server){
   out.providers.chatgpt.account = chatgpt.publicAccount();
   out.providers.chatgpt.pending = chatgpt.isPending();
   out.providers.chatgpt.lastError = chatgpt.lastError();
+  out.providers.claudecode.installed = claudecode.available();
   out.ready = out.providers[out.active].ready;
   return out;
 }

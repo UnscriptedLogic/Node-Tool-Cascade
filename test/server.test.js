@@ -187,6 +187,50 @@ test('OpenRouter sign-in: exchanges the code for a key and keeps it server-side'
   assert.equal(chat.headers['x-title'],'Cascade'); assert.equal(chat.body.model,'anthropic/claude-new-haiku');
 });
 
+// ---------- Claude plan through the Claude Code CLI ----------
+// A stand-in for `claude`: records its arguments, environment and stdin, then replies in stream-json.
+function fakeClaude(dir,mode = 'ok'){
+  const f = path.join(dir,'fake-claude.js'), log = path.join(dir,'fake-claude.log');
+  fs.writeFileSync(f,`#!${process.execPath}
+let input = ''; process.stdin.on('data',d=>input += d); process.stdin.on('end',()=>{
+  require('fs').appendFileSync(${JSON.stringify(log)},JSON.stringify({ args:process.argv.slice(2), cwd:process.cwd(), key:process.env.ANTHROPIC_API_KEY || null, input })+'\\n');
+  const out = (o) => process.stdout.write(JSON.stringify(o)+'\\n');
+  out({ type:'system', subtype:'init', apiKeySource:'none' });
+  if(${JSON.stringify(mode)}==='logout'){ out({ type:'result', subtype:'success', is_error:true, result:'Not logged in · Please run /login' }); process.exit(1); }
+  for(const t of ['{"id":"g1",','"type":"answer"}']) out({ type:'stream_event', event:{ type:'content_block_delta', index:0, delta:{ type:'text_delta', text:t } } });
+  out({ type:'result', subtype:'success', is_error:false, result:'' });
+});`,{ mode:0o755 });
+  return { bin:f, calls:() => fs.existsSync(log) ? fs.readFileSync(log,'utf8').trim().split('\n').map(l=>JSON.parse(l)) : [] };
+}
+test('Claude Code: streams through the local CLI with no API key and no project context',{ skip:process.platform==='win32' },async(t)=>{
+  const fake = fakeClaude(tmp());
+  const b = await boot(t,{ CASCADE_CLAUDE_BIN:fake.bin, ANTHROPIC_API_KEY:'sk-ant-should-not-be-passed' });
+  const s = (await b.req('GET','/api/settings')).json.providers.claudecode;
+  assert.equal(s.installed,true); assert.equal(s.ready,true); assert.equal(s.effectiveModel,'haiku');
+  assert.deepEqual((await b.req('POST','/api/models',{ body:{ provider:'claudecode' } })).json.models,['haiku','sonnet','opus','fable']);
+  await b.req('POST','/api/settings',{ body:{ active:'claudecode', providers:{ claudecode:{ model:'sonnet' } } } });
+  const r = await b.req('POST','/api/sample',{ body:{ prompt:'hello there', maxTokens:500 } });
+  const text = r.text.split('\n').filter(l=>l.startsWith('data:')).map(l=>JSON.parse(l.slice(5)).t).join('');
+  assert.equal(text,'{"id":"g1","type":"answer"}');
+  const call = fake.calls().pop();
+  assert.equal(call.input,'hello there','the prompt goes in on stdin');
+  assert.equal(call.key,null,'the API key is not handed to the CLI');
+  assert.equal(fs.realpathSync(call.cwd),fs.realpathSync(path.join(b.dir,'.claude-cli')));
+  const a = call.args, val = (f) => a[a.indexOf(f)+1];
+  assert.ok(a.includes('-p') && a.includes('--strict-mcp-config') && a.includes('--no-session-persistence') && a.includes('--include-partial-messages'));
+  assert.equal(val('--tools'),''); assert.equal(val('--setting-sources'),''); assert.equal(val('--model'),'sonnet'); assert.equal(val('--output-format'),'stream-json');
+});
+test('Claude Code: explains a logged-out CLI and a missing one',{ skip:process.platform==='win32' },async(t)=>{
+  const fake = fakeClaude(tmp(),'logout');
+  const b = await boot(t,{ CASCADE_CLAUDE_BIN:fake.bin });
+  const r = (await b.req('POST','/api/test',{ body:{ provider:'claudecode' } })).json;
+  assert.equal(r.ok,false); assert.equal(r.status,401); assert.match(r.error,/isn’t logged in/);
+  const missing = await boot(t,{ CASCADE_CLAUDE_BIN:path.join(tmp(),'nope') });
+  const s = (await missing.req('GET','/api/settings')).json.providers.claudecode;
+  assert.equal(s.installed,false); assert.equal(s.ready,false);
+  assert.match((await missing.req('POST','/api/test',{ body:{ provider:'claudecode' } })).json.error,/isn’t installed/);
+});
+
 // ---------- Sign in with ChatGPT ----------
 async function signIn(b,{ consent } = {}){
   const start = await b.req('POST','/api/chatgpt/start',{ body:{ consent } });
