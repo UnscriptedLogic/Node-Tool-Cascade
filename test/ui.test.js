@@ -260,7 +260,7 @@ async function page(s,extra = {}){
 test('local: first run offers every way to connect, with the demo already working',async(t)=>{
   const s = await bootServer(t); const a = await page(s); await sleep(900);
   assert.equal(a.$('#settings').hidden,false,'Settings opens itself on first run');
-  assert.deepEqual(a.$$('.prov[data-prov]').map(e=>e.dataset.prov),['chatgpt','openrouter','anthropic','openai','custom','demo']);
+  assert.deepEqual(a.$$('.prov[data-prov]').map(e=>e.dataset.prov),['chatgpt','claudecode','openrouter','anthropic','openai','custom','demo']);
   assert.ok(a.$('.prov[data-prov=demo]').classList.contains('active')); assert.match(a.$('#stxt').textContent,/Demo mode/);
   assert.ok(a.$('[data-act=cgSignIn]').textContent.includes('Continue with ChatGPT')); assert.ok(a.$('[data-act=orSignIn]'));
   assert.deepEqual(a.errs,[]);
