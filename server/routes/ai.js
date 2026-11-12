@@ -15,6 +15,7 @@ module.exports = (r) => {
     if(!settings.NAMES.includes(b.provider) || b.provider==='demo') throw new HttpError(400,'Unknown provider');
     const o = over(b), cfg = settings.resolveProvider(b.provider,{ key:o.key, baseUrl:o.baseUrl });
     if(cfg.name==='chatgpt'){ if(!chatgpt.account()) throw new HttpError(400,'Sign in with ChatGPT first.'); }
+    else if(cfg.name==='claudecode'){}
     else{
       if(cfg.name!=='custom' && cfg.name!=='openrouter' && !cfg.key) throw new HttpError(400,'Add an API key first.');   // OpenRouter lists models without a key
       if(!cfg.base) throw new HttpError(400,'Enter a base URL first.');

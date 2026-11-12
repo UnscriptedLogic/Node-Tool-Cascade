@@ -64,9 +64,10 @@ $('#gChips').addEventListener('click',e=>{
 });
 
 /* --- providers (local version) --- */
-const PROV_ORDER = ['chatgpt','openrouter','anthropic','openai','custom','demo'];
+const PROV_ORDER = ['chatgpt','claudecode','openrouter','anthropic','openai','custom','demo'];
 const PROV = {
   chatgpt:{label:'ChatGPT plan',sub:'Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s “Sign in with ChatGPT” for open-source apps, which is still a preview.'},
+  claudecode:{label:'Claude plan (Claude Code)',sub:'Use your Claude Pro or Max plan instead of an API key. Cascade runs the Claude Code app installed on this computer, which uses the account it’s logged in with.',model:'haiku'},
   openrouter:{label:'OpenRouter',sub:'One sign-in, many models: Claude, GPT, Gemini and more. You pay OpenRouter for usage.',key:'sk-or-…',model:'Choose one with Fetch models',base:'https://openrouter.ai/api/v1'},
   anthropic:{label:'Claude (Anthropic)',sub:'Claude models through the Anthropic API, with your own key.',key:'sk-ant-…',model:'claude-haiku-5-5',base:'https://api.anthropic.com'},
   openai:{label:'OpenAI API',sub:'OpenAI models through the OpenAI API, with your own key. Use Fetch models to see what your key can use.',key:'sk-…',model:'Choose one with Fetch models',base:'https://api.openai.com/v1'},
@@ -86,6 +87,10 @@ function provCard(p){
     <small data-role="cgstate"></small></div>
   ${model}${result}
   <p class="small" style="margin:10px 0 16px;line-height:1.45">Needs ChatGPT Plus or Pro. Usage counts against your plan and any limit you set for this app. <a href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener">Manage usage</a></p></section>`;
+  if(p==='claudecode') return `<section class="prov" data-prov="claudecode">${head}
+  <div class="field"><span class="lbl">Claude Code</span><small data-role="ccstate"></small></div>
+  ${model}${result}
+  <p class="small" style="margin:10px 0 16px;line-height:1.45">Needs Claude Code, logged in with a Claude Pro or Max plan (run <code>claude</code> once in a terminal). Usage counts against your plan’s limits. Each request starts Claude Code, so replies begin a second or two later than with an API key. Only for your own computer and account.</p></section>`;
   return `<section class="prov" data-prov="${p}">${head}
   ${p==='openrouter' ? '<div class="frow" style="margin:0 0 16px 27px"><button class="btn primary" type="button" data-act="orSignIn">Continue with OpenRouter</button></div>' : ''}
   <div class="field"><label for="k-${p}">${p==='openrouter' ? 'Or paste an API key' : 'API key'}</label>
@@ -131,6 +136,10 @@ function updateProviders(){
       sec.querySelector('[data-act=cgSignIn]').hidden = !!a;
       sec.querySelector('[data-act=cgConsent]').hidden = !(a && !a.planUsage);
       sec.querySelector('[data-act=cgSignOut]').hidden = !a;
+    } else if(p==='claudecode'){
+      sec.querySelector('[data-role=ccstate]').textContent = s.installed
+        ? 'Found on this computer. Use Test connection to check that it’s logged in.'
+        : 'Not found. Install Claude Code, log in, then reopen Settings.';
     } else {
       sec.querySelector('[data-role=keyhint]').textContent = s.hasKey
         ? (s.source==='env' ? `Using the key from your environment (${s.hint}). Saving one here overrides it.` : `Key saved ${LOCAL ? 'on this computer' : 'to your account, encrypted'} (${s.hint}).`)
