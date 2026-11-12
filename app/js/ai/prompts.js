@@ -49,7 +49,7 @@ function callAI(prompt,o){
   if(o.cache===false) opts.cache = false;
   if((LOCAL || CLOUDAI) && typeof o.temperature==='number') opts.temperature = o.temperature;
   if((LOCAL || WEB) && activeProvider()==='demo') return demoSample(prompt,o);
-  if(CLOUDAI) return serverSample(prompt,opts);
+  if(CLOUDAI || LOCAL) return serverSample(prompt,opts);
   if(WEB) return webSample(prompt,o);
   return sampleFn(prompt,opts);
 }
