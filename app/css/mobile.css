@@ -56,7 +56,8 @@ body.m-standard #ctrl::-webkit-scrollbar{display:none}
 body.m-standard #ctrl>.seg:first-child,body.m-standard #zOut,body.m-standard #zIn{display:none}   /* pinch zooms; the overview is in More */
 body.m-standard #ctrl .btn,body.m-standard #ctrl .seg{flex:none}
 body.m-standard #goalchip{top:calc(env(safe-area-inset-top) + 62px);left:10px;max-width:calc(100% - 20px)}
-body.m-standard #hlchip{top:calc(env(safe-area-inset-top) + 102px);left:10px;max-width:calc(100% - 20px)}
+body.m-standard #provchip{top:calc(env(safe-area-inset-top) + 102px);left:10px;max-width:calc(100% - 20px)}
+body.m-standard #hlchip{top:calc(env(safe-area-inset-top) + 142px);left:10px;max-width:calc(100% - 20px)}
 body.m-standard #status{top:calc(env(safe-area-inset-top) + 142px);left:10px;max-width:calc(100% - 20px)}
 body.m-standard #nodebar:not([hidden]){display:flex;left:0;right:0;bottom:0;gap:2px;padding:6px 8px;overflow-x:auto;scrollbar-width:none;background:var(--paper);border-top:1px solid var(--line);z-index:6}
 body.m-standard #nodebar::-webkit-scrollbar{display:none}
@@ -72,7 +73,7 @@ body.m-standard #stage.nb #note{bottom:132px}
 body.m #world.far .node.loop .in{transform:scale(min(1.3,calc(.85 / var(--z,1))))}
 
 /* ---- minimal: only the canvas ---- */
-body.m-minimal #rail,body.m-minimal #ctrl,body.m-minimal #goalchip,body.m-minimal #hlchip,body.m-minimal #ghostbar,body.m-minimal #nodebar{display:none!important}
+body.m-minimal #rail,body.m-minimal #ctrl,body.m-minimal #goalchip,body.m-minimal #hlchip,body.m-minimal #provchip,body.m-minimal #ghostbar,body.m-minimal #nodebar{display:none!important}
 body.m-minimal #app{grid-template-rows:minmax(0,1fr)}
 body.m-minimal #status,body.m-minimal #note{top:calc(env(safe-area-inset-top) + 12px);bottom:auto;left:50%;right:auto;transform:translateX(-50%);max-width:calc(100% - 24px);width:max-content}
 
@@ -89,6 +90,6 @@ body.m-minimal #status,body.m-minimal #note{top:calc(env(safe-area-inset-top) + 
 @media (max-height:520px) and (pointer:coarse){
   body.m-standard button.tile,body.m-standard .more{min-height:40px;width:56px}
   body.m-standard button.tile .txt,body.m-standard .more span{display:none}
-  body.m-standard #goalchip,body.m-standard #hlchip{display:none}
+  body.m-standard #goalchip,body.m-standard #hlchip,body.m-standard #provchip{display:none}
 }
 @media (prefers-reduced-motion:reduce){ #ctx{transition:none} }

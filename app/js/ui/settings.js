@@ -153,6 +153,7 @@ function updateProviders(){
   });
   const em = SRV.providers[SRV.active] && SRV.providers[SRV.active].effectiveModel;
   $('#setBtn').title = SRV.ready ? `Settings · ${PROV[SRV.active].label}${em ? ' · '+em : ''}` : 'Settings';
+  try{ syncProviderTag(); }catch(e){}
 }
 async function fetchModels(p,sec,quiet){
   const res = sec.querySelector('[data-role=result]');
@@ -333,6 +334,7 @@ function initData(){
 /* --- wiring --- */
 $('#setBtn').addEventListener('click',()=>openSettings());
 $('#setLink').addEventListener('click',()=>openSettings('ai'));
+$('#provBtn').addEventListener('click',()=>openSettings('ai'));
 $('#goalchip').addEventListener('click',()=>{ openSettings('goal'); setTimeout(()=>$('#gGoal').focus(),30); });
 $('#sClose').addEventListener('click',closeSettings);
 document.querySelector('.stabs').addEventListener('click',e=>{ const b = e.target.closest('button[data-tab]'); if(b) showTab(b.dataset.tab); });

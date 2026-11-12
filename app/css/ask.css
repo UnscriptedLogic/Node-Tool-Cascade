@@ -1,6 +1,6 @@
 /* ---------- ask the graph: threads + spotlight ---------- */
 :root{--t0:var(--focus);--t1:var(--ink);--t2:#B7791F}
-#hlchip{left:14px;top:94px;max-width:min(440px,calc(100% - 260px));font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
+#hlchip{left:14px;top:134px;max-width:min(440px,calc(100% - 260px));font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
 #hlchip .hl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hlchip .linkbtn{flex:none;pointer-events:none}
 #th path{fill:none;stroke-width:4.5;stroke-linecap:round;stroke-dasharray:12 9;animation:flow 1.1s linear infinite;opacity:.95}

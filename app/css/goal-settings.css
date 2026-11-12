@@ -3,6 +3,10 @@
 #goalchip{left:14px;top:54px;max-width:min(440px,calc(100% - 260px));font:inherit;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
 #goalchip .gl{font-weight:700;color:var(--ink2);flex:none}
 #goalchip .gt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#provchip{left:14px;top:94px;max-width:min(440px,calc(100% - 260px));font-size:13px;white-space:nowrap}
+#provchip .pt{overflow:hidden;text-overflow:ellipsis}
+#provchip .linkbtn{flex:none}
+#provchip button:hover{border-color:var(--ink2)}
 #goalchip.unset{border-style:dashed;color:var(--ink2)}
 #goalchip:hover,#status button:hover{border-color:var(--ink2)}
 
