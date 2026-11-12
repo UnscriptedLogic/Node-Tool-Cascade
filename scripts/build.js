@@ -10,6 +10,7 @@ const html = assemble({ inline:true, runtime:'<script>window.__WEB__=true;</scri
 const out = path.join(root,'dist','web');
 fs.mkdirSync(out,{ recursive:true });
 fs.writeFileSync(path.join(out,'index.html'),html);
+fs.copyFileSync(path.join(root,'app','favicon.png'),path.join(out,'favicon.png'));
 fs.writeFileSync(path.join(out,'.nojekyll'),'');
 fs.copyFileSync(path.join(root,'scripts','admin','index.html'),path.join(out,'admin.html'));   // the online admin page (the Worker serves it at /admin)   // tell GitHub Pages not to run Jekyll
 console.log(`Built ${path.relative(root,path.join(out,'index.html'))} (${Math.round(html.length/1024)} KB)`);

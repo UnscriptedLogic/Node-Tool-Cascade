@@ -15,6 +15,10 @@ module.exports = (r) => {
     res.end(assemble({ inline:false, runtime }));
   };
   r.get('/',page); r.get('/index.html',page);
+  r.get('/favicon.png',({ res }) => {
+    res.writeHead(200,{ 'content-type':'image/png','cache-control':'public, max-age=86400' });
+    res.end(fs.readFileSync(path.join(APP_DIR,'favicon.png')));
+  });
 
   // the page's css and js parts, and nothing else under app/
   r.getPrefix('/app/',({ res, url }) => {
