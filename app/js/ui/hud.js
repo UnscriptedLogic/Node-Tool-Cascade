@@ -5,6 +5,14 @@ function idleText(){
   if(aiChecked && (LOCAL || WEB) && activeProvider()==='demo') return 'Demo mode: the AI is scripted. Drag a block onto the canvas to try it.';
   return aiChecked && !aiAvailable() ? ((LOCAL || WEB) ? 'No AI connected, so blocks place by keyword' : 'Claude isn’t available here, so blocks place by keyword') : 'Drag a block onto the canvas, then type your idea';
 }
+function syncProviderTag(){
+  const t = $('#provchip'); if(!t) return;
+  const on = (LOCAL || CLOUDAI) && SRV && SRV.active && typeof PROV!=='undefined' && PROV[SRV.active];
+  t.hidden = !on; if(!on) return;
+  const em = SRV.providers && SRV.providers[SRV.active] && SRV.providers[SRV.active].effectiveModel;
+  t.querySelector('.pt').textContent = PROV[SRV.active].label.replace(/\s*\(.*\)$/,'') + (em ? ' · '+em : '');
+  t.querySelector('.pt').title = 'Current AI provider';
+}
 function syncExtras(){
   const demo = (LOCAL || WEB) && activeProvider()==='demo';
   const l = $('#setLink'); l.hidden = !((LOCAL || WEB) && aiChecked && !busyMsg && (!aiAvailable() || demo));
@@ -27,7 +35,7 @@ function updateHud(){
   $('#mDetail').setAttribute('aria-pressed', S.mode==='detail');
   $('#mOuter').setAttribute('aria-pressed', S.mode==='outer');
   if(!busyMsg) stxt.textContent = idleText();
-  syncExtras(); updateGoalChip(); renderMapIfOpen(); try{ pruneThreads(); }catch(e){}
+  syncExtras(); syncProviderTag(); updateGoalChip(); renderMapIfOpen(); try{ pruneThreads(); }catch(e){}
   try{ syncProjectButtons(); }catch(e){}
   try{ syncNodeBar(); }catch(e){}
 }
