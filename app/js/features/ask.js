@@ -4,6 +4,7 @@ const AN = CascadeUI.proxy({input:'',next:false,copyText:'Copy',summaryBusy:fals
 const AHIST = CascadeUI.proxy([]);
 const TCOL = ['var(--t0)','var(--t1)','var(--t2)'];
 const VERDICT = {answered:'Answered by the tree',partial:'Partly answered',unanswered:'The tree can’t answer this yet'};
+UI.ask=AN;
 CascadeUI.connect({AN,AHIST,TCOL,VERDICT});
 CascadeUI.mount('ask',$('#askRoot'));
 
@@ -118,8 +119,6 @@ function rebuildHighlight(){
     ids.forEach((id,k)=>{ if(!THMAP[id]) THMAP[id] = {step:k+1,color:TCOL[i%3]}; });
   });
   world.classList.toggle('spot',THR.length>0);
-  const chip = $('#hlchip'); chip.hidden = !THR.length;
-  chip.querySelector('.hl').textContent = AN.q ? 'Highlighting: '+AN.q.slice(0,56) : '';
   restyle(); kick();
 }
 function pruneThreads(){
@@ -192,4 +191,3 @@ async function copyAskSummary(){
   try{ await navigator.clipboard.writeText(AN.summary); AN.copyText='Copied'; setTimeout(()=>{ AN.copyText='Copy'; },1400); }
   catch(e){ AN.copyText='Select and copy'; setTimeout(()=>{ AN.copyText='Copy'; },2000); }
 }
-$('#hlchip').addEventListener('click',clearAskHighlight);

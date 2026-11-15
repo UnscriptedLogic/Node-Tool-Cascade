@@ -139,7 +139,7 @@ function generateMindsetDraft(){
       }
       $('#mcStatus').textContent = entries.length ? 'Draft ready for review. '+report : 'No draft entries produced. '+report;
       if(MSCONVERT.ctl===c){ MSCONVERT.ctl = null; conversionBusy(false); }
-      if(ctl===c){ ctl = null; setBusy(null); updateHud(); }
+      if(ctl===c){ ctl = null; setBusy(null);  }
     }
   });
   return MSCONVERT.task;

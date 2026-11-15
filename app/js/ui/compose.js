@@ -1,21 +1,15 @@
 'use strict';
 /* ================= compose + palette ================= */
-let comp = null;
-function closeCompose(){ compose.hidden = true; comp = null; }
+function closeCompose(){ CascadeUI.sync(()=>{ UI.compose.open=false; }); }
 function openCompose(type,cx,cy){
-  const sr = stage.getBoundingClientRect(), w = Math.min(300,sr.width-24);
-  let x = clamp(cx-sr.left-24,12,sr.width-w-12), y = clamp(cy-sr.top-24,100,Math.max(100,sr.height-190));
-  compose.style.width = w+'px'; compose.style.left = x+'px'; compose.style.top = y+'px';
-  compose.querySelector('.ico').innerHTML = ICONS[type];
-  compose.querySelector('.cname').textContent = LABEL[type];
-  cta.value = ''; cta.placeholder = DOM().blocks[type];
-  comp = {type,wpos:screenToWorld(cx,cy),x,y,w};
-  compose.hidden = false; cta.focus();
+  const sr=stage.getBoundingClientRect(),w=Math.min(300,sr.width-24);
+  const x=clamp(cx-sr.left-24,12,sr.width-w-12),y=clamp(cy-sr.top-24,100,Math.max(100,sr.height-190));
+  CascadeUI.sync(()=>{ Object.assign(UI.compose,{type,wpos:screenToWorld(cx,cy),x,y,w,text:'',open:true,focus:UI.compose.focus+1}); });
 }
 function submitCompose(){
-  if(!comp) return;
-  const text = cta.value.trim(); if(!text){ cta.focus(); return; }
-  const {type,wpos,x,y} = comp; closeCompose();
+  if(!UI.compose.open) return;
+  const text=UI.compose.text.trim(); if(!text){ UI.compose.focus++; return; }
+  const {type,wpos,x,y}=UI.compose; closeCompose();
   const pend = document.createElement('div');
   pend.className = 'pending blk t-'+type; pend.style.left = x+'px'; pend.style.top = y+'px';
   pend.innerHTML = '<span class="ico"></span><span class="txt"></span>';
@@ -28,15 +22,8 @@ function submitCompose(){
     finally{ ctl = null; pend.remove(); if(!queued || queued===1) setBusy(null); }
   });
 }
-$('#cOk').addEventListener('click',submitCompose);
-$('#cCancel').addEventListener('click',closeCompose);
-cta.addEventListener('keydown',e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submitCompose(); }
-  else if(e.key==='Escape'){ e.preventDefault(); closeCompose(); }
-});
 document.querySelectorAll('.tile').forEach(t=>{
   const type = t.dataset.type;
-  t.querySelector('.ico').innerHTML = ICONS[type];
   t.addEventListener('click',e=>{ if(e.detail===0){ const sr = stage.getBoundingClientRect(); openCompose(type,sr.left+sr.width/2,sr.top+sr.height/2); } });
   t.addEventListener('pointerdown',e=>{
     e.preventDefault(); dragUi(true);

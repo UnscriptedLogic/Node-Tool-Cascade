@@ -1,7 +1,7 @@
 'use strict';
 /* ================= settings ================= */
 let settingsEl; const appEl = $('#app');
-const SETTINGS = CascadeUI.proxy({open:false,tab:'ai',preview:'',server:SRV,drafts:{},results:{},models:{},busy:{},signingIn:false,web:{...WEBAI},webKeyDraft:'',webModelDraft:WEBAI.model,webModels:[],webBusy:false,cloud:CLOUDAI,googleClientId:'',analytics:false,dataMessage:'',statsOn:true});
+const SETTINGS = CascadeUI.proxy({open:false,tab:'ai',preview:'',server:CONNECTION.server,drafts:{},results:{},models:{},busy:{},signingIn:false,web:{...CONNECTION.web},webKeyDraft:'',webModelDraft:CONNECTION.web.model,webModels:[],webBusy:false,cloud:CONNECTION.cloud,googleClientId:'',analytics:false,dataMessage:'',statsOn:true});
 let curTab = 'ai', prefsTimer = 0; const syncers = [];
 
 function applyTheme(){ const r = document.documentElement; if(PREFS.theme==='light' || PREFS.theme==='dark') r.setAttribute('data-theme',PREFS.theme); else r.removeAttribute('data-theme'); }
@@ -13,8 +13,8 @@ async function postJSON(url,body){
 }
 async function postSettings(patch){
   const j = await postJSON('/api/settings',patch);
-  SRV = j; if(SRV.ready) aiOff = false;
-  updateProviders(); updateHud();
+  CONNECTION.server = j; if(CONNECTION.server.ready) AI.off = false;
+  updateProviders();
   return j;
 }
 function savePrefs(){
@@ -63,15 +63,15 @@ function suggestModel(list,p){
   return [...pool].sort((a,b)=>rank(a)-rank(b) || (p==='openrouter' ? idx(a)-idx(b) : b.localeCompare(a)))[0];
 }
 function updateProviders(){
-  if(!(LOCAL || CLOUDAI) || !SRV) return;
-  SETTINGS.server=SRV;
-  for(const [p,s] of Object.entries(SRV.providers)){
+  if(!(LOCAL || CONNECTION.cloud) || !CONNECTION.server) return;
+  SETTINGS.server=CONNECTION.server;
+  for(const [p,s] of Object.entries(CONNECTION.server.providers)){
     const d=SETTINGS.drafts[p] || {}, focused=document.activeElement && document.activeElement.id;
     SETTINGS.drafts[p]={...d,model:focused==='m-'+p?d.model:s.model || '',base:focused==='b-'+p?d.base:s.baseUrl || ''};
   }
-  const em=SRV.providers[SRV.active] && SRV.providers[SRV.active].effectiveModel;
-  $('#setBtn').title=SRV.ready?`Settings · ${PROV[SRV.active].label}${em?' · '+em:''}`:'Settings';
-  try{ syncProviderTag(); }catch(e){}
+  const em=CONNECTION.server.providers[CONNECTION.server.active] && CONNECTION.server.providers[CONNECTION.server.active].effectiveModel;
+  UI.settingsTitle=CONNECTION.server.ready?`Settings · ${PROV[CONNECTION.server.active].label}${em?' · '+em:''}`:'Settings';
+
 }
 async function fetchModels(p,sec,quiet){
   const say=(t,c)=>providerSay(p,t,c);
@@ -80,7 +80,7 @@ async function fetchModels(p,sec,quiet){
     const d = draftOf(sec,p), r = await postJSON('/api/models',{provider:p,key:d.key,baseUrl:d.baseUrl});
     const list=r.models || []; SETTINGS.models[p]=list;
     if(!list.length){ if(!quiet) say('No models came back. You can still type a model name.','bad'); return; }
-    if(!(SETTINGS.drafts[p]?.model || '').trim() && !SRV.providers[p].defaultModel){
+    if(!(SETTINGS.drafts[p]?.model || '').trim() && !CONNECTION.server.providers[p].defaultModel){
       const sug = suggestModel(list,p); SETTINGS.drafts[p].model=sug; await postSettings({providers:{[p]:{model:sug}}});
       say(`Found ${list.length} models and picked ${sug}. Change it any time.`,'ok');
     } else say(`Found ${list.length} models. Click the model box to choose one.`,'ok');
@@ -97,10 +97,10 @@ async function chatgptSignIn(consent,say,sec){
       await sleep(window.__POLL_MS || 1500);
       const st = await getJSON('/api/chatgpt/status');
       if(st.state==='pending') continue;
-      SETTINGS.signingIn=false; SRV = await getJSON('/api/settings'); aiOff = false; updateProviders(); updateHud();
+      SETTINGS.signingIn=false; CONNECTION.server = await getJSON('/api/settings'); AI.off = false; updateProviders();
       if(st.state==='connected'){
         say(st.planUsage ? 'Signed in.' : 'Signed in, but plan usage wasn’t allowed.',st.planUsage ? 'ok' : 'bad');
-        if(st.planUsage && !SRV.providers.chatgpt.model) fetchModels('chatgpt',sec,true);
+        if(st.planUsage && !CONNECTION.server.providers.chatgpt.model) fetchModels('chatgpt',sec,true);
       } else say(st.error || 'Sign-in didn’t finish.','bad');
       return;
     }
@@ -120,11 +120,11 @@ async function onProvClick(e){
     else if(act==='fetch'){ await fetchModels(p,sec,false); }
     else if(act==='orSignIn'){ say('Opening OpenRouter…'); await startOpenRouterLogin(); }
     else if(act==='cgSignIn' || act==='cgConsent'){ await chatgptSignIn(act==='cgConsent',say,sec); }
-    else if(act==='cgSignOut'){ await postJSON('/api/chatgpt/signout',{}); SRV = await getJSON('/api/settings'); updateProviders(); updateHud(); say('Signed out.'); }
+    else if(act==='cgSignOut'){ await postJSON('/api/chatgpt/signout',{}); CONNECTION.server = await getJSON('/api/settings'); updateProviders();  say('Signed out.'); }
     else if(act==='test'){
       say('Testing…'); SETTINGS.busy[p]=true;
       const r = await postJSON('/api/test',draftOf(sec,p));
-      if(r.ok){ aiOff = false; updateHud(); say(`Connected in ${r.ms} ms. The model replied “${r.reply}”.`,'ok'); }
+      if(r.ok){ AI.off = false;  say(`Connected in ${r.ms} ms. The model replied “${r.reply}”.`,'ok'); }
       else say(r.error || 'The test failed.','bad');
       SETTINGS.busy[p]=false;
     }
@@ -143,9 +143,9 @@ async function onProvChange(e){
 /* --- browser-only mode: demo / OpenRouter --- */
 function updateWeb(){
   if(!WEB) return;
-  SETTINGS.web={...WEBAI};
-  if(document.activeElement?.id!=='wOrModel') SETTINGS.webModelDraft=WEBAI.model || '';
-  $('#setBtn').title=WEBAI.provider==='openrouter' && WEBAI.model?`Settings · OpenRouter · ${WEBAI.model}`:'Settings · Demo';
+  SETTINGS.web={...CONNECTION.web};
+  if(document.activeElement?.id!=='wOrModel') SETTINGS.webModelDraft=CONNECTION.web.model || '';
+  UI.settingsTitle=CONNECTION.web.provider==='openrouter' && CONNECTION.web.model?`Settings · OpenRouter · ${CONNECTION.web.model}`:'Settings · Demo';
 }
 async function fetchOpenRouterModels(quiet){
   const say=(t,c)=>providerSay('web',t,c);
@@ -155,28 +155,28 @@ async function fetchOpenRouterModels(quiet){
     const list = (j.data || []).slice().sort((a,b)=>(b.created || 0)-(a.created || 0)).map(m=>m.id).filter(Boolean);
     SETTINGS.webModels=list;
     if(!list.length){ if(!quiet) say('No models came back. You can still type a model name.','bad'); return; }
-    if(!WEBAI.model){ WEBAI.model = suggestModel(list,'openrouter'); saveWebAI(); updateWeb(); updateHud(); say(`Found ${list.length} models and picked ${WEBAI.model}. Change it any time.`,'ok'); }
+    if(!CONNECTION.web.model){ CONNECTION.web.model = suggestModel(list,'openrouter'); saveWebAI(); updateWeb();  say(`Found ${list.length} models and picked ${CONNECTION.web.model}. Change it any time.`,'ok'); }
     else say(`Found ${list.length} models. Click the model box to choose one.`,'ok');
   }catch(e){ if(!quiet) say('Could not load the model list. You can still type a model name.','bad'); }
 }
 function initWebConnect(){ updateWeb(); }
 async function onWebAction(action,value){
   const say=(text,cls)=>providerSay('web',text,cls);
-  if(action==='demo'){ WEBAI.provider='demo'; saveWebAI(); aiOff=false; updateWeb(); updateHud(); }
+  if(action==='demo'){ CONNECTION.web.provider='demo'; saveWebAI(); AI.off=false; updateWeb();  }
   else if(action==='openrouter'){
-    if(!WEBAI.key){ say('Sign in with OpenRouter first.','bad'); updateWeb(); return; }
-    WEBAI.provider='openrouter'; saveWebAI(); aiOff=false; updateWeb(); updateHud(); if(!WEBAI.model) fetchOpenRouterModels(true);
+    if(!CONNECTION.web.key){ say('Sign in with OpenRouter first.','bad'); updateWeb(); return; }
+    CONNECTION.web.provider='openrouter'; saveWebAI(); AI.off=false; updateWeb();  if(!CONNECTION.web.model) fetchOpenRouterModels(true);
   }else if(action==='signin'){ say('Opening OpenRouter…'); try{ await startOpenRouterLogin(); }catch(e){ say(e.message,'bad'); } }
   else if(action==='save'){
     const key=SETTINGS.webKeyDraft.trim(); if(!key){ say('Paste a key first.','bad'); return; }
-    WEBAI={provider:'openrouter',key,model:WEBAI.model || ''}; saveWebAI(); SETTINGS.webKeyDraft=''; aiOff=false; updateWeb(); updateHud(); say('Key saved in this browser.','ok'); if(!WEBAI.model) fetchOpenRouterModels(true);
-  }else if(action==='forget'){ WEBAI={provider:'demo',key:'',model:''}; saveWebAI(); updateWeb(); updateHud(); say('Key forgotten. Back to the demo.'); }
-  else if(action==='model'){ WEBAI.model=value.trim(); saveWebAI(); aiOff=false; updateWeb(); updateHud(); }
+    CONNECTION.web={provider:'openrouter',key,model:CONNECTION.web.model || ''}; saveWebAI(); SETTINGS.webKeyDraft=''; AI.off=false; updateWeb();  say('Key saved in this browser.','ok'); if(!CONNECTION.web.model) fetchOpenRouterModels(true);
+  }else if(action==='forget'){ CONNECTION.web={provider:'demo',key:'',model:''}; saveWebAI(); updateWeb();  say('Key forgotten. Back to the demo.'); }
+  else if(action==='model'){ CONNECTION.web.model=value.trim(); saveWebAI(); AI.off=false; updateWeb();  }
   else if(action==='fetch') await fetchOpenRouterModels(false);
   else if(action==='test'){
-    if(!(WEBAI.key && WEBAI.model)){ say('Add a key and choose a model first.','bad'); return; }
+    if(!(CONNECTION.web.key && CONNECTION.web.model)){ say('Add a key and choose a model first.','bad'); return; }
     say('Testing…'); SETTINGS.webBusy=true; const started=Date.now();
-    try{ const result=await webSample('Reply with the single word OK.',{}); aiOff=false; updateHud(); say(`Connected in ${Date.now()-started} ms. The model replied “${result.text.trim().slice(0,40)}”.`,'ok'); }
+    try{ const result=await webSample('Reply with the single word OK.',{}); AI.off=false;  say(`Connected in ${Date.now()-started} ms. The model replied “${result.text.trim().slice(0,40)}”.`,'ok'); }
     catch(e){ say(e.message || 'The test failed.','bad'); }
     SETTINGS.webBusy=false;
   }
@@ -224,26 +224,21 @@ async function onDataAction(action,file){
       cancelAI(); pushHist(true);
       S.nodes = t.nodes; S.order = t.order; S.links = t.links; S.seq = t.seq; S.sel = null; S.mode = 'detail';
       S.mindsets = t.mindsets;
-      layout(false); initialView(); save(); updateHud(); closeSettings(); showNote(['Imported the tree.'],true);
+      layout(false); initialView(); save();  closeSettings(); showNote(['Imported the tree.'],true);
     }catch(err){ SETTINGS.dataMessage=err.message; }
   }
   else if(action==='clear'){ closeSettings(); clearGraph(); }
-  else if(action==='forgetKey'){ WEBAI={provider:'demo',key:'',model:''}; saveWebAI(); updateWeb(); updateHud(); SETTINGS.dataMessage='Your OpenRouter key was forgotten.'; }
+  else if(action==='forgetKey'){ CONNECTION.web={provider:'demo',key:'',model:''}; saveWebAI(); updateWeb();  SETTINGS.dataMessage='Your OpenRouter key was forgotten.'; }
   else if(action==='wipeKeys'){ try{ await postSettings({clearAllKeys:true}); SETTINGS.dataMessage='All saved API keys were removed.'; }catch(err){ SETTINGS.dataMessage=err.message; } }
 
 }
 
+UI.providerLabels=Object.fromEntries(Object.entries(PROV).map(([key,value])=>[key,value.label]));
 CascadeUI.connect({S,PREFS,SETTINGS,DOMAINS,STEER_HELP,MODE,PROV,PROV_ORDER,LOCAL});
 CascadeUI.mount('settings',$('#settingsRoot'));
 settingsEl = $('#settings');
 
 /* --- wiring --- */
-$('#setBtn').addEventListener('click',()=>openSettings());
-$('#setLink').addEventListener('click',()=>openSettings('ai'));
-$('#provBtn').addEventListener('click',()=>openSettings('ai'));
-$('#goalchip').addEventListener('click',()=>{ openSettings('goal'); setTimeout(()=>$('#gGoal').focus(),30); });
-
-
 addEventListener('keydown',e=>{ if(e.key==='Escape' && !settingsEl.hidden && document.getElementById('srcview').hidden){ e.stopPropagation(); closeSettings(); } },true);
 document.querySelectorAll('[data-modes]').forEach(el=>{ if(el.closest('#settingsRoot')) return; el.hidden = !el.dataset.modes.split(' ').includes(MODE); });
 document.body.classList.add('mode-'+MODE);

@@ -3,7 +3,7 @@
 const OR_SITE = 'https://openrouter.ai';
 const goTo = (url) => (window.__navigate ? window.__navigate(url) : location.assign(url));
 const getJSON = async (url) => { const r = await fetch(url); return r.json(); };
-function saveWebAI(){ try{ localStorage.setItem(WEBAI_KEY,JSON.stringify(WEBAI)); }catch(e){} }
+function saveWebAI(){ try{ localStorage.setItem(WEBAI_KEY,JSON.stringify(CONNECTION.web)); }catch(e){} }
 async function readSSE(res,onData){
   const rd = res.body.getReader(), dec = new TextDecoder(); let buf = '';
   for(;;){
@@ -43,14 +43,14 @@ async function serverSample(prompt,o){
 /* browser-only mode: call OpenRouter directly with the key kept in this browser */
 async function webSample(prompt,o){
   o = o || {};
-  if(!(WEBAI.key && WEBAI.model)) throw {code:'sampling_disabled',message:'Connect OpenRouter in Settings first.'};
-  const body = {model:WEBAI.model,stream:true,max_tokens:1800,messages:[{role:'user',content:prompt}]};
+  if(!(CONNECTION.web.key && CONNECTION.web.model)) throw {code:'sampling_disabled',message:'Connect OpenRouter in Settings first.'};
+  const body = {model:CONNECTION.web.model,stream:true,max_tokens:1800,messages:[{role:'user',content:prompt}]};
   if(typeof o.temperature==='number') body.temperature = Math.min(1,Math.max(0,o.temperature));
   let r;
   for(let attempt=0; attempt<2; attempt++){
     try{
       r = await fetch(OR_SITE+'/api/v1/chat/completions',{method:'POST',signal:o.signal,
-        headers:{'content-type':'application/json',authorization:'Bearer '+WEBAI.key,'x-title':'Cascade','http-referer':location.origin},body:JSON.stringify(body)});
+        headers:{'content-type':'application/json',authorization:'Bearer '+CONNECTION.web.key,'x-title':'Cascade','http-referer':location.origin},body:JSON.stringify(body)});
     }catch(e){ throw {code:e && e.name==='AbortError' ? 'cancelled' : 'upstream_error',message:'Could not reach OpenRouter. Check your connection.'}; }
     if(r.ok) break;
     let j = {}; try{ j = await r.json(); }catch(e){}
@@ -94,16 +94,16 @@ async function finishOpenRouterLogin(){
   if(!saved || !saved.verifier) return;
   history.replaceState(null,'',location.pathname+location.hash);
   try{
-    if(LOCAL || CLOUDAI){ SRV = await postJSON('/api/oauth/openrouter',{code,verifier:saved.verifier}); }
+    if(LOCAL || CONNECTION.cloud){ CONNECTION.server = await postJSON('/api/oauth/openrouter',{code,verifier:saved.verifier}); }
     else{
       const r = await fetch(OR_SITE+'/api/v1/auth/keys',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({code,code_verifier:saved.verifier,code_challenge_method:'S256'})});
       let j = {}; try{ j = await r.json(); }catch(e){}
       if(!r.ok || !j.key) throw new Error(String((j.error && (j.error.message || j.error)) || j.message || 'OpenRouter did not return a key.'));
-      WEBAI = {provider:'openrouter',key:j.key,model:WEBAI.model || ''}; saveWebAI();
+      CONNECTION.web = {provider:'openrouter',key:j.key,model:CONNECTION.web.model || ''}; saveWebAI();
     }
-    aiOff = false; updateHud(); openSettings('ai');
+    AI.off = false;  openSettings('ai');
     showNote(['Signed in with OpenRouter. Pick a model and you’re set.'],false);
-    if(LOCAL || CLOUDAI){ const sec = document.querySelector('.prov[data-prov=openrouter]'); if(sec) fetchModels('openrouter',sec,true); }
+    if(LOCAL || CONNECTION.cloud){ const sec = document.querySelector('.prov[data-prov=openrouter]'); if(sec) fetchModels('openrouter',sec,true); }
     else fetchOpenRouterModels(true);
   }catch(e){ showNote([`OpenRouter sign-in didn’t finish: ${e.message}`],false); }
 }

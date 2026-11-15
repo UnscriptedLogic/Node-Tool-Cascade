@@ -3,6 +3,7 @@
 // Works against the same /api/library routes whether they are served by the local app (files on this computer)
 // or by the Cloudflare backend (D1, behind Google sign-in). The Cascade you have open saves into the library as you work.
 const LIB = CascadeUI.proxy({ kind:null, user:null, folders:[], cascades:[], currentId:null, googleClientId:'', status:'', editing:null, armed:null, suspend:false, timer:0, gsi:false });
+UI.library=LIB;
 const LIB_CURRENT = 'cascade-current-v1';
 
 async function libApi(method,path,body){
@@ -13,17 +14,8 @@ async function libApi(method,path,body){
 }
 const libSignedIn = () => LIB.kind==='local' || !!LIB.user;
 const libCurrent = () => LIB.cascades.find(c=>c.id===LIB.currentId) || null;
-function libRemember(id){ LIB.currentId = id; libTitle(); try{ if(id) localStorage.setItem(LIB_CURRENT,JSON.stringify({ kind:LIB.kind, id })); else localStorage.removeItem(LIB_CURRENT); }catch(e){} }
+function libRemember(id){ LIB.currentId = id;  try{ if(id) localStorage.setItem(LIB_CURRENT,JSON.stringify({ kind:LIB.kind, id })); else localStorage.removeItem(LIB_CURRENT); }catch(e){} }
 // "Folder / Name" of the open Cascade, shown under the logo so it is always clear what you are working on
-function libTitle(){
-  const el = $('#openName'); if(!el) return;
-  if(!LIB.kind || !libSignedIn()){ el.hidden = true; return; }
-  const c = libCurrent(), f = c && c.folderId ? LIB.folders.find(x=>x.id===c.folderId) : null;
-  el.hidden = false; el.classList.toggle('unsaved',!c);
-  el.querySelector('.cf').textContent = f ? f.name+' / ' : '';
-  el.querySelector('.cn').textContent = c ? c.name : 'Not in your library yet';
-  el.title = c ? (f ? f.name+' / ' : '')+c.name+'. Open the library.' : 'This tree is not saved in your library. Open the library to save it.';
-}
 function libSetStatus(t){ LIB.status = t; }
 
 // what a saved Cascade holds
@@ -63,10 +55,10 @@ function libApply(data){
     S.nodes = t.nodes; S.order = t.order; S.links = t.links || []; S.seq = t.seq || S.order.length; S.sel = null; S.mode = 'detail'; hist.length = 0;
     S.mindsets = mindsets;
     Object.assign(PREFS,{ goal:'', context:'', pillars:'', avoid:'' },data.prefs || {}); savePrefs();
-    syncers.forEach(f=>f()); updatePreview(); updateGoalChip();
+    syncers.forEach(f=>f()); updatePreview();
     layout(false);
     if(data.view){ vAnim = null; Object.assign(S.view,data.view); applyView(); } else initialView();
-    save(); updateHud();
+    save();
   }finally{ LIB.suspend = false; }
 }
 async function libOpen(id){
@@ -122,7 +114,7 @@ async function libDelete(kind,id){
 
 /* ---- the list ---- */
 function libRender(){
-  libTitle();
+
   CascadeUI.mount('library',$('#libraryRoot'));
 }
 CascadeUI.connect({LIB,DOMAINS});
@@ -132,11 +124,11 @@ CascadeUI.connect({LIB,DOMAINS});
 async function cloudAiRefresh(){
   if(LIB.kind!=='cloud') return;
   if(LIB.user){
-    try{ SRV = await libApi('GET','settings'); CLOUDAI = true; aiOff = false; initProviderList(); }
-    catch(e){ CLOUDAI = false; SRV = null; }
-  }else{ CLOUDAI = false; SRV = null; }
-  SETTINGS.cloud=CLOUDAI; SETTINGS.server=SRV; SETTINGS.googleClientId=LIB.googleClientId; SETTINGS.analytics=ANALYTICS.on;
-  updateProviders(); updateHud();
+    try{ CONNECTION.server = await libApi('GET','settings'); CONNECTION.cloud = true; AI.off = false; initProviderList(); }
+    catch(e){ CONNECTION.cloud = false; CONNECTION.server = null; }
+  }else{ CONNECTION.cloud = false; CONNECTION.server = null; }
+  SETTINGS.cloud=CONNECTION.cloud; SETTINGS.server=CONNECTION.server; SETTINGS.googleClientId=LIB.googleClientId; SETTINGS.analytics=ANALYTICS.on;
+  updateProviders();
 }
 
 /* ---- Google sign-in (cloud only) ---- */
@@ -168,8 +160,6 @@ async function libDeleteAccount(){
 /* ---- start-up: find out which library (if any) this page can use ---- */
 async function libInit(){
   libRender();
-  $('#railLib').addEventListener('click',()=>openSettings('library'));
-  $('#openName').addEventListener('click',()=>openSettings('library'));
   if(LOCAL) LIB.kind = 'local';
   else if(WEB){
     try{
@@ -179,6 +169,6 @@ async function libInit(){
   }
   if(!LIB.kind) return;
   try{ const saved = JSON.parse(localStorage.getItem(LIB_CURRENT) || 'null'); if(saved && saved.kind===LIB.kind) LIB.currentId = saved.id; }catch(e){}
-  $('#libTab').hidden = false; $('#railLib').hidden = false;
+  SETTINGS.library=true;
   await libRefresh();
 }

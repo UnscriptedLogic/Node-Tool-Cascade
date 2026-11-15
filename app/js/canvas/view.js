@@ -50,13 +50,13 @@ function zoomAt(f,cx,cy,defer){
 }
 function setMode(m,o){
   o = o || {};
-  if(S.mode===m){ updateHud(); return; }
+  if(S.mode===m){  return; }
   S.mode = m;
   if(m==='detail' && o.focus){ expandChain(o.focus); S.nodes[o.focus].collapsed = false; }
   layout(false);
   if(m==='outer') fitTo(visibleIds(),{maxZ:1,minZ:.3,pad:56});
   else if(o.focus){ rebuildKM(); fitTo([o.focus,...descendants(o.focus)],{maxZ:1,minZ:.55}); }
   else fitTo(visibleIds(),{maxZ:1,minZ:.5});
-  applyView(); updateHud(); save();
+  applyView();  save();
 }
 

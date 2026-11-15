@@ -19,7 +19,7 @@ function applyResponsive(force){
   lastSmall = small; lastChoice = choice;
   const cl = document.body.classList;
   cl.toggle('m',small); cl.toggle('m-standard',small && choice==='standard'); cl.toggle('m-minimal',small && choice==='minimal');
-  closeMenu(); syncNodeBar();
+  closeMenu(); CascadeUI.sync(()=>{ UI.small=small; UI.minimal=small&&choice==='minimal'; });
   if(small && choice==='minimal') hintMinimal();
   if(!first) try{ fitIfNeeded(); }catch(e){}   // the first call is start-up: the saved view stays
 }
@@ -45,66 +45,30 @@ function runNodeAction(act,id){
 }
 
 /* ---------- standard layout: the strip of actions for the selected block ---------- */
-function syncNodeBar(){
-  const bar = document.getElementById('nodebar'); if(!bar) return;
-  const n = S.sel && S.nodes[S.sel], show = !!(n && isMobile() && !isMinimal() && (S.mode!=='outer' || isOuter(n)));
-  stage.classList.toggle('nb',show);
-  if(!show){ bar.hidden = true; bar.textContent = ''; bar.dataset.for = ''; return; }
-  const sig = S.sel+'|'+nodeActions(n,!!(KM[n.id] && KM[n.id].length)).map(a=>a[0]+a[1]).join();
-  if(bar.dataset.for===sig && !bar.hidden) return;   // nothing changed: leave the DOM alone
-  bar.dataset.for = sig; bar.hidden = false; bar.textContent = '';
-  nodeActions(n,!!(KM[n.id] && KM[n.id].length)).forEach(([act,title])=>{
-    const b = document.createElement('button'); b.type = 'button'; b.dataset.act = act; b.setAttribute('aria-label',title); b.title = title;
-    const ic = document.createElement('span'); ic.className = 'ic'; ic.innerHTML = ACT[act]; const t = document.createElement('span'); t.textContent = SHORT[act] || act;
-    b.append(ic,t); bar.appendChild(b);
-  });
-}
-document.getElementById('nodebar').addEventListener('click',e=>{ const b = e.target.closest('button[data-act]'); if(b && S.sel) runNodeAction(b.dataset.act,S.sel); });
-
 /* ---------- context menu: popover at a point (minimal) or bottom sheet (standard's "more") ---------- */
-let menuEl = null, menuBack = null, menuSpec = null, tapSuppressed = false;
+let menuEl=null,menuSpec=null,tapSuppressed=false;
+function setMenuElement(element){ menuEl=element; }
 function closeMenu(){
-  if(menuEl){ menuEl.remove(); menuEl = null; }
-  if(menuBack){ menuBack.remove(); menuBack = null; }
-  menuSpec = null; document.removeEventListener('pointerdown',menuOutside,true); document.removeEventListener('keydown',menuKey,true);
+  CascadeUI.sync(()=>{ UI.menu=null; }); menuSpec=null;
+  document.removeEventListener('pointerdown',menuOutside,true); document.removeEventListener('keydown',menuKey,true);
 }
-function menuOutside(e){ if(menuEl && !menuEl.contains(e.target)){ tapSuppressed = true; closeMenu(); } }
+function menuOutside(e){ if(menuEl&&!menuEl.contains(e.target)){ tapSuppressed=true; closeMenu(); } }
 function menuKey(e){ if(e.key==='Escape'){ e.stopPropagation(); closeMenu(); } }
-// spec: { title, items:[{ label, icon, run, sub, danger, disabled, note }] }; sub is another spec shown in place, with a back row
 function openMenu(spec,at){
-  at = at || menuSpec && menuSpec.at || { x:innerWidth/2, y:innerHeight/2 };
-  const sheet = !!at.sheet, hadMenu = !!menuEl;
-  if(!hadMenu){
-    if(sheet){ menuBack = document.createElement('div'); menuBack.id = 'ctxBack'; document.body.appendChild(menuBack); }
-    menuEl = document.createElement('div'); menuEl.id = 'ctx'; menuEl.setAttribute('role','menu'); document.body.appendChild(menuEl);
-    document.addEventListener('pointerdown',menuOutside,true); document.addEventListener('keydown',menuKey,true);
-  }
-  menuEl.className = sheet ? 'sheet' : ''; menuEl.textContent = '';
-  menuSpec = { spec, at };
-  if(spec.back || spec.title){
-    const head = document.createElement('div'); head.className = 'ctx-head';
-    if(spec.back){ const bk = document.createElement('button'); bk.type = 'button'; bk.className = 'ctx-back'; bk.setAttribute('aria-label','Back'); bk.innerHTML = svg('<path d="M10 3 5 8l5 5"/>'); bk.addEventListener('click',()=>openMenu(spec.back,at)); head.appendChild(bk); }
-    const t = document.createElement('span'); t.className = 'ctx-title'; t.textContent = spec.title || ''; head.appendChild(t); menuEl.appendChild(head);
-  }
-  spec.items.forEach(it=>{
-    if(it.sep){ const hr = document.createElement('div'); hr.className = 'ctx-sep'; menuEl.appendChild(hr); return; }
-    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role','menuitem'); b.disabled = !!it.disabled; if(it.danger) b.className = 'danger';
-    const ic = document.createElement('span'); ic.className = 'ic'; if(it.icon) ic.innerHTML = it.icon; const lb = document.createElement('span'); lb.className = 'lb'; lb.textContent = it.label;
-    b.append(ic,lb); if(it.sub){ const ch = document.createElement('span'); ch.className = 'chev'; ch.textContent = '›'; b.appendChild(ch); }
-    b.addEventListener('click',()=>{ if(it.sub){ openMenu(Object.assign({},it.sub,{ back:spec, title:it.sub.title || it.label }),at); } else { closeMenu(); setTimeout(()=>it.run && it.run(),0); } });
-    menuEl.appendChild(b);
-  });
-  if(!sheet) placeMenu(at); else menuEl.style.cssText = '';
-  const first = menuEl.querySelector('button:not([disabled])'); if(first && !hadMenu) first.focus({ preventScroll:true });
+  at=at||menuSpec?.at||{x:innerWidth/2,y:innerHeight/2};
+  const hadMenu=!!UI.menu;
+  menuSpec={spec,at,focus:!hadMenu};
+  CascadeUI.sync(()=>{ UI.menu=CascadeUI.ref(menuSpec); });
+  if(!hadMenu){ document.addEventListener('pointerdown',menuOutside,true); document.addEventListener('keydown',menuKey,true); }
 }
-function placeMenu(at){
-  const m = menuEl, pad = 8, vw = innerWidth, vh = innerHeight;
-  m.style.maxHeight = (vh-2*pad)+'px'; m.style.left = '0px'; m.style.top = '0px';
-  const w = m.offsetWidth, h = m.offsetHeight;
-  let x = Math.min(Math.max(pad,at.x-w/2),vw-w-pad), y = at.y+10;
-  if(y+h>vh-pad){ y = at.y-h-10; if(y<pad) y = Math.max(pad,vh-h-pad); }
-  m.style.left = x+'px'; m.style.top = y+'px';
+function chooseMenuItem(index){
+  const {spec,at}=menuSpec,item=spec.items[index];
+  if(item.sub) openMenu({...item.sub,back:spec,title:item.sub.title||item.label},at);
+  else{ closeMenu(); setTimeout(()=>item.run?.(),0); }
 }
+function backMenu(){ if(menuSpec?.spec.back) openMenu(menuSpec.spec.back,menuSpec.at); }
+function openMoreMenu(){ openMenu(canvasMenuSpec(innerWidth/2,innerHeight/2),{sheet:true}); }
+CascadeUI.connect({SHORT});
 
 const MI = {
   ask:ACT.grill, undo:svg('<path d="M3.5 6.5h6a3 3 0 0 1 0 6H6"/><path d="M6 4 3.5 6.5 6 9"/>'), fit:svg('<path d="M3 6V3h3M13 6V3h-3M3 10v3h3M13 10v3h-3"/>'),
@@ -144,7 +108,4 @@ function openCanvasMenu(x,y){ openMenu(canvasMenuSpec(x,y),{ x,y }); }
 function openNodeMenu(id,x,y){ if(S.nodes[id]) openMenu(nodeMenuSpec(id),{ x,y }); }
 function setMobileLayout(v){ PREFS.mobileLayout = v==='minimal' ? 'minimal' : 'standard'; savePrefs(); applyResponsive(true); syncers.forEach(f=>f()); }
 
-// the dock's "more" button, the standard layout's way to the same menu
-document.getElementById('moreBtn').addEventListener('click',()=>openMenu(canvasMenuSpec(innerWidth/2,innerHeight/2),{ sheet:true }));
-document.getElementById('moreBtn').addEventListener('pointerdown',e=>e.stopPropagation());
 applyResponsive(true);

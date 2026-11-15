@@ -163,7 +163,7 @@ function decorate(blk,type,n,o){
   return d;
 }
 function applyTiles(){ document.querySelectorAll('.tile').forEach(t=>decorate(t,t.dataset.type,null,{tile:true})); }
-function renderLegend(){ $('#legend').innerHTML = MOOD_KEYS.map(k=>`<li><i style="--c:${moodColor(k)}"></i>${k[0].toUpperCase()+k.slice(1)}</li>`).join(''); }
+function renderLegend(){ UI.moodColors=Object.fromEntries(MOOD_KEYS.map(key=>[key,moodColor(key)])); }
 function applyCanvasLook(){
   const C = effLook().canvas, g = C.gridColor || 'var(--dot)';
   stage.style.backgroundColor = C.bg || '';

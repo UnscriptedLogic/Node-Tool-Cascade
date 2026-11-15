@@ -19,7 +19,7 @@ try{ S.mindsets = Mindsets.collection(S.mindsets); }catch(e){ S.mindsets = []; }
 const R = {};            // runtime per node: el, cur, tgt, w, h ...
 let KM = {};             // parent -> [child ids]
 const spawnAt = {};
-const hist = [];
+const hist = CascadeUI.proxy([]);
 let flashId = null, vAnim = null, linkFrom = null, MAP = {frontier:[],blocked:[],settled:[],fog:[],out:[],flag:{}}, THMAP = {}, THR = [];
 
 const snap = () => JSON.stringify({nodes:S.nodes,order:S.order,links:S.links,seq:S.seq,mindsets:S.mindsets});
@@ -30,6 +30,9 @@ function save(){
   if(typeof libAfterSave==='function') libAfterSave();
   if(LOCAL){ clearTimeout(saveTimer); saveTimer = setTimeout(()=>{ fetch('/api/tree',{method:'POST',headers:{'content-type':'application/json'},body:payload}).catch(()=>{}); },400); }
 }
-function pushHist(withView){ hist.push({s:snap(),v:withView?{x:S.view.x,y:S.view.y,z:S.view.z}:null}); if(hist.length>40) hist.shift(); updateHud(); }
+function pushHist(withView){ hist.push({s:snap(),v:withView?{x:S.view.x,y:S.view.y,z:S.view.z}:null}); if(hist.length>40) hist.shift();  }
 function applySnap(s){ const o = JSON.parse(s); S.nodes=o.nodes; S.order=o.order; S.links=o.links; S.seq=o.seq; S.mindsets=Mindsets.collection(o.mindsets); if(!S.nodes[S.sel]) S.sel=null; }
 
+
+const AI=CascadeUI.proxy({checked:false,sample:null,off:false});
+const UI=CascadeUI.proxy({busy:null,stoppable:false,note:[],noteOpen:false,noteUndo:false,small:false,minimal:false,panel:null,ask:null,library:null,seed:false,providerLabels:{},settingsTitle:'Settings',moodColors:{},compose:{open:false,type:'question',text:'',x:0,y:0,w:300,wpos:null,focus:0},menu:null});

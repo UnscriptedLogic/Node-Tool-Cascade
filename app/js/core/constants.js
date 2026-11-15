@@ -62,14 +62,11 @@ function loadPrefs(){
 }
 const PREFS = CascadeUI.proxy(Object.assign({},DEFAULT_PREFS,loadPrefs()));
 if(!loadPrefs().domain && Object.keys(loadPrefs()).length) PREFS.domain = 'game';   // trees saved before domains existed were all game design
-let CLOUDAI = false;   // signed in on the cloud version: AI settings and calls go through the account's server, like the local app
-let SRV = LOCAL ? (window.__SETTINGS__ || null) : null;
-let PROJ = LOCAL && SRV && SRV.project ? SRV.project : null;   // the scanned project, if any (local app only)   // public server settings (never contains keys)
 function loadWebAI(){
   try{ const o = JSON.parse(localStorage.getItem(WEBAI_KEY) || '{}'); return {provider:o.provider==='openrouter' ? 'openrouter' : 'demo',key:typeof o.key==='string' ? o.key : '',model:typeof o.model==='string' ? o.model : ''}; }
   catch(e){ return {provider:'demo',key:'',model:''}; }
 }
-let WEBAI = WEB ? loadWebAI() : {provider:'demo',key:'',model:''};   // browser-only mode: lives in this browser's storage
+const CONNECTION=CascadeUI.proxy({cloud:false,server:LOCAL?(window.__SETTINGS__||null):null,project:LOCAL?window.__SETTINGS__?.project||null:null,web:WEB?loadWebAI():{provider:'demo',key:'',model:''}});   // browser-only mode: lives in this browser's storage
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));

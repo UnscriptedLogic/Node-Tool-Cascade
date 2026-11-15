@@ -8,6 +8,10 @@ import SidePanel from './islands/SidePanel.jsx';
 import Ask from './islands/Ask.jsx';
 import Project from './islands/Project.jsx';
 import SourceViewer from './islands/SourceViewer.jsx';
+import Hud from './islands/Hud.jsx';
+import Rail from './islands/Rail.jsx';
+import Compose from './islands/Compose.jsx';
+import Menu from './islands/Menu.jsx';
 import './ui.css';
 
 export { proxy, subscribe, snapshot, ref } from 'valtio/vanilla';
@@ -23,6 +27,10 @@ islands.set('side', SidePanel);
 islands.set('ask', Ask);
 islands.set('project', Project);
 islands.set('source', SourceViewer);
+islands.set('hud', Hud);
+islands.set('rail', Rail);
+islands.set('compose', Compose);
+islands.set('menu', Menu);
 
 export function register(name, component) {
   islands.set(name, component);

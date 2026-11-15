@@ -1,13 +1,13 @@
 'use strict';
 /* ================= AI ================= */
-let aiChecked = false, sampleFn = null, aiOff = false, ctl = null, chain = Promise.resolve(), queued = 0, stopReveal = false;
+let ctl=null,chain=Promise.resolve(),queued=0,stopReveal=false;
 (async()=>{
   await null;   // let the rest of the script finish initialising before touching it
   try{
-    if(LOCAL) sampleFn = serverSample;
-    else if(!WEB && window.claude && claude.use) sampleFn = await claude.use('sample');
+    if(LOCAL) AI.sample = serverSample;
+    else if(!WEB && window.claude && claude.use) AI.sample = await claude.use('sample');
   }catch(e){}
-  aiChecked = true; updateHud();
+  AI.checked = true;
 })();
 function cancelAI(){ stopReveal = true; if(ctl) ctl.abort(); try{ if(G.ctl) G.ctl.abort(); }catch(e){} try{ if(AN.ctl) AN.ctl.abort(); }catch(e){} try{ if(MSCONVERT.ctl) MSCONVERT.ctl.abort(); }catch(e){} }
 function enqueue(job){
@@ -15,15 +15,15 @@ function enqueue(job){
   chain = chain.then(job).catch(e=>console.error(e)).finally(()=>{ queued--; });
   return chain;
 }
-const activeProvider = () => CLOUDAI ? ((SRV && SRV.active) || 'demo') : WEB ? WEBAI.provider : LOCAL ? ((SRV && SRV.active) || 'demo') : 'claude';
+const activeProvider = () => CONNECTION.cloud ? ((CONNECTION.server && CONNECTION.server.active) || 'demo') : WEB ? CONNECTION.web.provider : LOCAL ? ((CONNECTION.server && CONNECTION.server.active) || 'demo') : 'claude';
 function aiAvailable(){
-  if(aiOff) return false;
+  if(AI.off) return false;
   const p = activeProvider();
   if(p==='demo' && (LOCAL || WEB)) return true;
-  if(CLOUDAI) return !!(SRV && SRV.ready);
-  if(WEB) return !!(WEBAI.key && WEBAI.model);
-  if(LOCAL) return !!(SRV && SRV.ready);
-  return !!sampleFn;
+  if(CONNECTION.cloud) return !!(CONNECTION.server && CONNECTION.server.ready);
+  if(WEB) return !!(CONNECTION.web.key && CONNECTION.web.model);
+  if(LOCAL) return !!(CONNECTION.server && CONNECTION.server.ready);
+  return !!AI.sample;
 }
 const aiNeed = (what) => (LOCAL || WEB) ? `${what} needs an AI. Connect one in Settings.` : `${what} needs Claude, which isn’t available in this view.`;
 const STEER = {
@@ -47,11 +47,11 @@ function callAI(prompt,o){
   const opts = {modelTier:'quick',signal:o.signal};
   if(o.onText) opts.onText = o.onText;
   if(o.cache===false) opts.cache = false;
-  if((LOCAL || CLOUDAI) && typeof o.temperature==='number') opts.temperature = o.temperature;
+  if((LOCAL || CONNECTION.cloud) && typeof o.temperature==='number') opts.temperature = o.temperature;
   if((LOCAL || WEB) && activeProvider()==='demo') return demoSample(prompt,o);
-  if(CLOUDAI || LOCAL) return serverSample(prompt,opts);
+  if(CONNECTION.cloud || LOCAL) return serverSample(prompt,opts);
   if(WEB) return webSample(prompt,o);
-  return sampleFn(prompt,opts);
+  return AI.sample(prompt,opts);
 }
 function treeText(){
   const lines = [];
@@ -105,13 +105,13 @@ function moodGuess(text){ const s = text.toLowerCase(); for(const [k,m] of MOOD_
 function handleAIError(e){
   const c = e && e.code, m = e && e.message ? String(e.message).slice(0,200) : '';
   if(LOCAL || WEB){
-    if(c==='sampling_disabled'){ aiOff = true; showNote([`${m || 'The provider rejected the request.'} Check Settings. Blocks place by keyword match for now.`],false); updateHud(); }
+    if(c==='sampling_disabled'){ AI.off = true; showNote([`${m || 'The provider rejected the request.'} Check Settings. Blocks place by keyword match for now.`],false);  }
     else if(c==='rate_limited'){ showNote(['The provider is rate limiting requests. Try again in a moment.'],false); }
     else if(c!=='cancelled'){ showNote([`The provider returned an error${m ? ': '+m : ''}`],false); }
     return;
   }
   if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(c)){
-    aiOff = true; showNote(['Claude is switched off for this page, so blocks place by keyword match.'],false); updateHud();
+    AI.off = true; showNote(['Claude is switched off for this page, so blocks place by keyword match.'],false);
   } else if(c==='rate_limited'){ showNote(['Claude is rate limited right now. Try again in a moment.'],false); }
   else if(c!=='cancelled'){ showNote(['Claude couldn’t answer that one, so it was placed by keyword match.'],false); }
 }
@@ -226,7 +226,7 @@ Rules:
       const nc = S.nodes[idc];
       if(o.type==='question'){ nc.ticket = TICKETS.includes(o.ticket) ? o.ticket : 'talk'; if(Array.isArray(o.blockedBy)) pendingBlocks.push([idc,o.blockedBy]); }
       gmap[String(o.id)] = idc; count++;
-      layout(false); updateHud(); save();
+      layout(false);  save();
       return true;
     }
     if(bridge && o && typeof o.verdict==='string'){ verdict = o; return false; }
@@ -243,7 +243,7 @@ Rules:
       (Array.isArray(o.links)?o.links:[]).slice(0,3).forEach(lid=>{ const real = (String(lid) in gmap) ? gmap[String(lid)] : lid; if(S.nodes[real] && real!==id && real!==pid && (bridge || real!==fid)) S.links.push({a:id,b:real,kind:'rel'}); });
     }
     gmap[String(o.id)] = id; count++;
-    layout(false); updateHud(); save();
+    layout(false);  save();
     return true;
   };
   const reveal = (async()=>{
@@ -277,14 +277,14 @@ Rules:
     if(verdict) track('bridge_result',{outcome:verdict.verdict==='gap' ? 'gap' : 'bridged'});
     if(verdict && verdict.verdict==='gap'){
       showNote([{b:'Not bridged yet. '},gap || `The tree is too far from “${f.text}” to connect without more of your decisions.`,' Starting a grill to find the missing step.'],false);
-      setBusy(null); updateHud();
+      setBusy(null);
       startGrill(null,`Target feeling: “${f.text}”. Missing step: ${gap || 'nothing in the tree yet leads to it'}`);
       return;
     }
     showNote([{b:'Bridged. '},`Questions now run from the existing tree toward “${f.text}”, and the causes run back from it. Keep the ones that ring true.`],false);
   }
   else if(back && !stopReveal) showNote(['Traced back from ',{b:`“${f.text}”`},'. Keep the questions that ring true.'],false);
-  setBusy(null); updateHud();
+  setBusy(null);
 }
 function bridgePromptFor(f,GS){
   const D = DOM();

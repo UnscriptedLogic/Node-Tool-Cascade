@@ -3,6 +3,7 @@
 const PANEL = CascadeUI.proxy({open:false,tab:'map',map:null,hint:'',grillNote:'',idleMessage:'',doneMessage:'',canSeed:false,revision:0});
 let curStab='map';
 const G = CascadeUI.proxy({active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0});
+UI.panel=PANEL;
 CascadeUI.connect({PANEL,G,S,PREFS,TICKET_LABEL,TICKET_ASK,LABEL,Mindsets});
 CascadeUI.mount('side',$('#sideRoot'));
 const side=$('#side');
@@ -10,9 +11,7 @@ const side=$('#side');
 function showStab(t){
   curStab=t; CascadeUI.sync(()=>{ PANEL.tab=t; });
   S.layer = t!=='ask';
-  $('#mapBtn').setAttribute('aria-pressed',String(!side.hidden && t!=='ask'));
-  $('#askBtn').setAttribute('aria-pressed',String(!side.hidden && t==='ask'));
-  layout(false); applyView(); updateHud();
+  layout(false); applyView();
   if(t==='map') renderMap(); else if(t==='grill') renderGrillShell(); else renderAsk();
 }
 function openSide(tab){
@@ -23,8 +22,7 @@ function openSide(tab){
 function closeSide(){
   CascadeUI.sync(()=>{ PANEL.open=false; }); S.layer = false; linkFrom = null;
   stage.style.setProperty('--drawer','0px');
-  $('#mapBtn').setAttribute('aria-pressed','false'); $('#askBtn').setAttribute('aria-pressed','false');
-  layout(false); applyView(); updateHud();
+  layout(false); applyView();
 }
 function focusNode(id){
   if(!S.nodes[id]) return;
@@ -69,7 +67,7 @@ function mapAction(id,action){
   else if(action==='restore') toggleOut(id);
   else if(action==='sharpen'){ focusNode(id); beginEdit(id,{graduate:true}); }
 }
-function setDestination(value){ PANEL.hint=''; PREFS.goal=value; savePrefs(); updateGoalChip(); updatePreview(); }
+function setDestination(value){ PANEL.hint=''; PREFS.goal=value; savePrefs();  updatePreview(); }
 function chartMap(){
   if(!(PREFS.goal||'').trim()){ PANEL.hint = 'Name the destination first. Everything on the map is measured against it.'; $('#mDest').focus(); return; }
   if(!aiAvailable()){ showNote([aiNeed('Charting')],false); return; }
@@ -244,5 +242,5 @@ async function nextRound(){
   }
   renderGrillShell(); checkRoundEnd();
 }
-$('#mapBtn').addEventListener('click',()=>{ if(side.hidden || curStab==='ask') openSide(curStab==='ask' ? 'map' : curStab); else closeSide(); });
-$('#askBtn').addEventListener('click',()=>{ if(side.hidden || curStab!=='ask') openSide('ask'); else closeSide(); });
+function toggleMap(){ if(!PANEL.open||curStab==='ask') openSide(curStab==='ask'?'map':curStab); else closeSide(); }
+function toggleAsk(){ if(!PANEL.open||curStab!=='ask') openSide('ask'); else closeSide(); }

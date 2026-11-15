@@ -27,7 +27,7 @@ function downloadMindset(value,name){
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));
   a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
-function mindsetChanged(){ save(); renderMindsets(); layout(false); updateHud(); }
+function mindsetChanged(){ save(); renderMindsets(); layout(false);  }
 function renderMindsets(){
   renderBuiltinMindsets();
   const list = $('#msList'); list.textContent = '';
@@ -93,10 +93,10 @@ function applyMindset(id,only){
         if(!count) pushHist();
         addNode({type:'question',text,parent:id,ghost:true,mindset:m.value}); texts.add(text.toLowerCase()); count++;
       }
-      if(count){ layout(false); updateHud(); save(); }
+      if(count){ layout(false);  save(); }
       showNote([count ? `Added ${count} mindset suggestions. Keep the questions that help.` : 'No relevant mindset questions came back for this branch.'],false);
     }catch(e){ if(!c.signal.aborted) handleAIError(e); }
-    finally{ ctl = null; setBusy(null); updateHud(); }
+    finally{ ctl = null; setBusy(null);  }
   });
 }
 $('#msImport').addEventListener('click',()=>$('#msFile').click());

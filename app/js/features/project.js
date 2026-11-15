@@ -3,10 +3,10 @@
 const DEPTHS = {quick:{groups:6,chars:16000},standard:{groups:12,chars:22000},thorough:{groups:24,chars:26000}};
 const KINDS = ['mechanic','parameter','state','decision','open','constraint','system'];
 let projDepth='standard', PGROUPS=null, PFIND=null, projBusy=false, projCtl=null, prevBrief=null, scanBusy=false;
-const PROJECTUI=CascadeUI.proxy({project:PROJ||{has:false},path:PROJ?.root||'',ignore:'',include:'',brief:PROJ?.brief||'',depth:'standard',busy:false,scanBusy:false,message:'',messageClass:'',progress:'',progressClass:'',detail:'',estimate:'',buildLabel:'Build brief',canRestore:false});
+const PROJECTUI=CascadeUI.proxy({project:CONNECTION.project||{has:false},path:CONNECTION.project?.root||'',ignore:'',include:'',brief:CONNECTION.project?.brief||'',depth:'standard',busy:false,scanBusy:false,message:'',messageClass:'',progress:'',progressClass:'',detail:'',estimate:'',buildLabel:'Build brief',canRestore:false});
 CascadeUI.connect({PROJECTUI,DEPTHS});
-const projectReady = () => !!(PROJ && PROJ.has);
-const briefText = () => ((PROJ && PROJ.brief) || '').trim();
+const projectReady = () => !!(CONNECTION.project && CONNECTION.project.has);
+const briefText = () => ((CONNECTION.project && CONNECTION.project.brief) || '').trim();
 const projectBriefOn = () => LOCAL && PREFS.useProject && projectReady() && !!briefText();
 const fmtN = (n) => n>=10000 ? Math.round(n/1000)+'k' : n>=1000 ? (n/1000).toFixed(1)+'k' : String(n);
 function fmtProjectNumber(n){ return fmtN(n); }
@@ -136,7 +136,7 @@ Rules:
 
 /* --- scanning --- */
 function lockProject(on){ PROJECTUI.busy=on; }
-async function refreshProject(){ PROJ = await fetchJSON('/api/project'); renderProject(); syncProjectButtons(); updatePreview(); }
+async function refreshProject(){ CONNECTION.project = await fetchJSON('/api/project'); renderProject(); syncProjectButtons(); updatePreview(); }
 async function loadProjectData(){
   if(!LOCAL) return;
   if(!projectReady()){ PGROUPS = null; PFIND = null; renderProject(); return; }
@@ -163,7 +163,7 @@ async function projectScan(){
       const st = await fetchJSON('/api/project/status');
       if(st.running){ pMsg(`Scanning… ${st.files} files in ${st.dirs} folders`); continue; }
       if(st.error){ pMsg(st.error,'bad'); }
-      else { PROJ = st.info; pMsg('Scan finished.','ok'); }
+      else { CONNECTION.project = st.info; pMsg('Scan finished.','ok'); }
       break;
     }
     await loadProjectData(); syncProjectButtons(); updatePreview();
@@ -172,7 +172,7 @@ async function projectScan(){
 }
 function renderProject(){
   if(!LOCAL) return;
-  const P = PROJ || {has:false}, has = !!P.has;
+  const P = CONNECTION.project || {has:false}, has = !!P.has;
   PROJECTUI.project=P;
   if(!PROJECTUI.path) PROJECTUI.path=P.root||'';
   if(!projBusy) PROJECTUI.brief=P.brief||'';
@@ -200,8 +200,8 @@ function renderProject(){
 }
 function syncProjectButtons(){
   if(!LOCAL) return;
-  const show = projectReady() && (PROJ.findingCount>0);
-  PANEL.canSeed=show; $('#eSeed').hidden=!show;
+  const show = projectReady() && (CONNECTION.project.findingCount>0);
+  PANEL.canSeed=show; UI.seed=show;
   updateAskFiles();
 }
 
@@ -227,7 +227,7 @@ async function buildBrief(){
   const mode = !briefText() ? 'build' : stale.length ? 'update' : 'rebuild', work = mode==='update' ? stale : sel;
   const kept = mode==='update' ? PFIND.findings.filter(f=>sel.some(g=>g.label===f.group && have[g.id]===g.fingerprint)) : [];
   projBusy = true; projCtl = new AbortController(); lockProject(true); pMsg('');
-  const engine = (PROJ && PROJ.engineLabel) || '', fresh = []; let nDone = 0, failed = 0;
+  const engine = (CONNECTION.project && CONNECTION.project.engineLabel) || '', fresh = []; let nDone = 0, failed = 0;
   try{
     const queue = work.slice();
     const worker = async () => {
@@ -235,7 +235,7 @@ async function buildBrief(){
         const g = queue.shift(); if(!g || projCtl.signal.aborted) return;
         pProg(`Reading ${g.label} (${nDone+1} of ${work.length})…`);
         try{ fresh.push(...await readGroup(g,engine,projCtl.signal)); }
-        catch(e){ if(e && e.code==='cancelled') return; failed++; handleAIError(e); if(aiOff){ queue.length = 0; return; } }
+        catch(e){ if(e && e.code==='cancelled') return; failed++; handleAIError(e); if(AI.off){ queue.length = 0; return; } }
         nDone++;
       }
     };
@@ -249,14 +249,14 @@ async function buildBrief(){
     if(!brief){ pMsg('The AI returned an empty brief.','bad'); return; }
     prevBrief = briefText() || null;
     const gf = mode==='update' ? {...have} : {}; work.forEach(g=>{ gf[g.id] = g.fingerprint; });
-    const model = (SRV && SRV.providers && SRV.providers[SRV.active] && SRV.providers[SRV.active].effectiveModel) || '';
-    PROJ = await postJSON('/api/project/brief',{brief,briefMeta:{model,groups:sel.length,edited:false},findings:all,groupFindings:gf});
+    const model = (CONNECTION.server && CONNECTION.server.providers && CONNECTION.server.providers[CONNECTION.server.active] && CONNECTION.server.providers[CONNECTION.server.active].effectiveModel) || '';
+    CONNECTION.project = await postJSON('/api/project/brief',{brief,briefMeta:{model,groups:sel.length,edited:false},findings:all,groupFindings:gf});
     await loadProjectData(); syncProjectButtons(); updatePreview();
     pMsg(`Brief written from ${all.length} findings across ${sel.length} folder${sel.length===1 ? '' : 's'}.${failed ? ' '+failed+' could not be read.' : ''}`,'ok');
   }catch(e){
     if(e && e.code==='cancelled') pMsg('Stopped. Nothing was changed.'); else { handleAIError(e); pMsg('The brief couldn’t be written.','bad'); }
   }finally{
-    projBusy = false; projCtl = null; lockProject(false); pProg(''); PROJECTUI.brief = (PROJ && PROJ.brief) || ''; renderProject();
+    projBusy = false; projCtl = null; lockProject(false); pProg(''); PROJECTUI.brief = (CONNECTION.project && CONNECTION.project.brief) || ''; renderProject();
   }
 }
 let briefTimer = 0;
@@ -264,21 +264,20 @@ function setProjectField(key,value){ PROJECTUI[key]=value; }
 function setProjectDepth(value){ projDepth=value; PROJECTUI.depth=value; loadProjectData(); }
 function editProjectBrief(value){
   PROJECTUI.brief=value; clearTimeout(briefTimer);
-  briefTimer=setTimeout(async()=>{ try{ PROJ=await postJSON('/api/project/brief',{brief:PROJECTUI.brief,briefMeta:{...(PROJ?.briefMeta||{}),edited:true}}); PROJECTUI.project=PROJ; updatePreview(); }catch(e){} },600);
+  briefTimer=setTimeout(async()=>{ try{ CONNECTION.project=await postJSON('/api/project/brief',{brief:PROJECTUI.brief,briefMeta:{...(CONNECTION.project?.briefMeta||{}),edited:true}}); PROJECTUI.project=CONNECTION.project; updatePreview(); }catch(e){} },600);
 }
 async function restoreProjectBrief(){
   if(!prevBrief) return; const brief=prevBrief; prevBrief=null; PROJECTUI.brief=brief;
-  try{ PROJ=await postJSON('/api/project/brief',{brief,briefMeta:{...(PROJ?.briefMeta||{}),edited:true}}); updatePreview(); }catch(e){} renderProject();
+  try{ CONNECTION.project=await postJSON('/api/project/brief',{brief,briefMeta:{...(CONNECTION.project?.briefMeta||{}),edited:true}}); updatePreview(); }catch(e){} renderProject();
 }
 async function forgetProject(){
-  try{ const r=await postJSON('/api/project/forget',{}); PROJ=r.project; PGROUPS=null; PFIND=null; prevBrief=null; PROJECTUI.path=''; PROJECTUI.brief=''; pMsg('This project was forgotten.'); renderProject(); syncProjectButtons(); updatePreview(); }
+  try{ const r=await postJSON('/api/project/forget',{}); CONNECTION.project=r.project; PGROUPS=null; PFIND=null; prevBrief=null; PROJECTUI.path=''; PROJECTUI.brief=''; pMsg('This project was forgotten.'); renderProject(); syncProjectButtons(); updatePreview(); }
   catch(e){ pMsg(e.message,'bad'); }
 }
 function stopProject(){ if(projCtl) projCtl.abort(); }
 function cancelProjectScan(){ postJSON('/api/project/cancel',{}).catch(()=>{}); }
 function initProject(){
-  $('#eSeed').addEventListener('click',seedFromProject);
-  if(PROJ?.has) loadProjectData();
+  if(CONNECTION.project?.has) loadProjectData();
   renderProject(); syncProjectButtons();
 }
 
@@ -311,7 +310,7 @@ async function runSeed(findings,signal){
     const n = S.nodes[id]; n.src = refs;
     if(o.type==='question') n.ticket = TICKETS.includes(o.ticket) ? o.ticket : 'talk';
     gmap[String(o.id)] = id; count++;
-    layout(false); updateHud(); save();
+    layout(false);  save();
     return true;
   };
   const reveal = (async()=>{
@@ -324,7 +323,7 @@ async function runSeed(findings,signal){
   try{ await streamLines(seedPrompt(findings),{signal,temperature:PREFS.creativity,onObj:o=>queue.push(o)}); }
   catch(e){ if(e && e.code==='cancelled') stopReveal = true; else handleAIError(e); }
   finally{ streaming = false; }
-  await reveal; setBusy(null); updateHud();
+  await reveal; setBusy(null);
   if(count) showNote([`Seeded ${count} suggestion${count===1 ? '' : 's'} from the project. Each one shows where it came from.`],true);
   else if(!stopReveal) showNote(['Nothing in the findings could be turned into nodes.'],false);
 }

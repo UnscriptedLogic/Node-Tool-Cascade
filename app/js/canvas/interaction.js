@@ -24,7 +24,7 @@ stage.addEventListener('pointerdown',e=>{
   if(nodeEl){ nd = {id:nodeEl.dataset.id,sx:e.clientX,sy:e.clientY,drag:false,pid:e.pointerId,set:null,drop:null}; }
   else{
     pan = {sx:e.clientX,sy:e.clientY,vx:S.view.x,vy:S.view.y,moved:false}; stage.classList.add('panning');
-    if(compose.hidden===false) closeCompose();
+    if(UI.compose.open) closeCompose();
     if(S.sel) select(null);
     if(linkFrom){ linkFrom = null; restyle(); }
   }

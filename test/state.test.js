@@ -2,6 +2,20 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { open, sleep } = require('./helpers/dom');
 
+test('HUD and rail react to store writes without a manual refresh',async(t)=>{
+  const a=open(); t.after(()=>a.dom.window.close()); await sleep(20);
+  assert.equal(a.w.eval('typeof updateHud'),'undefined');
+  a.w.eval("PREFS.goal='A reactive destination'; S.mode='outer'; hist.push({s:snap(),v:null})"); await sleep(0);
+  assert.equal(a.$('#goalchip .gt').textContent,'A reactive destination');
+  assert.equal(a.$('#mOuter').getAttribute('aria-pressed'),'true');
+  assert.equal(a.$('#undoBtn').disabled,false);
+  a.w.eval("UI.library={kind:'local',user:null,currentId:'test',cascades:[{id:'test',name:'A new name',folderId:'folder'}],folders:[{id:'folder',name:'A folder'}]}"); await sleep(0);
+  assert.equal(a.$('#openName .cn').textContent,'A new name');
+  assert.equal(a.$('#openName .cf').textContent,'A folder / ');
+  assert.equal(a.$('#openName').hidden,false);
+  assert.deepEqual(a.errs,[]);
+});
+
 test('side panels render streamed state as text and keep card edits reactive',async(t)=>{
   const a=open(); t.after(()=>a.dom.window.close()); await sleep(20);
   a.w.eval("openSide('ask'); AN.summaryBusy=true; AN.summaryKind='tree'; AN.summary='<img src=x onerror=alert(1)> First chunk'; AN.busy=true");

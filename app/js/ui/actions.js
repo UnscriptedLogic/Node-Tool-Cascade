@@ -27,7 +27,7 @@ function clearGraph(){
   cancelAI(); pushHist(true);
   S.nodes = {}; S.order = []; S.links = []; S.sel = null; flashId = null; S.mode = 'detail';
   vAnim = null; S.view = CascadeUI.ref({x:140,y:200,z:1});
-  layout(false); applyView(); save(); updateHud();
+  layout(false); applyView(); save();
   showNote(['Graph cleared.'],true);
 }
 function toggleCollapse(id){ pushHist(); S.nodes[id].collapsed = !S.nodes[id].collapsed; commit(); }
@@ -36,9 +36,9 @@ function undo(){
   cancelAI();
   const h = hist.pop(); if(!h) return;
   applySnap(h.s); if(h.v){ vAnim = null; Object.assign(S.view,h.v); applyView(); }
-  layout(false); save(); updateHud(); note.hidden = true;
+  layout(false); save();  UI.noteOpen=false;
 }
-function resetTree(){ cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes; S.order=t.order; S.links=t.links; S.seq=t.seq; S.sel=null; S.mode='detail'; layout(false); initialView(); save(); updateHud(); }
+function resetTree(){ cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes; S.order=t.order; S.links=t.links; S.seq=t.seq; S.sel=null; S.mode='detail'; layout(false); initialView(); save();  }
 function initialView(instant){
   const ex = S.order.find(id=>S.nodes[id] && S.nodes[id].type==='loop' && S.nodes[id].text==='Explore');
   if(ex){ rebuildKM(); const core = S.nodes[ex].parent; fitTo([core,ex,...descendants(ex)].filter(Boolean),{maxZ:1,minZ:.7,pad:40,instant:!!instant}); }

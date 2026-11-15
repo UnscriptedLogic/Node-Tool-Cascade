@@ -20,7 +20,7 @@ export default function Settings() {
   const fileInput=useRef(null);
   const domain = DOMAINS[prefs.domain] || DOMAINS.general;
   const setPref = (key,value) => {
-    PREFS[key]=value; call('savePrefs'); call('updatePreview'); call('updateGoalChip');
+    PREFS[key]=value; call('savePrefs'); call('updatePreview');
     if(key==='theme') call('applyTheme');
     if(key==='mobileLayout') call('applyResponsive',true);
     if(key==='domain'){ call('track','domain_set',{label:value}); call('applyDomain'); }
@@ -55,6 +55,7 @@ export default function Settings() {
       const server=settings.server?.server;
       content=[server?`Listening on http://localhost:${server.port}`+(server.port!==server.preferred?` (port ${server.preferred} was busy, so this one was chosen)`:'')+` · process ${server.pid}`:''];
     }
+    if(id==='libTab') props.hidden=!settings.library;
     if(id==='appVersion') content=['v'+version];
     if(id==='aiLocalLead' && settings.cloud) content=['Pick who does the thinking. Your keys are saved to your account, encrypted, and used from our server only to call the provider you choose. The page can’t read them back.'];
     const web=settings.web, useRouter=web.provider==='openrouter', hasKey=!!web.key;
