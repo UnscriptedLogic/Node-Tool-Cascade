@@ -9,6 +9,9 @@ const read = (f) => fs.readFileSync(path.join(APP_DIR,f),'utf8');
 const manifest = () => JSON.parse(read('manifest.json'));
 
 function assemble({ inline = true, runtime = '' } = {}){
+  if(!fs.existsSync(path.join(APP_DIR,'gen/ui.js')) || !fs.existsSync(path.join(APP_DIR,'gen/ui.css'))){
+    throw new Error('The UI bundle is missing. Run npm run build:ui first.');
+  }
   const m = manifest();
   let html = read('app.html').replaceAll('__APP_VERSION__', require('../package.json').version);
   for(const k of ['<!--STYLES-->','<!--SCRIPTS-->','<!--RUNTIME-->']) if(!html.includes(k)) throw new Error(`app/app.html is missing ${k}`);

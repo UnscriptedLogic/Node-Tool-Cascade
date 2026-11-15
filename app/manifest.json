@@ -1,5 +1,6 @@
 {
   "css": [
+    "gen/ui.css",
     "css/base.css",
     "css/rail.css",
     "css/blocks.css",
@@ -15,6 +16,7 @@
     "css/mobile.css"
   ],
   "js": [
+    "gen/ui.js",
     "js/core/constants.js",
     "js/core/analytics.js",
     "js/core/profiles.js",

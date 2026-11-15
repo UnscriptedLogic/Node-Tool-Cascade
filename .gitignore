@@ -11,7 +11,11 @@ project-index.json
 
 # Build output and tooling
 dist/
+app/gen/
 node_modules/
 .DS_Store
 npm-debug.log*
 scripts/analytics.local.env
+
+# Local planning notes
+.handoff/
