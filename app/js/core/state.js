@@ -11,10 +11,11 @@ function load(){
   }catch(e){ return null; }
 }
 const loaded = load();
-const S = Object.assign({view:{x:0,y:0,z:1},mode:'detail',layer:false,sel:null,nodes:{},order:[],links:[],seq:0}, loaded || {});
+const initialState = Object.assign({view:{x:0,y:0,z:1},mode:'detail',layer:false,sel:null,nodes:{},order:[],links:[],seq:0}, loaded || {});
+initialState.view = CascadeUI.ref(initialState.view && isFinite(initialState.view.z) ? initialState.view : {x:0,y:0,z:1});
+const S = CascadeUI.proxy(initialState);
 S.mode = 'detail'; S.sel = null;
 try{ S.mindsets = Mindsets.collection(S.mindsets); }catch(e){ S.mindsets = []; }
-if(!S.view || !isFinite(S.view.z)) S.view = {x:0,y:0,z:1};
 const R = {};            // runtime per node: el, cur, tgt, w, h ...
 let KM = {};             // parent -> [child ids]
 const spawnAt = {};

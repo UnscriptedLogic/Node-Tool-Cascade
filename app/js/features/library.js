@@ -2,7 +2,7 @@
 /* ================= library: several Cascades, in folders ================= */
 // Works against the same /api/library routes whether they are served by the local app (files on this computer)
 // or by the Cloudflare backend (D1, behind Google sign-in). The Cascade you have open saves into the library as you work.
-const LIB = { kind:null, user:null, folders:[], cascades:[], currentId:null, googleClientId:'', status:'', editing:null, armed:null, suspend:false, timer:0, gsi:false };
+const LIB = CascadeUI.proxy({ kind:null, user:null, folders:[], cascades:[], currentId:null, googleClientId:'', status:'', editing:null, armed:null, suspend:false, timer:0, gsi:false });
 const LIB_CURRENT = 'cascade-current-v1';
 
 async function libApi(method,path,body){

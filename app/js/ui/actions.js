@@ -26,7 +26,7 @@ function clearGraph(){
   if(!S.order.length) return;
   cancelAI(); pushHist(true);
   S.nodes = {}; S.order = []; S.links = []; S.sel = null; flashId = null; S.mode = 'detail';
-  vAnim = null; S.view = {x:140,y:200,z:1};
+  vAnim = null; S.view = CascadeUI.ref({x:140,y:200,z:1});
   layout(false); applyView(); save(); updateHud();
   showNote(['Graph cleared.'],true);
 }
