@@ -9,6 +9,8 @@
 .mindset-pack .field input{max-width:110px}
 #p-mindsets details{margin-block:14px}
 .mindset-builtin{margin-block:16px}
+.mindset-catalog{max-height:320px;overflow:auto;padding-right:8px}
+.mindset-catalog>details{border-bottom:1px solid var(--line);padding-bottom:8px}
 #msConverter{margin-top:24px}
 #msConverter>summary{font-weight:700;cursor:pointer}
 #msConverter .field{margin-block:18px}

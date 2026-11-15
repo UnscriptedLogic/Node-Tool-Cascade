@@ -120,20 +120,46 @@ syncers.push(renderMindsets);
 function renderBuiltinMindsets(){
   const list = $('#msBuiltins'); list.textContent = '';
   for(const preset of MINDSET_PRESETS){
-    const p = Mindsets.pack(preset), installed = S.mindsets.find(x=>x.id===p.id);
+    const p = Mindsets.pack(preset), installed = S.mindsets.find(x=>x.id===p.id) || S.mindsets.find(x=>(preset.replaces || []).includes(x.id));
+    const upgrade = !!(installed && installed.id!==p.id);
     const card = document.createElement('section'); card.className = 'card mindset-builtin';
     const title = document.createElement('strong'); title.textContent = p.icon+' '+p.name; card.appendChild(title);
     const info = document.createElement('p'); info.className = 'small'; info.textContent = `Included · Game design only · ${p.source.edition}. ${p.source.coverage}`; card.appendChild(info);
     const row = document.createElement('div'); row.className = 'frow';
-    const enable = document.createElement('button'); enable.type = 'button'; enable.className = 'btn primary'; enable.textContent = installed && installed.enabled ? 'Enabled in this Cascade' : 'Enable starter mindset'; enable.disabled = !!(installed && installed.enabled);
+    const enable = document.createElement('button'); enable.type = 'button'; enable.className = 'btn primary';
+    enable.textContent = upgrade ? `Upgrade to ${p.entries.length} lenses` : installed && installed.enabled ? 'Enabled in this Cascade' : 'Enable mindset';
+    enable.disabled = !!(installed && installed.enabled && !upgrade);
     enable.addEventListener('click',()=>{
       try{
-        if(installed){ cancelAI(); pushHist(); installed.enabled = true; mindsetChanged(); }
+        if(upgrade){
+          const next = Mindsets.collection(S.mindsets.map(old=>old.id===installed.id ? {...p,icon:old.icon,enabled:true} : old));
+          const data = libData(); data.tree = JSON.stringify({...JSON.parse(data.tree),mindsets:next});
+          if(JSON.stringify(data).length>1500000) throw new Error('This Cascade is too large to upgrade the mindset. Remove unused material first.');
+          cancelAI(); pushHist(); S.mindsets = next; mindsetChanged();
+          $('#msMsg').textContent = `Upgraded to ${p.entries.length} lenses. Existing questions keep their original sources.`;
+        }
+        else if(installed){ cancelAI(); pushHist(); installed.enabled = true; mindsetChanged(); }
         else importMindsets(p);
       }catch(e){ $('#msMsg').textContent = e.message; }
     });
-    const download = document.createElement('button'); download.type = 'button'; download.className = 'btn'; download.textContent = 'Download starter JSON'; download.addEventListener('click',()=>downloadMindset(p,p.id+'.mindset.json'));
+    const download = document.createElement('button'); download.type = 'button'; download.className = 'btn'; download.textContent = 'Download JSON'; download.addEventListener('click',()=>downloadMindset(p,p.id+'.mindset.json'));
     const source = document.createElement('a'); source.href = p.source.url; source.target = '_blank'; source.rel = 'noopener'; source.textContent = 'Source reference';
-    row.append(enable,download,source); card.appendChild(row); list.appendChild(card);
+    row.append(enable,download,source); card.appendChild(row);
+    const browse = document.createElement('details'), summary = document.createElement('summary');
+    summary.textContent = `Browse ${p.entries.length} lenses`; browse.appendChild(summary);
+    let populated = false;
+    browse.addEventListener('toggle',()=>{
+      if(!browse.open || populated) return; populated = true;
+      const catalog = document.createElement('div'); catalog.className = 'mindset-catalog';
+      for(const entry of p.entries){
+        const item = document.createElement('details'), heading = document.createElement('summary');
+        heading.textContent = `${entry.label} #${entry.number}: ${entry.name}`; item.appendChild(heading);
+        for(const question of entry.questions){ const text = document.createElement('p'); text.textContent = question; item.appendChild(text); }
+        const ref = document.createElement('p'); ref.className = 'small'; ref.textContent = entry.references.map(r=>r.location).join('; '); item.appendChild(ref);
+        catalog.appendChild(item);
+      }
+      browse.appendChild(catalog);
+    });
+    card.appendChild(browse); list.appendChild(card);
   }
 }

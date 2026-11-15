@@ -13,12 +13,26 @@ const entry = (extra = {}) => ({name:'Evidence',number:'3',label:'Lens',topics:[
   questions:['Which small experiment could disprove this estimate?'],evidence:'Test uncertain estimates with a small experiment',...extra});
 const chunk = () => Conversion.chunks(Conversion.textUnits(SOURCE,'notes.md'))[0];
 
-test('mindset converter: included Schell starter validates, stays opt-in and excludes business domains',()=>{
+test('mindset converter: complete Schell catalog validates, stays opt-in and excludes business domains',()=>{
   const p = Mindsets.pack(presets[0]);
-  assert.equal(p.entries.length,8); assert.equal(p.source.edition,'2008');
-  assert.match(p.source.coverage,/not the complete/); assert.equal(p.entries.find(e=>e.name==='Curiosity').number,'4');
+  assert.equal(p.entries.length,100); assert.equal(p.source.edition,'2008');
+  assert.match(p.source.coverage,/All 100/); assert.equal(p.entries.find(e=>e.name==='Curiosity').number,'4');
+  assert.deepEqual(p.entries.map(e=>Number(e.number)),Array.from({length:100},(_,i)=>i+1));
+  assert.equal(new Set(p.entries.map(e=>e.id)).size,100);
+  assert.equal(new Set(p.entries.map(e=>e.questions[0])).size,100);
+  assert.ok(p.entries.every(e=>e.topics.length>=3 && e.questions.length && /^Printed p\. \d+$/.test(e.references[0].location)));
+  assert.equal(p.entries.at(-1).name,'Your Secret Purpose');
+  assert.equal(p.entries.at(-1).references[0].location,'Printed p. 461');
   assert.equal(Mindsets.candidates([{...p,enabled:true}],'general','traversal combat rewards').length,0);
   assert.ok(Mindsets.candidates([{...p,enabled:true}],'game','traversal').length>0);
+});
+
+test('mindset converter: complete catalog covers distinct topics without leaking outside game design',()=>{
+  const pack = {...Mindsets.pack(presets[0]),enabled:true};
+  for(const [topic,number] of [['ranking','20'],['confirmation','57'],['reunion','84'],['engine','92']]){
+    assert.ok(Mindsets.candidates([pack],'game',topic).some(c=>c.entry.number===number),topic);
+    for(const domain of ['general','product','research']) assert.equal(Mindsets.candidates([pack],domain,topic).length,0);
+  }
 });
 
 test('mindset converter: chunking keeps beginning, end, provenance and long-line content',()=>{
@@ -76,9 +90,42 @@ test('mindset converter UI: built-in enables without a provider or file import a
   const {a} = setup(t); await sleep(50); a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
   assert.equal(json(a,'S.mindsets').length,0);
   a.click(a.$('.mindset-builtin button'));
-  assert.equal(json(a,'S.mindsets')[0].id,'schell-2008-starter'); assert.equal(json(a,'S.mindsets')[0].enabled,true);
+  assert.equal(json(a,'S.mindsets')[0].id,'schell-2008-lenses'); assert.equal(json(a,'S.mindsets')[0].enabled,true);
   assert.match(a.$('.mindset-pack').textContent,/Inactive in this domain/);
   a.w.eval('libApply(libBlankData())'); assert.equal(json(a,'S.mindsets').length,0); assert.deepEqual(a.errs,[]);
+});
+
+test('mindset converter UI: complete catalog can be browsed without enabling or generating questions',async t=>{
+  const {a,prompts} = setup(t); await sleep(50);
+  a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
+  const browse = a.$('.mindset-builtin details'); browse.open = true; browse.dispatchEvent(new a.w.Event('toggle'));
+  assert.equal(a.$$('.mindset-catalog>details').length,100);
+  assert.match(a.$('.mindset-catalog>details:last-child').textContent,/Your Secret Purpose/);
+  assert.equal(json(a,'S.mindsets').length,0); assert.equal(prompts.length,0); assert.deepEqual(a.errs,[]);
+});
+
+test('mindset converter UI: starter upgrades explicitly, preserves icon and history, and supports undo',async t=>{
+  const {a} = setup(t); await sleep(50);
+  a.w.eval(`{
+    const full = Mindsets.pack(MINDSET_PRESETS[0]);
+    const old = {...full,id:'schell-2008-starter',name:'Original starter',icon:'🧠',source:{...full.source,coverage:'Eight selected lenses'},entries:full.entries.filter(e=>[1,2,4,14,16,31,40,49].includes(Number(e.number))),enabled:true};
+    S.mindsets = [old];
+    addNode({type:'question',text:'Preserve this existing question',parent:null,mindset:Mindsets.snapshot(old,old.entries[2],'Existing reasoning')});
+    layout(false); save();
+  }`);
+  a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
+  const upgrade = a.$('.mindset-builtin button'); assert.equal(upgrade.textContent,'Upgrade to 100 lenses');
+  assert.equal(json(a,'S.mindsets')[0].entries.length,8,'opening settings never silently replaces a pack');
+  a.click(upgrade);
+  const packs = json(a,'S.mindsets'); assert.equal(packs.length,1); assert.equal(packs[0].id,'schell-2008-lenses');
+  assert.equal(packs[0].entries.length,100); assert.equal(packs[0].icon,'🧠'); assert.equal(packs[0].enabled,true);
+  const question = json(a,'Object.values(S.nodes).find(n=>n.mindset)');
+  assert.equal(question.mindset.packId,'schell-2008-starter'); assert.equal(question.mindset.source.coverage,'Eight selected lenses');
+  assert.equal(question.text,'Preserve this existing question');
+  const reopened = open({example:false,local:{'cascade-tree-v1':a.w.localStorage.getItem('cascade-tree-v1')}}); t.after(()=>reopened.dom.window.close());
+  assert.equal(json(reopened,'S.mindsets')[0].entries.length,100);
+  a.w.eval('closeSettings(); undo()'); assert.equal(json(a,'S.mindsets')[0].entries.length,8);
+  assert.equal(json(a,'S.mindsets')[0].id,'schell-2008-starter'); assert.deepEqual(a.errs,[]);
 });
 
 test('mindset converter UI: generated pack is reviewable and not imported until user chooses',async t=>{
