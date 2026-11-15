@@ -38,9 +38,6 @@ function openSettings(tab){
 function closeSettings(){ CascadeUI.sync(()=>{ SETTINGS.open = false; }); appEl.inert = false; $('#setBtn').focus(); }
 
 /* --- preferences --- */
-// Ask's file toggle remains outside the settings island until the side-panel phase.
-function bindAskFiles(){ const el = $('#aFiles'); el.addEventListener('change',()=>{ PREFS.askFiles=el.checked; savePrefs(); }); }
-
 /* --- providers (local version) --- */
 const PROV_ORDER = ['chatgpt','claudecode','openrouter','anthropic','openai','custom','demo'];
 const PROV = {
@@ -239,7 +236,6 @@ async function onDataAction(action,file){
 CascadeUI.connect({S,PREFS,SETTINGS,DOMAINS,STEER_HELP,MODE,PROV,PROV_ORDER,LOCAL});
 CascadeUI.mount('settings',$('#settingsRoot'));
 settingsEl = $('#settings');
-bindAskFiles();
 
 /* --- wiring --- */
 $('#setBtn').addEventListener('click',()=>openSettings());

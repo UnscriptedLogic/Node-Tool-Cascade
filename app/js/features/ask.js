@@ -1,10 +1,11 @@
 'use strict';
 /* ================= ask the graph ================= */
-const AN = {q:'',verdict:'',answer:'',threads:[],gaps:[],sources:[],basis:'',summary:'',summaryKind:'',local:false,ctl:null,busy:false};
-const AHIST = [];
+const AN = CascadeUI.proxy({input:'',next:false,copyText:'Copy',summaryBusy:false,projectReady:false,revision:0,q:'',verdict:'',answer:'',threads:[],gaps:[],sources:[],basis:'',summary:'',summaryKind:'',local:false,ctl:null,busy:false});
+const AHIST = CascadeUI.proxy([]);
 const TCOL = ['var(--t0)','var(--t1)','var(--t2)'];
 const VERDICT = {answered:'Answered by the tree',partial:'Partly answered',unanswered:'The tree can’t answer this yet'};
-const aRes = $('#aRes'), aQ = $('#aQ'), aSumText = $('#aSumText'), aNext = $('#aNext');
+CascadeUI.connect({AN,AHIST,TCOL,VERDICT});
+CascadeUI.mount('ask',$('#askRoot'));
 
 function linksText(){
   return S.links.filter(l=>S.nodes[l.a] && S.nodes[l.b]).map(l=>`${l.a} -> ${l.b} (${l.kind==='block' ? 'must be settled first' : l.kind==='flow' ? 'leads to' : 'related'})`).join('\n');
@@ -75,7 +76,7 @@ function localAnalyse(q){
     answer: threads.length ? 'The AI is off, so these are the closest keyword matches rather than a reasoned answer.' : 'No node shares words with that question, and the AI is off.',
     threads,gaps:[]};
 }
-function setAskBusy(on){ ['#aGo','#aSumAll','#aSum'].forEach(sel=>{ $(sel).disabled = on; }); }
+function setAskBusy(on){ CascadeUI.sync(()=>{ AN.busy=on; }); }
 async function runAsk(q){
   q = (q||'').trim(); if(!q || AN.busy) return;
   if(!S.order.length){ showNote(['The tree is empty, so there is nothing to ask yet.'],false); return; }
@@ -83,7 +84,7 @@ async function runAsk(q){
   let res = null, local = false;
   if(aiAvailable()){
     AN.busy = true; setAskBusy(true); setBusy('Reading the graph…',true);
-    const c = new AbortController(); AN.ctl = c;
+    const c = new AbortController(); AN.ctl = CascadeUI.ref(c);
     try{ const ev = await projectEvidence(q,6); res = cleanAsk(parseObj((await callAI(askPrompt(q,ev),{signal:c.signal,temperature:.2})).text),ev); }
     catch(e){
       if(e && e.code==='cancelled'){ AN.ctl = null; AN.busy = false; setBusy(null); setAskBusy(false); return; }
@@ -99,7 +100,6 @@ function applyAsk(q,res,local){
   const i = AHIST.findIndex(h=>h.q===q); if(i>=0) AHIST.splice(i,1);
   AHIST.unshift(JSON.parse(JSON.stringify({q,verdict:res.verdict,answer:res.answer,threads:res.threads,gaps:res.gaps,sources:res.sources||[],basis:res.basis||'',local:!!local})));
   AHIST.length = Math.min(AHIST.length,8);
-  $('#aSummaryWrap').hidden = true;
   revealThreads(); renderAsk();
 }
 function revealThreads(){
@@ -129,45 +129,11 @@ function pruneThreads(){
   if(AN.threads.length!==before) ch = true;
   if(ch){ rebuildHighlight(); renderAsk(); }
 }
-function mkThread(t,i){
-  const el = document.createElement('div'); el.className = 'athread'+(t.on ? '' : ' off'); el.dataset.i = i;
-  const head = document.createElement('div'); head.className = 'ath-head';
-  const sw = document.createElement('span'); sw.className = 'swatch'; sw.style.background = TCOL[i%3];
-  const b = document.createElement('b'); b.textContent = t.label;
-  const tg = document.createElement('button'); tg.type = 'button'; tg.className = 'btn'; tg.dataset.aact = 'toggle'; tg.textContent = t.on ? 'Hide' : 'Show';
-  head.append(sw,b,tg); el.appendChild(head);
-  if(t.why){ const w = document.createElement('div'); w.className = 'ath-why'; w.textContent = t.why; el.appendChild(w); }
-  const ol = document.createElement('ol'); ol.className = 'ath-steps';
-  t.ids.forEach(id=>{
-    const n = S.nodes[id]; if(!n) return;
-    const li = document.createElement('li'); li.dataset.id = id;
-    const ty = document.createElement('i'); ty.textContent = LABEL[n.type] || n.type;
-    li.append(ty,document.createTextNode(n.text)); ol.appendChild(li);
-  });
-  el.appendChild(ol);
-  return el;
-}
-function renderAskHist(){
-  const w = $('#aHistWrap'), h = $('#aHist'); h.textContent = '';
-  AHIST.forEach((x,i)=>{ const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.dataset.hi = i; b.textContent = x.q.length>44 ? x.q.slice(0,43)+'…' : x.q; b.title = x.q; h.appendChild(b); });
-  w.hidden = !AHIST.length;
-}
-function renderAsk(){
-  renderAskHist();
-  const has = !!AN.q && !!AN.verdict; aRes.hidden = !has;
-  if(!has) return;
-  const v = $('#aVerdict'); v.className = 'averdict '+AN.verdict; v.textContent = VERDICT[AN.verdict] + (AN.local ? ' (keyword match)' : '');
-  const bs = $('#aBasis'), BASIS = {tree:'From the tree',code:'From the project files',both:'From the tree and the files'};
-  bs.hidden = !(AN.basis && (AN.sources||[]).length); bs.textContent = BASIS[AN.basis] || '';
-  renderAnswer(); renderSources();
-  const box = $('#aThreads'); box.textContent = '';
-  AN.threads.forEach((t,i)=>box.appendChild(mkThread(t,i)));
-  const g = $('#aGaps'); g.hidden = !AN.gaps.length;
-  const gl = $('#aGapList'); gl.textContent = '';
-  AN.gaps.forEach(x=>{ const d = document.createElement('div'); d.className = 'gapitem'; d.textContent = x.text; gl.appendChild(d); });
-  $('#aSum').hidden = !AN.threads.length; aNext.closest('label').hidden = !AN.threads.length;
-  $('#aSummaryWrap').hidden = !AN.summary && !AN.busy;
-}
+function renderAsk(){ CascadeUI.sync(()=>{ AN.revision++; }); }
+function toggleAskThread(i){ if(AN.threads[i]) AN.threads[i].on=!AN.threads[i].on; rebuildHighlight(); renderAsk(); }
+function clearAskHighlight(){ AN.threads.forEach(t=>{ t.on=false; }); rebuildHighlight(); renderAsk(); }
+function setAskFiles(value){ PREFS.askFiles=value; savePrefs(); }
+function openAskSource(id){ const i=AN.sources.findIndex(x=>x.id===id); if(i>=0) openSrcView(AN.sources.map(x=>({f:x.f,l:x.l,e:x.e,note:x.note||''})),i); }
 function addGaps(){
   const fallback = S.order.find(id=>S.nodes[id] && !S.nodes[id].parent);
   pushHist(); let n = 0;
@@ -184,7 +150,7 @@ ${guideBlock()}QUESTION: ${AN.q}
 HIGHLIGHTED THREADS:
 ${th}
 
-Write ${aNext.checked ? '3 to 5 sentences, then one sentence beginning "Next:" that names the single most useful thing to decide or test next,' : '3 to 5 sentences'} in plain prose. No bullet points, no headings, no markdown. Stay faithful to the nodes: say what is settled and what is still open, and do not add facts or recommendations that are not in them.`;
+Write ${AN.next ? '3 to 5 sentences, then one sentence beginning "Next:" that names the single most useful thing to decide or test next,' : '3 to 5 sentences'} in plain prose. No bullet points, no headings, no markdown. Stay faithful to the nodes: say what is settled and what is still open, and do not add facts or recommendations that are not in them.`;
 }
 function treeSummaryPrompt(){
   return `Summarise this ${DOM().treeName} for the ${DOM().person}.
@@ -195,7 +161,7 @@ ${treeText()}
 EXTRA LINKS BETWEEN NODES:
 ${linksText() || '(none)'}
 
-Write two short paragraphs of plain prose, with no bullet points, headings or markdown. First: where the design stands, what is settled, and what the tree is mostly about${(PREFS.goal||'').trim() ? ', measured against the goal' : ''}. Second: the main player feelings in the tree and what seems to cause them, then what is still undecided.${aNext.checked ? ' End with one sentence beginning "Next:" that names the most useful thing to decide or test next.' : ''} Use only what is in the tree.`;
+Write two short paragraphs of plain prose, with no bullet points, headings or markdown. First: where the design stands, what is settled, and what the tree is mostly about${(PREFS.goal||'').trim() ? ', measured against the goal' : ''}. Second: the main player feelings in the tree and what seems to cause them, then what is still undecided.${AN.next ? ' End with one sentence beginning "Next:" that names the most useful thing to decide or test next.' : ''} Use only what is in the tree.`;
 }
 async function summarize(kind){
   if(!aiAvailable()){ showNote([aiNeed('Summaries')],false); return; }
@@ -203,42 +169,27 @@ async function summarize(kind){
   if(kind==='tree' && !S.order.length){ showNote(['The tree is empty, so there is nothing to summarise.'],false); return; }
   if(kind==='threads' && !AN.threads.some(t=>t.on)){ showNote(['Show at least one thread first.'],false); return; }
   AN.busy = true; setAskBusy(true); setBusy('Summarizing…',true);
-  const c = new AbortController(); AN.ctl = c;
+  const c = new AbortController(); AN.ctl = CascadeUI.ref(c);
   AN.summaryKind = kind;
-  $('#aSumLabel').textContent = kind==='tree' ? 'Summary of the whole tree' : 'Summary of the highlighted threads';
-  $('#aSummaryWrap').hidden = false; aSumText.textContent = '';
+  AN.summaryBusy=true; AN.summary='';
   try{
-    const out = await callAI(kind==='tree' ? treeSummaryPrompt() : threadSummaryPrompt(),{signal:c.signal,temperature:.4,onText:({text})=>{ aSumText.textContent = text; }});
-    AN.summary = out.text.trim(); aSumText.textContent = AN.summary;
+    const out = await callAI(kind==='tree' ? treeSummaryPrompt() : threadSummaryPrompt(),{signal:c.signal,temperature:.4,onText:({text})=>{ AN.summary = text; }});
+    AN.summary = out.text.trim();
   }catch(e){
     if(!(e && e.code==='cancelled')) handleAIError(e);
-    if(!aSumText.textContent.trim()) $('#aSummaryWrap').hidden = true;
+
   }
-  AN.ctl = null; AN.busy = false; setBusy(null); setAskBusy(false);
+  AN.ctl = null; AN.busy = false; AN.summaryBusy=false; setBusy(null); setAskBusy(false);
 }
 function restoreAsk(i){
   const h = AHIST[i]; if(!h) return;
   const c = JSON.parse(JSON.stringify(h));
   Object.assign(AN,{q:c.q,verdict:c.verdict,answer:c.answer,threads:c.threads,gaps:c.gaps,sources:c.sources||[],basis:c.basis||'',local:!!c.local,summary:'',summaryKind:''});
   AN.threads.forEach(t=>{ t.on = true; });
-  aQ.value = c.q; $('#aSummaryWrap').hidden = true; revealThreads(); renderAsk();
+  AN.input=c.q; revealThreads(); renderAsk();
 }
-$('#aGo').addEventListener('click',()=>runAsk(aQ.value));
-aQ.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); runAsk(aQ.value); } });
-$('#aChips').addEventListener('click',e=>{ const c = e.target.closest('.chip'); if(!c) return; aQ.value = c.textContent; runAsk(aQ.value); });
-$('#aHist').addEventListener('click',e=>{ const c = e.target.closest('.chip'); if(c) restoreAsk(+c.dataset.hi); });
-$('#aThreads').addEventListener('click',e=>{
-  const li = e.target.closest('li[data-id]');
-  if(li){ focusNode(li.dataset.id); return; }
-  const b = e.target.closest('button[data-aact="toggle"]'); if(!b) return;
-  const i = +b.closest('.athread').dataset.i; AN.threads[i].on = !AN.threads[i].on; rebuildHighlight(); renderAsk();
-});
-$('#aAddGaps').addEventListener('click',addGaps);
-$('#aSum').addEventListener('click',()=>summarize('threads'));
-$('#aSumAll').addEventListener('click',()=>summarize('tree'));
-$('#aCopy').addEventListener('click',async()=>{
-  try{ await navigator.clipboard.writeText(aSumText.textContent); $('#aCopy').textContent = 'Copied'; setTimeout(()=>{ $('#aCopy').textContent = 'Copy'; },1400); }
-  catch(e){ $('#aCopy').textContent = 'Select and copy'; setTimeout(()=>{ $('#aCopy').textContent = 'Copy'; },2000); }
-});
-$('#hlchip').addEventListener('click',()=>{ AN.threads.forEach(t=>{ t.on = false; }); rebuildHighlight(); renderAsk(); });
-
+async function copyAskSummary(){
+  try{ await navigator.clipboard.writeText(AN.summary); AN.copyText='Copied'; setTimeout(()=>{ AN.copyText='Copy'; },1400); }
+  catch(e){ AN.copyText='Select and copy'; setTimeout(()=>{ AN.copyText='Copy'; },2000); }
+}
+$('#hlchip').addEventListener('click',clearAskHighlight);

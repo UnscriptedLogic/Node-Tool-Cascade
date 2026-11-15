@@ -75,59 +75,7 @@
       <button class="btn" id="dismissAll" type="button">Dismiss all</button>
     </div>
 
-    <aside id="side" hidden aria-label="Map and grill">
-      <header class="sidehead">
-        <div class="seg" role="group" aria-label="Panel">
-          <button type="button" id="stMap" aria-pressed="true">Map</button>
-          <button type="button" id="stGrill" aria-pressed="false">Grill</button>
-          <button type="button" id="stAsk" aria-pressed="false">Ask</button>
-        </div>
-        <button class="btn" id="sideClose" type="button">Close</button>
-      </header>
-      <div class="sidebody">
-        <section id="s-map">
-          <div class="msec">
-            <h4>Destination</h4>
-            <textarea id="mDest" class="area" rows="2" maxlength="600" placeholder="What does the finished map look like?"></textarea>
-            <div class="mrow"><div class="prog"><i id="mProg"></i></div><span id="mProgTxt" class="small"></span></div>
-            <div class="mrow"><button class="btn primary" id="mChart" type="button">Chart the map</button><button class="btn" id="mGrillAll" type="button">Grill me</button><button class="btn" id="mSeed" type="button" hidden>Seed from project</button></div>
-            <small id="mHint"></small>
-          </div>
-          <div id="mLists"></div>
-        </section>
-        <section id="s-grill" hidden>
-          <div id="gIdle">
-            <p class="gintro">A grill is an interview. The AI asks, you decide, and it pushes back when an answer looks weak. It never writes an answer for you. Each question you settle lands on the canvas as a decision. “I don’t know” is a real answer, and if talking can’t settle something, make it a prototype.</p>
-            <div class="mrow"><button class="btn primary" id="gStartAll" type="button">Grill the whole tree</button><button class="btn" id="gStartSel" type="button">Grill the selected node</button></div>
-            <small id="gIdleMsg" class="gnote" hidden></small>
-          </div>
-          <div id="gSession" hidden>
-            <div class="ghead"><span id="gScope"></span><span id="gRound"></span></div>
-            <div id="gCards"></div>
-            <small id="gNote" class="gnote" hidden></small>
-            <div id="gDone" class="gdone" hidden></div>
-            <div class="gfoot"><button class="btn primary" id="gNext" type="button">Next round</button><button class="btn" id="gEnd" type="button">End session</button></div>
-          </div>
-        </section>
-        <section id="s-ask" hidden>
-          <p class="gintro">Ask the graph a question. If a line of blocks answers it, that thread lights up on the canvas, numbered in order. If nothing answers it, you’ll see what’s missing.</p>
-          <textarea id="aQ" class="area" rows="2" maxlength="300" data-dom-ph="askPlaceholder" placeholder="What is making progress feel slow?"></textarea>
-          <div class="chips" id="aChips"><button type="button" class="chip">What is causing the negative feelings?</button><button type="button" class="chip">What is still undecided?</button><button type="button" class="chip">How do the loops connect?</button></div>
-          <label class="check small" id="aFilesRow" data-modes="local" hidden style="margin-top:8px"><input type="checkbox" id="aFiles"><span>Also use the project’s files</span></label>
-          <div class="mrow"><button class="btn primary" id="aGo" type="button">Ask</button><button class="btn" id="aSumAll" type="button">Summarize the whole tree</button></div>
-          <div id="aRes" hidden>
-            <span id="aVerdict" class="averdict"></span> <span id="aBasis" class="averdict" hidden></span>
-            <div id="aAnswer" class="aanswer"></div>
-            <div id="aSources" class="msec" hidden><h4><div>From the project</div></h4><div id="aSourceList"></div></div>
-            <div id="aThreads"></div>
-            <div id="aGaps" class="msec" hidden><h4><div>What the tree is missing</div></h4><div id="aGapList"></div><button class="btn" id="aAddGaps" type="button">Add as questions</button></div>
-            <div class="mrow"><button class="btn primary" id="aSum" type="button">Summarize this</button><label class="check small"><input type="checkbox" id="aNext"><span>End with what to decide next</span></label></div>
-          </div>
-          <div id="aSummaryWrap" class="asummary" hidden><div class="asum-head"><b id="aSumLabel"></b><button class="btn" id="aCopy" type="button">Copy</button></div><div id="aSumText"></div></div>
-          <div id="aHistWrap" class="msec" hidden style="margin-top:20px"><h4><div>Recent questions</div></h4><div class="chips" id="aHist"></div></div>
-        </section>
-      </div>
-    </aside>
+    <div id="sideRoot" class="cui"></div>
 
     <div id="compose" hidden role="dialog" aria-label="New block">
       <div class="chead"><span class="ico"></span><span class="cname"></span></div>
@@ -139,14 +87,7 @@
 
 <div id="settingsRoot" class="cui"></div>
 
-<div id="srcview" role="dialog" aria-modal="true" aria-labelledby="svTitle" hidden>
-  <div class="svcard">
-    <header><b id="svTitle"></b><button class="btn" id="svClose" type="button">Close</button></header>
-    <p id="svNote" class="svnote"></p>
-    <pre id="svCode" class="svcode"></pre>
-    <footer><span id="svPos" class="small"></span><span><button class="btn" id="svPrev" type="button">Previous</button> <button class="btn" id="svNext" type="button">Next</button> <button class="btn" id="svCopy" type="button">Copy path</button></span></footer>
-  </div>
-</div>
+<div id="sourceRoot" class="cui"></div>
 
 <div id="bye" hidden><div class="card"><b>Cascade has stopped.</b><p>The port is free again. You can close this tab. Run the start script to open it again.</p></div></div>
 

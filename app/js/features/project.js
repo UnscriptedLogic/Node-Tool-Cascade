@@ -2,18 +2,22 @@
 /* ================= project folder (local app only) ================= */
 const DEPTHS = {quick:{groups:6,chars:16000},standard:{groups:12,chars:22000},thorough:{groups:24,chars:26000}};
 const KINDS = ['mechanic','parameter','state','decision','open','constraint','system'];
-let projDepth = 'standard', PGROUPS = null, PFIND = null, projBusy = false, projCtl = null, prevBrief = null, scanBusy = false;
+let projDepth='standard', PGROUPS=null, PFIND=null, projBusy=false, projCtl=null, prevBrief=null, scanBusy=false;
+const PROJECTUI=CascadeUI.proxy({project:PROJ||{has:false},path:PROJ?.root||'',ignore:'',include:'',brief:PROJ?.brief||'',depth:'standard',busy:false,scanBusy:false,message:'',messageClass:'',progress:'',progressClass:'',detail:'',estimate:'',buildLabel:'Build brief',canRestore:false});
+CascadeUI.connect({PROJECTUI,DEPTHS});
 const projectReady = () => !!(PROJ && PROJ.has);
 const briefText = () => ((PROJ && PROJ.brief) || '').trim();
 const projectBriefOn = () => LOCAL && PREFS.useProject && projectReady() && !!briefText();
 const fmtN = (n) => n>=10000 ? Math.round(n/1000)+'k' : n>=1000 ? (n/1000).toFixed(1)+'k' : String(n);
+function fmtProjectNumber(n){ return fmtN(n); }
+CascadeUI.mount('project',$('#projectRoot'));
 async function fetchJSON(url){
   const r = await fetch(url); let j = {}; try{ j = await r.json(); }catch(e){}
   if(!r.ok) throw new Error(j.detail || j.error || ('HTTP '+r.status));
   return j;
 }
-const pMsg = (t,cls) => { const e = $('#pMsg'); e.textContent = t || ''; e.className = cls || ''; };
-const pProg = (t,cls) => { const e = $('#pProg'); e.textContent = t || ''; e.className = cls || ''; };
+const pMsg=(t,cls)=>{ PROJECTUI.message=t||''; PROJECTUI.messageClass=cls||''; };
+const pProg=(t,cls)=>{ PROJECTUI.progress=t||''; PROJECTUI.progressClass=cls||''; };
 const citeName = (r) => r.f.split('/').pop()+':'+r.l;
 function citeText(text,refs){ return refs ? String(text).replace(/\[(f\d+)\]/g,(m,id)=>refs[id] ? '('+citeName(refs[id])+')' : m) : text; }
 
@@ -30,66 +34,27 @@ async function projectEvidence(q,k){
 }
 
 /* --- source viewer --- */
-let SV = {list:[],i:0};
-function closeSrcView(){ $('#srcview').hidden = true; }
+const SV=CascadeUI.proxy({list:[],i:0,open:false,loading:false,lines:[],error:'',copyText:'Copy path',request:0});
+CascadeUI.connect({SV});
+CascadeUI.mount('source',$('#sourceRoot'));
+function closeSrcView(){ CascadeUI.sync(()=>{ SV.open=false; SV.request++; }); }
 async function showSrc(){
-  const s0 = SV.list[SV.i]; if(!s0) return;
-  const hi = s0.e || s0.l;
-  $('#svTitle').textContent = s0.f+':'+s0.l+(s0.e && s0.e>s0.l ? '-'+s0.e : '');
-  const note = $('#svNote'); note.textContent = s0.note || ''; note.hidden = !s0.note;
-  $('#svPos').textContent = SV.list.length>1 ? `${SV.i+1} of ${SV.list.length}` : '';
-  $('#svPrev').disabled = $('#svNext').disabled = SV.list.length<2;
-  const code = $('#svCode'); code.textContent = 'Loading…';
+  const s0=SV.list[SV.i]; if(!s0) return;
+  const request=++SV.request,hi=s0.e||s0.l;
+  SV.loading=true; SV.lines=[]; SV.error='';
   try{
-    const r = await fetchJSON(`/api/project/file?path=${encodeURIComponent(s0.f)}&start=${Math.max(1,s0.l-8)}&end=${hi+18}`);
-    code.textContent = '';
-    r.text.split('\n').forEach((line,k)=>{
-      const n = r.start+k, row = document.createElement('div'); row.className = 'ln'+(n>=s0.l && n<=hi ? ' hit' : '');
-      const no = document.createElement('span'); no.className = 'no'; no.textContent = n;
-      const tx = document.createElement('span'); tx.textContent = line || ' ';
-      row.append(no,tx); code.appendChild(row);
-    });
-  }catch(e){ code.textContent = e.message+' Rescan the project in Settings to refresh it.'; }
+    const r=await fetchJSON(`/api/project/file?path=${encodeURIComponent(s0.f)}&start=${Math.max(1,s0.l-8)}&end=${hi+18}`);
+    if(request!==SV.request) return;
+    SV.lines=r.text.split('\n').map((text,k)=>({number:r.start+k,text,hit:r.start+k>=s0.l&&r.start+k<=hi}));
+  }catch(e){ if(request===SV.request) SV.error=e.message+' Rescan the project in Settings to refresh it.'; }
+  finally{ if(request===SV.request) SV.loading=false; }
 }
-function openSrcView(list,i){ if(!list.length) return; SV = {list,i:i || 0}; $('#srcview').hidden = false; showSrc(); $('#svClose').focus(); }
-function openNodeSrc(id){
-  const n = S.nodes[id]; if(!n || !n.src || !n.src.length) return;
-  openSrcView(n.src.map(x=>({f:x.f,l:x.l,note:x.t || n.text})),0);
-}
-$('#svClose').addEventListener('click',closeSrcView);
-$('#svPrev').addEventListener('click',()=>{ SV.i = (SV.i+SV.list.length-1)%SV.list.length; showSrc(); });
-$('#svNext').addEventListener('click',()=>{ SV.i = (SV.i+1)%SV.list.length; showSrc(); });
-$('#svCopy').addEventListener('click',async()=>{ const s0 = SV.list[SV.i]; try{ await navigator.clipboard.writeText(s0.f+':'+s0.l); $('#svCopy').textContent = 'Copied'; setTimeout(()=>{ $('#svCopy').textContent = 'Copy path'; },1400); }catch(e){} });
-addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('#srcview').hidden){ e.stopImmediatePropagation(); closeSrcView(); } },true);
-
-/* --- Ask: cites in the answer, and the list of what it read --- */
-function renderAnswer(){
-  const box = $('#aAnswer'); box.textContent = '';
-  const byId = Object.fromEntries((AN.sources || []).map(x=>[x.id,x]));
-  String(AN.answer || '').split(/(\[f\d+\])/).forEach(part=>{
-    const m = part.match(/^\[(f\d+)\]$/);
-    if(m && byId[m[1]]){ const b = document.createElement('button'); b.type = 'button'; b.className = 'cite'; b.dataset.cite = m[1]; b.textContent = citeName(byId[m[1]]); box.appendChild(b); }
-    else box.appendChild(document.createTextNode(part));
-  });
-}
-function renderSources(){
-  const wrap = $('#aSources'), list = $('#aSourceList'); list.textContent = '';
-  wrap.hidden = !(AN.sources || []).length;
-  (AN.sources || []).forEach((x,i)=>{
-    const d = document.createElement('div'); d.className = 'srcitem';
-    if(x.note){ const t = document.createElement('div'); t.textContent = x.note; d.appendChild(t); }
-    const w = document.createElement('div'); w.className = 'where';
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'cite'; b.dataset.cite = x.id; b.textContent = x.f+':'+x.l+(x.e && x.e>x.l ? '-'+x.e : '');
-    w.appendChild(b); d.appendChild(w); list.appendChild(d);
-  });
-}
-$('#aRes').addEventListener('click',e=>{
-  const b = e.target.closest('button[data-cite]'); if(!b) return;
-  const list = (AN.sources || []).map(x=>({f:x.f,l:x.l,e:x.e,note:x.note || ''}));
-  const i = (AN.sources || []).findIndex(x=>x.id===b.dataset.cite);
-  if(i>=0) openSrcView(list,i);
-});
-function updateAskFiles(){ const row = $('#aFilesRow'); row.hidden = !(LOCAL && projectReady()); $('#aFiles').checked = !!PREFS.askFiles; }
+function openSrcView(list,i){ if(!list.length) return; CascadeUI.sync(()=>{ SV.list=list; SV.i=i||0; SV.open=true; }); showSrc(); $('#svClose').focus(); }
+function stepSource(direction){ SV.i=(SV.i+SV.list.length+direction)%SV.list.length; showSrc(); }
+function openNodeSrc(id){ const n=S.nodes[id]; if(n?.src?.length) openSrcView(n.src.map(x=>({f:x.f,l:x.l,note:x.t||n.text})),0); }
+async function copySource(){ const source=SV.list[SV.i]; try{ await navigator.clipboard.writeText(source.f+':'+source.l); SV.copyText='Copied'; setTimeout(()=>{ SV.copyText='Copy path'; },1400); }catch(e){} }
+addEventListener('keydown',e=>{ if(e.key==='Escape'&&SV.open){ e.stopImmediatePropagation(); closeSrcView(); } },true);
+function updateAskFiles(){ AN.projectReady=LOCAL&&projectReady(); }
 
 /* --- streaming helper: one JSON object per line --- */
 async function streamLines(prompt,o){
@@ -170,10 +135,7 @@ Rules:
 }
 
 /* --- scanning --- */
-function lockProject(on){
-  ['#pScan','#pPick','#pBuild','#pSeed','#pForget'].forEach(sel=>{ const e = $(sel); if(e) e.disabled = on; });
-  $('#pStop').hidden = !(on && projBusy);
-}
+function lockProject(on){ PROJECTUI.busy=on; }
 async function refreshProject(){ PROJ = await fetchJSON('/api/project'); renderProject(); syncProjectButtons(); updatePreview(); }
 async function loadProjectData(){
   if(!LOCAL) return;
@@ -186,16 +148,16 @@ async function loadProjectData(){
 }
 async function projectPick(){
   pMsg('');
-  try{ const r = await postJSON('/api/project/pick',{}); if(r.path){ $('#pPath').value = r.path; pMsg('Folder chosen. Press Scan.'); } }
+  try{ const r = await postJSON('/api/project/pick',{}); if(r.path){ PROJECTUI.path = r.path; pMsg('Folder chosen. Press Scan.'); } }
   catch(e){ pMsg(e.message,'bad'); }
 }
 async function projectScan(){
   if(scanBusy) return;
-  const folder = $('#pPath').value.trim();
+  const folder = PROJECTUI.path.trim();
   if(!folder){ pMsg('Choose or paste a folder first.','bad'); return; }
-  scanBusy = true; $('#pScan').disabled = true; $('#pCancel').hidden = false; pMsg('Scanning…');
+  scanBusy = true; PROJECTUI.scanBusy=true; pMsg('Scanning…');
   try{
-    await postJSON('/api/project/scan',{path:folder,ignore:$('#pIgnore').value,include:$('#pInclude').value});
+    await postJSON('/api/project/scan',{path:folder,ignore:PROJECTUI.ignore,include:PROJECTUI.include});
     for(;;){
       await sleep(window.__POLL_MS || 400);
       const st = await fetchJSON('/api/project/status');
@@ -206,31 +168,25 @@ async function projectScan(){
     }
     await loadProjectData(); syncProjectButtons(); updatePreview();
   }catch(e){ pMsg(e.message,'bad'); }
-  finally{ scanBusy = false; $('#pScan').disabled = false; $('#pCancel').hidden = true; }
+  finally{ scanBusy = false; PROJECTUI.scanBusy=false; }
 }
 function renderProject(){
   if(!LOCAL) return;
   const P = PROJ || {has:false}, has = !!P.has;
-  const path = $('#pPath'); if(document.activeElement!==path && !path.value) path.value = P.root || '';
-  $('#pSummary').hidden = !has; $('#pBriefWrap').hidden = !has;
-  $('#pDefaults').textContent = has && (P.engineIgnore||[]).length ? 'Skipped automatically for '+P.engineLabel+': '+P.engineIgnore.join(', ') : '';
+  PROJECTUI.project=P;
+  if(!PROJECTUI.path) PROJECTUI.path=P.root||'';
+  if(!projBusy) PROJECTUI.brief=P.brief||'';
+  PROJECTUI.canRestore=!!prevBrief;
   if(!has) return;
-  const c = P.counts || {}, sk = P.skipped || {};
-  const stats = $('#pStats'); stats.textContent = '';
-  const skipped = (sk.ignored||0)+(sk.binary||0)+(sk.tooBig||0)+(sk.generated||0)+(sk.secret||0)+(sk.other||0);
-  [['Engine',P.engineLabel],['Files read',String(c.files)],['Text',c.textKB+' KB · about '+fmtN(c.tokensEst)+' tokens'],['Skipped',String(skipped)]].forEach(([k,v])=>{
-    const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = v; d.append(b,document.createTextNode(k)); stats.appendChild(d);
-  });
+  const c=P.counts||{},sk=P.skipped||{};
   const bits = [];
   if((P.topDirs||[]).length) bits.push('Biggest folders: '+P.topDirs.slice(0,4).map(x=>`${x.dir} (${x.kb} KB)`).join(', ')+'.');
   const why = []; ['ignored','binary','tooBig','generated','secret'].forEach(k=>{ if(sk[k]) why.push(`${sk[k]} ${({ignored:'ignored',binary:'binary',tooBig:'too big',generated:'generated',secret:'private'})[k]}`); });
   if(why.length) bits.push('Skipped: '+why.join(', ')+'.');
   if(P.redactions) bits.push(`${P.redactions} possible secret${P.redactions===1 ? '' : 's'} were redacted from what Cascade reads.`);
   if(c.indexTruncated) bits.push('The project is large, so search covers the most relevant files only.');
-  $('#pDetail').textContent = bits.join(' ');
+  PROJECTUI.detail=bits.join(' ');
   // brief controls
-  const brief = $('#pBrief'); if(document.activeElement!==brief) brief.value = P.brief || '';
-  $('#pDepth').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.val===projDepth)));
   const hasBrief = !!briefText(); let est = '', label = 'Build brief';
   if(PGROUPS && PFIND){
     const sel = PGROUPS.slice(0,DEPTHS[projDepth].groups), have = PFIND.groupFindings || {}, stale = sel.filter(g=>have[g.id]!==g.fingerprint);
@@ -239,13 +195,13 @@ function renderProject(){
     const tok = Math.round(work.reduce((a,g)=>a+g.chars,0)/4)+1500;
     est = `${DEPTHS[projDepth].groups<PGROUPS.length ? 'Reads the '+sel.length+' most design-relevant of '+PGROUPS.length+' folders. ' : 'Reads all '+sel.length+' folders. '}${mode==='update' ? 'Only the changed ones this time: ' : ''}about ${fmtN(tok)} tokens across ${work.length} call${work.length===1 ? '' : 's'}, plus one to write the brief.`;
   }
-  $('#pBuild').textContent = label; $('#pEstimate').textContent = est;
-  $('#pRestore').hidden = !prevBrief;
+  PROJECTUI.buildLabel=label; PROJECTUI.estimate=est;
+  PROJECTUI.canRestore=!!prevBrief;
 }
 function syncProjectButtons(){
   if(!LOCAL) return;
   const show = projectReady() && (PROJ.findingCount>0);
-  $('#mSeed').hidden = !show; $('#eSeed').hidden = !show;
+  PANEL.canSeed=show; $('#eSeed').hidden=!show;
   updateAskFiles();
 }
 
@@ -288,7 +244,7 @@ async function buildBrief(){
     if(!fresh.length && !kept.length){ pMsg('The AI didn’t find anything design-relevant to report. Try Thorough, or check the folder.','bad'); return; }
     const all = kept.concat(fresh).map((f,i)=>({...f,id:'f'+(i+1)}));
     pProg(`Writing the brief from ${all.length} findings…`);
-    const out = await callAI(briefPrompt(all,engine),{cache:false,signal:projCtl.signal,temperature:.3,onText:({text})=>{ $('#pBrief').value = text; }});
+    const out = await callAI(briefPrompt(all,engine),{cache:false,signal:projCtl.signal,temperature:.3,onText:({text})=>{ PROJECTUI.brief = text; }});
     const brief = out.text.trim().slice(0,6000);
     if(!brief){ pMsg('The AI returned an empty brief.','bad'); return; }
     prevBrief = briefText() || null;
@@ -300,32 +256,29 @@ async function buildBrief(){
   }catch(e){
     if(e && e.code==='cancelled') pMsg('Stopped. Nothing was changed.'); else { handleAIError(e); pMsg('The brief couldn’t be written.','bad'); }
   }finally{
-    projBusy = false; projCtl = null; lockProject(false); pProg(''); $('#pBrief').value = (PROJ && PROJ.brief) || ''; renderProject();
+    projBusy = false; projCtl = null; lockProject(false); pProg(''); PROJECTUI.brief = (PROJ && PROJ.brief) || ''; renderProject();
   }
 }
 let briefTimer = 0;
+function setProjectField(key,value){ PROJECTUI[key]=value; }
+function setProjectDepth(value){ projDepth=value; PROJECTUI.depth=value; loadProjectData(); }
+function editProjectBrief(value){
+  PROJECTUI.brief=value; clearTimeout(briefTimer);
+  briefTimer=setTimeout(async()=>{ try{ PROJ=await postJSON('/api/project/brief',{brief:PROJECTUI.brief,briefMeta:{...(PROJ?.briefMeta||{}),edited:true}}); PROJECTUI.project=PROJ; updatePreview(); }catch(e){} },600);
+}
+async function restoreProjectBrief(){
+  if(!prevBrief) return; const brief=prevBrief; prevBrief=null; PROJECTUI.brief=brief;
+  try{ PROJ=await postJSON('/api/project/brief',{brief,briefMeta:{...(PROJ?.briefMeta||{}),edited:true}}); updatePreview(); }catch(e){} renderProject();
+}
+async function forgetProject(){
+  try{ const r=await postJSON('/api/project/forget',{}); PROJ=r.project; PGROUPS=null; PFIND=null; prevBrief=null; PROJECTUI.path=''; PROJECTUI.brief=''; pMsg('This project was forgotten.'); renderProject(); syncProjectButtons(); updatePreview(); }
+  catch(e){ pMsg(e.message,'bad'); }
+}
+function stopProject(){ if(projCtl) projCtl.abort(); }
+function cancelProjectScan(){ postJSON('/api/project/cancel',{}).catch(()=>{}); }
 function initProject(){
-  syncers.push(()=>{ renderProject(); updateAskFiles(); });
-  $('#pPick').addEventListener('click',projectPick);
-  $('#pScan').addEventListener('click',projectScan);
-  $('#pPath').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); projectScan(); } });
-  $('#pCancel').addEventListener('click',()=>{ postJSON('/api/project/cancel',{}).catch(()=>{}); });
-  $('#pBuild').addEventListener('click',buildBrief);
-  $('#pStop').addEventListener('click',()=>{ if(projCtl) projCtl.abort(); });
-  $('#pDepth').addEventListener('click',e=>{ const b = e.target.closest('button[data-val]'); if(!b) return; projDepth = b.dataset.val; loadProjectData(); });
-  $('#pBrief').addEventListener('input',()=>{
-    clearTimeout(briefTimer);
-    briefTimer = setTimeout(async()=>{ try{ PROJ = await postJSON('/api/project/brief',{brief:$('#pBrief').value,briefMeta:{...(PROJ && PROJ.briefMeta || {}),edited:true}}); updatePreview(); }catch(e){} },600);
-  });
-  $('#pRestore').addEventListener('click',async()=>{ if(!prevBrief) return; const b = prevBrief; prevBrief = null; $('#pBrief').value = b; try{ PROJ = await postJSON('/api/project/brief',{brief:b,briefMeta:{...(PROJ && PROJ.briefMeta || {}),edited:true}}); updatePreview(); }catch(e){} renderProject(); });
-  $('#pSeed').addEventListener('click',()=>{ closeSettings(); seedFromProject(); });
-  $('#pForget').addEventListener('click',async()=>{
-    try{ const r = await postJSON('/api/project/forget',{}); PROJ = r.project; PGROUPS = null; PFIND = null; prevBrief = null; $('#pPath').value = ''; $('#pBrief').value = ''; pMsg('This project was forgotten.'); renderProject(); syncProjectButtons(); updatePreview(); }
-    catch(e){ pMsg(e.message,'bad'); }
-  });
-  $('#mSeed').addEventListener('click',seedFromProject);
   $('#eSeed').addEventListener('click',seedFromProject);
-  if(PROJ && PROJ.has) loadProjectData();
+  if(PROJ?.has) loadProjectData();
   renderProject(); syncProjectButtons();
 }
 

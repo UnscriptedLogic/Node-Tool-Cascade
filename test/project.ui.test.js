@@ -177,7 +177,7 @@ test('project: Ask cites the files it used, shows what it read, and can be told 
   a.click(a.$('#aAnswer .cite')); await sleep(250);
   assert.equal(a.$('#srcview').hidden,false); assert.match(a.$('#svCode').textContent,/moveSpeed/); a.escape();
   // switch it off: the next question carries no excerpts and shows no sources
-  a.$('#aFiles').checked = false; a.$('#aFiles').dispatchEvent(new a.w.Event('change',{ bubbles:true }));
+  a.click(a.$('#aFiles')); await tick();
   a.type(a.$('#aQ'),'Why is travel slow?'); a.click(a.$('#aGo')); await sleep(600);
   assert.doesNotMatch(withText('analysing a game-design decision tree').pop(),/PROJECT EXCERPTS/);
   assert.equal(a.$('#aSources').hidden,true); assert.equal(a.$('#aBasis').hidden,true);

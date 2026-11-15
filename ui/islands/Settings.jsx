@@ -28,6 +28,7 @@ export default function Settings() {
   function render(node,index,parent) {
     if(typeof node==='string') return node;
     const {tag,attrs,children}=node, id=attrs.id;
+    if(id==='p-project') return <section key={id} id={id} className="spane" role="tabpanel" hidden={settings.tab!=='project'}><div id="projectRoot"/></section>;
     if(id==='provList') return <Providers key="provList"/>;
     const props={key:id || index};
     for(const [name,value] of Object.entries(attrs)) {

@@ -1,14 +1,14 @@
 'use strict';
 /* ================= map layer + grill ================= */
-const side = $('#side'), mDest = $('#mDest'), mLists = $('#mLists');
-const gIdle = $('#gIdle'), gSession = $('#gSession'), gCards = $('#gCards'), gNote = $('#gNote'), gDone = $('#gDone');
-let curStab = 'map';
-const G = {active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0};
+const PANEL = CascadeUI.proxy({open:false,tab:'map',map:null,hint:'',grillNote:'',idleMessage:'',doneMessage:'',canSeed:false,revision:0});
+let curStab='map';
+const G = CascadeUI.proxy({active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0});
+CascadeUI.connect({PANEL,G,S,PREFS,TICKET_LABEL,TICKET_ASK,LABEL,Mindsets});
+CascadeUI.mount('side',$('#sideRoot'));
+const side=$('#side');
 
 function showStab(t){
-  curStab = t;
-  [['#stMap','map'],['#stGrill','grill'],['#stAsk','ask']].forEach(([sel,k])=>$(sel).setAttribute('aria-pressed',String(t===k)));
-  $('#s-map').hidden = t!=='map'; $('#s-grill').hidden = t!=='grill'; $('#s-ask').hidden = t!=='ask';
+  curStab=t; CascadeUI.sync(()=>{ PANEL.tab=t; });
   S.layer = t!=='ask';
   $('#mapBtn').setAttribute('aria-pressed',String(!side.hidden && t!=='ask'));
   $('#askBtn').setAttribute('aria-pressed',String(!side.hidden && t==='ask'));
@@ -16,12 +16,12 @@ function showStab(t){
   if(t==='map') renderMap(); else if(t==='grill') renderGrillShell(); else renderAsk();
 }
 function openSide(tab){
-  side.hidden = false;
+  CascadeUI.sync(()=>{ PANEL.open=true; });
   stage.style.setProperty('--drawer', drawerW()+'px');
   showStab(tab || curStab);
 }
 function closeSide(){
-  side.hidden = true; S.layer = false; linkFrom = null;
+  CascadeUI.sync(()=>{ PANEL.open=false; }); S.layer = false; linkFrom = null;
   stage.style.setProperty('--drawer','0px');
   $('#mapBtn').setAttribute('aria-pressed','false'); $('#askBtn').setAttribute('aria-pressed','false');
   layout(false); applyView(); updateHud();
@@ -60,66 +60,21 @@ function decisionOf(id){
   const d = kids.find(x=>x.decided) || kids[0];
   return d ? d.text : '';
 }
-function mkItem(id,o){
-  const n = S.nodes[id], el = document.createElement('div');
-  el.className = 'mitem'; el.dataset.id = id; el.tabIndex = 0;
-  const t = document.createElement('div'); t.textContent = n.text; el.appendChild(t);
-  if(o.dec){ const d = document.createElement('div'); d.className = 'dec'; d.textContent = '→ '+o.dec; el.appendChild(d); }
-  const row = document.createElement('div'); row.className = 'mrow2';
-  (o.chips||[]).forEach(c=>{ const sp = document.createElement('span'); sp.className = 'chip2'; sp.textContent = c; row.appendChild(sp); });
-  (o.acts||[]).forEach(([act,label])=>{ const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.dataset.act = act; b.textContent = label; row.appendChild(b); });
-  if(row.children.length) el.appendChild(row);
-  return el;
-}
-function mkSection(title,ids,build){
-  if(!ids.length) return null;
-  const w = document.createElement('div'); w.className = 'msec';
-  const h = document.createElement('h4'); const a = document.createElement('div'); a.textContent = title; const c = document.createElement('span'); c.textContent = String(ids.length); h.append(a,c); w.appendChild(h);
-  ids.slice(0,14).forEach(id=>w.appendChild(build(id)));
-  if(ids.length>14){ const m = document.createElement('div'); m.className = 'small'; m.textContent = `and ${ids.length-14} more`; w.appendChild(m); }
-  return w;
-}
-function renderMap(){
-  MAP = computeMap(); const m = MAP;
-  if(document.activeElement!==mDest) mDest.value = PREFS.goal || '';
-  const total = m.settled.length + m.frontier.length + m.blocked.length;
-  $('#mProg').style.width = (total ? Math.round(m.settled.length/total*100) : 0)+'%';
-  $('#mProgTxt').textContent = total ? `${m.settled.length} of ${total} settled` : 'No decisions yet';
-  const hint = $('#mHint');
-  if(!(PREFS.goal||'').trim()) hint.textContent = 'Name the destination first. Everything on the map is measured against it.';
-  else if(total && !m.frontier.length && !m.blocked.length && !m.fog.length) hint.textContent = 'The map is clear. Nothing is left to decide before you build.';
-  else if(!total && !m.fog.length) hint.textContent = 'Chart the map to draft decision tickets, or grill the tree to find them.';
-  else hint.textContent = m.fog.length && !m.frontier.length && !m.blocked.length ? 'Only fog is left. Sharpen it into questions once you can phrase them.' : '';
-  const kids = [];
-  const tk = id => TICKET_LABEL[S.nodes[id].ticket||'talk'];
-  kids.push(mkSection('Up next',m.frontier,id=>mkItem(id,{chips:[tk(id)],acts:[['resolve','Resolve']]})));
-  kids.push(mkSection('Waiting',m.blocked,id=>{
-    const w = (m.blockers[id]||[]).map(b=>S.nodes[b]).filter(b=>b && b.state!=='settled' && b.state!=='out')[0];
-    return mkItem(id,{chips:[tk(id),w ? 'after: '+w.text.slice(0,32) : 'waiting']});
-  }));
-  kids.push(mkSection('Decisions so far',m.settled,id=>mkItem(id,{dec:decisionOf(id),acts:[['reopen','Reopen']]})));
-  kids.push(mkSection('Fog',m.fog,id=>mkItem(id,{acts:[['sharpen','Sharpen']]})));
-  kids.push(mkSection('Out of scope',m.out,id=>mkItem(id,{acts:[['restore','Bring back']]})));
-  mLists.textContent = ''; kids.filter(Boolean).forEach(k=>mLists.appendChild(k));
-}
+function renderMap(){ PANEL.hint=''; MAP=computeMap(); CascadeUI.sync(()=>{ PANEL.map=MAP; PANEL.revision++; }); }
 function renderMapIfOpen(){ try{ const s = document.getElementById('side'); if(s && !s.hidden && curStab==='map') renderMap(); }catch(e){} }
-mLists.addEventListener('click',e=>{
-  const item = e.target.closest('.mitem'); if(!item) return;
-  const id = item.dataset.id, b = e.target.closest('button[data-act]');
-  if(!b){ focusNode(id); return; }
-  const a = b.dataset.act;
-  if(a==='resolve') startResolve(id);
-  else if(a==='reopen') reopenQ(id);
-  else if(a==='restore') toggleOut(id);
-  else if(a==='sharpen'){ focusNode(id); beginEdit(id,{graduate:true}); }
-});
-mDest.addEventListener('input',()=>{ PREFS.goal = mDest.value; savePrefs(); updateGoalChip(); updatePreview(); });
+function mapAction(id,action){
+  if(!action) focusNode(id);
+  else if(action==='resolve') startResolve(id);
+  else if(action==='reopen') reopenQ(id);
+  else if(action==='restore') toggleOut(id);
+  else if(action==='sharpen'){ focusNode(id); beginEdit(id,{graduate:true}); }
+}
+function setDestination(value){ PANEL.hint=''; PREFS.goal=value; savePrefs(); updateGoalChip(); updatePreview(); }
 function chartMap(){
-  const hint = $('#mHint');
-  if(!(PREFS.goal||'').trim()){ hint.textContent = 'Name the destination first. Everything on the map is measured against it.'; mDest.focus(); return; }
+  if(!(PREFS.goal||'').trim()){ PANEL.hint = 'Name the destination first. Everything on the map is measured against it.'; $('#mDest').focus(); return; }
   if(!aiAvailable()){ showNote([aiNeed('Charting')],false); return; }
   const root = S.order.find(id=>S.nodes[id] && !S.nodes[id].parent && !S.nodes[id].ghost);
-  if(!root){ hint.textContent = 'Plant at least one node first, then chart the map around it.'; return; }
+  if(!root){ PANEL.hint = 'Plant at least one node first, then chart the map around it.'; return; }
   if(S.mode==='outer') setMode('detail');
   enqueue(async()=>{ const c = new AbortController(); ctl = c; pushHist(); try{ await expandFrom(root,c.signal,'chart'); } finally{ ctl = null; } });
 }
@@ -128,62 +83,34 @@ function chartMap(){
 function resetG(){
   if(G.ctl) G.ctl.abort();
   Object.assign(G,{active:false,scope:null,focus:'',cards:[],round:0,history:[],busy:false,done:false,failed:false,summary:'',resolve:false,yes:0,ctl:null,seq:0});
-  gCards.textContent = ''; gNote.hidden = true; gDone.hidden = true;
+  PANEL.grillNote=''; PANEL.doneMessage='';
 }
-function renderGrillShell(){
-  gIdle.hidden = G.active; gSession.hidden = !G.active;
-  const sc = G.scope && S.nodes[G.scope];
-  $('#gScope').textContent = G.resolve ? 'Resolving one question' : (sc ? 'Grilling: '+sc.text.slice(0,44) : 'Grilling the whole tree');
-  $('#gRound').textContent = G.resolve ? '' : 'Round '+G.round;
-  $('#gNext').hidden = G.resolve || G.done; $('#gNext').disabled = G.busy; $('#gNext').textContent = G.busy ? 'Asking…' : 'Next round';
-}
-function gNoteShow(t){ gNote.textContent = t; gNote.hidden = !t; }
+function renderGrillShell(){ CascadeUI.sync(()=>{ PANEL.revision++; }); }
+function gNoteShow(text){ PANEL.grillNote=text; }
 function startGrill(scopeId,focus){
   track('grill');
   openSide('grill');
-  if(!aiAvailable()){ resetG(); renderGrillShell(); const m = $('#gIdleMsg'); m.textContent = aiNeed('Grilling'); m.hidden = false; return; }
-  $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.scope = scopeId || null; G.focus = typeof focus==='string' ? focus : ''; renderGrillShell(); nextRound();
+  if(!aiAvailable()){ resetG(); renderGrillShell(); PANEL.idleMessage=aiNeed('Grilling'); return; }
+  PANEL.idleMessage=''; resetG(); G.active = true; G.scope = scopeId || null; G.focus = typeof focus==='string' ? focus : ''; renderGrillShell(); nextRound();
 }
 function startResolve(id){
   const n = S.nodes[id]; if(!n || n.type!=='question') return;
-  openSide('grill'); $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.resolve = true; G.scope = id; G.round = 1;
+  openSide('grill'); PANEL.idleMessage=''; resetG(); G.active = true; G.resolve = true; G.scope = id; G.round = 1;
   renderGrillShell();
   addCard({nodeId:id,text:n.text,why:n.why||'',ticket:n.ticket||'talk',parent:n.parent,grillable:true,mindset:n.mindset});
 }
-function applySingle(){
-  const single = PREFS.grillStyle==='single' && !G.resolve; let shown = false;
-  for(const c of G.cards){
-    if(!single || c.status!=='open'){ c.el.hidden = false; continue; }
-    c.el.hidden = shown; shown = true;
-  }
-}
+function applySingle(){ renderGrillShell(); }
 function addCard(spec){
-  const card = {id:'c'+(++G.seq),nodeId:spec.nodeId||null,text:spec.text,why:spec.why||'',ticket:spec.ticket||'talk',parent:spec.parent||null,grillable:spec.grillable!==false,status:'open',checks:0};
-  card.mindset = spec.mindset || null;
-  const el = document.createElement('div'); el.className = 'gcard'; el.dataset.cid = card.id;
-  el.innerHTML = '<div class="gq"></div><div class="gwhy"></div><div class="gtag" hidden></div><textarea class="area gans" rows="3"></textarea><div class="gpush" hidden></div><div class="gbtns"><button type="button" class="btn primary" data-gact="answer">Answer</button><button type="button" class="btn" data-gact="standby" hidden>Stand by it</button><button type="button" class="btn" data-gact="idk">I don’t know</button><button type="button" class="btn" data-gact="proto">Needs a prototype</button><button type="button" class="btn" data-gact="out">Out of scope</button><button type="button" class="btn" data-gact="skip">Skip</button></div><div class="gstate" hidden></div>';
-  el.querySelector('.gq').textContent = (card.mindset ? Mindsets.label(card.mindset)+' — ' : '')+card.text;
-  const why = el.querySelector('.gwhy'); why.textContent = card.why; why.hidden = !card.why;
-  const tag = el.querySelector('.gtag');
-  if(!card.grillable){ tag.textContent = 'Talking probably won’t settle this. A prototype may be faster.'; tag.hidden = false; }
-  else if(card.ticket!=='talk'){ tag.textContent = TICKET_LABEL[card.ticket]+' ticket'; tag.hidden = false; }
-  card.ta = el.querySelector('textarea'); card.ta.placeholder = TICKET_ASK[card.ticket];
-  card.el = el; card.pushEl = el.querySelector('.gpush'); card.stateEl = el.querySelector('.gstate');
-  card.ansBtn = el.querySelector('[data-gact=answer]'); card.standBtn = el.querySelector('[data-gact=standby]'); card.btnsEl = el.querySelector('.gbtns');
-  if(card.ticket==='prototype') el.querySelector('[data-gact=proto]').hidden = true;
-  gCards.appendChild(el); G.cards.push(card); applySingle();
-  return card;
+  const card={id:'c'+(++G.seq),nodeId:spec.nodeId||null,text:spec.text,why:spec.why||'',ticket:spec.ticket||'talk',parent:spec.parent||null,grillable:spec.grillable!==false,status:'open',checks:0,mindset:spec.mindset||null,answer:'',pushback:'',message:'',withPrototype:false,busy:false,busyLabel:'',focus:0};
+  G.cards.push(card); applySingle(); return G.cards[G.cards.length-1];
 }
-function setCardBusy(card,on,label){
-  card.el.querySelectorAll('button,textarea').forEach(x=>{ x.disabled = on; });
-  card.ansBtn.textContent = on ? label : (card.checks>0 ? 'Answer again' : 'Answer');
-}
-function finishCard(card,status,msg,withProtoBtn){
-  card.status = status; card.el.classList.add('done'); card.ta.disabled = true; card.btnsEl.hidden = true; card.pushEl.hidden = true;
-  card.stateEl.textContent = msg; card.stateEl.hidden = false;
-  if(withProtoBtn){ const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.dataset.gact = 'toproto'; b.textContent = 'Make it a prototype'; card.stateEl.appendChild(b); }
+function setCardBusy(card,on,label){ card.busy=on; card.busyLabel=label || ''; }
+function finishCard(card,status,message,withPrototype){
+  card.status=status; card.message=message; card.pushback=''; card.withPrototype=!!withPrototype;
   applySingle(); renderGrillShell(); checkRoundEnd();
 }
+function grillAction(id,action){ const card=G.cards.find(c=>c.id===id); if(card) return cardAction(card,action); }
+function setGrillAnswer(id,text){ const card=G.cards.find(c=>c.id===id); if(card) card.answer=text; }
 function ensureQuestion(card){
   if(card.nodeId && S.nodes[card.nodeId]) return S.nodes[card.nodeId];
   const parent = card.parent && S.nodes[card.parent] ? card.parent : null;
@@ -204,7 +131,7 @@ function trackYes(text){
   const quick = /^(yes|yep|yeah|ok|okay|agreed?|sure|fine|sounds good|right|correct|true|makes sense)[\s.!]*$/i.test(text.trim());
   G.yes = quick ? G.yes+1 : 0;
   if(G.yes>=3) gNoteShow(`That’s ${G.yes} quick agreements in a row. Push back on one before moving on. A session where you never disagree is one you didn’t need.`);
-  else if(G.yes===0 && gNote.textContent.startsWith('That’s')) gNoteShow('');
+  else if(G.yes===0 && PANEL.grillNote.startsWith('That’s')) gNoteShow('');
 }
 async function askPushback(card,text){
   const ev = await projectEvidence(card.text+' '+text,4);
@@ -220,13 +147,13 @@ ${ev ? '\n'+ev.block+'\n' : ''}
 Push back only when you see a real problem: a hidden assumption, a conflict with something already in the tree or with the destination, an unexamined consequence, or an answer too vague to act on. If the answer holds up, say so.
 ${ev ? 'If the answer conflicts with what the excerpts show, say so and cite the excerpt id like [f2].\n' : ''}Reply with ONLY a JSON object, no markdown:
 {"verdict":"solid or challenge","text":"if challenge: one or two sentences phrased as a pointed question. If solid: empty."}`;
-  const c = new AbortController(); G.ctl = c;
+  const c = new AbortController(); G.ctl = CascadeUI.ref(c);
   try{ const out = await callAI(prompt,{signal:c.signal,temperature:.3}); const r0 = parseObj(out.text); r0.refs = ev ? ev.refs : null; return r0; }
   finally{ if(G.ctl===c) G.ctl = null; }
 }
 async function submitAnswer(card){
-  const text = card.ta.value.trim();
-  if(!text){ card.ta.focus(); return; }
+  const text=card.answer.trim();
+  if(!text){ card.focus++; return; }
   trackYes(text);
   if(PREFS.pushback && aiAvailable() && card.checks<2){
     card.checks++; setCardBusy(card,true,'Thinking…');
@@ -234,8 +161,7 @@ async function submitAnswer(card){
     try{ r = await askPushback(card,text); }catch(e){ if(e && e.code==='cancelled'){ setCardBusy(card,false); return; } }
     setCardBusy(card,false);
     if(r && r.verdict==='challenge' && typeof r.text==='string' && r.text.trim()){
-      card.pushEl.textContent = citeText(r.text.trim(),r.refs).slice(0,420); card.pushEl.hidden = false;
-      card.standBtn.hidden = false; card.ansBtn.textContent = 'Answer again'; card.ta.focus();
+      card.pushback=citeText(r.text.trim(),r.refs).slice(0,420); card.focus++;
       return;
     }
   }
@@ -244,20 +170,15 @@ async function submitAnswer(card){
 function cardAction(card,act){
   if(card.status!=='open' && act!=='toproto') return;
   if(act==='answer') return submitAnswer(card);
-  if(act==='standby'){ const t = card.ta.value.trim(); if(t) commitAnswer(card,t); return; }
-  if(act==='skip'){ card.status = 'skipped'; card.el.remove(); G.cards = G.cards.filter(c=>c!==card); applySingle(); renderGrillShell(); checkRoundEnd(); return; }
-  if(act==='toproto'){ const q = card.nodeId && S.nodes[card.nodeId]; if(q){ pushHist(); q.ticket = 'prototype'; commit(); card.stateEl.textContent = 'Now a prototype ticket. It stays open on the map.'; } return; }
+  if(act==='standby'){ const t=card.answer.trim(); if(t) commitAnswer(card,t); return; }
+  if(act==='skip'){ card.status = 'skipped'; G.cards=G.cards.filter(c=>c.id!==card.id); applySingle(); renderGrillShell(); checkRoundEnd(); return; }
+  if(act==='toproto'){ const q = card.nodeId && S.nodes[card.nodeId]; if(q){ pushHist(); q.ticket = 'prototype'; commit(); card.message = 'Now a prototype ticket. It stays open on the map.'; } return; }
   pushHist();
   const q = ensureQuestion(card);
   if(act==='idk'){ q.unknown = true; G.history.push({q:card.text,s:'the '+DOM().person+' did not know'}); commit(); finishCard(card,'unknown','Left open on the map. If talking won’t get you there, try a prototype.',card.ticket!=='prototype'); }
   else if(act==='proto'){ q.ticket = 'prototype'; G.history.push({q:card.text,s:'needs a prototype'}); commit(); finishCard(card,'proto','Now a prototype ticket. It stays open on the map.'); }
   else if(act==='out'){ q.was = q.state || 'open'; q.state = 'out'; G.history.push({q:card.text,s:'out of scope'}); commit(); finishCard(card,'out','Parked as out of scope.'); }
 }
-gCards.addEventListener('click',e=>{
-  const b = e.target.closest('button[data-gact]'); if(!b) return;
-  const el = b.closest('.gcard'), card = G.cards.find(c=>c.id===el.dataset.cid);
-  if(card) cardAction(card,b.dataset.gact);
-});
 function checkRoundEnd(){
   if(G.resolve || G.yes>=3) return;   // keep the passivity nudge on screen
   const open = G.cards.filter(c=>c.status==='open').length;
@@ -286,11 +207,11 @@ ${ev ? "- The excerpts show what the project already does. Where it has already 
 async function nextRound(){
   if(G.busy || G.resolve) return;
   if(!aiAvailable()){ gNoteShow(aiNeed('Grilling')); return; }
-  G.busy = true; G.failed = false; G.round++; G.cards = []; gCards.textContent = ''; gDone.hidden = true; gNoteShow('');
+  G.busy = true; G.failed = false; G.round++; G.cards=[]; PANEL.doneMessage=''; gNoteShow('');
   renderGrillShell();
   const sc0 = G.scope && S.nodes[G.scope];
   const ev = await projectEvidence(((sc0 ? sc0.text+' ' : '')+(PREFS.goal||'')+' '+(PREFS.context||'')).trim() || (DOM().subject+' '+DOM().treeName),5);
-  const c = new AbortController(); G.ctl = c;
+  const c = new AbortController(); G.ctl = CascadeUI.ref(c);
   const candidates = mindsetCandidates(G.scope);
   let done = 0, got = 0, mindsetCount = 0, cancelled = false;
   const parse = (text,final) => {
@@ -319,20 +240,9 @@ async function nextRound(){
   if(G.failed) gNoteShow('That round didn’t come back. Try again.');
   if(G.done && !got){
     const n = G.history.filter(h=>h.s==='settled').length;
-    gDone.textContent = (G.summary ? G.summary+' ' : '') + `Nothing is left unspoken for now. ${n} ${n===1?'decision is':'decisions are'} settled this session.`; gDone.hidden = false;
+    PANEL.doneMessage = (G.summary ? G.summary+' ' : '') + `Nothing is left unspoken for now. ${n} ${n===1?'decision is':'decisions are'} settled this session.`;
   }
   renderGrillShell(); checkRoundEnd();
 }
-$('#gStartAll').addEventListener('click',()=>startGrill(null));
-$('#gStartSel').addEventListener('click',()=>startGrill(S.sel && S.nodes[S.sel] ? S.sel : null));
-$('#gNext').addEventListener('click',nextRound);
-$('#gEnd').addEventListener('click',()=>{ resetG(); renderGrillShell(); $('#gIdleMsg').hidden = true; });
-$('#mChart').addEventListener('click',chartMap);
-$('#mGrillAll').addEventListener('click',()=>startGrill(null));
 $('#mapBtn').addEventListener('click',()=>{ if(side.hidden || curStab==='ask') openSide(curStab==='ask' ? 'map' : curStab); else closeSide(); });
 $('#askBtn').addEventListener('click',()=>{ if(side.hidden || curStab!=='ask') openSide('ask'); else closeSide(); });
-$('#stAsk').addEventListener('click',()=>showStab('ask'));
-$('#sideClose').addEventListener('click',closeSide);
-$('#stMap').addEventListener('click',()=>showStab('map'));
-$('#stGrill').addEventListener('click',()=>showStab('grill'));
-

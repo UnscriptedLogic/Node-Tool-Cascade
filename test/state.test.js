@@ -2,6 +2,26 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { open, sleep } = require('./helpers/dom');
 
+test('side panels render streamed state as text and keep card edits reactive',async(t)=>{
+  const a=open(); t.after(()=>a.dom.window.close()); await sleep(20);
+  a.w.eval("openSide('ask'); AN.summaryBusy=true; AN.summaryKind='tree'; AN.summary='<img src=x onerror=alert(1)> First chunk'; AN.busy=true");
+  await sleep(0);
+  assert.equal(a.$('#aSummaryWrap').hidden,false);
+  assert.equal(a.$('#aSumText').textContent,'<img src=x onerror=alert(1)> First chunk');
+  assert.equal(a.$('#aSumText img'),null,'model text is never interpreted as HTML');
+  assert.equal(a.$('#aGo').disabled,true);
+  a.w.eval("AN.summary+=' Second chunk'; AN.busy=false; AN.summaryBusy=false; startResolve('n6')"); await sleep(0);
+  assert.match(a.$('#aSumText').textContent,/First chunk Second chunk$/);
+  assert.equal(a.$('#aGo').disabled,false);
+  a.w.eval("G.cards[0].answer='A draft answer'; G.cards[0].pushback='<b>A challenge</b>'"); await sleep(0);
+  assert.equal(a.$('.gcard textarea').value,'A draft answer');
+  assert.equal(a.$('.gpush').textContent,'<b>A challenge</b>');
+  assert.equal(a.$('.gpush b'),null);
+  a.type(a.$('.gcard textarea'),'A revised answer');
+  assert.equal(a.w.eval('G.cards[0].answer'),'A revised answer');
+  assert.deepEqual(a.errs,[]);
+});
+
 test('settings reflect preference writes without reopening or manual syncing',async(t)=>{
   const a=open(); t.after(()=>a.dom.window.close()); await sleep(20);
   a.w.eval("PREFS.goal='A goal from a legacy action'; PREFS.domain='research'"); await sleep(0);
