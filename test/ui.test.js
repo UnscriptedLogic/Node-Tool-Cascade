@@ -278,7 +278,7 @@ test('local: Continue with ChatGPT signs in through the loopback callback and pi
   assert.match(a.$('[data-prov=chatgpt] [data-role=cgstate]').textContent,/Signed in as dev@example.com\. ChatGPT plan usage is allowed/);
   assert.equal(a.$('[data-prov=chatgpt] [data-act=cgSignOut]').hidden,false);
   assert.equal(a.$('#m-chatgpt').value,'gpt-plan-mini'); assert.equal((await (await fetch(s.base+'/api/settings')).json()).active,'demo','signing in does not silently switch providers');
-  a.$('[data-prov=chatgpt] input[type=radio]').checked = true; a.$('[data-prov=chatgpt] input[type=radio]').dispatchEvent(new a.w.Event('change',{ bubbles:true })); await sleep(300);
+  a.click(a.$('[data-prov=chatgpt] input[type=radio]')); await sleep(300);
   assert.equal(a.$('[data-prov=chatgpt] [data-role=status]').textContent,'In use');
   a.click(a.$('[data-prov=chatgpt] [data-act=test]')); await sleep(500); assert.match(a.$('[data-prov=chatgpt] [data-role=result]').textContent,/Connected/);
   assert.match(a.$('#setBtn').title,/ChatGPT plan · gpt-plan-mini/);

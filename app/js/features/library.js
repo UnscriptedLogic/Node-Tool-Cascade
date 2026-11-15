@@ -135,10 +135,7 @@ async function cloudAiRefresh(){
     try{ SRV = await libApi('GET','settings'); CLOUDAI = true; aiOff = false; initProviderList(); }
     catch(e){ CLOUDAI = false; SRV = null; }
   }else{ CLOUDAI = false; SRV = null; }
-  $('#aiLocal').hidden = !CLOUDAI; $('#aiWeb').hidden = CLOUDAI;
-  $('#aiLocalLead').textContent = 'Pick who does the thinking. Your keys are saved to your account, encrypted, and used from our server only to call the provider you choose. The page can’t read them back.';
-  $('#aiCloudHint').hidden = CLOUDAI || !LIB.googleClientId;
-  $('#dStats').hidden = !ANALYTICS.on;
+  SETTINGS.cloud=CLOUDAI; SETTINGS.server=SRV; SETTINGS.googleClientId=LIB.googleClientId; SETTINGS.analytics=ANALYTICS.on;
   updateProviders(); updateHud();
 }
 

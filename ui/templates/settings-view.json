@@ -1,0 +1,3304 @@
+{
+  "tag": "div",
+  "attrs": {
+    "id": "settings",
+    "role": "dialog",
+    "aria-modal": "true",
+    "aria-labelledby": "sTitle",
+    "hidden": ""
+  },
+  "children": [
+    "\n  ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "sshell"
+      },
+      "children": [
+        "\n    ",
+        {
+          "tag": "header",
+          "attrs": {
+            "class": "shead"
+          },
+          "children": [
+            "\n      ",
+            {
+              "tag": "h2",
+              "attrs": {
+                "id": "sTitle"
+              },
+              "children": [
+                "Settings ",
+                {
+                  "tag": "small",
+                  "attrs": {
+                    "id": "appVersion"
+                  },
+                  "children": [
+                    ""
+                  ]
+                }
+              ]
+            },
+            "\n      ",
+            {
+              "tag": "button",
+              "attrs": {
+                "class": "btn primary",
+                "id": "sClose",
+                "type": "button"
+              },
+              "children": [
+                "Done"
+              ]
+            },
+            "\n    "
+          ]
+        },
+        "\n    ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "sbody"
+          },
+          "children": [
+            "\n      ",
+            {
+              "tag": "nav",
+              "attrs": {
+                "class": "stabs",
+                "role": "tablist",
+                "aria-label": "Settings sections"
+              },
+              "children": [
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "ai",
+                    "aria-selected": "true"
+                  },
+                  "children": [
+                    "AI model"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "goal",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Goal & steering"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "behavior",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Behavior"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "mindsets",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Mindsets"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "look",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Appearance"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "library",
+                    "id": "libTab",
+                    "hidden": "",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Library"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "project",
+                    "data-modes": "local",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Project"
+                  ]
+                },
+                "\n        ",
+                {
+                  "tag": "button",
+                  "attrs": {
+                    "type": "button",
+                    "role": "tab",
+                    "data-tab": "data",
+                    "data-modes": "local web",
+                    "aria-selected": "false"
+                  },
+                  "children": [
+                    "Data"
+                  ]
+                },
+                "\n      "
+              ]
+            },
+            "\n      ",
+            {
+              "tag": "div",
+              "attrs": {
+                "class": "spanes"
+              },
+              "children": [
+                "\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-mindsets",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Mindsets"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "sub"
+                      },
+                      "children": [
+                        "Add ways of thinking to this Cascade. Matching lenses can add questions alongside ordinary branches and interviews. Select a node before opening Settings to apply a pack to that branch."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "small"
+                      },
+                      "children": [
+                        "Only enabled packs for the current domain and matching branch topics are considered. A matching word is a starting point: questions must still fit the topic and goal. Existing questions keep their source when a pack is removed."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "msBuiltins"
+                      },
+                      "children": []
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "frow"
+                      },
+                      "children": [
+                        {
+                          "tag": "button",
+                          "attrs": {
+                            "type": "button",
+                            "class": "btn primary",
+                            "id": "msImport"
+                          },
+                          "children": [
+                            "Import JSON pack"
+                          ]
+                        },
+                        {
+                          "tag": "button",
+                          "attrs": {
+                            "type": "button",
+                            "class": "btn",
+                            "id": "msExample"
+                          },
+                          "children": [
+                            "Download example"
+                          ]
+                        }
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "input",
+                      "attrs": {
+                        "type": "file",
+                        "id": "msFile",
+                        "accept": ".json,application/json",
+                        "hidden": ""
+                      },
+                      "children": []
+                    },
+                    "\n          ",
+                    {
+                      "tag": "details",
+                      "attrs": {},
+                      "children": [
+                        {
+                          "tag": "summary",
+                          "attrs": {},
+                          "children": [
+                            "Paste JSON pack"
+                          ]
+                        },
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "field",
+                            "for": "msJson"
+                          },
+                          "children": [
+                            "Mindset JSON"
+                          ]
+                        },
+                        {
+                          "tag": "textarea",
+                          "attrs": {
+                            "id": "msJson",
+                            "class": "area",
+                            "rows": "7",
+                            "spellcheck": "false"
+                          },
+                          "children": []
+                        },
+                        {
+                          "tag": "button",
+                          "attrs": {
+                            "type": "button",
+                            "class": "btn",
+                            "id": "msPasteImport"
+                          },
+                          "children": [
+                            "Import pasted JSON"
+                          ]
+                        }
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "id": "msMsg",
+                        "class": "small",
+                        "role": "status",
+                        "aria-live": "polite"
+                      },
+                      "children": []
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "id": "msEmpty",
+                        "class": "sub"
+                      },
+                      "children": [
+                        "No mindsets yet. Download the example to see the format. Import one pack or a JSON array of packs."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "msList"
+                      },
+                      "children": []
+                    },
+                    "\n          ",
+                    {
+                      "tag": "details",
+                      "attrs": {
+                        "id": "msConverter",
+                        "class": "card"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "summary",
+                          "attrs": {},
+                          "children": [
+                            "Create a mindset from source material"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "small"
+                          },
+                          "children": [
+                            "Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Files are read on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcFiles"
+                              },
+                              "children": [
+                                "Source files"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcFiles",
+                                "type": "file",
+                                "multiple": "",
+                                "accept": ".pdf,.txt,.md,.markdown,.html,.htm,.json,.csv,.tsv,.xml,.yaml,.yml,.log,text/*,application/pdf,application/json"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcText"
+                              },
+                              "children": [
+                                "Source text"
+                              ]
+                            },
+                            {
+                              "tag": "textarea",
+                              "attrs": {
+                                "id": "mcText",
+                                "rows": "6",
+                                "maxlength": "2000000",
+                                "placeholder": "Paste notes, an article, a transcript, or exported book text. Uploaded files appear here for review."
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "small",
+                              "attrs": {
+                                "id": "mcSourceInfo"
+                              },
+                              "children": [
+                                "Scanned PDFs need OCR first. Images, audio and Word files need a text or PDF export."
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcName"
+                              },
+                              "children": [
+                                "Mindset name"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcName",
+                                "type": "text",
+                                "maxlength": "80",
+                                "placeholder": "My questioning framework"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcSourceTitle"
+                              },
+                              "children": [
+                                "Source title or author"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcSourceTitle",
+                                "type": "text",
+                                "maxlength": "200",
+                                "placeholder": "Book title, author, or workshop notes"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcEdition"
+                              },
+                              "children": [
+                                "Edition or date (optional)"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcEdition",
+                                "type": "text",
+                                "maxlength": "80"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcUrl"
+                              },
+                              "children": [
+                                "Source link (optional)"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcUrl",
+                                "type": "url",
+                                "placeholder": "https://..."
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "fieldset",
+                          "attrs": {
+                            "id": "mcDomains"
+                          },
+                          "children": [
+                            {
+                              "tag": "legend",
+                              "attrs": {},
+                              "children": [
+                                "Where may these questions be used?"
+                              ]
+                            },
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "value": "general"
+                                  },
+                                  "children": []
+                                },
+                                "General / business"
+                              ]
+                            },
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "value": "product"
+                                  },
+                                  "children": []
+                                },
+                                "Product"
+                              ]
+                            },
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "value": "research"
+                                  },
+                                  "children": []
+                                },
+                                "Research"
+                              ]
+                            },
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "value": "game"
+                                  },
+                                  "children": []
+                                },
+                                "Game design"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "mcLimit"
+                              },
+                              "children": [
+                                "Maximum entries"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "mcLimit",
+                                "type": "number",
+                                "min": "1",
+                                "max": "200",
+                                "value": "100"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "small",
+                              "attrs": {},
+                              "children": [
+                                "Large sources can require many provider calls. Progress reports how much was processed; stopping or hitting this limit produces a partial draft."
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "frow"
+                          },
+                          "children": [
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "id": "mcGenerate",
+                                "type": "button",
+                                "class": "btn primary"
+                              },
+                              "children": [
+                                "Generate draft"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "id": "mcStop",
+                                "type": "button",
+                                "class": "btn",
+                                "hidden": ""
+                              },
+                              "children": [
+                                "Stop conversion"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "id": "mcStatus",
+                            "class": "small",
+                            "role": "status",
+                            "aria-live": "polite"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "section",
+                          "attrs": {
+                            "id": "mcReview",
+                            "hidden": ""
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "h4",
+                              "attrs": {},
+                              "children": [
+                                "Review draft"
+                              ]
+                            },
+                            {
+                              "tag": "p",
+                              "attrs": {
+                                "id": "mcReport",
+                                "class": "small"
+                              },
+                              "children": []
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "id": "mcEntries"
+                              },
+                              "children": []
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "field"
+                              },
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "for": "mcJson"
+                                  },
+                                  "children": [
+                                    "Mindset JSON (editable)"
+                                  ]
+                                },
+                                {
+                                  "tag": "textarea",
+                                  "attrs": {
+                                    "id": "mcJson",
+                                    "rows": "10",
+                                    "spellcheck": "false"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "id": "mcImport",
+                                    "type": "button",
+                                    "class": "btn primary"
+                                  },
+                                  "children": [
+                                    "Import reviewed draft"
+                                  ]
+                                },
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "id": "mcDownload",
+                                    "type": "button",
+                                    "class": "btn"
+                                  },
+                                  "children": [
+                                    "Download JSON"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-ai",
+                    "role": "tabpanel"
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "AI model"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "section",
+                      "attrs": {
+                        "class": "prov",
+                        "id": "chatExchange"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "h4",
+                          "attrs": {},
+                          "children": [
+                            "Use your chat account"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "sub"
+                          },
+                          "children": [
+                            "Try real suggestions without an API key. Copy a prompt into ChatGPT or Claude, then paste its reply here. Free accounts work within their chat limits. This is a manual exchange; no account linking required."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "small"
+                          },
+                          "children": [
+                            "Select a node before opening Settings to focus on that branch. The prompt includes its accepted descendants and your goal, context, constraints, and enabled project brief. Review it before sharing."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "chatTask"
+                              },
+                              "children": [
+                                "What would you like to explore?"
+                              ]
+                            },
+                            {
+                              "tag": "textarea",
+                              "attrs": {
+                                "id": "chatTask",
+                                "rows": "2",
+                                "maxlength": "2000",
+                                "placeholder": "Suggest questions that challenge this decision"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "button",
+                          "attrs": {
+                            "class": "btn",
+                            "id": "chatPrepare",
+                            "type": "button"
+                          },
+                          "children": [
+                            "Prepare chat prompt"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "id": "chatSteps",
+                            "hidden": ""
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "field"
+                              },
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "for": "chatPrompt"
+                                  },
+                                  "children": [
+                                    "1. Copy this prompt into your chat"
+                                  ]
+                                },
+                                {
+                                  "tag": "textarea",
+                                  "attrs": {
+                                    "id": "chatPrompt",
+                                    "rows": "8",
+                                    "readonly": ""
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn",
+                                    "id": "chatCopy",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Copy prompt"
+                                  ]
+                                },
+                                {
+                                  "tag": "a",
+                                  "attrs": {
+                                    "href": "https://chatgpt.com/",
+                                    "target": "_blank",
+                                    "rel": "noopener noreferrer"
+                                  },
+                                  "children": [
+                                    "Open ChatGPT"
+                                  ]
+                                },
+                                {
+                                  "tag": "a",
+                                  "attrs": {
+                                    "href": "https://claude.ai/",
+                                    "target": "_blank",
+                                    "rel": "noopener noreferrer"
+                                  },
+                                  "children": [
+                                    "Open Claude"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "field"
+                              },
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "for": "chatReply"
+                                  },
+                                  "children": [
+                                    "2. Paste the full reply"
+                                  ]
+                                },
+                                {
+                                  "tag": "textarea",
+                                  "attrs": {
+                                    "id": "chatReply",
+                                    "rows": "6",
+                                    "maxlength": "100000",
+                                    "spellcheck": "false"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "chatReview",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Preview suggestions"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "id": "chatPreview",
+                                "hidden": ""
+                              },
+                              "children": [
+                                {
+                                  "tag": "h4",
+                                  "attrs": {},
+                                  "children": [
+                                    "3. Review suggestions"
+                                  ]
+                                },
+                                {
+                                  "tag": "ul",
+                                  "attrs": {
+                                    "id": "chatSuggestions"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn primary",
+                                    "id": "chatImport",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Add as suggestions"
+                                  ]
+                                },
+                                {
+                                  "tag": "p",
+                                  "attrs": {
+                                    "class": "small"
+                                  },
+                                  "children": [
+                                    "Keep or dismiss each suggestion on the canvas. Undo removes this import."
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "id": "chatStatus",
+                            "class": "small",
+                            "role": "status",
+                            "aria-live": "polite"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "data-modes": "artifact"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "lead"
+                          },
+                          "children": [
+                            "This page runs on your Claude account, so there are no keys to enter here."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "card"
+                          },
+                          "children": [
+                            "To use ChatGPT, OpenRouter, a local model, or Claude with your own API key, run the downloadable version. It adds sign-in with ChatGPT and OpenRouter, provider and model pickers, key storage and a connection test. The goal and behavior settings here work everywhere."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "aiWeb",
+                        "data-modes": "web"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "card",
+                            "id": "aiCloudHint",
+                            "hidden": ""
+                          },
+                          "children": [
+                            "Signed-in accounts can save their own Claude, OpenAI, OpenRouter or custom keys and use them from any device. Sign in under ",
+                            {
+                              "tag": "b",
+                              "attrs": {},
+                              "children": [
+                                "Library"
+                              ]
+                            },
+                            " to set that up."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "lead"
+                          },
+                          "children": [
+                            "Cascade runs entirely in your browser and has no server of its own. Choose how the AI part works. A key, if you add one, stays in this browser."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "section",
+                          "attrs": {
+                            "class": "prov",
+                            "id": "wDemo"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "header",
+                              "attrs": {},
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "class": "radio"
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "input",
+                                      "attrs": {
+                                        "type": "radio",
+                                        "name": "webProv",
+                                        "id": "wDemoRadio",
+                                        "value": "demo"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "span",
+                                      "attrs": {},
+                                      "children": [
+                                        "Demo (no account)"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attrs": {
+                                    "class": "tag",
+                                    "id": "wDemoTag",
+                                    "hidden": ""
+                                  },
+                                  "children": [
+                                    "In use"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "p",
+                              "attrs": {
+                                "class": "sub"
+                              },
+                              "children": [
+                                "Scripted responses on the example tree, so you can feel how it works. Nothing is sent anywhere."
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "section",
+                          "attrs": {
+                            "class": "prov",
+                            "id": "wOr"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "header",
+                              "attrs": {},
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "class": "radio"
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "input",
+                                      "attrs": {
+                                        "type": "radio",
+                                        "name": "webProv",
+                                        "id": "wOrRadio",
+                                        "value": "openrouter"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "span",
+                                      "attrs": {},
+                                      "children": [
+                                        "OpenRouter"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attrs": {
+                                    "class": "tag",
+                                    "id": "wOrTag",
+                                    "hidden": ""
+                                  },
+                                  "children": [
+                                    "In use"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "p",
+                              "attrs": {
+                                "class": "sub"
+                              },
+                              "children": [
+                                "One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter hands this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow",
+                                "style": "margin:0 0 16px 27px"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn primary",
+                                    "id": "wOrSignIn",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Continue with OpenRouter"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "field"
+                              },
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "for": "wOrKey"
+                                  },
+                                  "children": [
+                                    "Or paste an OpenRouter key"
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "div",
+                                  "attrs": {
+                                    "class": "frow"
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "input",
+                                      "attrs": {
+                                        "id": "wOrKey",
+                                        "type": "password",
+                                        "autocomplete": "off",
+                                        "spellcheck": "false",
+                                        "placeholder": "sk-or-…"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "button",
+                                      "attrs": {
+                                        "class": "btn",
+                                        "id": "wOrSave",
+                                        "type": "button"
+                                      },
+                                      "children": [
+                                        "Save key"
+                                      ]
+                                    },
+                                    {
+                                      "tag": "button",
+                                      "attrs": {
+                                        "class": "btn",
+                                        "id": "wOrForget",
+                                        "type": "button",
+                                        "hidden": ""
+                                      },
+                                      "children": [
+                                        "Forget key"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "small",
+                                  "attrs": {
+                                    "id": "wOrKeyHint"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "field"
+                              },
+                              "children": [
+                                {
+                                  "tag": "label",
+                                  "attrs": {
+                                    "for": "wOrModel"
+                                  },
+                                  "children": [
+                                    "Model"
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "div",
+                                  "attrs": {
+                                    "class": "frow"
+                                  },
+                                  "children": [
+                                    {
+                                      "tag": "input",
+                                      "attrs": {
+                                        "id": "wOrModel",
+                                        "type": "text",
+                                        "list": "ml-wor",
+                                        "autocomplete": "off",
+                                        "spellcheck": "false",
+                                        "placeholder": "Choose one with Fetch models"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "datalist",
+                                      "attrs": {
+                                        "id": "ml-wor"
+                                      },
+                                      "children": []
+                                    },
+                                    {
+                                      "tag": "button",
+                                      "attrs": {
+                                        "class": "btn",
+                                        "id": "wOrFetch",
+                                        "type": "button"
+                                      },
+                                      "children": [
+                                        "Fetch models"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "small",
+                                  "attrs": {},
+                                  "children": [
+                                    "Fast, recent models are suggested first."
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn primary",
+                                    "id": "wOrTest",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Test connection"
+                                  ]
+                                },
+                                {
+                                  "tag": "span",
+                                  "attrs": {
+                                    "class": "result",
+                                    "id": "wOrResult",
+                                    "aria-live": "polite"
+                                  },
+                                  "children": []
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "p",
+                              "attrs": {
+                                "class": "small",
+                                "style": "margin:12px 0 16px;line-height:1.45"
+                              },
+                              "children": [
+                                "The key is stored in this browser only. Anyone who can use this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "card"
+                          },
+                          "children": [
+                            "Want to use your own Claude or OpenAI key, sign in with ChatGPT, or run a local model such as Ollama? ",
+                            {
+                              "tag": "a",
+                              "attrs": {
+                                "href": "__REPO_URL__",
+                                "target": "_blank",
+                                "rel": "noopener"
+                              },
+                              "children": [
+                                "Run Cascade on your computer"
+                              ]
+                            },
+                            " and all of those are available."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "aiLocal",
+                        "data-modes": "local"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "p",
+                          "attrs": {
+                            "class": "lead",
+                            "id": "aiLocalLead"
+                          },
+                          "children": [
+                            "Pick who does the thinking. Keys and sign-ins are kept on this computer, and the page can’t read them back. They only go to the provider you choose."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "id": "provList"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-goal",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Goal & steering"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "gDomain"
+                          },
+                          "children": [
+                            "What is this tree about?"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "select",
+                          "attrs": {
+                            "id": "gDomain"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "gDomainHelp"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead"
+                      },
+                      "children": [
+                        "Say what this tree is for. Every placement, branch and trace-back is written with it in mind, so the questions lean toward your goal instead of wandering."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "gGoal"
+                          },
+                          "children": [
+                            "Overarching goal"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "textarea",
+                          "attrs": {
+                            "id": "gGoal",
+                            "rows": "3",
+                            "maxlength": "600",
+                            "data-dom-ph": "goalPlaceholder",
+                            "placeholder": "Decide what the team works on this quarter and why"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "chips",
+                            "id": "gChips"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Steering"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "seg big",
+                            "id": "gSteer",
+                            "role": "group",
+                            "aria-label": "Steering strength"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "light",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Light"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "balanced",
+                                "aria-pressed": "true"
+                              },
+                              "children": [
+                                "Balanced"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "strong",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Strong"
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "steerHelp"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "gContext",
+                            "data-dom-text": "contextLabel"
+                          },
+                          "children": [
+                            "About the project"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "textarea",
+                          "attrs": {
+                            "id": "gContext",
+                            "rows": "3",
+                            "maxlength": "1200",
+                            "data-dom-ph": "contextPlaceholder",
+                            "placeholder": ""
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "data-dom-text": "contextHint"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "gPillars",
+                            "data-dom-text": "pillarsLabel"
+                          },
+                          "children": [
+                            "Principles and constraints"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "textarea",
+                          "attrs": {
+                            "id": "gPillars",
+                            "rows": "3",
+                            "maxlength": "1200",
+                            "data-dom-ph": "pillarsPlaceholder",
+                            "placeholder": ""
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "data-dom-text": "pillarsHint"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "gAvoid"
+                          },
+                          "children": [
+                            "Avoid"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "textarea",
+                          "attrs": {
+                            "id": "gAvoid",
+                            "rows": "2",
+                            "maxlength": "800",
+                            "data-dom-ph": "avoidPlaceholder",
+                            "placeholder": ""
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "details",
+                      "attrs": {
+                        "class": "card"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "summary",
+                          "attrs": {},
+                          "children": [
+                            "What the AI is told"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "pre",
+                          "attrs": {
+                            "id": "gPreview"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-library",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Library"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead"
+                      },
+                      "children": [
+                        "Keep several Cascades and group them in folders. The one you have open saves itself as you work."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "libraryRoot",
+                        "class": "cui"
+                      },
+                      "children": []
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-behavior",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Behavior"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead"
+                      },
+                      "children": [
+                        "How eagerly the tree grows on its own."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Layout on small screens"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "seg big",
+                            "id": "bLayout",
+                            "role": "group",
+                            "aria-label": "Layout on small screens"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "standard",
+                                "aria-pressed": "true"
+                              },
+                              "children": [
+                                "Standard"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "minimal",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Minimal"
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "bLayoutHelp"
+                          },
+                          "children": [
+                            "Standard has a top bar, a block dock and an action strip. Minimal is only the canvas: tap empty space for a menu, or tap a block for its actions. Applies when the screen is narrow."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "check"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "checkbox",
+                                "id": "bAutoGrow"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "span",
+                              "attrs": {},
+                              "children": [
+                                "Grow branches after I place a block"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Off means blocks are only placed. The sparkle button on any node grows it on demand."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "check"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "checkbox",
+                                "id": "bAutoTrace"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "span",
+                              "attrs": {},
+                              "children": [
+                                "Bridge or trace back when I drop an emotion block"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Works from the existing tree toward the feeling and back from the feeling to its causes, and starts a grill if the two cannot meet. With little in the tree yet, it only traces back."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Growth size"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "seg big",
+                            "id": "bSize",
+                            "role": "group",
+                            "aria-label": "Growth size"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "small",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Small"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "medium",
+                                "aria-pressed": "true"
+                              },
+                              "children": [
+                                "Medium"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "large",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Large"
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Roughly 6, 9 or 13 suggested nodes each time."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "check"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "checkbox",
+                                "id": "bPushback"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "span",
+                              "attrs": {},
+                              "children": [
+                                "Push back on my answers in a grill"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "The AI challenges weak or risky answers instead of nodding along. It never writes an answer for you."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Grill pace"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "seg big",
+                            "id": "bGrill",
+                            "role": "group",
+                            "aria-label": "Grill pace"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "round",
+                                "aria-pressed": "true"
+                              },
+                              "children": [
+                                "Full round"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "single",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "One at a time"
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "A round shows every question that is ready at once. One at a time shows a single card."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field",
+                        "data-modes": "local web"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "bCreative"
+                          },
+                          "children": [
+                            "Creativity ",
+                            {
+                              "tag": "output",
+                              "attrs": {
+                                "id": "bCreativeVal"
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "input",
+                          "attrs": {
+                            "type": "range",
+                            "id": "bCreative",
+                            "min": "0",
+                            "max": "1",
+                            "step": "0.05"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Lower is more predictable, higher is more varied. Placement always runs cool so it stays consistent. Some newer models ignore this."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-look",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Appearance"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead"
+                      },
+                      "children": [
+                        "The theme, and the look of your blocks and wires. Changes show on the canvas as you make them."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Theme"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "seg big",
+                            "id": "aTheme",
+                            "role": "group",
+                            "aria-label": "Theme"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "system",
+                                "aria-pressed": "true"
+                              },
+                              "children": [
+                                "System"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "light",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Light"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "type": "button",
+                                "data-val": "dark",
+                                "aria-pressed": "false"
+                              },
+                              "children": [
+                                "Dark"
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "lookRoot"
+                      },
+                      "children": []
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-project",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Project folder"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead"
+                      },
+                      "children": [
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "data-dom-text": "projectLead"
+                          },
+                          "children": [
+                            "Point Cascade at a project folder and it learns from it."
+                          ]
+                        },
+                        " Reading and searching happen on this computer. When you build a brief, short digests and code excerpts go to the AI you connected, never your keys, and anything that looks like a secret is skipped or redacted first."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "for": "pPath"
+                          },
+                          "children": [
+                            "Folder"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "frow"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "pPath",
+                                "type": "text",
+                                "spellcheck": "false",
+                                "autocomplete": "off",
+                                "data-dom-ph": "projectPlaceholder",
+                                "placeholder": "/Users/you/Documents/MyProject"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "pPick",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Choose…"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn primary",
+                                "id": "pScan",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Scan"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "pCancel",
+                                "type": "button",
+                                "hidden": ""
+                              },
+                              "children": [
+                                "Stop"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "pMsg",
+                            "aria-live": "polite"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "details",
+                      "attrs": {
+                        "class": "card pdetails"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "summary",
+                          "attrs": {},
+                          "children": [
+                            "Skip or add files"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "pIgnore"
+                              },
+                              "children": [
+                                "Also skip"
+                              ]
+                            },
+                            {
+                              "tag": "textarea",
+                              "attrs": {
+                                "id": "pIgnore",
+                                "rows": "3",
+                                "placeholder": "Assets/ThirdParty/\n*.generated.cs"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "small",
+                              "attrs": {},
+                              "children": [
+                                "One pattern per line, written like a .gitignore. The project’s own .gitignore and each engine’s generated folders are skipped already."
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "for": "pInclude"
+                              },
+                              "children": [
+                                "Also read these extensions"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "id": "pInclude",
+                                "type": "text",
+                                "placeholder": "shader, tres"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "small",
+                              "attrs": {},
+                              "children": [
+                                "Comma separated. Binary files are never read."
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "pDefaults"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "pSummary",
+                        "hidden": ""
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "pstat",
+                            "id": "pStats"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "pDetail"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "id": "pBriefWrap",
+                        "hidden": ""
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "span",
+                              "attrs": {
+                                "class": "lbl"
+                              },
+                              "children": [
+                                "Project brief"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "seg big",
+                                "id": "pDepth",
+                                "role": "group",
+                                "aria-label": "How thoroughly to read"
+                              },
+                              "children": [
+                                "\n                ",
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "type": "button",
+                                    "data-val": "quick",
+                                    "aria-pressed": "false"
+                                  },
+                                  "children": [
+                                    "Quick"
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "type": "button",
+                                    "data-val": "standard",
+                                    "aria-pressed": "true"
+                                  },
+                                  "children": [
+                                    "Standard"
+                                  ]
+                                },
+                                "\n                ",
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "type": "button",
+                                    "data-val": "thorough",
+                                    "aria-pressed": "false"
+                                  },
+                                  "children": [
+                                    "Thorough"
+                                  ]
+                                },
+                                "\n              "
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "small",
+                              "attrs": {
+                                "id": "pEstimate"
+                              },
+                              "children": []
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn primary",
+                                    "id": "pBuild",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Build brief"
+                                  ]
+                                },
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn",
+                                    "id": "pStop",
+                                    "type": "button",
+                                    "hidden": ""
+                                  },
+                                  "children": [
+                                    "Stop"
+                                  ]
+                                },
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "linkbtn",
+                                    "id": "pRestore",
+                                    "type": "button",
+                                    "hidden": ""
+                                  },
+                                  "children": [
+                                    "Restore previous brief"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "small",
+                              "attrs": {
+                                "id": "pProg",
+                                "aria-live": "polite"
+                              },
+                              "children": []
+                            },
+                            "\n              ",
+                            {
+                              "tag": "textarea",
+                              "attrs": {
+                                "id": "pBrief",
+                                "class": "area",
+                                "rows": "14",
+                                "maxlength": "12000",
+                                "placeholder": "The brief appears here. You can edit it freely."
+                              },
+                              "children": []
+                            },
+                            "\n              ",
+                            {
+                              "tag": "small",
+                              "attrs": {},
+                              "children": [
+                                "This is exactly what the AI is told about your project. Fix anything that’s wrong. Your goal and pillars always take precedence."
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "id": "pUse"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "tag": "span",
+                                  "attrs": {},
+                                  "children": [
+                                    "Use the brief in every AI call"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "label",
+                              "attrs": {
+                                "class": "check"
+                              },
+                              "children": [
+                                {
+                                  "tag": "input",
+                                  "attrs": {
+                                    "type": "checkbox",
+                                    "id": "pAsk"
+                                  },
+                                  "children": []
+                                },
+                                {
+                                  "tag": "span",
+                                  "attrs": {},
+                                  "children": [
+                                    "Let Ask and Grill look things up in the project’s files and cite them"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "field"
+                          },
+                          "children": [
+                            "\n              ",
+                            {
+                              "tag": "span",
+                              "attrs": {
+                                "class": "lbl"
+                              },
+                              "children": [
+                                "Graph"
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "div",
+                              "attrs": {
+                                "class": "frow"
+                              },
+                              "children": [
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn primary",
+                                    "id": "pSeed",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Seed the graph from the project"
+                                  ]
+                                },
+                                {
+                                  "tag": "button",
+                                  "attrs": {
+                                    "class": "btn",
+                                    "id": "pForget",
+                                    "type": "button"
+                                  },
+                                  "children": [
+                                    "Forget this project"
+                                  ]
+                                }
+                              ]
+                            },
+                            "\n              ",
+                            {
+                              "tag": "small",
+                              "attrs": {},
+                              "children": [
+                                "Seeding drafts suggested nodes (decisions already made, open questions, fog) as ghosts you keep or dismiss. Each one remembers the file it came from."
+                              ]
+                            },
+                            "\n            "
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n        ",
+                {
+                  "tag": "section",
+                  "attrs": {
+                    "class": "spane",
+                    "id": "p-data",
+                    "role": "tabpanel",
+                    "hidden": ""
+                  },
+                  "children": [
+                    "\n          ",
+                    {
+                      "tag": "h3",
+                      "attrs": {},
+                      "children": [
+                        "Data"
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead",
+                        "data-modes": "local"
+                      },
+                      "children": [
+                        "Your tree and settings live in the folder next to ",
+                        {
+                          "tag": "code",
+                          "attrs": {},
+                          "children": [
+                            "server.js"
+                          ]
+                        },
+                        " as ",
+                        {
+                          "tag": "code",
+                          "attrs": {},
+                          "children": [
+                            "tree.json"
+                          ]
+                        },
+                        " and ",
+                        {
+                          "tag": "code",
+                          "attrs": {},
+                          "children": [
+                            "settings.json"
+                          ]
+                        },
+                        "."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "p",
+                      "attrs": {
+                        "class": "lead",
+                        "data-modes": "web"
+                      },
+                      "children": [
+                        "Your tree and settings are saved in this browser. Export the tree to keep a copy or move it somewhere else."
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Tree"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "frow"
+                          },
+                          "children": [
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "dExport",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Export tree"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "dImport",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Import tree"
+                              ]
+                            },
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "file",
+                                "id": "dFile",
+                                "accept": "application/json,.json",
+                                "hidden": ""
+                              },
+                              "children": []
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "dMsg"
+                          },
+                          "children": []
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field",
+                        "id": "dStats",
+                        "hidden": ""
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Anonymous usage counts"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "check"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "checkbox",
+                                "id": "dStatsOn"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "span",
+                              "attrs": {},
+                              "children": [
+                                "Count how this site is used"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Counts only, such as visits, blocks placed or kept, and which AI provider was used. No tree text, prompts, keys or names, and no cookies. Do Not Track turns it off automatically. The local app sends nothing."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field",
+                        "data-modes": "local"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Server"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {
+                            "id": "sInfo"
+                          },
+                          "children": []
+                        },
+                        "\n            ",
+                        {
+                          "tag": "label",
+                          "attrs": {
+                            "class": "check"
+                          },
+                          "children": [
+                            {
+                              "tag": "input",
+                              "attrs": {
+                                "type": "checkbox",
+                                "id": "sQuitClose"
+                              },
+                              "children": []
+                            },
+                            {
+                              "tag": "span",
+                              "attrs": {},
+                              "children": [
+                                "Stop Cascade when I close this tab"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Off by default. When on, closing the last Cascade tab shuts the server down a few seconds later, so the port is freed without opening a terminal."
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "frow"
+                          },
+                          "children": [
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "sQuit",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Quit Cascade now"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n          ",
+                    {
+                      "tag": "div",
+                      "attrs": {
+                        "class": "field"
+                      },
+                      "children": [
+                        "\n            ",
+                        {
+                          "tag": "span",
+                          "attrs": {
+                            "class": "lbl"
+                          },
+                          "children": [
+                            "Danger zone"
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "div",
+                          "attrs": {
+                            "class": "frow"
+                          },
+                          "children": [
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "dClear",
+                                "type": "button"
+                              },
+                              "children": [
+                                "Clear graph"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "dWipeKeys",
+                                "type": "button",
+                                "data-modes": "local"
+                              },
+                              "children": [
+                                "Remove all saved keys and sign-ins"
+                              ]
+                            },
+                            {
+                              "tag": "button",
+                              "attrs": {
+                                "class": "btn",
+                                "id": "dForgetKey",
+                                "type": "button",
+                                "data-modes": "web"
+                              },
+                              "children": [
+                                "Forget my OpenRouter key"
+                              ]
+                            }
+                          ]
+                        },
+                        "\n            ",
+                        {
+                          "tag": "small",
+                          "attrs": {},
+                          "children": [
+                            "Clearing the graph can be undone. Forgetting keys can’t."
+                          ]
+                        },
+                        "\n          "
+                      ]
+                    },
+                    "\n        "
+                  ]
+                },
+                "\n\n      "
+              ]
+            },
+            "\n    "
+          ]
+        },
+        "\n  "
+      ]
+    },
+    "\n"
+  ]
+}

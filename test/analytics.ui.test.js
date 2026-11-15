@@ -54,7 +54,7 @@ test('analytics page: the switch in Settings turns it off, and it is only offere
   const c = cloud(), a = page(c); await sleep(600);
   a.click(a.$('#setBtn')); a.click(a.$('.stabs [data-tab=data]'));
   assert.equal(a.$('#dStats').hidden,false); assert.equal(a.$('#dStatsOn').checked,true);
-  a.$('#dStatsOn').checked = false; a.$('#dStatsOn').dispatchEvent(new a.w.Event('change',{ bubbles:true }));
+  a.click(a.$('#dStatsOn'));
   assert.equal(a.w.localStorage.getItem('cascade-analytics-off'),'1');
   a.escape(); await a.drop('question','Would a bigger map help?',800);
   assert.equal(c.events.length,0,'nothing is sent once it is off');

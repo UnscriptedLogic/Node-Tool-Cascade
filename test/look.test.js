@@ -2,7 +2,7 @@
 // The look editor: node shapes, colours and sizes per block type, wire styles, canvas, text/describe editing, persistence.
 const test = require('node:test'), assert = require('node:assert/strict');
 const mocks = require('./helpers/mocks');
-const { open, webHtml, sleep } = require('./helpers/dom');
+const { open, webHtml, sleep, tick } = require('./helpers/dom');
 const { bootServer, page } = require('./helpers/server');
 
 let mock;
@@ -90,9 +90,9 @@ test('colours: per type, "all blocks" leaves emotions on their mood, and mood co
   assert.equal(v(a.byText('Bored crossing'),'--nf'),'#ff00ff'); assert.equal(v(a.byText('Bored crossing'),'--nfg'),'#ffffff','white text on dark magenta');
   assert.match(a.$('#legend li i').getAttribute('style') + a.$$('#legend li i').map(i=>i.getAttribute('style')).join(''),/#ff00ff/);
   color(a,'input[data-mood=boredom]','#ffff00'); await sleep(60); assert.equal(v(a.byText('Bored crossing'),'--nfg'),'#142033','dark text on yellow');
-  const kw = a.$('input[data-f=fill-kw]'); kw.checked = false; kw.dispatchEvent(new a.w.Event('change',{ bubbles:true })); await sleep(60);
+  const kw = a.$('input[data-f=fill-kw]'); a.click(kw); await sleep(60);
   assert.ok(/^#[0-9a-f]{6}$/.test(lookKey(a).nodes.emotion.fill),'a fixed colour replaces "match mood"');
-  kw.checked = true; kw.dispatchEvent(new a.w.Event('change',{ bubbles:true })); await sleep(60); assert.equal(lookKey(a).nodes.emotion.fill,'mood');
+  a.click(kw); await sleep(60); assert.equal(lookKey(a).nodes.emotion.fill,'mood');
 });
 
 test('wires: default, straight, manhattan and bezier, with their adjustments',async()=>{
@@ -144,8 +144,8 @@ test('canvas: background, grid style and spacing',async()=>{
 test('text editor: applies valid JSON, drops unknown and out-of-range values, and rejects bad JSON',async()=>{
   const a = web(); await sleep(300); await openLook(a,'text');
   const ta = a.$('#lkText'); assert.equal(ta.value.trim(),'{}');
-  ta.value = '{ nope'; a.click(a.$('#lkApply')); assert.match(a.$('#lkTextErr').textContent,/isn’t valid JSON/); assert.deepEqual(lookKey(a),{});
-  ta.value = '[1,2]'; a.click(a.$('#lkApply')); assert.match(a.$('#lkTextErr').textContent,/must be a JSON object/);
+  ta.value = '{ nope'; a.click(a.$('#lkApply')); await tick(); assert.match(a.$('#lkTextErr').textContent,/isn’t valid JSON/); assert.deepEqual(lookKey(a),{});
+  ta.value = '[1,2]'; a.click(a.$('#lkApply')); await tick(); assert.match(a.$('#lkTextErr').textContent,/must be a JSON object/);
   ta.value = J({ wires:{ style:'straight', color:'red', width:99 }, nodes:{ decision:{ width:9999, shape:'star', fill:'javascript:alert(1)' } }, zzz:1 });
   a.click(a.$('#lkApply')); await sleep(100);
   assert.match(a.$('#lkTextErr').textContent,/Applied\. 3 values were ignored/);
@@ -156,20 +156,20 @@ test('text editor: applies valid JSON, drops unknown and out-of-range values, an
 test('describe in words: the built-in interpreter, preview, keep and put back',async()=>{
   const a = web(); await sleep(300); await a.drop('decision','Add a glide ability',700); a.escape();
   await openLook(a,'describe');
-  a.$('#lkDesc').value = 'A calm blueprint look with straight wires and huge decisions'; a.click(a.$('#lkGo')); await sleep(250);
+  a.type(a.$('#lkDesc'),'A calm blueprint look with straight wires and huge decisions'); a.click(a.$('#lkGo')); await sleep(250);
   assert.equal(a.$('#lkResult').hidden,false); assert.match(a.$('#lkNote').textContent,/keyword engine/);
   assert.match(a.$('#lkChanges').textContent,/Decision blocks: .*width 336/); assert.match(a.$('#lkChanges').textContent,/Wires: .*style straight/);
   assert.equal(a.byText('Add a glide ability').style.width,'336px'); assert.equal(a.$('#stage').style.backgroundColor,rgb('#0b2545'));
   assert.equal(a.w.localStorage.getItem('cascade-look-v1'),null,'a preview is not saved yet');
   a.click(a.$('#lkRevert')); await sleep(120);
   assert.equal(a.byText('Add a glide ability').style.width,'224px'); assert.equal(a.$('#lkResult').hidden,true); assert.equal(a.$('#stage').style.backgroundColor,'');
-  a.$('#lkDesc').value = 'big red decisions and small grey answers'; a.click(a.$('#lkGo')); await sleep(250); a.click(a.$('#lkKeep')); await sleep(100);
+  a.type(a.$('#lkDesc'),'big red decisions and small grey answers'); a.click(a.$('#lkGo')); await sleep(250); a.click(a.$('#lkKeep')); await sleep(100);
   const L = lookKey(a); assert.equal(L.nodes.decision.fill,'#d94a2b'); assert.ok(L.nodes.decision.width>224); assert.equal(L.nodes.answer.fill,'#8a94a3'); assert.ok(L.nodes.answer.width<224);
   assert.equal(a.byText('Add a glide ability').querySelector('.in').style.getPropertyValue('--nfg'),'#ffffff','auto contrast on red');
-  a.$('#lkDesc').value = 'soft pastel with curvy wires'; a.click(a.$('#lkGo')); await sleep(200);
+  a.type(a.$('#lkDesc'),'soft pastel with curvy wires'); a.click(a.$('#lkGo')); await sleep(200);
   assert.equal(lookKey(a).nodes.decision.fill,'#d94a2b','previewing does not overwrite what you saved'); a.click(a.$('#lkKeep')); await sleep(80);
   const P = lookKey(a); assert.equal(P.wires.style,'bezier'); assert.equal(P.canvas.bg,'#f7f4ff');
-  a.$('#lkDesc').value = 'xyzzy plugh'; a.click(a.$('#lkGo')); await sleep(150);
+  a.type(a.$('#lkDesc'),'xyzzy plugh'); a.click(a.$('#lkGo')); await sleep(150);
   assert.match(a.$('#lkStatus').textContent,/couldn’t find anything to change/);
   assert.deepEqual(a.errs,[]);
 });
@@ -177,13 +177,13 @@ test('describe in words with an AI: the reply is cleaned before it is applied, a
   const prompts = []; let reply = J({ wires:{ style:'manhattan', radius:4 }, nodes:{ decision:{ fill:'red', text:'auto', width:9999, shape:'star' } }, bogus:1 });
   const a = hosted({ use: async (n) => n!=='sample' ? null : async (prompt) => { prompts.push(prompt); return { text:reply }; } });
   await sleep(300); await openLook(a,'describe');
-  a.$('#lkDesc').value = 'industrial and bold'; a.click(a.$('#lkGo')); await sleep(300);
+  a.type(a.$('#lkDesc'),'industrial and bold'); a.click(a.$('#lkGo')); await sleep(300);
   assert.ok(prompts[0].includes('visual designer for a node-graph app') && prompts[0].includes('DESCRIPTION: industrial and bold'));
   assert.doesNotMatch(a.$('#lkNote').textContent,/keyword engine/);
   const L = JSON.parse(a.w.localStorage.getItem('cascade-look-v1') || 'null'); assert.equal(L,null,'preview only');
   a.click(a.$('#lkKeep')); await sleep(80); const K = lookKey(a);
   assert.deepEqual(K.nodes.decision,{ fill:'#d94a2b',text:'auto',width:480 }); assert.equal(K.wires.style,'manhattan'); assert.equal(K.bogus,undefined);
-  reply = 'sorry, I can not do that'; a.$('#lkDesc').value = 'straight wires please'; a.click(a.$('#lkGo')); await sleep(300);
+  reply = 'sorry, I can not do that'; a.type(a.$('#lkDesc'),'straight wires please'); a.click(a.$('#lkGo')); await sleep(300);
   assert.match(a.$('#lkNote').textContent,/reply couldn’t be used/); assert.match(a.$('#lkChanges').textContent,/style straight/);
 });
 
@@ -221,7 +221,7 @@ test('local app: the look is stored on the server and follows you to a new brows
 
 test('describe: ordinary phrases do not trigger the wrong preset',async()=>{
   const a = web(); await sleep(300); await openLook(a,'describe');
-  a.$('#lkDesc').value = 'no grid and a plain background with thick wires'; a.click(a.$('#lkGo')); await sleep(200);
+  a.type(a.$('#lkDesc'),'no grid and a plain background with thick wires'); a.click(a.$('#lkGo')); await sleep(200);
   a.click(a.$('#lkKeep')); await sleep(60);
   const L = lookKey(a); assert.equal(L.canvas.grid,'none'); assert.equal(L.wires.width,3.5); assert.equal(L.nodes,undefined,'no preset was applied');
 });

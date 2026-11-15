@@ -38,7 +38,7 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
   if(example && d.getElementById('stage') && !w.eval('loaded')) w.eval('Object.assign(S,seed()); layout(true); initialView(true); updateHud();');
   const $ = (s) => d.querySelector(s), $$ = (s) => [...d.querySelectorAll(s)];
   const click = (el) => el.dispatchEvent(new w.MouseEvent('click',{ bubbles:true }));
-  const type = (el,v) => { el.value = v; el.dispatchEvent(new w.Event('input',{ bubbles:true })); el.dispatchEvent(new w.Event('change',{ bubbles:true })); };
+  const type = (el,v) => { const proto=el.tagName==='TEXTAREA'?w.HTMLTextAreaElement.prototype:el.tagName==='INPUT'?w.HTMLInputElement.prototype:w.HTMLSelectElement.prototype; Object.getOwnPropertyDescriptor(proto,'value').set.call(el,v); el.dispatchEvent(new w.Event('input',{ bubbles:true })); el.dispatchEvent(new w.Event('change',{ bubbles:true })); };
   const nodes = () => $$('.node').filter(n=>n.style.display!=='none');
   const byText = (t) => nodes().find(n=>n.querySelector('.txt').textContent.includes(t));
   const byId = (id) => d.querySelector(`.node[data-id="${id}"]`);

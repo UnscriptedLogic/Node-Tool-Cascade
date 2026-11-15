@@ -4,7 +4,7 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path');
 const mocks = require('./helpers/mocks');
-const { open, webHtml, sleep } = require('./helpers/dom');
+const { open, webHtml, sleep, tick } = require('./helpers/dom');
 const { bootServer, page } = require('./helpers/server');
 const { makeUnity, write, FAKE_KEY, FAKE_ENV_KEY } = require('./helpers/fixtures');
 
@@ -121,7 +121,7 @@ test('project: the brief rides along under the goal and can be switched off',asy
   const pre = () => a.$('#gPreview').textContent;
   a.click(a.$('.stabs [data-tab=project]')); a.click(a.$('.stabs [data-tab=goal]'));
   assert.match(pre(),/OVERARCHING GOAL: Make travel feel like discovery[^]*PROJECT BRIEF[^]*the goal and the pillars above always take precedence/);
-  a.click(a.$('.stabs [data-tab=project]')); a.$('#pUse').checked = false; a.$('#pUse').dispatchEvent(new a.w.Event('change',{ bubbles:true }));
+  a.click(a.$('.stabs [data-tab=project]')); a.click(a.$('#pUse')); await tick();
   a.click(a.$('.stabs [data-tab=goal]')); assert.doesNotMatch(pre(),/PROJECT BRIEF/);
 });
 

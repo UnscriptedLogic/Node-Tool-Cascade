@@ -2,6 +2,14 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const { open, sleep } = require('./helpers/dom');
 
+test('settings reflect preference writes without reopening or manual syncing',async(t)=>{
+  const a=open(); t.after(()=>a.dom.window.close()); await sleep(20);
+  a.w.eval("PREFS.goal='A goal from a legacy action'; PREFS.domain='research'"); await sleep(0);
+  assert.equal(a.$('#gGoal').value,'A goal from a legacy action');
+  assert.equal(a.$('#gDomain').value,'research');
+  assert.match(a.$('#gDomainHelp').textContent,/study/);
+});
+
 test('legacy state writes notify Valtio subscribers and snapshots preserve saved data',async(t)=>{
   const a = open(); t.after(()=>a.dom.window.close()); await sleep(20);
   const state = a.w.eval('S'), prefs = a.w.eval('PREFS'), lib = a.w.eval('LIB');

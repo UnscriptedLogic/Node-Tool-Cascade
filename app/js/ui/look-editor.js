@@ -99,13 +99,7 @@ Rules: reply with ONLY a JSON object, no markdown. Keep text readable with stron
 }
 
 /* the editor */
-const LK = {tab:'presets',type:'base',pend:null,ctls:[],hist:[],built:false,busy:false};
-const mk = (tag,props,...kids) => {
-  const e = document.createElement(tag);
-  if(props) for(const k in props){ const v = props[k]; if(k==='class') e.className = v; else if(k==='text') e.textContent = v; else if(k.startsWith('on')) e.addEventListener(k.slice(2),v); else if(v!==false && v!==null && v!==undefined) e.setAttribute(k,v===true ? '' : v); }
-  kids.flat().forEach(c=>{ if(c===null || c===undefined || c===false) return; e.appendChild(typeof c==='string' ? document.createTextNode(c) : c); });
-  return e;
-};
+const LK = CascadeUI.proxy({tab:'presets',type:'base',pend:null,hist:[],built:false,busy:false,revision:0,desc:'',text:'',textFocused:false,status:'',note:'',changes:[],resultOpen:false,textError:'',textOk:false});
 const lkStyle = () => effLook().nodes[LK.type==='base' ? 'answer' : LK.type];
 function lkCheckpoint(){ const j = JSON.stringify(LOOK); if(LK.hist[LK.hist.length-1]!==j){ LK.hist.push(j); if(LK.hist.length>40) LK.hist.shift(); } lkRefreshBar(); }
 function lkUndo(){
@@ -140,96 +134,6 @@ function toHex(c){
   try{ const pr = document.createElement('span'); pr.style.color = c; pr.style.display = 'none'; document.body.appendChild(pr); const cs = getComputedStyle(pr).color; pr.remove(); const m = cs.match(/\d+/g); if(m) return '#'+m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join(''); }catch(e){}
   return '#808080';
 }
-/* controls: each returns a row with .update() so the whole panel can be refreshed from the current look */
-function lkReg(row){ LK.ctls.push(row); return row; }
-function lkRange(label,field,get,set,o){
-  const out = mk('output'), inp = mk('input',{type:'range',min:o.min,max:o.max,step:o.step,'data-f':field});
-  const fmt = v => String(Math.round(v*100)/100)+(o.unit || '');
-  inp.addEventListener('pointerdown',lkCheckpoint); inp.addEventListener('keydown',lkCheckpoint);
-  inp.addEventListener('input',()=>{ set(+inp.value); out.textContent = fmt(+inp.value); });
-  const row = mk('label',{class:'lk-row'},mk('span',{class:'lk-l',text:label}),inp,out);
-  row.update = () => { const v = get(); if(document.activeElement!==inp) inp.value = v; out.textContent = fmt(+v); if(o.show) row.hidden = !o.show(); };
-  return lkReg(row);
-}
-function lkSelect(label,field,options,get,set,show){
-  const sel = mk('select',{'data-f':field}); options.forEach(o=>sel.appendChild(mk('option',{value:String(o),text:String(o)})));
-  sel.addEventListener('focus',lkCheckpoint); sel.addEventListener('change',()=>set(sel.value));
-  const row = mk('div',{class:'lk-row'},mk('span',{class:'lk-l',text:label}),sel);
-  row.update = () => { sel.value = String(get()); if(show) row.hidden = !show(); };
-  return lkReg(row);
-}
-function lkCheck(label,field,get,set){
-  const cb = mk('input',{type:'checkbox','data-f':field}); cb.addEventListener('change',()=>{ lkCheckpoint(); set(cb.checked); });
-  const row = mk('div',{class:'lk-row'},mk('span',{class:'lk-l',text:label}),mk('label',{class:'lk-chk'},cb));
-  row.update = () => { cb.checked = !!get(); };
-  return lkReg(row);
-}
-// a colour with an optional keyword switch ("match mood", "auto contrast") and a way back to the default
-function lkColor(label,field,get,set,o){
-  o = o || {};
-  const col = mk('input',{type:'color','data-f':field}), kw = o.keyword ? mk('input',{type:'checkbox','data-f':field+'-kw'}) : null;
-  col.addEventListener('pointerdown',lkCheckpoint); col.addEventListener('keydown',lkCheckpoint);
-  col.addEventListener('input',()=>set(col.value));
-  if(kw) kw.addEventListener('change',()=>{ lkCheckpoint(); set(kw.checked ? o.keyword : toHex(col.value)); });
-  const back = mk('button',{type:'button',class:'lk-mini',text:'default',title:'Back to the default',onclick:()=>{ lkCheckpoint(); set(undefined); }});
-  const row = mk('div',{class:'lk-row'},mk('span',{class:'lk-l',text:label}),mk('div',{class:'lk-col'},col,kw ? mk('label',{class:'lk-sub'},kw,o.keywordLabel) : null,o.noReset ? null : back));
-  row.update = () => {
-    const v = get(), isKw = o.keyword && v===o.keyword;
-    if(kw) kw.checked = !!isKw; col.disabled = !!isKw; if(!isKw && document.activeElement!==col) col.value = toHex(v || '#808080');
-    if(o.show) row.hidden = !o.show();
-  };
-  return lkReg(row);
-}
-function lkPreviewNode(){
-  const t = LK.type==='base' ? 'question' : LK.type, node = {type:t,mood:'curiosity'};
-  const blk = mk('div',{class:'blk t-'+t},mk('span',{class:'ico',html:null}),mk('span',{class:'txt',text:DOM().blocks[t]}));
-  blk.querySelector('.ico').innerHTML = ICONS[t];
-  const box = mk('div',{class:'lk-pv',id:'lkPv'},blk);
-  box.update = () => { const d = decorate(blk,t,node); blk.className = 'blk t-'+t+(d.poly ? ' sh-poly' : '')+(d.icon ? '' : ' no-ico'); blk.querySelector('.ico').innerHTML = ICONS[t]; box.style.setProperty('--pvw',d.width+'px'); box.querySelector('.txt').style.removeProperty('color'); };
-  return lkReg(box);
-}
-function buildNodesPane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-nodes',hidden:true});
-  const seg = mk('div',{class:'seg',id:'lkType',role:'group','aria-label':'Block type'});
-  [['base','All'],...NODE_TYPES.map(t=>[t,LABEL[t]])].forEach(([t,l])=>seg.appendChild(mk('button',{type:'button','data-t':t,'aria-pressed':t===LK.type ? 'true' : 'false',text:l,onclick:()=>{ LK.type = t; lkRefresh(); }})));
-  pane.append(mk('div',{class:'field'},mk('span',{class:'lbl',text:'Which blocks'}),mk('div',{style:'display:flex;flex-wrap:wrap;gap:6px'},seg),mk('small',{text:'“All” sets a look for every block. A type’s own settings win over it.'})));
-  pane.append(lkPreviewNode());
-  const S_ = () => lkStyle(), isEmotionOrAll = () => LK.type==='emotion' || LK.type==='base';
-  pane.append(
-    lkSelect('Shape','shape',SHAPES,()=>S_().shape,v=>lkSetNode('shape',v)),
-    lkRange('Corner radius','radius',()=>Array.isArray(S_().radius) ? S_().radius[1] : S_().radius,v=>lkSetNode('radius',v),{min:0,max:40,step:1,show:()=>S_().shape==='rounded'}),
-    lkColor('Fill','fill',()=>S_().fill,v=>lkSetNode('fill',v),{keyword:'mood',keywordLabel:'Match mood',show:()=>true}),
-    lkColor('Outline','stroke',()=>S_().stroke,v=>lkSetNode('stroke',v)),
-    lkRange('Outline width','strokeWidth',()=>S_().strokeWidth,v=>lkSetNode('strokeWidth',v),{min:0,max:8,step:.5}),
-    lkSelect('Outline style','strokeStyle',['solid','dashed','dotted','double','none'],()=>S_().strokeStyle,v=>lkSetNode('strokeStyle',v)),
-    lkColor('Text','text',()=>S_().text,v=>lkSetNode('text',v),{keyword:'auto',keywordLabel:'Auto contrast'}),
-    lkRange('Text size','fontSize',()=>S_().fontSize,v=>lkSetNode('fontSize',v),{min:10,max:26,step:.5,unit:'px'}),
-    lkSelect('Text weight','fontWeight',[400,500,600,700,800],()=>S_().fontWeight,v=>lkSetNode('fontWeight',+v)),
-    lkCheck('Italic','italic',()=>S_().italic,v=>lkSetNode('italic',v)),
-    lkRange('Width','width',()=>S_().width,v=>lkSetNode('width',v),{min:110,max:460,step:2,unit:'px'}),
-    lkRange('Side padding','padX',()=>S_().padX,v=>lkSetNode('padX',v),{min:2,max:40,step:1,unit:'px'}),
-    lkRange('Vertical padding','padY',()=>S_().padY,v=>lkSetNode('padY',v),{min:2,max:30,step:1,unit:'px'}),
-    lkSelect('Shadow','shadow',['none','soft','hard','glow'],()=>S_().shadow,v=>lkSetNode('shadow',v)),
-    lkSelect('Pattern','pattern',['none','hatch','dots'],()=>S_().pattern,v=>lkSetNode('pattern',v)),
-    lkRange('Opacity','opacity',()=>S_().opacity,v=>lkSetNode('opacity',v),{min:.3,max:1,step:.05}),
-    lkCheck('Show icon','icon',()=>S_().icon!==false,v=>lkSetNode('icon',v)),
-    lkRange('Side bar','barW',()=>S_().bar ? S_().bar.width : 0,v=>lkSetNode('bar',v>0 ? {width:v,color:(S_().bar && S_().bar.color) || 'var(--ink2)'} : null),{min:0,max:10,step:1,unit:'px'}),
-    lkRange('Outer ring','ringW',()=>S_().ring ? S_().ring.width : 0,v=>lkSetNode('ring',v>0 ? {width:v,color:(S_().ring && S_().ring.color) || 'var(--line)',offset:(S_().ring && S_().ring.offset) || 3} : null),{min:0,max:5,step:.5,unit:'px'})
-  );
-  const moods = mk('div',{class:'field',id:'lkMoods'},mk('span',{class:'lbl',text:'Mood colours'}),mk('small',{text:'Colour is reserved for how people feel. Change what each feeling looks like.'}));
-  MOOD_KEYS.forEach(k=>{
-    const c = mk('input',{type:'color','data-mood':k}); c.addEventListener('pointerdown',lkCheckpoint);
-    c.addEventListener('input',()=>{ LOOK.moods = LOOK.moods || {}; LOOK.moods[k] = c.value; lookChanged(); });
-    const back = mk('button',{type:'button',class:'lk-mini',text:'default',onclick:()=>{ lkCheckpoint(); if(LOOK.moods){ delete LOOK.moods[k]; if(!Object.keys(LOOK.moods).length) delete LOOK.moods; } lookChanged(); }});
-    const row = mk('div',{class:'lk-row'},mk('span',{class:'lk-l',text:k[0].toUpperCase()+k.slice(1)}),mk('div',{class:'lk-col'},c,back));
-    row.update = () => { if(document.activeElement!==c) c.value = toHex(moodColor(k)); };
-    moods.appendChild(lkReg(row));
-  });
-  moods.update = () => { moods.hidden = !isEmotionOrAll(); };
-  LK.ctls.push(moods); pane.append(moods);
-  pane.append(mk('div',{class:'frow'},mk('button',{type:'button',class:'btn',id:'lkTypeReset',text:'Reset these blocks',onclick:()=>{ lkCheckpoint(); if(LOOK.nodes){ delete LOOK.nodes[LK.type]; if(!Object.keys(LOOK.nodes).length) delete LOOK.nodes; } lookChanged(); }})));
-  return pane;
-}
 function wirePreview(){
   const svg = $('#lkWpv'); if(!svg) return; svg.textContent = '';
   const W = effLook().wires, mkr = (x,y,w,h) => { const r = document.createElementNS(SVGNS,'rect'); r.setAttribute('x',x); r.setAttribute('y',y); r.setAttribute('width',w); r.setAttribute('height',h); r.setAttribute('rx',5); return r; };
@@ -241,73 +145,18 @@ function wirePreview(){
     applyWire(pth,'tree',{type:k.type,mood:'curiosity'},{type:'question'},false); svg.insertBefore(pth,svg.firstChild);
   });
 }
-function buildWiresPane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-wires',hidden:true});
-  const get = () => effLook().wires;
-  const seg = mk('div',{class:'seg',id:'lkWStyle',role:'group','aria-label':'Wire style'});
-  [['default','Default'],['bezier','Bezier'],['straight','Straight'],['manhattan','Manhattan']].forEach(([v,l])=>seg.appendChild(mk('button',{type:'button','data-v':v,'aria-pressed':'false',text:l,onclick:()=>{ lkCheckpoint(); lkSetGroup('wires','style',v); }})));
-  pane.append(mk('div',{class:'field'},mk('span',{class:'lbl',text:'Wire style'}),seg,mk('small',{text:'Default is the original gentle curve. Bezier lets you tune the curve, Straight draws direct lines, and Manhattan routes with right angles.'})));
-  const prev = document.createElementNS(SVGNS,'svg'); prev.setAttribute('id','lkWpv'); prev.setAttribute('class','lk-wpv'); prev.setAttribute('viewBox','0 0 320 132'); prev.setAttribute('preserveAspectRatio','xMidYMid meet');
-  pane.append(prev);
-  const w = (f) => (v) => lkSetGroup('wires',f,v);
-  pane.append(
-    lkRange('Curve','curvature',()=>get().curvature,w('curvature'),{min:0,max:1,step:.05,show:()=>get().style==='bezier'}),
-    lkRange('Elbow position','elbow',()=>get().elbow,w('elbow'),{min:.1,max:.9,step:.05,show:()=>get().style==='manhattan'}),
-    lkRange('Corner radius','wradius',()=>get().radius,w('radius'),{min:0,max:30,step:1,unit:'px',show:()=>get().style==='manhattan'}),
-    lkRange('Width','wwidth',()=>get().width || 1.7,w('width'),{min:.5,max:8,step:.1,unit:'px'}),
-    lkColor('Colour','wcolor',()=>get().color || 'var(--edge)',w('color')),
-    lkRange('Opacity','wopacity',()=>get().opacity || 1,w('opacity'),{min:.1,max:1,step:.05}),
-    lkSelect('Dash','wdash',['solid','dashed','dotted'],()=>get().dash || 'solid',w('dash')),
-    lkSelect('Arrowheads','warrows',['none','end'],()=>get().arrows,w('arrows')),
-    lkSelect('Colour by block','wcolorBy',['none','child','parent'],()=>get().colorBy,w('colorBy'))
-  );
-  const kinds = mk('div',{class:'field'},mk('span',{class:'lbl',text:'Other kinds of link'}),mk('small',{text:'Related links, loop flow, blocking and trace-back wires keep their own look. Override them here.'}));
-  WIRE_KINDS.filter(k=>k!=='tree').forEach(k=>{
-    kinds.append(
-      lkColor(KIND_LABEL[k],'k-'+k+'-color',()=>(get().kinds[k] && get().kinds[k].color) || (k==='block' ? 'var(--focus)' : 'var(--ink2)'),v=>lkSetKind(k,'color',v)),
-      lkSelect('','k-'+k+'-dash',['solid','dashed','dotted'],()=>(get().kinds[k] && get().kinds[k].dash) || (k==='flow' ? 'dashed' : k==='block' ? 'dashed' : 'dotted'),v=>lkSetKind(k,'dash',v))
-    );
-  });
-  pane.append(kinds);
-  const upd = mk('div',{hidden:true}); upd.update = () => { seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===get().style))); wirePreview(); };
-  LK.ctls.push(upd); pane.append(upd);
-  return pane;
-}
-function buildCanvasPane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-canvas',hidden:true}), C = () => effLook().canvas, Lt = () => effLook().layout;
-  const seg = mk('div',{class:'seg',id:'lkGrid',role:'group','aria-label':'Grid'});
-  [['dots','Dots'],['lines','Lines'],['none','None']].forEach(([v,l])=>seg.appendChild(mk('button',{type:'button','data-v':v,'aria-pressed':'false',text:l,onclick:()=>{ lkCheckpoint(); lkSetGroup('canvas','grid',v); }})));
-  pane.append(
-    lkColor('Background','cbg',()=>C().bg || 'var(--bg)',v=>lkSetGroup('canvas','bg',v)),
-    mk('div',{class:'field'},mk('span',{class:'lbl',text:'Grid'}),seg),
-    lkColor('Grid colour','cgrid',()=>C().gridColor || 'var(--dot)',v=>lkSetGroup('canvas','gridColor',v)),
-    lkRange('Grid size','cgridSize',()=>C().gridSize,v=>lkSetGroup('canvas','gridSize',v),{min:10,max:80,step:2,unit:'px'}),
-    lkRange('Column gap','colGap',()=>Lt().colGap,v=>lkSetGroup('layout','colGap',v),{min:16,max:200,step:2,unit:'px'}),
-    lkRange('Row gap','rowGap',()=>Lt().rowGap,v=>lkSetGroup('layout','rowGap',v),{min:2,max:80,step:1,unit:'px'})
-  );
-  const upd = mk('div',{hidden:true}); upd.update = () => seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===C().grid)));
-  LK.ctls.push(upd); pane.append(upd);
-  return pane;
-}
-function buildPresetsPane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-presets'}), grid = mk('div',{class:'lk-presets'});
-  PRESETS.forEach(pr=>grid.appendChild(mk('button',{type:'button',class:'lk-preset','data-id':pr.id,onclick:()=>{ lkCommitPending(); lkCheckpoint(); LOOK = sanitizeLook(JSON.parse(JSON.stringify(pr.patch))); applyLook(); lkRefresh(); }},mk('b',{text:pr.name}),mk('small',{text:pr.desc}),mk('div',{class:'lk-sw'},pr.sw.map(c=>mk('i',{style:'background:'+c}))))));
-  pane.append(grid,mk('p',{class:'small',style:'margin-top:14px'},'Presets replace your current look. Undo brings it back.'));
-  return pane;
-}
-function lkCommitPending(){ if(LK.pend){ LK.pend = null; saveLook(); const r = $('#lkResult'); if(r) r.hidden = true; } }
+function lkCommitPending(){ if(LK.pend){ LK.pend = null; saveLook(); LK.resultOpen=false; } }
 function lkPreviewPatch(patch,reset,note){
   lkCheckpoint(); LK.pend = {before:JSON.stringify(LOOK)};
   LOOK = reset ? sanitizeLook(patch) : sanitizeLook(deepMerge(LOOK,patch));
   applyLook({noSave:true}); lkRefresh();
-  const list = $('#lkChanges'); list.textContent = '';
-  const lines = describePatch(patch); if(reset) lines.unshift('Back to the default look');
-  (lines.length ? lines : ['Nothing visible changed.']).forEach(l=>list.appendChild(mk('li',{text:l})));
-  $('#lkNote').textContent = note || ''; $('#lkResult').hidden = false;
+  LK.changes=describePatch(patch); if(reset) LK.changes.unshift('Back to the default look');
+  if(!LK.changes.length) LK.changes=['Nothing visible changed.'];
+  LK.note=note || ''; LK.resultOpen=true;
 }
 async function lkGenerate(){
-  const desc = $('#lkDesc').value.trim(); if(!desc || LK.busy) return;
-  lkCommitPending(); LK.busy = true; $('#lkGo').disabled = true; $('#lkStatus').textContent = 'Designing…';
+  const desc = LK.desc.trim(); if(!desc || LK.busy) return;
+  lkCommitPending(); LK.busy = true; LK.status='Designing…';
   let patch = null, reset = false, note = '';
   const real = aiAvailable() && activeProvider()!=='demo';
   if(real){
@@ -315,40 +164,31 @@ async function lkGenerate(){
     catch(e){ patch = null; note = 'The AI’s reply couldn’t be used, so the built-in interpreter handled it.'; }
   } else note = 'Interpreted by the built-in keyword engine. Connect an AI for freer descriptions.';
   if(!patch){ const r = lookFromText(desc); patch = sanitizeLook(r.patch); reset = r.reset; }
-  LK.busy = false; $('#lkGo').disabled = false; $('#lkStatus').textContent = '';
-  if(!Object.keys(patch).length && !reset){ $('#lkStatus').textContent = 'I couldn’t find anything to change. Try words like “blueprint”, “straight wires”, “huge diamond decisions”, “pastel” or “dark”.'; return; }
+  LK.busy=false; LK.status='';
+  if(!Object.keys(patch).length && !reset){ LK.status = 'I couldn’t find anything to change. Try words like “blueprint”, “straight wires”, “huge diamond decisions”, “pastel” or “dark”.'; return; }
   lkPreviewPatch(patch,reset,note);
 }
-function buildDescribePane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-describe',hidden:true});
-  pane.append(
-    mk('p',{class:'small',text:'Describe the look you want in your own words. You can try it, then keep it or put it back.'}),
-    mk('textarea',{id:'lkDesc',class:'area',rows:3,maxlength:'400',placeholder:'A calm blueprint look with straight wires and huge diamond decisions'}),
-    mk('div',{class:'chips',style:'margin-top:8px',id:'lkChips'},['Soft pastel with curvy wires','Dark and spacious, thin straight wires','Big red decisions, small grey answers','Neon with arrows and glowing outlines'].map(t=>mk('button',{type:'button',class:'chip',text:t,onclick:()=>{ $('#lkDesc').value = t; lkGenerate(); }}))),
-    mk('div',{class:'mrow'},mk('button',{type:'button',class:'btn primary',id:'lkGo',text:'Design it',onclick:lkGenerate}),mk('span',{class:'small',id:'lkStatus','aria-live':'polite'})),
-    mk('div',{class:'lk-chg',id:'lkResult',hidden:true},mk('b',{text:'What changed'}),mk('ul',{id:'lkChanges'}),mk('div',{class:'small',id:'lkNote'}),mk('div',{class:'frow',style:'margin-top:10px'},mk('button',{type:'button',class:'btn primary',id:'lkKeep',text:'Keep it',onclick:lkCommitPending}),mk('button',{type:'button',class:'btn',id:'lkRevert',text:'Put it back',onclick:()=>{ if(!LK.pend) return; LOOK = JSON.parse(LK.pend.before); LK.pend = null; $('#lkResult').hidden = true; applyLook(); lkRefresh(); }})))
-  );
-  return pane;
-}
 const countLeaves = (o) => isObj(o) || Array.isArray(o) ? Object.values(o).reduce((a,v)=>a+countLeaves(v),0) : 1;
-function buildTextPane(){
-  const pane = mk('div',{class:'lk-pane',id:'lk-text',hidden:true});
-  const err = mk('div',{class:'lk-err',id:'lkTextErr','aria-live':'polite'});
-  pane.append(
-    mk('p',{class:'small',text:'This is everything you have changed, as text. Edit it, paste one from a friend, or copy yours. Unknown or out-of-range values are ignored.'}),
-    mk('textarea',{id:'lkText',spellcheck:'false'}),err,
-    mk('div',{class:'frow',style:'margin-top:10px'},
-      mk('button',{type:'button',class:'btn primary',id:'lkApply',text:'Apply',onclick:()=>{
-        let obj; try{ obj = JSON.parse($('#lkText').value || '{}'); }catch(e){ err.className = 'lk-err'; err.textContent = 'That isn’t valid JSON: '+e.message; return; }
-        if(!isObj(obj)){ err.className = 'lk-err'; err.textContent = 'The look must be a JSON object, like { "wires": { "style": "straight" } }.'; return; }
-        const clean = sanitizeLook(obj), dropped = countLeaves(obj)-countLeaves(clean);
-        lkCommitPending(); lkCheckpoint(); LOOK = clean; applyLook(); lkRefresh();
-        err.className = 'lk-err ok'; err.textContent = dropped>0 ? `Applied. ${dropped} value${dropped===1 ? ' was' : 's were'} ignored because they were unknown or out of range.` : 'Applied.';
-      }}),
-      mk('button',{type:'button',class:'btn',id:'lkFormat',text:'Reload from current look',onclick:()=>{ $('#lkText').value = JSON.stringify(LOOK,null,2); err.textContent = ''; }}),
-      mk('button',{type:'button',class:'btn',id:'lkCopy',text:'Copy',onclick:async()=>{ try{ await navigator.clipboard.writeText($('#lkText').value); err.className = 'lk-err ok'; err.textContent = 'Copied.'; }catch(e){ err.className = 'lk-err'; err.textContent = 'Select the text and copy it.'; } }})),
-    mk('details',{class:'card',style:'margin-top:14px'},mk('summary',{text:'What you can set'}),mk('pre',{id:'lkSheet',style:'white-space:pre-wrap;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;color:var(--ink2);margin:10px 0 0',text:
-`nodes.base | question | answer | emotion | consequence | decision | loop | fog:
+
+function lkPreset(id){ const preset=PRESETS.find(p=>p.id===id); if(!preset) return; lkCommitPending(); lkCheckpoint(); LOOK=sanitizeLook(JSON.parse(JSON.stringify(preset.patch))); applyLook(); lkRefresh(); }
+function lkSetMood(mood,value){ LOOK.moods=LOOK.moods || {}; if(value===undefined) delete LOOK.moods[mood]; else LOOK.moods[mood]=value; if(!Object.keys(LOOK.moods).length) delete LOOK.moods; lookChanged(); }
+function lkResetType(){ lkCheckpoint(); if(LOOK.nodes){ delete LOOK.nodes[LK.type]; if(!Object.keys(LOOK.nodes).length) delete LOOK.nodes; } lookChanged(); }
+function lkRevert(){ if(!LK.pend) return; LOOK=JSON.parse(LK.pend.before); LK.pend=null; LK.resultOpen=false; applyLook(); lkRefresh(); }
+function lkApply(text){
+  let obj; try{ obj=JSON.parse(text || '{}'); }catch(e){ LK.textOk=false; LK.textError='That isn’t valid JSON: '+e.message; return; }
+  if(!isObj(obj)){ LK.textOk=false; LK.textError='The look must be a JSON object, like { "wires": { "style": "straight" } }.'; return; }
+  const clean=sanitizeLook(obj), dropped=countLeaves(obj)-countLeaves(clean);
+  lkCommitPending(); lkCheckpoint(); LOOK=clean; applyLook(); lkRefresh();
+  LK.textOk=true; LK.textError=dropped>0?`Applied. ${dropped} value${dropped===1?' was':'s were'} ignored because they were unknown or out of range.`:'Applied.';
+}
+function lkFormat(){ LK.text=JSON.stringify(LOOK,null,2); LK.textError=''; }
+async function lkCopy(text){ try{ await navigator.clipboard.writeText(text); LK.textOk=true; LK.textError='Copied.'; }catch(e){ LK.textOk=false; LK.textError='Select the text and copy it.'; } }
+function lkRefreshBar(){ LK.revision++; }
+function lkRefresh(){ CascadeUI.sync(()=>{ LK.revision++; if(!LK.textFocused) LK.text=JSON.stringify(LOOK,null,2); }); }
+function lkShowTab(tab){ CascadeUI.sync(()=>{ LK.tab=tab; }); lkRefresh(); }
+function ensureLookUI(){
+  LK.built=true;
+  const lookSheet = `nodes.base | question | answer | emotion | consequence | decision | loop | fog:
   shape: ${SHAPES.join(' | ')}
   radius 0-60 (or four numbers)   fill, stroke, text, iconColor: "#rrggbb"
   fill "mood" and text "auto" follow the mood and contrast
@@ -362,34 +202,8 @@ wires: style ${WIRE_STYLES.join(' | ')}, curvature 0-1, elbow 0.1-0.9, radius 0-
   kinds.${WIRE_KINDS.join(' | ')}: { color, width, dash }
 canvas: bg, grid dots | lines | none, gridColor, gridSize 10-80
 layout: colGap 16-200, rowGap 2-80
-moods: ${MOOD_KEYS.join(' | ')}: "#rrggbb"`}))
-  );
-  const upd = mk('div',{hidden:true}); upd.update = () => { const ta = $('#lkText'); if(ta && document.activeElement!==ta) ta.value = JSON.stringify(LOOK,null,2); };
-  LK.ctls.push(upd); pane.append(upd);
-  return pane;
-}
-function lkRefreshBar(){ const u = $('#lkUndo'); if(u) u.disabled = !LK.hist.some(h=>h!==JSON.stringify(LOOK)); }
-function lkRefresh(){
-  LK.ctls.forEach(c=>{ if(c.update) c.update(); });
-  const seg = $('#lkType'); if(seg) seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===LK.type)));
-  const tr = $('#lkTypeReset'); if(tr) tr.hidden = !(LOOK.nodes && LOOK.nodes[LK.type]);
-  lkRefreshBar();
-}
-function lkShowTab(t){
-  LK.tab = t;
-  document.querySelectorAll('#lkTabs button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lk===t)));
-  ['presets','describe','nodes','wires','canvas','text'].forEach(k=>{ const p = document.getElementById('lk-'+k); if(p) p.hidden = k!==t; });
+moods: ${MOOD_KEYS.join(' | ')}: "#rrggbb"`;
+  CascadeUI.connect({LK,PRESETS,SHAPES,NODE_TYPES,LABEL,MOOD_KEYS,WIRE_KINDS,KIND_LABEL,WIRE_STYLES,ICONS,DOM,effLook,moodColor,toHex,decorate,lkStyle,lookSheet,getLook:()=>LOOK});
+  CascadeUI.mount('look',$('#lookRoot'));
   lkRefresh();
 }
-function ensureLookUI(){
-  if(LK.built){ lkRefresh(); return; }
-  LK.built = true; const root = $('#lookRoot'); root.textContent = '';
-  const tabs = mk('div',{class:'seg big',id:'lkTabs',role:'group','aria-label':'Look sections',style:'flex-wrap:wrap'});
-  [['presets','Presets'],['describe','Describe'],['nodes','Blocks'],['wires','Wires'],['canvas','Canvas'],['text','Text']].forEach(([k,l])=>tabs.appendChild(mk('button',{type:'button','data-lk':k,'aria-pressed':'false',text:l,onclick:()=>lkShowTab(k)})));
-  root.append(
-    mk('div',{class:'lk-bar'},mk('h4',{text:'Look'}),mk('div',{class:'frow'},mk('button',{type:'button',class:'btn',id:'lkUndo',text:'Undo',onclick:lkUndo,disabled:true}),mk('button',{type:'button',class:'btn',id:'lkReset',text:'Reset look',onclick:lkReset}))),
-    tabs,buildPresetsPane(),buildDescribePane(),buildNodesPane(),buildWiresPane(),buildCanvasPane(),buildTextPane()
-  );
-  lkShowTab(LK.tab);
-}
-

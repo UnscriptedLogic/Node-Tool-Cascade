@@ -2,14 +2,19 @@ import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import Library from './islands/Library.jsx';
+import Settings from './islands/Settings.jsx';
+import LookEditor from './islands/LookEditor.jsx';
 import './ui.css';
 
 export { proxy, subscribe, snapshot, ref } from 'valtio/vanilla';
 export { connect } from './bridge.js';
+export { flushSync as sync } from 'react-dom';
 
 const islands = new Map();
 const roots = new Map();
 islands.set('library', Library);
+islands.set('settings', Settings);
+islands.set('look', LookEditor);
 
 export function register(name, component) {
   islands.set(name, component);
