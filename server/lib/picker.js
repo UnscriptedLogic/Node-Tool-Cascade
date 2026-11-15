@@ -19,7 +19,8 @@ async function pickFolder(){
   const prompt = 'Choose your project folder';
   try{
     if(process.env.CASCADE_PICKER_CMD){   // lets tests, or a user with their own dialog, plug something in
-      const r = await run(process.env.CASCADE_PICKER_CMD,[]);
+      const cmd = process.env.CASCADE_PICKER_CMD;
+      const r = /\.c?js$/i.test(cmd) ? await run(process.execPath,[cmd]) : await run(cmd,[]);
       return { path:r.path || '' };
     }
     if(process.platform==='darwin'){

@@ -18,11 +18,11 @@ const isFree = (port) => new Promise(res=>{ const s = net.createServer(); s.once
 
 // Starts a real server process. Returns helpers bound to its port.
 async function boot(t,env = {},dir = tmp()){
-  const p = spawn(process.execPath,[path.join(ROOT,'server','server.js')],{ env:{ ...process.env, NO_OPEN:'1', CASCADE_DATA_DIR:dir, ...mock.env, ...env } });
+  const p = spawn(process.execPath,[path.join(ROOT,'server','server.js')],{ env:{ ...process.env, NO_OPEN:'1', CASCADE_DATA_DIR:dir, PORT:String(await freePort()), ...mock.env, ...env } });
   p.out = ''; p.exited = false; p.dir = dir;
-  p.on('exit',code=>{ p.exited = true; p.code = code; });
+  p.on('exit',(code,signal)=>{ p.exited = true; p.code = code; p.signal = signal; });
   p.stdout.on('data',d=>p.out += d); p.stderr.on('data',d=>p.out += d);
-  for(let i=0; i<100 && !/running at http:\/\/localhost:\d+|already running at/.test(p.out) && !p.exited; i++) await sleep(50);
+  for(let i=0; i<100 && !/Press Ctrl\+C to stop|already running at/.test(p.out) && !p.exited; i++) await sleep(50);
   const m = p.out.match(/running at http:\/\/localhost:(\d+)/);
   const port = m ? +m[1] : null;
   const req = (method,url,{ body,headers = {},host } = {}) => new Promise((resolve,reject)=>{
@@ -69,12 +69,15 @@ test('falls back to an OS-chosen port when nothing nearby is free',async(t)=>{
 test('SIGINT releases the port',async(t)=>{
   const b = await boot(t); const port = b.port;
   b.p.kill('SIGINT'); await waitExit(b.p);
-  assert.equal(b.p.code,0); assert.match(b.p.out,/is free again/); assert.equal(await isFree(port),true);
+  // Node forcibly terminates Windows children for kill('SIGINT'); POSIX delivers the handler.
+  if(process.platform==='win32') assert.equal(b.p.signal,'SIGINT');
+  else { assert.equal(b.p.code,0); assert.match(b.p.out,/is free again/); }
+  assert.equal(await isFree(port),true);
 });
 test('SIGTERM and /api/quit also release the port',async(t)=>{
   const a = await boot(t); a.p.kill('SIGTERM'); await waitExit(a.p); assert.equal(await isFree(a.port),true);
   const b = await boot(t); assert.equal((await b.req('POST','/api/quit',{ body:{} })).status,200); await waitExit(b.p);
-  assert.equal(b.p.exited,true); assert.equal(await isFree(b.port),true);
+  assert.equal(b.p.exited,true); assert.equal(b.p.code,0); assert.match(b.p.out,/is free again/); assert.equal(await isFree(b.port),true);
 });
 test('shuts down promptly even with a model stream still open',async(t)=>{
   const b = await boot(t);

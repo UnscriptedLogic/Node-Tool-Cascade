@@ -13,6 +13,10 @@ Find better questions to reach better decisions. Cascade connects questions, ans
 - Organize multiple trees in folders and choose a domain for each.
 - Customize your canvas, use mobile layouts, and connect local project notes and code.
 
+## Use your chat account
+
+In **Settings > AI model > Use your chat account**, prepare a prompt, copy it into ChatGPT or Claude, then paste the reply back. Preview and add suggestions, then keep or dismiss them on the canvas. No API key needed; your chat account’s limits apply. Review the prompt before sharing project context.
+
 ## 🚀 Run locally
 
 Requires [Node.js](https://nodejs.org/) 18 or newer. No dependency installation needed to run the app.

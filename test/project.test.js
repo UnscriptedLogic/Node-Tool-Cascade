@@ -75,9 +75,16 @@ test('scan: user ignore patterns and extra extensions apply',async()=>{
   assert.ok(!files.includes('docs/DESIGN.md') && !files.includes('notes/ideas.txt')); assert.ok(files.includes('tools/x.weird'));
   assert.deepEqual(s.include,['.weird']);
 });
-test('scan: never follows a link out of the project and refuses a drive root or the whole home folder',async()=>{
+test('scan: never follows a link out of the project and refuses a drive root or the whole home folder',async(t)=>{
   const root = makeUnity(), outside = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-outside-')); write(outside,'private.cs','public class Private { }');
-  fs.symlinkSync(outside,path.join(root,'Assets','Linked'),'dir'); fs.symlinkSync(path.join(outside,'private.cs'),path.join(root,'Assets','Scripts','link.cs'));
+  fs.symlinkSync(outside,path.join(root,'Assets','Linked'),process.platform==='win32' ? 'junction' : 'dir');
+  await t.test('file symlink stays outside the index',async t=>{
+    try{ fs.symlinkSync(path.join(outside,'private.cs'),path.join(root,'Assets','Scripts','link.cs')); }
+    catch(e){ if(process.platform==='win32' && e.code==='EPERM'){ t.skip('File symlinks require Windows Developer Mode or elevation; directory junction coverage remains active.'); return; } throw e; }
+    await scanAndWait(root);
+    const files = JSON.parse(fs.readFileSync(path.join(DATA,'project-index.json'),'utf8')).files;
+    assert.ok(!files.some(f=>/link\.cs/.test(f.path)));
+  });
   await scanAndWait(root);
   const files = JSON.parse(fs.readFileSync(path.join(DATA,'project-index.json'),'utf8')).files.map(f=>f.path);
   assert.ok(!files.some(f=>/Linked|link\.cs|private/i.test(f)));
@@ -164,10 +171,12 @@ test('the brief and findings are kept, trimmed and survive a rescan; forgetting 
 });
 
 /* ------------------------------------ native folder dialog ------------------------------------ */
-test('folder picker: returns the chosen path, treats closing the dialog as no choice, and explains a missing dialog',async()=>{
+test('folder picker: returns the chosen path, treats closing the dialog as no choice, and explains a missing dialog',async(t)=>{
+  const previous = process.env.CASCADE_PICKER_CMD;
+  t.after(()=>{ if(previous===undefined) delete process.env.CASCADE_PICKER_CMD; else process.env.CASCADE_PICKER_CMD = previous; });
   const dir = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-pick-')), chosen = path.join(dir,'MyGame'); fs.mkdirSync(chosen);
-  const ok = path.join(dir,'pick-ok.sh'), no = path.join(dir,'pick-cancel.sh');
-  fs.writeFileSync(ok,`#!/bin/sh\necho "${chosen}"\n`,{ mode:0o755 }); fs.writeFileSync(no,'#!/bin/sh\nexit 1\n',{ mode:0o755 });
+  const ok = path.join(dir,'pick-ok.cjs'), no = path.join(dir,'pick-cancel.cjs');
+  fs.writeFileSync(ok,'console.log('+JSON.stringify(chosen)+');'); fs.writeFileSync(no,'process.exit(1);');
   process.env.CASCADE_PICKER_CMD = ok; assert.deepEqual(await pickFolder(),{ path:chosen });
   process.env.CASCADE_PICKER_CMD = no; assert.deepEqual(await pickFolder(),{ path:'' });
   process.env.CASCADE_PICKER_CMD = path.join(dir,'nope'); await assert.rejects(pickFolder(),/No folder dialog is available/);
@@ -212,7 +221,7 @@ test('routes: only the page served by Cascade can use them',async(t)=>{
   assert.equal((await fetch(s.base+'/api/project/file?path=x',{ headers:{ origin:'https://evil.example' } })).status,403);
 });
 test('routes: the picker reports a closed dialog and a missing one',async(t)=>{
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-pickroute-')), chosen = path.join(dir,'G'); fs.mkdirSync(chosen); const ok = path.join(dir,'ok.sh'); fs.writeFileSync(ok,`#!/bin/sh\necho "${chosen}"\n`,{ mode:0o755 });
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-pickroute-')), chosen = path.join(dir,'G'); fs.mkdirSync(chosen); const ok = path.join(dir,'ok.cjs'); fs.writeFileSync(ok,'console.log('+JSON.stringify(chosen)+');');
   const dir2 = fs.mkdtempSync(path.join(os.tmpdir(),'cascade-proj-srv-')), srv = spawn(process.execPath,[path.join(__dirname,'..','server','server.js')],{ env:{ ...process.env, NO_OPEN:'1', CASCADE_DATA_DIR:dir2, CASCADE_PICKER_CMD:ok } });
   let out = ''; srv.stdout.on('data',d=>out += d); t.after(()=>{ srv.kill('SIGINT'); fs.rmSync(dir2,{ recursive:true,force:true }); });
   for(let i=0;i<100 && !/running at/.test(out);i++) await sleep(50);

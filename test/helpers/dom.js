@@ -32,7 +32,7 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
   } });
   const w = dom.window, d = w.document;
   // Canvas tests use explicit example data. Startup tests opt out to exercise the real blank canvas.
-  if(example && !w.eval('loaded')) w.eval('Object.assign(S,seed()); layout(true); initialView(true); updateHud();');
+  if(example && d.getElementById('stage') && !w.eval('loaded')) w.eval('Object.assign(S,seed()); layout(true); initialView(true); updateHud();');
   const $ = (s) => d.querySelector(s), $$ = (s) => [...d.querySelectorAll(s)];
   const click = (el) => el.dispatchEvent(new w.MouseEvent('click',{ bubbles:true }));
   const type = (el,v) => { el.value = v; el.dispatchEvent(new w.Event('input',{ bubbles:true })); el.dispatchEvent(new w.Event('change',{ bubbles:true })); };
