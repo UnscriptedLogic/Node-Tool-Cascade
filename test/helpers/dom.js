@@ -10,7 +10,7 @@ const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
 // Same transformation scripts/build.js performs for the GitHub Pages version.
 const webHtml = () => assemble({ inline:true, runtime:'<script>window.__WEB__=true;</script>' }).split('__REPO_URL__').join('https://github.com/example/cascade');
 
-function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local, width, height } = {}){
+function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, session, local, width, height, example = true } = {}){
   const errs = [], navigated = [], opened = [];
   const dom = new JSDOM(html,{ runScripts:'dangerously', pretendToBeVisual:true, url, beforeParse(w){
     if(width) Object.defineProperty(w,'innerWidth',{ value:width, configurable:true, writable:true });   // a phone-sized window
@@ -31,6 +31,8 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
     w.addEventListener('error',e=>errs.push(String(e.error || e.message)));
   } });
   const w = dom.window, d = w.document;
+  // Canvas tests use explicit example data. Startup tests opt out to exercise the real blank canvas.
+  if(example && !w.eval('loaded')) w.eval('Object.assign(S,seed()); layout(true); initialView(true); updateHud();');
   const $ = (s) => d.querySelector(s), $$ = (s) => [...d.querySelectorAll(s)];
   const click = (el) => el.dispatchEvent(new w.MouseEvent('click',{ bubbles:true }));
   const type = (el,v) => { el.value = v; el.dispatchEvent(new w.Event('input',{ bubbles:true })); el.dispatchEvent(new w.Event('change',{ bubbles:true })); };

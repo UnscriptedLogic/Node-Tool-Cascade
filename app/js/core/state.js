@@ -6,12 +6,12 @@ function load(){
     let o = window.__CASCADE_SAVED__;
     if(!o){ const raw = localStorage.getItem(KEY); if(!raw) return null; o = JSON.parse(raw); }
     const t = JSON.parse(o.tree);
-    if(!t || !t.nodes || !t.order || !t.order.length) return null;
+    if(!t || !t.nodes || !Array.isArray(t.order)) return null;
     t.view = o.view; return t;
   }catch(e){ return null; }
 }
 const loaded = load();
-const S = Object.assign({view:{x:0,y:0,z:1},mode:'detail',layer:false,sel:null,nodes:{},order:[],links:[],seq:0}, loaded || seed());
+const S = Object.assign({view:{x:0,y:0,z:1},mode:'detail',layer:false,sel:null,nodes:{},order:[],links:[],seq:0}, loaded || {});
 S.mode = 'detail'; S.sel = null;
 try{ S.mindsets = Mindsets.collection(S.mindsets); }catch(e){ S.mindsets = []; }
 if(!S.view || !isFinite(S.view.z)) S.view = {x:0,y:0,z:1};

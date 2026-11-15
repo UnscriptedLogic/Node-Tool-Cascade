@@ -1,6 +1,7 @@
 # Cascade guide
 
 ## The canvas
+- New canvases start empty. **Load example** adds a sample for the selected domain; reopening a saved Cascade restores its graph.
 - **Drop a block.** Drag Loop, Question, Answer, Emotion, Consequence, Decision or Fog from the left onto the canvas
   (or tap one), type, press Enter. It flies to its place in the tree.
 - **Ghost nodes** (dashed) are AI suggestions. Keep or dismiss each one, or use *Keep all* / *Dismiss all*.

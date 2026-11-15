@@ -9,10 +9,10 @@ const recorder = (prompts) => ({ use: async (n) => n!=='sample' ? null : async (
 const legend = (a) => a.$('#legend').previousElementSibling.textContent;
 
 test('domain: a new browser starts with the general profile and no game wording on screen',async()=>{
-  const a = open({ local:NO_PREFS, claude:recorder([]) }); await sleep(400);
+  const a = open({ local:NO_PREFS, claude:recorder([]), example:false }); await sleep(400);
   assert.equal(legend(a),'How people feel');
   const text = a.nodes().map(n=>n.querySelector('.txt').textContent).join(' | ');
-  assert.doesNotMatch(text,GAMEY); assert.match(text,/Why is progress slower than expected/);
+  assert.doesNotMatch(text,GAMEY); assert.equal(a.nodes().length,0);
   assert.doesNotMatch(a.$$('#gChips .chip').map(c=>c.textContent).join(' '),GAMEY);
   for(const id of ['#gContext','#gPillars','#gAvoid','#aQ','#pPath']) assert.doesNotMatch(a.$(id).placeholder,GAMEY,id);
   assert.deepEqual(a.errs,[]);
