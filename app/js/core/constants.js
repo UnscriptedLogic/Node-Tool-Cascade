@@ -29,6 +29,7 @@ const ICONS = {
   file: svg('<path d="M4 1.8h5.2L12.5 5v9.2H4z"/><path d="M9 1.8V5h3.5"/>')
 };
 const ACT = {
+  mindset: svg('<path d="M5 10a4 4 0 1 1 6 0l-1 1.5H6zM6 14h4"/>'),
   accept: svg('<path d="m3.5 8.5 3 3 6-7"/>'),
   dismiss: svg('<path d="m4 4 8 8M12 4l-8 8"/>'),
   grow: svg('<path d="M8 1.5c.4 3.2 1.6 5 5.5 6.5-3.9 1.5-5.1 3.3-5.5 6.5-.4-3.2-1.6-5-5.5-6.5C6.4 6.5 7.6 4.7 8 1.5z"/>'),

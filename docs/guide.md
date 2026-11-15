@@ -12,6 +12,7 @@
   confusion, tension. Zoomed far out, the tree reads as a map of how the game feels.
 
 ## Growing and tracing
+- **Mindsets** add optional questioning styles and lens labels. Import packs in Settings > Mindsets. [Pack format and relevance rules](mindsets.md).
 - After you drop a block it grows ghost branches in waves: answers, then follow-up questions and consequences, then
   emotions. The sparkle button grows any node on demand.
 - Emotion blocks **trace back** instead: "why" questions about likely causes, linked to existing nodes.

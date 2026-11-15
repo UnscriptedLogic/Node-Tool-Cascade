@@ -59,7 +59,9 @@ function libApply(data){
   LIB.suspend = true; cancelAI();
   try{
     const t = JSON.parse(data.tree);
+    const mindsets = Mindsets.collection(t.mindsets);
     S.nodes = t.nodes; S.order = t.order; S.links = t.links || []; S.seq = t.seq || S.order.length; S.sel = null; S.mode = 'detail'; hist.length = 0;
+    S.mindsets = mindsets;
     Object.assign(PREFS,{ goal:'', context:'', pillars:'', avoid:'' },data.prefs || {}); savePrefs();
     syncers.forEach(f=>f()); updatePreview(); updateGoalChip();
     layout(false);

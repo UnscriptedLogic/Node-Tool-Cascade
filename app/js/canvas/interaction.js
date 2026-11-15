@@ -11,7 +11,7 @@ document.addEventListener('dragstart',e=>{
 });
 const ptrs = new Map(); let pan = null, pinch = null, nd = null, lastTap = {id:null,t:0};
 stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('#compose,.hud,.pending,.bar,#side,.srcmark')) return;
+  if(e.target.closest('#compose,.hud,.pending,.bar,#side,.srcmark,.mindset-label')) return;
   if(e.target.closest('[contenteditable="true"]')) return;
   dragUi(true);
   stage.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -116,6 +116,7 @@ function beginEdit(id,opts){
   txt.addEventListener('blur',onBlur); txt.addEventListener('keydown',onKey);
 }
 world.addEventListener('click',e=>{
+    const ml = e.target.closest('.mindset-label'); if(ml){ e.stopPropagation(); showNote([ml.title.replace(/\n/g,'. ')],false); return; }
   const sm = e.target.closest('.srcmark'); if(sm){ e.stopPropagation(); openNodeSrc(sm.closest('.node').dataset.id); return; }
   const b = e.target.closest('button[data-act]'); if(!b) return;
   const id = b.closest('.node').dataset.id; e.stopPropagation();

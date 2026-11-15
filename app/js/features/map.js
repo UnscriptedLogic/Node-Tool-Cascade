@@ -148,7 +148,7 @@ function startResolve(id){
   const n = S.nodes[id]; if(!n || n.type!=='question') return;
   openSide('grill'); $('#gIdleMsg').hidden = true; resetG(); G.active = true; G.resolve = true; G.scope = id; G.round = 1;
   renderGrillShell();
-  addCard({nodeId:id,text:n.text,why:n.why||'',ticket:n.ticket||'talk',parent:n.parent,grillable:true});
+  addCard({nodeId:id,text:n.text,why:n.why||'',ticket:n.ticket||'talk',parent:n.parent,grillable:true,mindset:n.mindset});
 }
 function applySingle(){
   const single = PREFS.grillStyle==='single' && !G.resolve; let shown = false;
@@ -159,9 +159,10 @@ function applySingle(){
 }
 function addCard(spec){
   const card = {id:'c'+(++G.seq),nodeId:spec.nodeId||null,text:spec.text,why:spec.why||'',ticket:spec.ticket||'talk',parent:spec.parent||null,grillable:spec.grillable!==false,status:'open',checks:0};
+  card.mindset = spec.mindset || null;
   const el = document.createElement('div'); el.className = 'gcard'; el.dataset.cid = card.id;
   el.innerHTML = '<div class="gq"></div><div class="gwhy"></div><div class="gtag" hidden></div><textarea class="area gans" rows="3"></textarea><div class="gpush" hidden></div><div class="gbtns"><button type="button" class="btn primary" data-gact="answer">Answer</button><button type="button" class="btn" data-gact="standby" hidden>Stand by it</button><button type="button" class="btn" data-gact="idk">I don’t know</button><button type="button" class="btn" data-gact="proto">Needs a prototype</button><button type="button" class="btn" data-gact="out">Out of scope</button><button type="button" class="btn" data-gact="skip">Skip</button></div><div class="gstate" hidden></div>';
-  el.querySelector('.gq').textContent = card.text;
+  el.querySelector('.gq').textContent = (card.mindset ? Mindsets.label(card.mindset)+' — ' : '')+card.text;
   const why = el.querySelector('.gwhy'); why.textContent = card.why; why.hidden = !card.why;
   const tag = el.querySelector('.gtag');
   if(!card.grillable){ tag.textContent = 'Talking probably won’t settle this. A prototype may be faster.'; tag.hidden = false; }
@@ -186,7 +187,7 @@ function finishCard(card,status,msg,withProtoBtn){
 function ensureQuestion(card){
   if(card.nodeId && S.nodes[card.nodeId]) return S.nodes[card.nodeId];
   const parent = card.parent && S.nodes[card.parent] ? card.parent : null;
-  const id = addNode({type:'question',text:card.text,parent});
+  const id = addNode({type:'question',text:card.text,parent,mindset:card.mindset});
   const q = S.nodes[id]; q.ticket = card.ticket; q.state = 'open'; if(card.why) q.why = card.why; card.nodeId = id;
   return q;
 }
@@ -262,7 +263,7 @@ function checkRoundEnd(){
   const open = G.cards.filter(c=>c.status==='open').length;
   if(!open && !G.busy && G.cards.length) gNoteShow(G.round>=5 ? 'That’s a long session. Consider ending it and grilling a smaller branch.' : 'Round complete. Ask for the next one when you’re ready.');
 }
-function roundPrompt(ev){
+function roundPrompt(ev,candidates){
   const sc = G.scope && S.nodes[G.scope];
   const fog = S.order.filter(id=>S.nodes[id] && S.nodes[id].type==='fog' && S.nodes[id].state!=='out' && !S.nodes[id].ghost).map(id=>`- ${S.nodes[id].text}`).join('\n');
   const hist = G.history.map(h=>h.s==='settled' ? `Q: ${h.q}\nA: ${h.a}` : `Q: ${h.q}\n(${h.s})`).join('\n\n');
@@ -280,7 +281,7 @@ Rules:
 - Prefer questions that expose decisions the ${DOM().person} is making without noticing, and that test the destination or the goal.
 - Be specific to this ${DOM().subject} and this tree. Do not repeat anything already settled or already asked.
 - Set grillable to false and ticket to prototype when the question cannot be settled by talking because the ${DOM().person} needs something to react to. Use research when a fact from outside the tree is needed and task when manual preparation blocks a decision.
-${ev ? "- The excerpts show what the project already does. Where it has already made a decision, ask whether it is intended instead of asking as if the question were open. Where it conflicts with the tree or the goal, ask about the conflict.\n" : ''}- If nothing is left to ask, write exactly one line instead: {"done":true,"summary":"<at most 25 words on what is now settled>"}`;
+${ev ? "- The excerpts show what the project already does. Where it has already made a decision, ask whether it is intended instead of asking as if the question were open. Where it conflicts with the tree or the goal, ask about the conflict.\n" : ''}- If nothing is left to ask, write exactly one line instead: {"done":true,"summary":"<at most 25 words on what is now settled>"}${mindsetBlock(candidates || mindsetCandidates(G.scope),false)}`;
 }
 async function nextRound(){
   if(G.busy || G.resolve) return;
@@ -290,7 +291,8 @@ async function nextRound(){
   const sc0 = G.scope && S.nodes[G.scope];
   const ev = await projectEvidence(((sc0 ? sc0.text+' ' : '')+(PREFS.goal||'')+' '+(PREFS.context||'')).trim() || (DOM().subject+' '+DOM().treeName),5);
   const c = new AbortController(); G.ctl = c;
-  let done = 0, got = 0, cancelled = false;
+  const candidates = mindsetCandidates(G.scope);
+  let done = 0, got = 0, mindsetCount = 0, cancelled = false;
   const parse = (text,final) => {
     const lines = text.split('\n'), upto = final ? lines.length : lines.length-1;
     for(; done<upto; done++){
@@ -300,12 +302,14 @@ async function nextRound(){
       if(o.done){ G.done = true; G.summary = typeof o.summary==='string' ? o.summary.slice(0,220) : ''; continue; }
       if(typeof o.text!=='string' || !o.text.trim() || got>=6) continue;
       const parent = S.nodes[o.parent] ? o.parent : (G.scope && S.nodes[G.scope] ? G.scope : null);
-      addCard({text:o.text.trim().slice(0,200),why:typeof o.why==='string' ? o.why.slice(0,160) : '',ticket:TICKETS.includes(o.ticket) ? o.ticket : 'talk',parent,grillable:o.grillable!==false});
+      const m = mindsetResult(o,candidates,parent); if(!m.ok || (m.value && mindsetCount>=2)) continue;
+      if(m.value) mindsetCount++;
+      addCard({text:o.text.trim().slice(0,200),why:typeof o.why==='string' ? o.why.slice(0,160) : '',ticket:TICKETS.includes(o.ticket) ? o.ticket : 'talk',parent,grillable:o.grillable!==false,mindset:m.value});
       got++;
     }
   };
   try{
-    const out = await callAI(roundPrompt(ev),{cache:false,signal:c.signal,temperature:PREFS.creativity,onText:({text})=>parse(text,false)});
+    const out = await callAI(roundPrompt(ev,candidates),{cache:false,signal:c.signal,temperature:PREFS.creativity,onText:({text})=>parse(text,false)});
     parse(out.text,true);
   }catch(e){
     if(e && e.code==='cancelled') cancelled = true; else { G.failed = true; handleAIError(e); }

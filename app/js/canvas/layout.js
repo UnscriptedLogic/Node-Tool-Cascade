@@ -7,7 +7,7 @@ function syncDom(vis){
     if(!R[id]){
       const el = document.createElement('div');
       el.dataset.id = id; el.tabIndex = 0; el.style.display = 'none';
-      el.innerHTML = '<div class="in blk"><span class="ico"></span><span class="txt"></span><span class="srcmark" role="button" aria-label="Where this came from"></span><span class="badge"></span><span class="mbadge"></span></div><div class="bar"></div>';
+      el.innerHTML = '<div class="in blk"><button type="button" class="mindset-label" hidden></button><span class="ico"></span><span class="txt"></span><span class="srcmark" role="button" aria-label="Where this came from"></span><span class="badge"></span><span class="mbadge"></span></div><div class="bar"></div>';
       world.appendChild(el);
       R[id] = {el,cur:{x:0,y:0},tgt:{x:0,y:0},w:nodeW(n.type),h:56,shown:false,fresh:true};
     }
@@ -32,11 +32,17 @@ function paint(n){
   const hasKids = !!(KM[n.id] && KM[n.id].length);
   const desc = (n.collapsed || S.mode==='outer') ? descendants(n.id) : [];
   const dots = desc.filter(x=>S.nodes[x].type==='emotion').map(x=>S.nodes[x].mood||'curiosity');
-  const sig = [n.type,n.text,n.ghost?1:0,n.mood||'',n.collapsed?1:0,S.mode,hasKids?1:0,desc.length,dots.join(','),n.parent?1:0,S.layer?1:0,MAP.flag[n.id]||'',n.ticket||'',n.state||'',(n.src&&n.src.length)||0,LOOKVER].join('|');
-  if(sig===r.sig) return; r.sig = sig;
+  const sig = [n.type,n.text,JSON.stringify(n.mindset||null),n.ghost?1:0,n.mood||'',n.collapsed?1:0,S.mode,hasKids?1:0,desc.length,dots.join(','),n.parent?1:0,S.layer?1:0,MAP.flag[n.id]||'',n.ticket||'',n.state||'',(n.src&&n.src.length)||0,LOOKVER].join('|');
+  const actionSig = S.mindsets.length ? 'mindsets' : '';
+  if(sig===r.sig && actionSig===r.actionSig) return; r.sig = sig; r.actionSig = actionSig;
   blk.className = 'in blk t-'+n.type;
   el.style.width = decorate(blk,n.type,n).width+'px';
-  blk.querySelector('.ico').innerHTML = ICONS[n.type];
+  const ml = blk.querySelector('.mindset-label'), mindset = Mindsets.metadata(n.mindset);
+  ml.hidden = !mindset; ml.textContent = mindset ? Mindsets.label(mindset,false) : '';
+  ml.title = mindset ? [mindset.packName,mindset.source.title,mindset.source.edition,mindset.source.url,mindset.source.coverage,...mindset.references.map(r=>r.source+' — '+r.location),mindset.why].filter(Boolean).join('\n') : '';
+  if(mindset) ml.setAttribute('aria-label',Mindsets.label(mindset,false)+'. Show source and relevance');
+  const ico = blk.querySelector('.ico');
+  if(mindset) ico.textContent = mindset.icon; else ico.innerHTML = ICONS[n.type];
   { const sm = blk.querySelector('.srcmark'); sm.innerHTML = ICONS.file; sm.title = n.src && n.src.length ? 'From '+n.src[0].f+':'+n.src[0].l+(n.src.length>1 ? ' (+'+(n.src.length-1)+' more)' : '') : ''; }
   if(!r.editing) blk.querySelector('.txt').textContent = n.text;
   const badge = blk.querySelector('.badge'); badge.textContent = '';
@@ -74,6 +80,7 @@ function nodeActions(n,hasKids){
     btns.push(['grill','Grill me on this']);
     if(n.src && n.src.length) btns.push(['src','Where this came from']);
     btns.push(['grow','Grow branches from here']);
+    if(S.mindsets.length) btns.push(['mindset','Apply a mindset']);
     if(n.type==='emotion'){ if(hasBridgeGround(n.id)) btns.push(['bridge','Bridge: connect the existing tree to this feeling, from both ends']); btns.push(['back',DOM().traceTip]); }
     if(hasKids) btns.push(['collapse',n.collapsed?'Expand':'Collapse']);
     btns.push(['del',hasKids?'Delete node (its children move up)':'Delete']);

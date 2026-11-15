@@ -39,6 +39,7 @@ if(window.visualViewport) visualViewport.addEventListener('resize',updateKeyboar
 /* ---------- running a block's action, from the desktop bar, the strip, or a menu ---------- */
 // built when used, because the functions live in files that load after this one
 function runNodeAction(act,id){
+  if(act==='mindset'){ select(id); openSettings('mindsets'); return; }
   const run = { accept:acceptGhost, dismiss:dismissGhost, grow:growNode, back:traceBack, bridge:bridgeTo, collapse:toggleCollapse, del:(i)=>deleteNode(i,false), delb:(i)=>deleteNode(i,true), open:openLoop, resolve:startResolve, reopen:reopenQ, grill:startGrill, ticket:cycleTicket, block:startBlock, out:toggleOut, sharpen:(i)=>beginEdit(i,{graduate:true}), src:openNodeSrc }[act];
   if(run && S.nodes[id]) run(id);
 }

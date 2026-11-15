@@ -9,7 +9,7 @@ let aiChecked = false, sampleFn = null, aiOff = false, ctl = null, chain = Promi
   }catch(e){}
   aiChecked = true; updateHud();
 })();
-function cancelAI(){ stopReveal = true; if(ctl) ctl.abort(); try{ if(G.ctl) G.ctl.abort(); }catch(e){} try{ if(AN.ctl) AN.ctl.abort(); }catch(e){} }
+function cancelAI(){ stopReveal = true; if(ctl) ctl.abort(); try{ if(G.ctl) G.ctl.abort(); }catch(e){} try{ if(AN.ctl) AN.ctl.abort(); }catch(e){} try{ if(MSCONVERT.ctl) MSCONVERT.ctl.abort(); }catch(e){} }
 function enqueue(job){
   queued++;
   chain = chain.then(job).catch(e=>console.error(e)).finally(()=>{ queued--; });
@@ -57,7 +57,7 @@ function treeText(){
   const lines = [];
   for(const id of S.order){
     const n = S.nodes[id]; if(!n) continue;
-    lines.push(`${id} | ${n.type}${n.type==='emotion'&&n.mood?' ('+n.mood+')':''}${n.ghost?' [unaccepted suggestion]':''}${n.state==='settled'?' [settled]':n.state==='out'?' [out of scope]':''}${n.ticket && n.ticket!=='talk' ? ' [ticket: '+n.ticket+']' : ''}${n.decided?' [decision]':''} | ${n.text} | parent: ${n.parent||'none'}`);
+    lines.push(`${id} | ${n.type}${n.mindset ? ' [mindset: '+Mindsets.label(n.mindset)+']' : ''}${n.type==='emotion'&&n.mood?' ('+n.mood+')':''}${n.ghost?' [unaccepted suggestion]':''}${n.state==='settled'?' [settled]':n.state==='out'?' [out of scope]':''}${n.ticket && n.ticket!=='talk' ? ' [ticket: '+n.ticket+']' : ''}${n.decided?' [decision]':''} | ${n.text} | parent: ${n.parent||'none'}`);
   }
   return lines.join('\n');
 }
@@ -201,10 +201,11 @@ Rules:
 - Only add blockedBy where one decision truly depends on another.
 - Write about ${GS.w1} to ${GS.max-3} questions and 2 to 4 fog items. Do not repeat existing nodes. Never answer any question.`;
   const bridgePrompt = bridge ? bridgePromptFor(f,GS) : '';
-  const prompt = chart ? chartPrompt : bridge ? bridgePrompt : back ? backPrompt : fwdPrompt;
+  const candidates = mindsetCandidates(chart ? null : fid);
+  const prompt = (chart ? chartPrompt : bridge ? bridgePrompt : back ? backPrompt : fwdPrompt)+mindsetBlock(candidates,false);
   let verdict = null;
   const gmap = Object.create(null), queue = [];
-  let done = 0, count = 0, streaming = true, lastWave = 0;
+  let done = 0, count = 0, mindsetCount = 0, streaming = true, lastWave = 0;
   const parse = (text,final) => {
     const lines = text.split('\n'), upto = final ? lines.length : lines.length-1;
     for(; done<upto; done++){
@@ -219,7 +220,9 @@ Rules:
       if(count>=GS.max+4 || !o || typeof o.text!=='string' || !o.text.trim() || (o.type!=='question' && o.type!=='fog')) return false;
       const pidc = (o.parent in gmap) ? gmap[o.parent] : (S.nodes[o.parent] ? o.parent : fid);
       if(!S.nodes[pidc]) return false;
-      const idc = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pidc,ghost:true});
+      const m = mindsetResult(o,candidates,pidc); if(!m.ok || (m.value && mindsetCount>=2)) return false;
+      const idc = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pidc,ghost:true,mindset:m.value});
+      if(m.value) mindsetCount++;
       const nc = S.nodes[idc];
       if(o.type==='question'){ nc.ticket = TICKETS.includes(o.ticket) ? o.ticket : 'talk'; if(Array.isArray(o.blockedBy)) pendingBlocks.push([idc,o.blockedBy]); }
       gmap[String(o.id)] = idc; count++;
@@ -230,7 +233,9 @@ Rules:
     if(count>=(bridge ? GS.max+2 : back?GS.back:GS.max) || !o || typeof o.text!=='string' || !o.text.trim() || !TYPES.includes(o.type)) return false;
     const pid = (o.parent in gmap) ? gmap[o.parent] : (S.nodes[o.parent] ? o.parent : fid);
     if(!S.nodes[pid]) return false;   // its parent was dismissed while the suggestions were still arriving
-    const id = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pid,ghost:true,mood:o.type==='emotion'?(MOODS[o.mood]?o.mood:moodGuess(o.text)):undefined});
+    const m = mindsetResult(o,candidates,pid); if(!m.ok || (m.value && mindsetCount>=2)) return false;
+    const id = addNode({type:o.type,text:o.text.trim().slice(0,140),parent:pid,ghost:true,mindset:m.value,mood:o.type==='emotion'?(MOODS[o.mood]?o.mood:moodGuess(o.text)):undefined});
+    if(m.value) mindsetCount++;
     if(back || bridge){
       const nn = S.nodes[id];
       if(bridge){ nn.side = o.side==='backward' ? 'backward' : 'forward'; nn.rel = nn.side==='backward' ? (pid===fid ? 'traces back' : '') : 'leads toward'; if(nn.side==='backward' && pid===fid) nn.back = true; }

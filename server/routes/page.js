@@ -15,6 +15,14 @@ module.exports = (r) => {
     res.end(assemble({ inline:false, runtime }));
   };
   r.get('/',page); r.get('/index.html',page);
+  r.getPrefix('/vendor/pdfjs/',({res,url})=>{
+    let file;
+    try{ file = require('../../scripts/pdf-assets').pdfAsset(decodeURIComponent(url.pathname.slice('/vendor/pdfjs/'.length))); }
+    catch(e){ return json(res,503,{error:'pdf_unavailable',detail:'Run npm install to enable PDF imports.'}); }
+    if(!file) return json(res,404,{error:'not found'});
+    res.writeHead(200,{'content-type':file.endsWith('.mjs') ? 'text/javascript; charset=utf-8' : 'application/octet-stream','cache-control':'public, max-age=3600'});
+    res.end(fs.readFileSync(file));
+  });
   r.get('/favicon.png',({ res }) => {
     res.writeHead(200,{ 'content-type':'image/png','cache-control':'public, max-age=86400' });
     res.end(fs.readFileSync(path.join(APP_DIR,'favicon.png')));

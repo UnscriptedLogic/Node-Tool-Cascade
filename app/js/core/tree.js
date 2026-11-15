@@ -49,11 +49,12 @@ function removeSubtree(id){
 }
 function acceptChain(id){ let n = S.nodes[id]; while(n){ n.ghost = false; n = n.parent && S.nodes[n.parent]; } }
 function expandChain(id){ let n = S.nodes[id]; while(n){ n.collapsed = false; n = n.parent && S.nodes[n.parent]; } }
-function addNode({type,text,parent,rel,mood,ghost,spawn}){
+function addNode({type,text,parent,rel,mood,ghost,spawn,mindset}){
   const id = 'n'+(++S.seq);
   const n = {id,type,text,parent,ghost:!!ghost};
   if(rel) n.rel = rel;
   if(type==='emotion') n.mood = mood || 'curiosity';
+  if(type==='question' && mindset) n.mindset = mindset;
   S.nodes[id] = n; S.order.push(id);
   if(!ghost) acceptChain(parent);
   expandChain(parent);

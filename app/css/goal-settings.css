@@ -25,7 +25,7 @@
 .field{display:grid;gap:7px;margin-bottom:22px;max-width:660px}
 .field>label,.field>.lbl{font-weight:600;font-size:14px}
 .field small{color:var(--ink2);font-size:12.5px;line-height:1.45}
-.field input[type=text],.field input[type=password],.field textarea{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.field input[type=text],.field input[type=password],.field input[type=url],.field input[type=number],.field textarea{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
 .field textarea{resize:vertical;line-height:1.4}
 .field input:focus,.field textarea:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
 .field input[type=range]{width:100%;accent-color:var(--ink)}

@@ -9,12 +9,15 @@ Find better questions to reach better decisions. Cascade connects questions, ans
 - Explore suggested branches and keep the ideas that matter.
 - Ask questions about your tree and highlight related decisions.
 - Challenge assumptions with an interview, or bridge decisions to a desired feeling.
+- Enable questioning mindsets, including a game-design lens starter, or [convert your own source material](docs/mindsets.md) into a pack.
 - Organize multiple trees in folders and choose a domain for each.
 - Customize your canvas, use mobile layouts, and connect local project notes and code.
 
 ## 🚀 Run locally
 
 Requires [Node.js](https://nodejs.org/) 18 or newer. No dependency installation needed to run the app.
+
+For PDF imports in the mindset converter, run `npm install` first. Current Node.js 22.13+ is recommended for installing the PDF tooling.
 
 ```bash
 git clone https://github.com/UnscriptedLogic/Node-Tool-Cascade.git

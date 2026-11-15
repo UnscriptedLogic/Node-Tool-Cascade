@@ -18,6 +18,9 @@
     "js/core/constants.js",
     "js/core/analytics.js",
     "js/core/profiles.js",
+    "js/core/mindsets.js",
+    "js/core/mindset-presets.js",
+    "js/core/mindset-conversion.js",
     "js/core/state.js",
     "js/core/dom.js",
     "js/core/tree.js",
@@ -41,6 +44,8 @@
     "js/ui/look-editor.js",
     "js/features/project.js",
     "js/features/library.js",
+    "js/features/mindsets.js",
+    "js/features/mindset-converter.js",
     "js/boot.js"
   ]
 }

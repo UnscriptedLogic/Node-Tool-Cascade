@@ -29,6 +29,7 @@ function showTab(n){
   settingsEl.classList.toggle('sheet',n==='look');          // appearance opens as a side sheet so the canvas stays visible
   if(!settingsEl.hidden) appEl.inert = n!=='look';
   if(n==='look') ensureLookUI();
+  if(n==='mindsets') renderMindsets();
 }
 function openSettings(tab){
   syncers.forEach(f=>f()); updatePreview(); updateProviders(); updateWeb();
@@ -296,13 +297,14 @@ function sanitizeTree(t){
     if(n.decided) c.decided = true; if(n.unknown) c.unknown = true;
     if(typeof n.why==='string') c.why = n.why.slice(0,200);
     if(typeof n.note==='string') c.note = n.note.slice(0,1000);
+    if(n.type==='question' && n.mindset){ const m = Mindsets.metadata(n.mindset); if(m) c.mindset = m; }
     if(Array.isArray(n.src)) c.src = n.src.slice(0,3).filter(x=>x && typeof x.f==='string').map(x=>({f:x.f.slice(0,300),l:Math.max(1,Math.floor(+x.l)||1),t:String(x.t||'').slice(0,200)}));
     nodes[c.id] = c; order.push(c.id);
     const num = parseInt(String(id).replace(/\D/g,''),10); if(num>seq) seq = num;
   }
   for(const id of order){ const n = nodes[id]; if(n.parent && (!nodes[n.parent] || n.parent===id)) n.parent = null; }
   const links = (Array.isArray(t.links) ? t.links : []).filter(l=>l && nodes[l.a] && nodes[l.b]).map(l=>({a:l.a,b:l.b,kind:l.kind==='flow'?'flow':l.kind==='block'?'block':'rel'}));
-  return {nodes,order,links,seq};
+  return {nodes,order,links,seq,mindsets:Mindsets.collection(t.mindsets)};
 }
 function initData(){
   const stats = $('#dStatsOn'); try{ stats.checked = localStorage.getItem(ANALYTICS_OFF)!=='1'; }catch(e){}
@@ -320,6 +322,7 @@ function initData(){
       if(!t.order.length) throw new Error('That file doesn’t look like a Cascade tree.');
       cancelAI(); pushHist(true);
       S.nodes = t.nodes; S.order = t.order; S.links = t.links; S.seq = t.seq; S.sel = null; S.mode = 'detail';
+      S.mindsets = t.mindsets;
       layout(false); initialView(); save(); updateHud(); closeSettings(); showNote(['Imported the tree.'],true);
     }catch(err){ $('#dMsg').textContent = err.message; }
     e.target.value = '';
