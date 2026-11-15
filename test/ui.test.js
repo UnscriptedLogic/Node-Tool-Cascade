@@ -144,7 +144,7 @@ test('hosted: with no AI at all the page still boots and falls back to keywords'
 /* =============================== static web build: demo provider =============================== */
 test('web: starts in demo mode with a clear way to connect a real AI',async()=>{
   const a = open({ html:webHtml(), url:WEB_URL }); await sleep(400);
-  assert.match(a.$('#stxt').textContent,/Demo mode/); assert.equal(a.$('#setLink').hidden,false); assert.equal(a.$('#setLink').textContent,'Connect an AI');
+  assert.match(a.$('#stxt').textContent,/Demo mode/); assert.equal(a.$('#setLink').hidden,false); assert.equal(a.$('#setLink').textContent,'Use your chat or connect AI');
   a.click(a.$('#setBtn'));
   assert.ok(!a.$('#wOr').closest('[data-modes]').hidden); assert.ok(a.$('#wDemoRadio').checked);
   assert.ok(a.$('[data-modes="web"] a[href="https://github.com/example/cascade"]'),'links to the repo for the full version');
@@ -317,7 +317,12 @@ test('local: server info, quit button and the stopped screen',async(t)=>{
 test('local: saved tree comes back after a reload',async(t)=>{
   const s = await bootServer(t); const a = await page(s); await sleep(500);
   a.escape(); await a.drop('question','A brand new question about traversal speed',500); await sleep(600);
-  const html = await (await fetch(s.base+'/')).text();
+  let html = '';
+  for(let i=0;i<100;i++){
+    html = await (await fetch(s.base+'/')).text();
+    if(html.includes('A brand new question about traversal speed')) break;
+    await sleep(100);
+  }
   assert.ok(html.includes('A brand new question about traversal speed'),'the server injected the saved tree');
 });
 

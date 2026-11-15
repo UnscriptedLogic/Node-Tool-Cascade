@@ -10,7 +10,7 @@ const manifest = () => JSON.parse(read('manifest.json'));
 
 function assemble({ inline = true, runtime = '' } = {}){
   const m = manifest();
-  let html = read('app.html');
+  let html = read('app.html').replaceAll('__APP_VERSION__', require('../package.json').version);
   for(const k of ['<!--STYLES-->','<!--SCRIPTS-->','<!--RUNTIME-->']) if(!html.includes(k)) throw new Error(`app/app.html is missing ${k}`);
   const styles = inline ? '<style>\n' + m.css.map(read).join('') + '</style>' : m.css.map(f=>`<link rel="stylesheet" href="/app/${f}">`).join('\n');
   const scripts = inline ? '<script>\n' + m.js.map(read).join('\n') + '\n</script>' : m.js.map(f=>`<script src="/app/${f}"></script>`).join('\n');

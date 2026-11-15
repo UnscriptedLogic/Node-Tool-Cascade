@@ -1,6 +1,6 @@
 {
   "name": "cascade-design-tree",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "A decision tree that places your ideas, grows branches around them, grills you, and answers questions about the graph. For any decision, plan or design.",
   "author": "UnscriptedLogic",
   "homepage": "https://unscriptedlogic.github.io/Node-Tool-Cascade/",
@@ -30,7 +30,7 @@
   "scripts": {
     "start": "node server/server.js",
     "build": "node scripts/build.js",
-    "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js test/domain.test.js test/library.test.js test/worker.test.js test/worker.ai.test.js test/worker.analytics.test.js test/worker.analytics.users.test.js test/worker.admin.test.js test/library.ui.test.js test/bridge.test.js test/cloudai.ui.test.js test/analytics.ui.test.js test/admin.test.js test/mobile.test.js test/culling.test.js test/mindsets.test.js test/mindset-converter.test.js test/startup.test.js",
+    "test": "node --test test/server.test.js test/ui.test.js test/look.test.js test/project.test.js test/project.ui.test.js test/domain.test.js test/library.test.js test/worker.test.js test/worker.ai.test.js test/worker.analytics.test.js test/worker.analytics.users.test.js test/worker.admin.test.js test/library.ui.test.js test/bridge.test.js test/cloudai.ui.test.js test/analytics.ui.test.js test/admin.test.js test/mobile.test.js test/culling.test.js test/mindsets.test.js test/mindset-converter.test.js test/startup.test.js test/chat-exchange.test.js",
     "worker:dev": "npm run build && npx wrangler dev --env dev -c worker/wrangler.toml",
     "worker:deploy": "npm run build && npx wrangler deploy -c worker/wrangler.toml",
     "worker:deploy:dev": "npm run build && npx wrangler deploy --env dev -c worker/wrangler.toml",

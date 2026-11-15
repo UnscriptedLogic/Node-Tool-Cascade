@@ -16,7 +16,7 @@ function syncProviderTag(){
 function syncExtras(){
   const demo = (LOCAL || WEB) && activeProvider()==='demo';
   const l = $('#setLink'); l.hidden = !((LOCAL || WEB) && aiChecked && !busyMsg && (!aiAvailable() || demo));
-  l.textContent = demo ? 'Connect an AI' : 'Open settings';
+  l.textContent = demo ? 'Use your chat or connect AI' : 'Open settings';
 }
 function updateGoalChip(){ const g = (PREFS.goal||'').trim(), c = $('#goalchip'); c.classList.toggle('unset',!g); c.querySelector('.gl').textContent = g ? 'Goal' : 'No goal set'; c.querySelector('.gt').textContent = g || ''; c.title = g ? g : 'Set an overarching goal to steer the questions'; }
 function setBusy(msg,stoppable){

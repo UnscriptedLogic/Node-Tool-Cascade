@@ -293,8 +293,10 @@ function isUnsafeRoot(real){
 }
 
 async function resolveRoot(rawPath){
+  const requested = path.resolve(expandHome(String(rawPath||'').trim()));
+  if(isUnsafeRoot(requested)) throw new HttpError(400,'That’s too broad. Choose the project’s own folder, not a drive root or your whole home folder.');
   let root;
-  try{ root = await fsp.realpath(path.resolve(expandHome(String(rawPath||'').trim()))); }
+  try{ root = await fsp.realpath(requested); }
   catch(e){ throw new HttpError(400,'That folder doesn’t exist.'); }
   const st = await fsp.stat(root).catch(()=>null);
   if(!st || !st.isDirectory()) throw new HttpError(400,'That path isn’t a folder.');
