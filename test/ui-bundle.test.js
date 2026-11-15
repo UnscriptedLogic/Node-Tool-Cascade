@@ -40,4 +40,5 @@ test('UI bundle mounts once per name and releases its root',async(t)=>{
 test('bundle precedes the legacy scripts and emits only the expected files',()=>{
   assert.equal(manifest().js[0],'gen/ui.js'); assert.equal(manifest().css[0],'gen/ui.css');
   assert.deepEqual(fs.readdirSync(path.join(__dirname,'../app/gen')).sort(),['ui.css','ui.js']);
+  assert.ok(assemble().includes('Copyright (c) 2023 shadcn'),'self-contained distribution retains the component license');
 });

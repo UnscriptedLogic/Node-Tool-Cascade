@@ -41,14 +41,20 @@
     "pretest": "npm run build:ui"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "4.3.5",
     "@vitejs/plugin-react": "6.3.0",
-    "jsdom": "^26.0.0",
+    "jsdom": "28.1.0",
     "pdfjs-dist": "6.5.438",
+    "tailwindcss": "4.3.5",
     "vite": "8.3.8"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "1.5.0",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "tailwind-merge": "3.7.0",
     "valtio": "2.3.2"
   }
 }

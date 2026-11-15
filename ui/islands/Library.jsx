@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const call = (name, ...args) => window[name](...args);
 const when = (time) => {
@@ -14,7 +16,7 @@ function NameCell({ kind, item, editing }) {
   useEffect(() => {
     if (active) { input.current.focus(); input.current.select(); }
   }, [active]);
-  if (active) return <input ref={input} type="text" defaultValue={item.name} maxLength={80} aria-label="Name" className="lib-name-input"
+  if (active) return <Input ref={input} type="text" defaultValue={item.name} maxLength={80} aria-label="Name" className="lib-name-input"
     onKeyDown={event => {
       if (event.key === 'Enter') call('libRename', kind, item.id, event.currentTarget.value);
       else if (event.key === 'Escape') getLegacy().LIB.editing = null;
@@ -23,18 +25,18 @@ function NameCell({ kind, item, editing }) {
       if (current?.kind === kind && current.id === item.id) call('libRename', kind, item.id, event.currentTarget.value);
     }} />;
   return kind === 'cascade'
-    ? <button type="button" className="lib-open" onClick={() => call('libOpen', item.id)}>{item.name}</button>
+    ? <Button type="button" className="lib-open" onClick={() => call('libOpen', item.id)}>{item.name}</Button>
     : <strong>{item.name}</strong>;
 }
 
 function DeleteButton({ kind, item, armed }) {
   const key = kind + item.id;
-  return <button type="button" className={'btn small' + (armed === key ? ' danger' : '')} aria-label={'Delete ' + item.name}
+  return <Button type="button" className={'btn small' + (armed === key ? ' danger' : '')} aria-label={'Delete ' + item.name}
     onClick={() => {
       if (armed === key) return call('libDelete', kind, item.id);
       const { LIB } = getLegacy(); LIB.armed = key;
       window.setTimeout(() => { if (LIB.armed === key) LIB.armed = null; }, 4000);
-    }}>{armed === key ? 'Really delete?' : 'Delete'}</button>;
+    }}>{armed === key ? 'Really delete?' : 'Delete'}</Button>;
 }
 
 function CascadeRow({ item, lib }) {
@@ -43,7 +45,7 @@ function CascadeRow({ item, lib }) {
     <NameCell kind="cascade" item={item} editing={lib.editing} />
     <span className="lib-meta">{(DOMAINS[item.domain]?.label || '') + ' · ' + when(item.updatedAt) + (item.id === lib.currentId ? ' · open now' : '')}</span>
     <span className="lib-actions">
-      <button type="button" className="btn small" aria-label={'Rename ' + item.name} onClick={() => { LIB.editing = { kind: 'cascade', id: item.id }; }}>Rename</button>
+      <Button type="button" className="btn small" aria-label={'Rename ' + item.name} onClick={() => { LIB.editing = { kind: 'cascade', id: item.id }; }}>Rename</Button>
       <select aria-label={'Move ' + item.name + ' to a folder'} value={item.folderId || ''} onChange={event => call('libMove', item.id, event.target.value)}>
         <option value="">No folder</option>
         {lib.folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}
@@ -69,17 +71,17 @@ export default function Library() {
       <small id="libWho">{lib.user ? `Signed in as ${lib.user.name || lib.user.email} (${lib.user.email})` : 'Sign in to keep your Cascades on the web and open them anywhere.'}</small>
       <div id="libGoogle" ref={googleHost} hidden={!!lib.user} />
       <div className="frow">
-        <button className="btn" id="libSignOut" type="button" hidden={!lib.user} onClick={() => call('libSignOut')}>Sign out</button>
-        <button className="btn small" id="libDeleteAccount" type="button" hidden={!lib.user} onClick={() => call('libDeleteAccount')}>
+        <Button className="btn" id="libSignOut" type="button" hidden={!lib.user} onClick={() => call('libSignOut')}>Sign out</Button>
+        <Button className="btn small" id="libDeleteAccount" type="button" hidden={!lib.user} onClick={() => call('libDeleteAccount')}>
           {lib.armed === 'account' ? 'Really delete my account and every saved Cascade?' : 'Delete my account'}
-        </button>
+        </Button>
       </div>
     </div>
     <div className="field" id="libTools" hidden={!signed}>
       <div className="frow">
-        <button className="btn primary" id="libNew" type="button" onClick={() => call('libNewCascade', null)}>New Cascade</button>
-        <button className="btn" id="libFolder" type="button" onClick={() => call('libNewFolder')}>New folder</button>
-        <button className="btn" id="libSaveCur" type="button" hidden={!signed || current} onClick={() => call('libSaveCurrent')}>Save the tree I have open</button>
+        <Button className="btn primary" id="libNew" type="button" onClick={() => call('libNewCascade', null)}>New Cascade</Button>
+        <Button className="btn" id="libFolder" type="button" onClick={() => call('libNewFolder')}>New folder</Button>
+        <Button className="btn" id="libSaveCur" type="button" hidden={!signed || current} onClick={() => call('libSaveCurrent')}>Save the tree I have open</Button>
       </div>
       <small id="libStatus" aria-live="polite">{lib.status}</small>
     </div>
@@ -92,8 +94,8 @@ export default function Library() {
             <NameCell kind="folder" item={folder} editing={lib.editing} />
             <span className="lib-meta">{inside.length + (inside.length === 1 ? ' Cascade' : ' Cascades')}</span>
             <span className="lib-actions">
-              <button type="button" className="btn small" onClick={() => call('libNewCascade', folder.id)}>New Cascade here</button>
-              <button type="button" className="btn small" aria-label={'Rename folder ' + folder.name} onClick={() => { LIB.editing = { kind: 'folder', id: folder.id }; }}>Rename</button>
+              <Button type="button" className="btn small" onClick={() => call('libNewCascade', folder.id)}>New Cascade here</Button>
+              <Button type="button" className="btn small" aria-label={'Rename folder ' + folder.name} onClick={() => { LIB.editing = { kind: 'folder', id: folder.id }; }}>Rename</Button>
               <DeleteButton kind="folder" item={folder} armed={lib.armed} />
             </span>
           </header>

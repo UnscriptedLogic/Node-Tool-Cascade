@@ -55,7 +55,7 @@ test('presets restyle everything: shapes, wires, arrows and canvas',async()=>{
   const dec = a.byText('Add a glide ability'); assert.ok(dec.querySelector('.in').classList.contains('sh-poly'));
   assert.equal(dec.querySelector('.shp polygon').getAttribute('points'),'50,0 100,50 50,100 0,50'); assert.equal(dec.style.width,'240px');
   const tree = treePaths(a); assert.ok(tree.every(p=>!/[CQ]/.test(p.getAttribute('d'))),'right-angle wires, radius 0');
-  assert.ok(tree.every(p=>(p.getAttribute('marker-end') || '').includes('#ahc')),'arrowheads on'); assert.equal(tree[0].style.stroke,'#8da9c4');
+  assert.ok(tree.every(p=>(p.getAttribute('marker-end') || '').includes('#ahc')),'arrowheads on'); assert.equal(tree[0].style.stroke,rgb('#8da9c4'));
   assert.ok(a.$('.tile[data-type=decision]').classList.contains('sh-poly'),'the palette follows the look');
   assert.equal(lookKey(a).wires.style,'manhattan');
   a.click(a.$('.lk-preset[data-id=shapes]')); await sleep(150);
@@ -118,14 +118,14 @@ test('wires: width, colour, dash, arrowheads, colour-by-block and per-link overr
   const a = web(); await sleep(300); await openLook(a,'wires');
   range(a,'input[data-f=wwidth]','4'); select(a,'select[data-f=wdash]','dashed'); color(a,'input[data-f=wcolor]','#00aa00'); await sleep(80);
   const first = treePaths(a).find(p=>!/\bg\b/.test(p.getAttribute('class')));
-  assert.equal(first.style.strokeWidth,'4'); assert.equal(first.style.strokeDasharray,'7 6'); assert.equal(first.style.stroke,'#00aa00');
+  assert.equal(first.style.strokeWidth,'4'); assert.equal(first.style.strokeDasharray,'7 6'); assert.equal(first.style.stroke,rgb('#00aa00'));
   select(a,'select[data-f=warrows]','end'); await sleep(60); assert.ok((first.getAttribute('marker-end') || '').includes('#ahc')); assert.ok(a.$('#edges defs marker[id^=ahc]'));
   select(a,'select[data-f=wcolorBy]','child'); await sleep(80);
   const stroke = (txt) => { const n = a.byText(txt); return treePaths(a).find(p=>p.getAttribute('d').endsWith(`${X(n)} ${Y(n)+n.offsetHeight/2}`) || true); };
   const colours = new Set(treePaths(a).map(p=>p.style.stroke)); assert.ok(colours.size>=3,`wires take the colour of the block they lead to (${[...colours].join(', ')})`);
-  assert.ok(colours.has('var(--ink)') && [...colours].some(c=>/^#/.test(c)),'question outline and mood colours');
+  assert.ok(colours.has('var(--ink)') && [...colours].some(c=>/^rgb\(/.test(c)),'question outline and mood colours');
   color(a,'input[data-f=k-related-color]','#ff8800'); await sleep(60);
-  const rel = a.$$('#eg path.rel')[0]; assert.ok(rel); assert.equal(rel.style.stroke,'#ff8800');
+  const rel = a.$$('#eg path.rel')[0]; assert.ok(rel); assert.equal(rel.style.stroke,rgb('#ff8800'));
   select(a,'select[data-f=k-flow-dash]','solid'); await sleep(60); assert.equal(a.$$('#eg path.flow')[0].style.strokeDasharray,'none');
 });
 test('canvas: background, grid style and spacing',async()=>{

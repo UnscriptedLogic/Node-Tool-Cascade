@@ -3,6 +3,12 @@
   --bg:#E4EAEF; --dot:#B4C0CC; --ink:#16233A; --ink2:#4B5B71; --paper:#FFFFFF; --paper2:#F2F5F8;
   --edge:#7C8DA3; --line:#C5CFDA; --focus:#2F6BFF;
   --font:'Bricolage Grotesque', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --background:var(--paper); --foreground:var(--ink);
+  --card:var(--paper); --card-foreground:var(--ink); --popover:var(--paper); --popover-foreground:var(--ink);
+  --primary:var(--ink); --primary-foreground:var(--bg);
+  --secondary:var(--paper2); --secondary-foreground:var(--ink);
+  --muted:var(--paper2); --muted-foreground:var(--ink2); --accent:var(--paper2); --accent-foreground:var(--ink);
+  --border:var(--line); --input:var(--line); --ring:var(--focus); --destructive:#D94A2B; --radius:8px;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
