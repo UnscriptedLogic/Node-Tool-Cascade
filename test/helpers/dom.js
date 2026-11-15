@@ -20,6 +20,8 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
     w.document.elementsFromPoint = () => []; w.Element.prototype.setPointerCapture = function(){};
     Object.defineProperty(w,'crypto',{ value:nodeCrypto.webcrypto, configurable:true });
     w.TextEncoder = TextEncoder; w.TextDecoder = TextDecoder; w.Blob = Blob;
+    // Node's fetch requires signals from the same runtime as its AbortController.
+    w.AbortController = AbortController; w.AbortSignal = AbortSignal;
     w.__DEMO_FAST__ = true; w.__POLL_MS = 40; w.__navigate = (u) => navigated.push(u);
     w.open = () => { const o = { location:{ href:'' }, close(){} }; opened.push(o); return o; };
     if(fetchImpl) w.fetch = fetchImpl;
