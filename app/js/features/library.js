@@ -24,7 +24,7 @@ function libTitle(){
   el.querySelector('.cn').textContent = c ? c.name : 'Not in your library yet';
   el.title = c ? (f ? f.name+' / ' : '')+c.name+'. Open the library.' : 'This tree is not saved in your library. Open the library to save it.';
 }
-function libSetStatus(t){ LIB.status = t; const el = $('#libStatus'); if(el) el.textContent = t; }
+function libSetStatus(t){ LIB.status = t; }
 
 // what a saved Cascade holds
 function libData(){
@@ -121,70 +121,11 @@ async function libDelete(kind,id){
 }
 
 /* ---- the list ---- */
-function libEl(tag,attrs,...kids){
-  const e = document.createElement(tag);
-  for(const [k,v] of Object.entries(attrs || {})){ if(k==='text') e.textContent = v; else if(k==='on') for(const [ev,fn] of Object.entries(v)) e.addEventListener(ev,fn); else if(v!==false && v!==null && v!==undefined) e.setAttribute(k,v===true ? '' : v); }
-  kids.forEach(k=>{ if(k) e.append(k); });
-  return e;
-}
-const libWhen = (t) => { const d = new Date(t); return isFinite(d) ? d.toLocaleDateString(undefined,{ month:'short', day:'numeric' }) : ''; };
-function libNameCell(kind,item){
-  if(LIB.editing && LIB.editing.kind===kind && LIB.editing.id===item.id){
-    const inp = libEl('input',{ type:'text', value:item.name, maxlength:80, 'aria-label':'Name', class:'lib-name-input' });
-    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') libRename(kind,item.id,inp.value); else if(e.key==='Escape'){ LIB.editing = null; libRender(); } });
-    inp.addEventListener('blur',()=>{ if(LIB.editing) libRename(kind,item.id,inp.value); });
-    setTimeout(()=>{ inp.focus(); inp.select(); },0);
-    return inp;
-  }
-  return kind==='cascade' ? libEl('button',{ type:'button', class:'lib-open', text:item.name, on:{ click:()=>libOpen(item.id) } }) : libEl('strong',{ text:item.name });
-}
-function libDeleteBtn(kind,item){
-  const armed = LIB.armed===kind+item.id;
-  return libEl('button',{ type:'button', class:'btn small'+(armed ? ' danger' : ''), text:armed ? 'Really delete?' : 'Delete', 'aria-label':'Delete '+item.name, on:{ click:()=>{
-    if(armed) return libDelete(kind,item.id);
-    LIB.armed = kind+item.id; libRender(); setTimeout(()=>{ if(LIB.armed===kind+item.id){ LIB.armed = null; libRender(); } },4000);
-  } } });
-}
-function libCascadeRow(c){
-  const move = libEl('select',{ 'aria-label':'Move '+c.name+' to a folder', on:{ change:(e)=>libMove(c.id,e.target.value) } },
-    libEl('option',{ value:'', text:'No folder' }), ...LIB.folders.map(f=>libEl('option',{ value:f.id, text:f.name })));
-  move.value = c.folderId || '';
-  return libEl('li',{ class:'lib-row'+(c.id===LIB.currentId ? ' current' : ''), 'data-id':c.id },
-    libNameCell('cascade',c),
-    libEl('span',{ class:'lib-meta', text:(DOMAINS[c.domain] ? DOMAINS[c.domain].label : '')+' · '+libWhen(c.updatedAt)+(c.id===LIB.currentId ? ' · open now' : '') }),
-    libEl('span',{ class:'lib-actions' },
-      libEl('button',{ type:'button', class:'btn small', text:'Rename', 'aria-label':'Rename '+c.name, on:{ click:()=>{ LIB.editing = { kind:'cascade', id:c.id }; libRender(); } } }),
-      move, libDeleteBtn('cascade',c)));
-}
 function libRender(){
   libTitle();
-  const list = $('#libList'); if(!list) return;
-  const signed = libSignedIn();
-  $('#libTools').hidden = !signed;
-  $('#libSaveCur').hidden = !signed || !!libCurrent();
-  const acct = $('#libAccount'); acct.hidden = LIB.kind!=='cloud';
-  if(LIB.kind==='cloud'){
-    $('#libWho').textContent = LIB.user ? `Signed in as ${LIB.user.name || LIB.user.email} (${LIB.user.email})` : 'Sign in to keep your Cascades on the web and open them anywhere.';
-    $('#libSignOut').hidden = !LIB.user; $('#libGoogle').hidden = !!LIB.user;
-    $('#libDeleteAccount').hidden = !LIB.user;
-    if(!LIB.user) libMountGoogle();
-  }
-  list.textContent = '';
-  if(!signed) return;
-  if(!LIB.folders.length && !LIB.cascades.length){ list.append(libEl('p',{ class:'small', text:'Nothing saved yet. Start a new Cascade, or save the one you have open.' })); return; }
-  for(const f of LIB.folders){
-    const inside = LIB.cascades.filter(c=>c.folderId===f.id);
-    list.append(libEl('section',{ class:'lib-folder', 'data-folder':f.id },
-      libEl('header',{ class:'lib-fhead' }, libNameCell('folder',f), libEl('span',{ class:'lib-meta', text:inside.length+(inside.length===1 ? ' Cascade' : ' Cascades') }),
-        libEl('span',{ class:'lib-actions' },
-          libEl('button',{ type:'button', class:'btn small', text:'New Cascade here', on:{ click:()=>libNewCascade(f.id) } }),
-          libEl('button',{ type:'button', class:'btn small', text:'Rename', 'aria-label':'Rename folder '+f.name, on:{ click:()=>{ LIB.editing = { kind:'folder', id:f.id }; libRender(); } } }),
-          libDeleteBtn('folder',f))),
-      libEl('ul',{ class:'lib-list' }, ...inside.map(libCascadeRow))));
-  }
-  const loose = LIB.cascades.filter(c=>!c.folderId);
-  if(loose.length) list.append(libEl('section',{ class:'lib-folder' }, LIB.folders.length ? libEl('header',{ class:'lib-fhead' },libEl('strong',{ text:'Not in a folder' })) : null, libEl('ul',{ class:'lib-list' }, ...loose.map(libCascadeRow))));
+  CascadeUI.mount('library',$('#libraryRoot'));
 }
+CascadeUI.connect({LIB,DOMAINS});
 
 /* ---- AI through the account (cloud only) ---- */
 // Signed in on the cloud, the AI settings screen and every AI call use the account's saved keys, through the server.
@@ -222,18 +163,14 @@ async function libGoogleDone(resp){
 }
 async function libSignOut(){ try{ await libApi('POST','auth/logout',{}); }catch(e){} LIB.user = null; cloudAiRefresh(); libRemember(null); LIB.folders = []; LIB.cascades = []; libRender(); }
 async function libDeleteAccount(){
-  if(LIB.armed!=='account'){ LIB.armed = 'account'; $('#libDeleteAccount').textContent = 'Really delete my account and every saved Cascade?'; setTimeout(()=>{ if(LIB.armed==='account'){ LIB.armed = null; $('#libDeleteAccount').textContent = 'Delete my account'; } },5000); return; }
+  if(LIB.armed!=='account'){ LIB.armed = 'account'; setTimeout(()=>{ if(LIB.armed==='account'){ LIB.armed = null; } },5000); return; }
   try{ await libApi('DELETE','auth/account'); }catch(e){ libSetStatus('Could not delete the account: '+e.message); return; }
-  LIB.armed = null; $('#libDeleteAccount').textContent = 'Delete my account'; LIB.user = null; cloudAiRefresh(); libRemember(null); LIB.folders = []; LIB.cascades = []; libRender();
+  LIB.armed = null; LIB.user = null; cloudAiRefresh(); libRemember(null); LIB.folders = []; LIB.cascades = []; libRender();
 }
 
 /* ---- start-up: find out which library (if any) this page can use ---- */
 async function libInit(){
-  $('#libNew').addEventListener('click',()=>libNewCascade(null));
-  $('#libFolder').addEventListener('click',libNewFolder);
-  $('#libSaveCur').addEventListener('click',libSaveCurrent);
-  $('#libSignOut').addEventListener('click',libSignOut);
-  $('#libDeleteAccount').addEventListener('click',libDeleteAccount);
+  libRender();
   $('#railLib').addEventListener('click',()=>openSettings('library'));
   $('#openName').addEventListener('click',()=>openSettings('library'));
   if(LOCAL) LIB.kind = 'local';

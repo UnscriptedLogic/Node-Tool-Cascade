@@ -7,6 +7,7 @@ const ROOT = path.resolve(__dirname,'..','..');
 const { assemble } = require('../../scripts/assemble');
 const APP = assemble({ inline:true });
 const sleep = (ms) => new Promise(r=>setTimeout(r,ms));
+const tick = async () => { await Promise.resolve(); await sleep(0); };
 // Same transformation scripts/build.js performs for the GitHub Pages version.
 const webHtml = () => assemble({ inline:true, runtime:'<script>window.__WEB__=true;</script>' }).split('__REPO_URL__').join('https://github.com/example/cascade');
 
@@ -46,4 +47,4 @@ function open({ html = APP, url = 'https://cascade.test/', claude, fetchImpl, se
   const drop = async (kind,text,ms = 600) => { click($(`.tile[data-type="${kind}"]`)); type($('#compose textarea'),text); click($('#cOk')); await sleep(ms); };
   return { dom, w, d, $, $$, click, type, nodes, byText, byId, escape, drop, sleep, errs, navigated, opened };
 }
-module.exports = { open, APP, webHtml, sleep, ROOT };
+module.exports = { open, APP, webHtml, sleep, tick, ROOT };

@@ -1,11 +1,15 @@
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
+import Library from './islands/Library.jsx';
 import './ui.css';
 
 export { proxy, subscribe, snapshot, ref } from 'valtio/vanilla';
+export { connect } from './bridge.js';
 
 const islands = new Map();
 const roots = new Map();
+islands.set('library', Library);
 
 export function register(name, component) {
   islands.set(name, component);
@@ -22,7 +26,8 @@ export function mount(name, el) {
   }
   const root = createRoot(el);
   roots.set(name, { root, el });
-  root.render(createElement(Component));
+  // Legacy startup code queries island elements immediately after the first mount.
+  flushSync(() => root.render(createElement(Component)));
 }
 
 export function unmount(name) {

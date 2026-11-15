@@ -2,7 +2,7 @@
 // The Library tab in the local app: several Cascades, folders, autosave of the open one, and switching between them.
 const test = require('node:test'), assert = require('node:assert/strict');
 const { bootServer, page } = require('./helpers/server');
-const { sleep } = require('./helpers/dom');
+const { sleep, tick } = require('./helpers/dom');
 
 const api = (s) => async (method,path,body) => { const r = await fetch(s.base+'/api/'+path,{ method, headers:{ 'content-type':'application/json' }, body:body ? JSON.stringify(body) : undefined }); return r.json(); };
 async function until(fn,ms = 4000){ const t0 = Date.now(); while(Date.now()-t0<ms){ if(await fn()) return true; await sleep(50); } return false; }
@@ -12,11 +12,11 @@ test('library UI: appears in the local app, makes Cascades and folders, autosave
   const a = await page(s); await sleep(500);
   a.escape();
   assert.equal(a.$('#railLib').hidden,false); assert.equal(a.$('#libTab').hidden,false);
-  a.click(a.$('#railLib'));
+  a.click(a.$('#railLib')); await tick();
   assert.equal(a.$('#libSaveCur').hidden,false,'the tree you already have can be saved');
   a.click(a.$('#libSaveCur'));
   assert.ok(await until(async()=>(await j('GET','library')).cascades.length===1),'saved as a Cascade');
-  const first = (await j('GET','library')).cascades[0];
+  const first = (await j('GET','library')).cascades[0]; await tick();
   a.type(a.$('.lib-name-input'),'Roadmap'); a.$('.lib-name-input').dispatchEvent(new a.w.KeyboardEvent('keydown',{ key:'Enter', bubbles:true }));
   assert.ok(await until(async()=>(await j('GET','library')).cascades[0].name==='Roadmap'),'renamed');
   assert.equal(a.$('#openName').hidden,false); assert.equal(a.$('#openName').textContent,'Roadmap','the open Cascade is named under the logo');
@@ -44,7 +44,7 @@ test('library UI: appears in the local app, makes Cascades and folders, autosave
   assert.equal(a.$('#openName').textContent,'Experiments','still working in the other Cascade');
   a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`)); await sleep(400);
   assert.equal(a.$('#openName').textContent,'Q3 / Roadmap','folder and name');
-  a.click(a.$('#railLib'));
+  a.click(a.$('#railLib')); await tick();
 
   // switch back to the first Cascade: its own (empty or saved) tree and name replace the canvas
   a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`)); await sleep(500);
@@ -52,7 +52,7 @@ test('library UI: appears in the local app, makes Cascades and folders, autosave
   assert.deepEqual(a.errs,[]);
 
   // deleting takes two clicks
-  a.click(a.$('#railLib'));
+  a.click(a.$('#railLib')); await tick();
   const del = a.$(`.lib-row[data-id="${second.id}"] .btn.small:last-of-type`); a.click(del);
   assert.equal((await j('GET','library')).cascades.length,2,'one click only arms it');
   a.click(a.$(`.lib-row[data-id="${second.id}"] .btn.danger`));
@@ -79,10 +79,17 @@ test('library UI: with a cloud backend the page shows Google sign-in, and the li
   };
   const a = open({ html:webHtml(), url:'https://someone.github.io/cascade/', fetchImpl }); await sleep(500);
   assert.equal(a.$('#libTab').hidden,false); assert.equal(a.$('#railLib').hidden,false);
-  a.click(a.$('#railLib'));
+  a.click(a.$('#railLib')); await tick();
   assert.equal(a.$('#libAccount').hidden,false); assert.match(a.$('#libWho').textContent,/Sign in/);
   assert.equal(a.$('#libTools').hidden,true,'no tools until signed in'); assert.equal(a.$$('#libList .lib-row').length,0);
-  signedIn = true; await a.w.libRefresh(); await sleep(50);
+  signedIn = true; await a.w.libRefresh(); await tick();
   assert.match(a.$('#libWho').textContent,/Ada/); assert.equal(a.$('#libTools').hidden,false);
   assert.equal(a.$$('#libList .lib-row').length,1); assert.equal(a.$('#libList .lib-open').textContent,'Cloud one');
+  a.w.eval("LIB.cascades[0].name = 'Renamed without libRender'"); await tick();
+  assert.equal(a.$('#libList .lib-open').textContent,'Renamed without libRender');
+  const google = a.$('#libGoogle'), marker = a.d.createElement('span');
+  marker.textContent = 'Google-owned content'; google.append(marker);
+  a.w.eval("LIB.status = 'A status update'"); await tick();
+  assert.equal(a.$('#libGoogle'),google); assert.equal(marker.parentNode,google);
+
 });

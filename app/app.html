@@ -282,17 +282,7 @@
         <section class="spane" id="p-library" role="tabpanel" hidden>
           <h3>Library</h3>
           <p class="lead">Keep several Cascades and group them in folders. The one you have open saves itself as you work.</p>
-          <div class="field" id="libAccount" hidden>
-            <span class="lbl">Account</span>
-            <small id="libWho"></small>
-            <div id="libGoogle"></div>
-            <div class="frow"><button class="btn" id="libSignOut" type="button" hidden>Sign out</button><button class="btn small" id="libDeleteAccount" type="button" hidden>Delete my account</button></div>
-          </div>
-          <div class="field" id="libTools" hidden>
-            <div class="frow"><button class="btn primary" id="libNew" type="button">New Cascade</button><button class="btn" id="libFolder" type="button">New folder</button><button class="btn" id="libSaveCur" type="button" hidden>Save the tree I have open</button></div>
-            <small id="libStatus" aria-live="polite"></small>
-          </div>
-          <div id="libList"></div>
+          <div id="libraryRoot" class="cui"></div>
         </section>
 
         <section class="spane" id="p-behavior" role="tabpanel" hidden>
