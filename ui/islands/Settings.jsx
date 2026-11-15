@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import template from '../templates/settings-view.json';
 import Providers from './Providers.jsx';
 import { version } from '../../package.json';
 
-const call = (name, ...args) => window[name](...args);
+const call = (name, ...args) => getLegacy().actions[name](...args);
 const textFields = {gGoal:'goal',gContext:'context',gPillars:'pillars',gAvoid:'avoid'};
 const checks = {bAutoGrow:'autoGrow',bAutoTrace:'autoTrace',bPushback:'pushback',pUse:'useProject',pAsk:'askFiles',aFiles:'askFiles',sQuitClose:'quitOnClose'};
 const segments = {bLayout:'mobileLayout',gSteer:'steer',bSize:'growSize',aTheme:'theme',bGrill:'grillStyle'};
@@ -18,13 +18,9 @@ export default function Settings() {
   const {PREFS,SETTINGS,DOMAINS,STEER_HELP,MODE,UI} = getLegacy();
   const prefs = useSnapshot(PREFS,{sync:true}), settings = useSnapshot(SETTINGS,{sync:true});
   const shell=useSnapshot(UI,{sync:true}),fileInput=useRef(null);
+  useLayoutEffect(()=>{document.getElementById('app').inert=!!shell.bye||(settings.open&&settings.tab!=='look');},[shell.bye,settings.open,settings.tab]);
   const domain = DOMAINS[prefs.domain] || DOMAINS.general;
-  const setPref = (key,value) => {
-    PREFS[key]=value; call('savePrefs'); call('updatePreview');
-    if(key==='theme') call('applyTheme');
-    if(key==='mobileLayout') call('applyResponsive',true);
-    if(key==='domain'){ call('track','domain_set',{label:value}); call('applyDomain'); }
-  };
+  const setPref=(key,value)=>call('setPreference',key,value);
   function render(node,index,parent) {
     if(typeof node==='string') return node;
     const {tag,attrs,children}=node, id=attrs.id;

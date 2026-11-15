@@ -1,10 +1,10 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path');
-const Mindsets = require('../app/js/core/mindsets');
-const Conversion = require('../app/js/core/mindset-conversion');
-const presets = require('../app/js/core/mindset-presets');
-const {open,sleep,webHtml} = require('./helpers/dom');
+const Mindsets = require('../shared/mindsets.cjs');
+const Conversion = require('../shared/mindset-conversion.cjs');
+const presets = require('../shared/mindset-presets.cjs');
+const {open,sleep,tick,webHtml} = require('./helpers/dom');
 const {bootServer} = require('./helpers/server');
 const {pdfAsset,copyPdfAssets} = require('../scripts/pdf-assets');
 
@@ -75,7 +75,7 @@ async function generate(a){ a.click(a.$('#mcGenerate')); await a.w.eval('chain')
 test('mindset converter UI: built-in enables without a provider or file import and remains per-tree',async t=>{
   const {a} = setup(t); await sleep(50); a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
   assert.equal(json(a,'S.mindsets').length,0);
-  a.click(a.$('.mindset-builtin button'));
+  a.click(a.$('.mindset-builtin button')); await tick();
   assert.equal(json(a,'S.mindsets')[0].id,'schell-2008-starter'); assert.equal(json(a,'S.mindsets')[0].enabled,true);
   assert.match(a.$('.mindset-pack').textContent,/Inactive in this domain/);
   a.w.eval('libApply(libBlankData())'); assert.equal(json(a,'S.mindsets').length,0); assert.deepEqual(a.errs,[]);

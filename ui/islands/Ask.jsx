@@ -2,7 +2,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function Ask() {
   const {AN,AHIST,S,PREFS,TCOL,VERDICT,DOMAINS}=getLegacy();
   const ask=useSnapshot(AN,{sync:true}), history=useSnapshot(AHIST,{sync:true}), state=useSnapshot(S,{sync:true}), prefs=useSnapshot(PREFS,{sync:true});

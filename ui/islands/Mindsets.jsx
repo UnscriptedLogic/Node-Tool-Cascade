@@ -6,7 +6,7 @@ import template from '../templates/mindsets-view.json';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 function MindsetIcon({pack}){
   const [value,setValue]=useState(pack.icon);
   useEffect(()=>setValue(pack.icon),[pack.icon]);

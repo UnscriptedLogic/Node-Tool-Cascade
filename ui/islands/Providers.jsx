@@ -3,12 +3,12 @@ import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const call = (name,...args)=>window[name](...args);
+const call = (name,...args)=>getLegacy().actions[name](...args);
 
 export default function Providers() {
   const {SETTINGS,PROV,PROV_ORDER,LOCAL}=getLegacy();
   const state=useSnapshot(SETTINGS,{sync:true}), server=state.server;
-  return <div id="provList" onClick={event=>call('onProvClick',event)} onChange={event=>call('onProvChange',event)}>
+  return <div id="provList">
     {PROV_ORDER.map(provider=>{
       const meta=PROV[provider], saved=server?.providers[provider], active=server?.active===provider;
       const draft=state.drafts[provider] || {}, result=state.results[provider] || {};
@@ -22,7 +22,9 @@ export default function Providers() {
       </div><small data-role="modelhint">{!saved?.model && saved?.defaultModel?`Using the default, ${saved.defaultModel}.`:''}</small></div>;
       const test=provider==='demo'?null:<div className="frow"><Button className="btn primary" type="button" data-act="test" disabled={!!state.busy[provider]}>Test connection</Button>
         <span className={'result '+(result.cls || '')} data-role="result" aria-live="polite">{result.text || ''}</span></div>;
-      return <section className={'prov'+(active?' active':'')} data-prov={provider} key={provider} hidden={!saved}>
+      return <section className={'prov'+(active?' active':'')} data-prov={provider} key={provider} hidden={!saved}
+        onClick={e=>{const button=e.target.closest('button[data-act]');if(button)call('onProviderAction',provider,button.dataset.act);}}
+        onChange={e=>{const input=e.target;call('onProviderChange',provider,input.type==='radio'?'active':input.dataset.role,input.value);}}>
         <header><label className="radio"><input type="radio" name="activeProv" value={provider} checked={!!active} onChange={()=>{}}/><span>{meta.label}</span></label>
           <span className={'tag'+(active&&saved?.ready?' on':'')} data-role="status" hidden={!active}>{saved?.ready?'In use':'Needs setup'}</span>
         </header><p className="sub">{meta.sub}</p>

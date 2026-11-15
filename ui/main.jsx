@@ -1,66 +1,17 @@
-import { createElement } from 'react';
-import { createRoot } from 'react-dom/client';
-import { flushSync } from 'react-dom';
-import Library from './islands/Library.jsx';
-import Settings from './islands/Settings.jsx';
-import LookEditor from './islands/LookEditor.jsx';
-import SidePanel from './islands/SidePanel.jsx';
-import Ask from './islands/Ask.jsx';
-import Project from './islands/Project.jsx';
-import SourceViewer from './islands/SourceViewer.jsx';
-import Hud from './islands/Hud.jsx';
-import Rail from './islands/Rail.jsx';
-import Compose from './islands/Compose.jsx';
-import Menu from './islands/Menu.jsx';
-import Mindsets from './islands/Mindsets.jsx';
-import MindsetConverter from './islands/MindsetConverter.jsx';
-import ChatExchange from './islands/ChatExchange.jsx';
-import './ui.css';
-
-export { proxy, subscribe, snapshot, ref } from 'valtio/vanilla';
-export { connect } from './bridge.js';
-export { flushSync as sync } from 'react-dom';
-
-const islands = new Map();
-const roots = new Map();
-islands.set('library', Library);
-islands.set('settings', Settings);
-islands.set('look', LookEditor);
-islands.set('side', SidePanel);
-islands.set('ask', Ask);
-islands.set('project', Project);
-islands.set('source', SourceViewer);
-islands.set('hud', Hud);
-islands.set('rail', Rail);
-islands.set('compose', Compose);
-islands.set('menu', Menu);
-islands.set('mindsets', Mindsets);
-islands.set('converter', MindsetConverter);
-islands.set('chat', ChatExchange);
-
-export function register(name, component) {
-  islands.set(name, component);
-}
-
-export function mount(name, el) {
-  const Component = islands.get(name);
-  if (!Component) throw new Error(`Unknown Cascade UI island: ${name}`);
-  if (!el || el.nodeType !== 1) throw new Error(`Missing container for Cascade UI island: ${name}`);
-  const existing = roots.get(name);
-  if (existing) {
-    if (existing.el !== el) throw new Error(`Cascade UI island already mounted: ${name}`);
-    return;
-  }
-  const root = createRoot(el);
-  roots.set(name, { root, el });
-  // Legacy startup code queries island elements immediately after the first mount.
-  flushSync(() => root.render(createElement(Component)));
-}
-
-export function unmount(name) {
-  const entry = roots.get(name);
-  if (!entry) return false;
-  entry.root.unmount();
-  roots.delete(name);
-  return true;
-}
+export * from './runtime.jsx';
+export { legacy } from './bootstrap.js';
+import { initialize } from './bootstrap.js';
+if(document.getElementById('stage')) initialize();
+import '../app/css/base.css';
+import '../app/css/rail.css';
+import '../app/css/blocks.css';
+import '../app/css/stage.css';
+import '../app/css/hud.css';
+import '../app/css/goal-settings.css';
+import '../app/css/map.css';
+import '../app/css/ask.css';
+import '../app/css/interaction.css';
+import '../app/css/look-editor.css';
+import '../app/css/project.css';
+import '../app/css/library.css';
+import '../app/css/mobile.css';

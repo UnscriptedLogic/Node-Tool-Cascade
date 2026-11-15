@@ -3,7 +3,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function Hud() {
   const {S,PREFS,UI,AI,CONNECTION,hist,ACT,LOCAL,WEB}=getLegacy();
   const state=useSnapshot(S,{sync:true}),prefs=useSnapshot(PREFS,{sync:true}),ui=useSnapshot(UI,{sync:true}),ai=useSnapshot(AI,{sync:true}),connection=useSnapshot(CONNECTION,{sync:true}),history=useSnapshot(hist,{sync:true});
@@ -17,6 +17,7 @@ export default function Hud() {
   // These inputs also affect nodeActions, which is shared with the imperative canvas.
   void state.mindsets.length; void prefs.domain;
   const actions=showBar?call('nodeActions',node,Object.values(state.nodes).some(n=>n.parent===node.id)):[];
+  useLayoutEffect(()=>{if(ui.focus){const element=document.getElementById(ui.focus.id);element?.focus();if(ui.focus.select)element?.select();}},[ui.focus]);
   useLayoutEffect(()=>{document.getElementById('stage').classList.toggle('nb',showBar);},[showBar]);
   const barSignature=showBar?state.sel+'|'+actions.map(action=>action[0]+action[1]).join():'';
   return <>

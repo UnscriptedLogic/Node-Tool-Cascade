@@ -21,6 +21,7 @@ export default defineConfig({
     outDir: fileURLToPath(new URL('../app/gen', import.meta.url)),
     emptyOutDir: true,
     minify: true,
+    cssMinify: false,
     lib: {
       entry: fileURLToPath(new URL('./main.jsx', import.meta.url)),
       name: 'CascadeUI',

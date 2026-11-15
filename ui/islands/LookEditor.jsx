@@ -3,7 +3,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 const checkpoint=()=>call('lkCheckpoint');
 
 function Range({label,field,value,set,min,max,step,unit='',show=true}) {

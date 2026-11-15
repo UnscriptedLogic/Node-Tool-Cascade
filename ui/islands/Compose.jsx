@@ -3,7 +3,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function Compose() {
   const {UI,PREFS,DOMAINS,LABEL,ICONS}=getLegacy(),ui=useSnapshot(UI,{sync:true}),prefs=useSnapshot(PREFS,{sync:true}),input=useRef(null);
   const compose=ui.compose,domain=DOMAINS[prefs.domain]||DOMAINS.general;

@@ -20,7 +20,7 @@ test('startup: existing graphs restore while Load example still supplies the cho
 });
 
 test('startup: saved empty canvases preserve camera and imported mindsets on reload',t=>{
-  const preset = require('../app/js/core/mindset-presets')[0];
+  const preset = require('../shared/mindset-presets.cjs')[0];
   const tree = {nodes:{},order:[],links:[],seq:7,mindsets:[{...preset,enabled:true}]};
   const view = {x:20,y:45,z:.75};
   const a = open({example:false,local:{'cascade-tree-v1':JSON.stringify({tree:JSON.stringify(tree),view})}});

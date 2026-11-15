@@ -3,7 +3,7 @@ import { getLegacy } from '../bridge.js';
 import LegacyTemplate from '../components/LegacyTemplate.jsx';
 import template from '../templates/chat-view.json';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function ChatExchange(){
   const {CHATUI,S}=getLegacy(),chat=useSnapshot(CHATUI,{sync:true}),state=useSnapshot(S,{sync:true});
   const bind=({attrs})=>{

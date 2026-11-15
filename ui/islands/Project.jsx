@@ -4,7 +4,8 @@ import template from '../templates/project-view.json';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
+const formatNumber=n=>n>=10000?Math.round(n/1000)+'k':n>=1000?(n/1000).toFixed(1)+'k':String(n);
 const attributes={class:'className',for:'htmlFor',maxlength:'maxLength',spellcheck:'spellCheck',autocomplete:'autoComplete'};
 export default function Project() {
   const {PROJECTUI,PREFS,DOMAINS}=getLegacy(),ui=useSnapshot(PROJECTUI,{sync:true}),prefs=useSnapshot(PREFS,{sync:true});
@@ -23,7 +24,7 @@ export default function Project() {
     if(id==='pDefaults') content=[project.has&&project.engineIgnore?.length?'Skipped automatically for '+project.engineLabel+': '+project.engineIgnore.join(', '):''];
     if(id==='pStats'){
       const counts=project.counts||{},skipped=Object.values(project.skipped||{}).reduce((a,b)=>a+b,0);
-      return <div {...props}>{[['Engine',project.engineLabel],['Files read',String(counts.files)],['Text',counts.textKB+' KB · about '+call('fmtProjectNumber',counts.tokensEst||0)+' tokens'],['Skipped',String(skipped)]].map(([label,value])=><div key={label}><b>{value}</b>{label}</div>)}</div>;
+      return <div {...props}>{[['Engine',project.engineLabel],['Files read',String(counts.files)],['Text',counts.textKB+' KB · about '+formatNumber(counts.tokensEst||0)+' tokens'],['Skipped',String(skipped)]].map(([label,value])=><div key={label}><b>{value}</b>{label}</div>)}</div>;
     }
     if(id==='pDetail') content=[ui.detail];
     if(id==='pEstimate') content=[ui.estimate];
@@ -38,7 +39,7 @@ export default function Project() {
     const action={pPick:'projectPick',pScan:'projectScan',pCancel:'cancelProjectScan',pBuild:'buildBrief',pStop:'stopProject',pRestore:'restoreProjectBrief',pForget:'forgetProject'}[id];
     if(action) props.onClick=()=>call(action);
     if(id==='pSeed') props.onClick=()=>{call('closeSettings');call('seedFromProject');};
-    if(id==='pUse'||id==='pAsk'){const key=id==='pUse'?'useProject':'askFiles';props.checked=prefs[key];props.onChange=e=>{PREFS[key]=e.currentTarget.checked;call('savePrefs');call('updatePreview');};}
+    if(id==='pUse'||id==='pAsk'){const key=id==='pUse'?'useProject':'askFiles';props.checked=prefs[key];props.onChange=e=>{call('setPreference',key,e.currentTarget.checked);};}
     const Tag=tag==='button'&&!parent?.attrs?.id?.includes('Depth')?Button:tag==='input'&&attrs.type==='text'?Input:tag;
     return <Tag {...props}>{content.length?content.map((child,i)=>render(child,i,node)):undefined}</Tag>;
   }

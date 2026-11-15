@@ -4,7 +4,7 @@ import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const call = (name, ...args) => window[name](...args);
+const call = (name, ...args) => getLegacy().actions[name](...args);
 const when = (time) => {
   const date = new Date(time);
   return isFinite(date) ? date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';

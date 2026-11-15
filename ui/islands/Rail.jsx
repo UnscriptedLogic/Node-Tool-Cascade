@@ -2,7 +2,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function Rail() {
   const {UI,PREFS,DOMAINS,LABEL,ICONS,MOOD_KEYS,MOODS}=getLegacy(),ui=useSnapshot(UI,{sync:true}),prefs=useSnapshot(PREFS,{sync:true});
   const library=ui.library, signedIn=library&&(library.kind==='local'||library.user),current=library?.cascades.find(c=>c.id===library.currentId),folder=current?.folderId?library.folders.find(f=>f.id===current.folderId):null;

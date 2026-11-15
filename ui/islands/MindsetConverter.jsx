@@ -3,7 +3,7 @@ import { getLegacy } from '../bridge.js';
 import LegacyTemplate from '../components/LegacyTemplate.jsx';
 import template from '../templates/converter-view.json';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function MindsetConverter(){
   const {MSCONVERT}=getLegacy(),ui=useSnapshot(MSCONVERT,{sync:true});
   const bind=({tag,attrs})=>{

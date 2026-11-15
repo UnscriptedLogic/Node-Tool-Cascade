@@ -3,7 +3,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 
 function Card({card,hidden}) {
   const input=useRef(null),{TICKET_ASK,TICKET_LABEL,Mindsets}=getLegacy();
@@ -60,7 +60,7 @@ export default function SidePanel() {
         <div id="gSession" hidden={!grill.active}><div className="ghead"><span id="gScope">{grill.resolve?'Resolving one question':scope?'Grilling: '+scope.text.slice(0,44):'Grilling the whole tree'}</span><span id="gRound">{grill.resolve?'':'Round '+grill.round}</span></div>
           <div id="gCards">{grill.cards.map(card=><Card key={card.id} card={card} hidden={prefs.grillStyle==='single'&&!grill.resolve&&card.status==='open'&&card.id!==firstOpen?.id}/>)}</div>
           <small id="gNote" className="gnote" hidden={!panel.grillNote}>{panel.grillNote}</small><div id="gDone" className="gdone" hidden={!panel.doneMessage}>{panel.doneMessage}</div>
-          <div className="gfoot"><Button className="btn primary" id="gNext" type="button" hidden={grill.resolve||grill.done} disabled={grill.busy} onClick={()=>call('nextRound')}>{grill.busy?'Asking…':'Next round'}</Button><Button className="btn" id="gEnd" type="button" onClick={()=>{call('resetG');PANEL.idleMessage='';call('renderGrillShell');}}>End session</Button></div>
+          <div className="gfoot"><Button className="btn primary" id="gNext" type="button" hidden={grill.resolve||grill.done} disabled={grill.busy} onClick={()=>call('nextRound')}>{grill.busy?'Asking…':'Next round'}</Button><Button className="btn" id="gEnd" type="button" onClick={()=>{call('resetG');PANEL.idleMessage='';}}>End session</Button></div>
         </div>
       </section>
       <section id="s-ask" hidden={panel.tab!=='ask'}><div id="askRoot"/></section>

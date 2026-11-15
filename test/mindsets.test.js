@@ -1,6 +1,6 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
-const Mindsets = require('../app/js/core/mindsets');
+const Mindsets = require('../shared/mindsets.cjs');
 const { cleanData } = require('../shared/library');
 
 const pack = (id = 'design-lenses', domains = ['game']) => ({schemaVersion:1,id,version:'1.0.0',name:'Design lenses',icon:'🔍',domains,
@@ -80,9 +80,9 @@ test('mindsets UI: import several, disable, override icons, remove and undo with
   a.type(a.$('.mindset-pack input[type=text]'),'💡');
   a.$('.mindset-pack input[type=text]').dispatchEvent(new a.w.FocusEvent('focusout',{bubbles:true}));
   assert.equal(evalJson(a,'S.mindsets')[0].icon,'💡');
-  a.click([...a.$$('.mindset-pack button')].find(b=>b.textContent==='Remove'));
+  a.click([...a.$$('.mindset-pack button')].find(b=>b.textContent==='Remove')); await tick();
   assert.equal(a.$$('.mindset-pack').length,1);
-  a.w.eval('undo()'); a.w.eval('renderMindsets()');
+  a.w.eval('undo()'); await tick();
   assert.equal(a.$$('.mindset-pack').length,2);
   const saved = JSON.parse(JSON.parse(a.w.localStorage.getItem('cascade-tree-v1')).tree);
   assert.equal(saved.mindsets.length,2);
@@ -101,7 +101,7 @@ test('mindsets UI: invalid and duplicate imports leave existing packs untouched'
 test('mindsets UI: explicit generation creates labelled question suggestions and preserves provenance after removal',async t=>{
   const lines = [tagged(),tagged(),tagged({mindset:{packId:'design-lenses',entryId:'invented',why:'Unknown'}}),tagged({type:'answer'}),tagged({text:'Ordinary untagged question?',mindset:undefined})].map(JSON.stringify).join('\n');
   const {a,prompts} = setup(t,lines); await sleep(60); await importPack(a);
-  a.w.eval("select('n6')"); a.w.eval('renderMindsets()');
+  a.w.eval("select('n6')"); await tick();
   a.click([...a.$$('.mindset-pack button')].find(b=>b.textContent==='Apply to selected node')); await finish(a);
   const nodes = evalJson(a,'Object.values(S.nodes).filter(n=>n.mindset)'); assert.equal(nodes.length,1);
   const q = nodes[0]; assert.equal(q.type,'question'); assert.equal(q.ghost,true); assert.equal(q.parent,'n6');
@@ -109,7 +109,7 @@ test('mindsets UI: explicit generation creates labelled question suggestions and
   assert.match(a.byId(q.id).querySelector('.mindset-label').title,/Traversal repeats/);
   a.click(a.byId(q.id).querySelector('.mindset-label')); assert.match(a.$('#ntxt').textContent,/Workshop notes/);
   assert.match(prompts[0],/ONLY when they directly help/); assert.doesNotMatch(prompts[0],/Readable Combat/);
-  a.w.eval(`acceptGhost('${q.id}'); startResolve('${q.id}')`);
+  a.w.eval(`acceptGhost('${q.id}'); startResolve('${q.id}')`); await tick();
   assert.match(a.$('.gq').textContent,/Meaningful Return/);
   a.type(a.$('.gans'),'Returning unlocks new paths.'); a.click(a.$('[data-gact=answer]')); await sleep(30);
   assert.equal(evalJson(a,`S.nodes['${q.id}']`).state,'settled');

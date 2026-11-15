@@ -2,7 +2,7 @@ import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 import { Button } from '@/components/ui/button';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function SourceViewer() {
   const source=useSnapshot(getLegacy().SV,{sync:true}),current=source.list[source.i];
   return <div id="srcview" role="dialog" aria-modal="true" aria-labelledby="svTitle" hidden={!source.open}>

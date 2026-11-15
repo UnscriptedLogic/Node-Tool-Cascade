@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from 'react';
 import { useSnapshot } from 'valtio';
 import { getLegacy } from '../bridge.js';
 
-const call=(name,...args)=>window[name](...args);
+const call=(name,...args)=>getLegacy().actions[name](...args);
 export default function Menu() {
   const ui=useSnapshot(getLegacy().UI,{sync:true}),element=useRef(null),menu=ui.menu;
   useLayoutEffect(()=>{

@@ -124,21 +124,23 @@ test('performance: the grid layer carries the pan and zoom variables, so no bloc
 
 test('performance: a camera-only animation does not redraw the edges, but changing the tree does',async()=>{
   const a = open({ local:GAME }); await sleep(500);
-  let n = 0; const real = a.w.drawEdges; a.w.drawEdges = () => { n++; return real(); };
+  let n = 0; const observer = new a.w.MutationObserver(records=>{ n+=records.length; });
+  observer.observe(a.$('#eg'),{attributes:true,childList:true,subtree:true});
   await sleep(300); n = 0;
   a.w.eval("fitTo(visibleIds(),{maxZ:1,minZ:.3,pad:56})"); await sleep(700);
   assert.equal(n,0,'panning and zooming leave the edges as they are');
   a.w.eval("S.nodes[S.order.find(i=>S.nodes[i].type==='question')].text = 'Changed'; layout(false)"); await sleep(400);
-  assert.ok(n>0,'a change to the tree redraws them');
+  assert.ok(n>0,'a change to the tree redraws them'); observer.disconnect();
 });
 
 test('performance: a burst of pointer moves is applied once per frame',async()=>{
   const a = phone(); await sleep(500);
-  let n = 0; const real = a.w.applyView; a.w.applyView = () => { n++; return real(); };
+  let n = 0; const observer = new a.w.MutationObserver(records=>{ n+=records.length; });
+  observer.observe(a.$('#world'),{attributes:true,attributeFilter:['style']});
   ptr(a,'pointerdown',a.$('#stage'),100,300);
   for(let i=1;i<=40;i++) ptr(a,'pointermove',a.$('#stage'),100+i*2,300);
   const x = a.w.eval('S.view.x'); ptr(a,'pointerup',a.$('#stage'),180,300); await sleep(80);
-  assert.ok(n<=4,`40 moves caused ${n} camera updates`); assert.ok(a.w.eval('S.view.x')===x,'and the view still ended where the finger did');
+  assert.ok(n<=4,`40 moves caused ${n} camera updates`); assert.ok(a.w.eval('S.view.x')===x,'and the view still ended where the finger did'); observer.disconnect();
 });
 
 test('performance: restyle leaves blocks whose classes did not change alone',async()=>{

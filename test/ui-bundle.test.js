@@ -37,8 +37,16 @@ test('UI bundle mounts once per name and releases its root',async(t)=>{
   ui.mount('example',el); await sleep(30); assert.equal(el.textContent,'Mounted'); ui.unmount('example');
 });
 
-test('bundle precedes the legacy scripts and emits only the expected files',()=>{
-  assert.equal(manifest().js[0],'gen/ui.js'); assert.equal(manifest().css[0],'gen/ui.css');
+test('manifest uses one script bundle and emits only the expected files',()=>{
+  assert.deepEqual(manifest().js,['gen/ui.js']); assert.deepEqual(manifest().css,['gen/ui.css']);
   assert.deepEqual(fs.readdirSync(path.join(__dirname,'../app/gen')).sort(),['ui.css','ui.js']);
   assert.ok(assemble().includes('Copyright (c) 2023 shadcn'),'self-contained distribution retains the component license');
+});
+
+test('production loads without exposing model globals',async(t)=>{
+  const a=open({example:false,exposeInternals:false});t.after(()=>a.dom.window.close());await sleep(20);
+  for(const name of ['S','PREFS','LIB','layout','applyView','drawEdges','openSettings'])assert.equal(a.w[name],undefined,name);
+  assert.ok(a.w.CascadeUI.legacy.S);
+  assert.equal(a.$('#rail').tagName,'ASIDE');
+  assert.deepEqual(a.errs,[]);
 });
