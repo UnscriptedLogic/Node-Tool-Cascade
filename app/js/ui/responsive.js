@@ -106,6 +106,6 @@ function nodeMenuSpec(id){
 }
 function openCanvasMenu(x,y){ openMenu(canvasMenuSpec(x,y),{ x,y }); }
 function openNodeMenu(id,x,y){ if(S.nodes[id]) openMenu(nodeMenuSpec(id),{ x,y }); }
-function setMobileLayout(v){ PREFS.mobileLayout = v==='minimal' ? 'minimal' : 'standard'; savePrefs(); applyResponsive(true); syncers.forEach(f=>f()); }
+function setMobileLayout(v){ PREFS.mobileLayout = v==='minimal' ? 'minimal' : 'standard'; savePrefs(); applyResponsive(true); }
 
 applyResponsive(true);

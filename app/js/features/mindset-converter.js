@@ -1,26 +1,9 @@
 'use strict';
 /* ================= source-to-mindset workspace ================= */
-const MSCONVERT = {ctl:null,units:null,warnings:[],draft:null,task:null};
-function conversionBusy(on){
-  $('#msConverter').querySelectorAll('input,textarea,button').forEach(el=>{ el.disabled = on && el.id!=='mcStop'; });
-  $('#mcStop').hidden = !on;
-}
-function clearMindsetDraft(){
-  MSCONVERT.draft = null; $('#mcReview').hidden = true; $('#mcJson').value = ''; $('#mcEntries').textContent = '';
-}
-function renderMindsetDraft(pack,report){
-  MSCONVERT.draft = pack; $('#mcJson').value = JSON.stringify(pack,null,2); $('#mcReview').hidden = false;
-  $('#mcReport').textContent = report; const list = $('#mcEntries'); list.textContent = '';
-  for(const entry of pack.entries){
-    const details = document.createElement('details'), summary = document.createElement('summary');
-    summary.textContent = `${entry.label}${entry.number ? ' #'+entry.number : ''}: ${entry.name}`;
-    details.appendChild(summary);
-    const info = document.createElement('p'); info.className = 'small'; info.textContent = 'Topics: '+entry.topics.join(', '); details.appendChild(info);
-    for(const question of entry.questions){ const p = document.createElement('p'); p.textContent = question; details.appendChild(p); }
-    const refs = document.createElement('p'); refs.className = 'small'; refs.textContent = entry.references.map(r=>r.source+' — '+r.location).join('; '); details.appendChild(refs);
-    list.appendChild(details);
-  }
-}
+const MSCONVERT=CascadeUI.proxy({ctl:null,units:null,warnings:[],draft:null,task:null,busy:false,status:'',info:'',report:'',name:'',title:'',edition:'',url:'',limit:'100',text:'',json:'',domains:[]});
+function conversionBusy(on){ MSCONVERT.busy=on; }
+function clearMindsetDraft(){ MSCONVERT.draft=null; MSCONVERT.json=''; }
+function renderMindsetDraft(pack,report){ MSCONVERT.draft=pack; MSCONVERT.json=JSON.stringify(pack,null,2); MSCONVERT.report=report; }
 async function extractMindsetPdf(file,{signal,onProgress} = {},loader){
   const base = new URL('vendor/pdfjs/',document.baseURI);
   let lib;
@@ -68,35 +51,35 @@ async function extractMindsetFile(file,options){
 }
 async function readMindsetSources(files){
   if(!files.length) return;
-  if(files.length>8){ $('#mcStatus').textContent = 'Choose up to 8 source files at once.'; return; }
+  if(files.length>8){ MSCONVERT.status = 'Choose up to 8 source files at once.'; return; }
   cancelAI(); clearMindsetDraft();
-  const c = new AbortController(); MSCONVERT.ctl = c; conversionBusy(true);
+  const c = new AbortController(); MSCONVERT.ctl = CascadeUI.ref(c); conversionBusy(true);
   try{
     let units = [], warnings = [];
     for(const file of files){
       if(c.signal.aborted) return;
-      $('#mcStatus').textContent = 'Reading '+file.name+'…';
-      const result = await extractMindsetFile(file,{signal:c.signal,onProgress:message=>{ $('#mcStatus').textContent = message; }});
+      MSCONVERT.status = 'Reading '+file.name+'…';
+      const result = await extractMindsetFile(file,{signal:c.signal,onProgress:message=>{ MSCONVERT.status = message; }});
       if(c.signal.aborted) return;
       units = units.concat(result.units); warnings = warnings.concat(result.warnings);
     }
     const chunks = MindsetConversion.chunks(units);
     MSCONVERT.units = units; MSCONVERT.warnings = warnings;
-    $('#mcText').value = units.map(u=>u.text).join('\n\n');
-    if(!$('#mcName').value.trim()) $('#mcName').value = files[0].name.replace(/\.[^.]+$/,'').slice(0,80);
-    if(!$('#mcSourceTitle').value.trim()) $('#mcSourceTitle').value = files.map(f=>f.name).join(', ').slice(0,200);
-    $('#mcSourceInfo').textContent = `${files.length} ${files.length===1?'file':'files'}, ${units.length} source ${units.length===1?'section':'sections'}. ${chunks.length} provider ${chunks.length===1?'call':'calls'} for full extracted-text coverage. ${warnings.join(' ')}`;
-    $('#mcStatus').textContent = chunks.length ? 'Source ready. Check the name and allowed domains, then generate a draft.' : 'No readable text found.';
-  }catch(e){ $('#mcStatus').textContent = c.signal.aborted ? 'Reading stopped.' : e.message; }
-  finally{ if(MSCONVERT.ctl===c){ if(c.signal.aborted) $('#mcStatus').textContent = 'Reading stopped.'; MSCONVERT.ctl = null; conversionBusy(false); } }
+    MSCONVERT.text = units.map(u=>u.text).join('\n\n');
+    if(!MSCONVERT.name.trim()) MSCONVERT.name = files[0].name.replace(/\.[^.]+$/,'').slice(0,80);
+    if(!MSCONVERT.title.trim()) MSCONVERT.title = files.map(f=>f.name).join(', ').slice(0,200);
+    MSCONVERT.info = `${files.length} ${files.length===1?'file':'files'}, ${units.length} source ${units.length===1?'section':'sections'}. ${chunks.length} provider ${chunks.length===1?'call':'calls'} for full extracted-text coverage. ${warnings.join(' ')}`;
+    MSCONVERT.status = chunks.length ? 'Source ready. Check the name and allowed domains, then generate a draft.' : 'No readable text found.';
+  }catch(e){ MSCONVERT.status = c.signal.aborted ? 'Reading stopped.' : e.message; }
+  finally{ if(MSCONVERT.ctl===c){ if(c.signal.aborted) MSCONVERT.status = 'Reading stopped.'; MSCONVERT.ctl = null; conversionBusy(false); } }
 }
 function conversionOptions(){
-  const name = $('#mcName').value.trim(), domains = [...$('#mcDomains').querySelectorAll('input:checked')].map(el=>el.value);
+  const name = MSCONVERT.name.trim(), domains = [...MSCONVERT.domains];
   if(!name) throw new Error('Name the mindset first.');
   if(!domains.length) throw new Error('Choose at least one allowed domain.');
-  const limit = Number($('#mcLimit').value);
+  const limit = Number(MSCONVERT.limit);
   if(!Number.isInteger(limit) || limit<1 || limit>200) throw new Error('Maximum entries must be between 1 and 200.');
-  const source = {title:$('#mcSourceTitle').value.trim() || name,edition:$('#mcEdition').value.trim(),url:$('#mcUrl').value.trim()};
+  const source = {title:MSCONVERT.title.trim() || name,edition:MSCONVERT.edition.trim(),url:MSCONVERT.url.trim()};
   if(source.url){ try{ if(!['http:','https:'].includes(new URL(source.url).protocol)) throw new Error(); }catch(e){ throw new Error('Use an http or https source link.'); } }
   return {name,domains,limit,source};
 }
@@ -104,21 +87,21 @@ function generateMindsetDraft(){
   let options, chunks;
   try{
     options = conversionOptions();
-    const text = $('#mcText').value;
+    const text = MSCONVERT.text;
     chunks = MindsetConversion.chunks(MSCONVERT.units || MindsetConversion.textUnits(text,'Pasted text'));
     if(!chunks.length || !text.trim()) throw new Error('Add readable source material first.');
     if(!aiAvailable() || ((LOCAL || WEB) && activeProvider()==='demo')) throw new Error('Connect a provider in Settings > AI model. Demo mode cannot convert source material.');
-  }catch(e){ $('#mcStatus').textContent = e.message; return; }
+  }catch(e){ MSCONVERT.status = e.message; return; }
   cancelAI(); clearMindsetDraft();
-  const c = new AbortController(), warnings = [...MSCONVERT.warnings]; MSCONVERT.ctl = c; conversionBusy(true);
-  $('#mcStatus').textContent = `Queued conversion: up to ${chunks.length} provider ${chunks.length===1?'call':'calls'}.`;
-  MSCONVERT.task = enqueue(async()=>{
+  const c = new AbortController(), warnings = [...MSCONVERT.warnings]; MSCONVERT.ctl = CascadeUI.ref(c); conversionBusy(true);
+  MSCONVERT.status = `Queued conversion: up to ${chunks.length} provider ${chunks.length===1?'call':'calls'}.`;
+  MSCONVERT.task = CascadeUI.ref(enqueue(async()=>{
     ctl = c; setBusy('Converting mindset source…',true);
     let entries = [], processed = 0, rejected = 0, limited = false, failure = '';
     try{
       for(let i=0;i<chunks.length;i++){
         if(c.signal.aborted) break;
-        $('#mcStatus').textContent = `Converting chunk ${i+1} of ${chunks.length}… ${entries.length} ${entries.length===1?'entry':'entries'} collected.`;
+        MSCONVERT.status = `Converting chunk ${i+1} of ${chunks.length}… ${entries.length} ${entries.length===1?'entry':'entries'} collected.`;
         setBusy(`Converting mindset source: ${i+1}/${chunks.length}…`,true);
         const output = await callAI(MindsetConversion.prompt(chunks[i],options,i,chunks.length),{cache:false,signal:c.signal,temperature:0.2});
         if(c.signal.aborted) break;
@@ -137,28 +120,29 @@ function generateMindsetDraft(){
           source:{...options.source,coverage},guidance:'Use these approaches only when the branch topic and goal fit.',entries});
         renderMindsetDraft(pack,report);
       }
-      $('#mcStatus').textContent = entries.length ? 'Draft ready for review. '+report : 'No draft entries produced. '+report;
+      MSCONVERT.status = entries.length ? 'Draft ready for review. '+report : 'No draft entries produced. '+report;
       if(MSCONVERT.ctl===c){ MSCONVERT.ctl = null; conversionBusy(false); }
       if(ctl===c){ ctl = null; setBusy(null);  }
     }
-  });
+  }));
   return MSCONVERT.task;
 }
-function reviewedMindsetDraft(){ return Mindsets.pack(JSON.parse($('#mcJson').value)); }
-$('#mcFiles').addEventListener('change',e=>{ readMindsetSources([...e.target.files]); });
-$('#mcText').addEventListener('input',()=>{
-  MSCONVERT.units = null; MSCONVERT.warnings = []; clearMindsetDraft();
-  try{ const chunks = MindsetConversion.chunks(MindsetConversion.textUnits($('#mcText').value,'Pasted text')); $('#mcSourceInfo').textContent = `${chunks.length} provider ${chunks.length===1?'call':'calls'} for full extracted-text coverage. Pasted text uses line references.`; }
-  catch(e){ $('#mcSourceInfo').textContent = e.message; }
-});
-for(const id of ['mcName','mcSourceTitle','mcEdition','mcUrl','mcLimit','mcDomains']) $('#'+id).addEventListener('change',clearMindsetDraft);
-$('#mcGenerate').addEventListener('click',generateMindsetDraft);
-$('#mcStop').addEventListener('click',()=>{ if(MSCONVERT.ctl) MSCONVERT.ctl.abort(); });
-$('#mcImport').addEventListener('click',()=>{
-  try{ const pack = reviewedMindsetDraft(); importMindsets(pack); $('#mcStatus').textContent = 'Imported '+pack.name+'.'; }
-  catch(e){ $('#mcStatus').textContent = e.message; }
-});
-$('#mcDownload').addEventListener('click',()=>{
-  try{ const pack = reviewedMindsetDraft(); downloadMindset(pack,pack.id+'.mindset.json'); }
-  catch(e){ $('#mcStatus').textContent = e.message; }
-});
+function reviewedMindsetDraft(){ return Mindsets.pack(JSON.parse(MSCONVERT.json)); }
+function editMindsetSource(value){
+  MSCONVERT.text=value; MSCONVERT.units=null; MSCONVERT.warnings=[]; clearMindsetDraft();
+  try{ const chunks=MindsetConversion.chunks(MindsetConversion.textUnits(value,'Pasted text')); MSCONVERT.info=`${chunks.length} provider ${chunks.length===1?'call':'calls'} for full extracted-text coverage. Pasted text uses line references.`; }
+  catch(e){ MSCONVERT.info=e.message; }
+}
+function setConversionField(field,value){ MSCONVERT[field]=value; if(field!=='json') clearMindsetDraft(); }
+function setConversionDomain(domain,on){ MSCONVERT.domains=on?[...new Set([...MSCONVERT.domains,domain])]:MSCONVERT.domains.filter(d=>d!==domain); clearMindsetDraft(); }
+function stopMindsetConversion(){ MSCONVERT.ctl?.abort(); }
+function importConvertedMindset(){
+  try{ const pack=reviewedMindsetDraft(); importMindsets(pack); MSCONVERT.status='Imported '+pack.name+'.'; }
+  catch(e){ MSCONVERT.status=e.message; }
+}
+function downloadConvertedMindset(){
+  try{ const pack=reviewedMindsetDraft(); downloadMindset(pack,pack.id+'.mindset.json'); }
+  catch(e){ MSCONVERT.status=e.message; }
+}
+CascadeUI.connect({MSCONVERT});
+CascadeUI.mount('converter',$('#converterRoot'));

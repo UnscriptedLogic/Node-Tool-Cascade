@@ -12,6 +12,9 @@ import Hud from './islands/Hud.jsx';
 import Rail from './islands/Rail.jsx';
 import Compose from './islands/Compose.jsx';
 import Menu from './islands/Menu.jsx';
+import Mindsets from './islands/Mindsets.jsx';
+import MindsetConverter from './islands/MindsetConverter.jsx';
+import ChatExchange from './islands/ChatExchange.jsx';
 import './ui.css';
 
 export { proxy, subscribe, snapshot, ref } from 'valtio/vanilla';
@@ -31,6 +34,9 @@ islands.set('hud', Hud);
 islands.set('rail', Rail);
 islands.set('compose', Compose);
 islands.set('menu', Menu);
+islands.set('mindsets', Mindsets);
+islands.set('converter', MindsetConverter);
+islands.set('chat', ChatExchange);
 
 export function register(name, component) {
   islands.set(name, component);

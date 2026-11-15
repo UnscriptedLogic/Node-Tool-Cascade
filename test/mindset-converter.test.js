@@ -67,7 +67,7 @@ function prepare(a,text = SOURCE){
   a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]')); a.$('#msConverter').open = true;
   a.type(a.$('#mcName'),'Budget assumptions'); a.type(a.$('#mcSourceTitle'),'Workshop notes');
   a.type(a.$('#mcText'),text);
-  a.$('#mcDomains input[value=general]').checked = true;
+  a.click(a.$('#mcDomains input[value=general]'));
 }
 const json = (a,expr) => JSON.parse(a.w.eval(`JSON.stringify(${expr})`));
 async function generate(a){ a.click(a.$('#mcGenerate')); await a.w.eval('chain'); }
@@ -115,7 +115,7 @@ test('mindset converter UI: stop cancels provider work and fabricated evidence c
 test('mindset converter UI: demo cannot convert and allowed domains cannot be omitted',async t=>{
   const {a,prompts} = setup(t,'',{html:webHtml()}); await sleep(50); prepare(a); await generate(a);
   assert.match(a.$('#mcStatus').textContent,/Demo mode cannot/); assert.equal(prompts.length,0);
-  a.$('#mcDomains input:checked').checked = false; await generate(a); assert.match(a.$('#mcStatus').textContent,/at least one/);
+  a.click(a.$('#mcDomains input:checked')); await generate(a); assert.match(a.$('#mcStatus').textContent,/at least one/);
 });
 
 test('mindset converter UI: file reading removes HTML scripts, preserves PDF page references and reports scans',async t=>{

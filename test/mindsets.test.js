@@ -54,7 +54,7 @@ test('mindsets: multiple packs retain source snapshots through shared local/clou
 });
 
 // UI regressions use the app's existing jsdom harness.
-const {open,sleep,webHtml} = require('./helpers/dom');
+const {open,sleep,tick,webHtml} = require('./helpers/dom');
 function setup(t,reply = '',domain = 'game',extra = {}){
   const prompts = [];
   const a = open({local:{'cascade-prefs-v1':JSON.stringify({domain,autoGrow:false,pushback:false})},
@@ -62,22 +62,23 @@ function setup(t,reply = '',domain = 'game',extra = {}){
   t.after(()=>a.dom.window.close());
   return {a,prompts};
 }
-function importPack(a,p = pack()){
+async function importPack(a,p = pack()){
   a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
-  a.$('#msJson').value = JSON.stringify(p); a.click(a.$('#msPasteImport'));
+  a.type(a.$('#msJson'),JSON.stringify(p)); a.click(a.$('#msPasteImport')); await tick();
 }
 const evalJson = (a,code) => JSON.parse(a.w.eval(`JSON.stringify(${code})`));
 async function finish(a){ await a.w.eval('chain'); }
 
 test('mindsets UI: import several, disable, override icons, remove and undo without losing tree data',async t=>{
   const {a} = setup(t); await sleep(60);
-  importPack(a,[pack(),pack('critical-thinking',['general','game'])]);
+  await importPack(a,[pack(),pack('critical-thinking',['general','game'])]);
   assert.equal(a.$$('.mindset-pack').length,2);
   assert.match(a.$('#msMsg').textContent,/Imported 2/);
   assert.ok(a.byId('n6').querySelector('[data-act=mindset]'),'existing nodes gain a mindset action immediately');
-  const on = a.$('.mindset-pack input[type=checkbox]'); on.checked = false; on.dispatchEvent(new a.w.Event('change'));
+  const on = a.$('.mindset-pack input[type=checkbox]'); a.click(on);
   assert.equal(evalJson(a,'S.mindsets')[0].enabled,false);
   a.type(a.$('.mindset-pack input[type=text]'),'💡');
+  a.$('.mindset-pack input[type=text]').dispatchEvent(new a.w.FocusEvent('focusout',{bubbles:true}));
   assert.equal(evalJson(a,'S.mindsets')[0].icon,'💡');
   a.click([...a.$$('.mindset-pack button')].find(b=>b.textContent==='Remove'));
   assert.equal(a.$$('.mindset-pack').length,1);
@@ -91,15 +92,15 @@ test('mindsets UI: import several, disable, override icons, remove and undo with
 });
 
 test('mindsets UI: invalid and duplicate imports leave existing packs untouched',async t=>{
-  const {a} = setup(t); await sleep(60); importPack(a);
-  importPack(a); assert.match(a.$('#msMsg').textContent,/already imported/);
-  importPack(a,{...pack('bad'),domains:[]});
+  const {a} = setup(t); await sleep(60); await importPack(a);
+  await importPack(a); assert.match(a.$('#msMsg').textContent,/already imported/);
+  await importPack(a,{...pack('bad'),domains:[]});
   assert.equal(a.$$('.mindset-pack').length,1); assert.deepEqual(a.errs,[]);
 });
 
 test('mindsets UI: explicit generation creates labelled question suggestions and preserves provenance after removal',async t=>{
   const lines = [tagged(),tagged(),tagged({mindset:{packId:'design-lenses',entryId:'invented',why:'Unknown'}}),tagged({type:'answer'}),tagged({text:'Ordinary untagged question?',mindset:undefined})].map(JSON.stringify).join('\n');
-  const {a,prompts} = setup(t,lines); await sleep(60); importPack(a);
+  const {a,prompts} = setup(t,lines); await sleep(60); await importPack(a);
   a.w.eval("select('n6')"); a.w.eval('renderMindsets()');
   a.click([...a.$$('.mindset-pack button')].find(b=>b.textContent==='Apply to selected node')); await finish(a);
   const nodes = evalJson(a,'Object.values(S.nodes).filter(n=>n.mindset)'); assert.equal(nodes.length,1);
@@ -120,7 +121,7 @@ test('mindsets UI: explicit generation creates labelled question suggestions and
 });
 
 test('mindsets UI: business trees never send game-only packs, even when branch keywords overlap',async t=>{
-  const {a,prompts} = setup(t,JSON.stringify(tagged({parent:'n1'})),'general'); await sleep(60); importPack(a);
+  const {a,prompts} = setup(t,JSON.stringify(tagged({parent:'n1'})),'general'); await sleep(60); await importPack(a);
   a.w.eval("S.nodes.n1.text='Business traversal of the sales pipeline'; select('n1'); applyMindset('n1','design-lenses')"); await finish(a);
   assert.equal(prompts.length,0,'explicit action cannot bypass the domain gate');
   a.w.eval("growNode('n1')"); await finish(a);
@@ -132,7 +133,7 @@ test('mindsets UI: business trees never send game-only packs, even when branch k
 
 test('mindsets UI: automatic grow validates entries against actual parent branch and caps additions',async t=>{
   const reply = [tagged({id:'g1',parent:'n6'}),tagged({id:'g2',parent:'n6',text:'What changes after returning?'}),tagged({id:'g3',parent:'n6',text:'Third lens question?'}),tagged({id:'g4',parent:'n12',text:'Unrelated combat branch?'}),{id:'g5',parent:'n6',type:'question',text:'Ordinary follow-up?'}].map(JSON.stringify).join('\n');
-  const {a} = setup(t,reply); await sleep(60); importPack(a);
+  const {a} = setup(t,reply); await sleep(60); await importPack(a);
   a.w.eval("closeSettings(); growNode('n6')"); await finish(a);
   assert.equal(evalJson(a,'Object.values(S.nodes).filter(n=>n.mindset)').length,2);
   assert.ok(a.byText('Ordinary follow-up')); assert.equal(a.byText('Unrelated combat branch'),undefined);
@@ -140,7 +141,7 @@ test('mindsets UI: automatic grow validates entries against actual parent branch
 });
 
 test('mindsets UI: interview questions keep lens metadata when answered',async t=>{
-  const {a,prompts} = setup(t,JSON.stringify(tagged({parent:'n6',why:'Tests repeated journeys.'}))); await sleep(60); importPack(a);
+  const {a,prompts} = setup(t,JSON.stringify(tagged({parent:'n6',why:'Tests repeated journeys.'}))); await sleep(60); await importPack(a);
   a.w.eval("closeSettings(); startGrill('n6')"); await sleep(150);
   assert.match(prompts[0],/MINDSET QUESTION OPTIONS/);
   assert.match(a.$('.gq').textContent,/Meaningful Return/);
@@ -150,7 +151,7 @@ test('mindsets UI: interview questions keep lens metadata when answered',async t
 });
 
 test('mindsets UI: switching library trees isolates packs; older exports stay compatible',async t=>{
-  const {a} = setup(t); await sleep(60); importPack(a);
+  const {a} = setup(t); await sleep(60); await importPack(a);
   const data = evalJson(a,'libData()'); a.w.eval('libApply(libBlankData())');
   assert.equal(evalJson(a,'S.mindsets').length,0);
   a.w.eval(`libApply(${JSON.stringify(data)})`);
@@ -161,14 +162,14 @@ test('mindsets UI: switching library trees isolates packs; older exports stay co
 });
 
 test('mindsets UI: demo mode does not pretend to apply imported packs',async t=>{
-  const {a} = setup(t,'','game',{html:webHtml()}); await sleep(60); importPack(a);
+  const {a} = setup(t,'','game',{html:webHtml()}); await sleep(60); await importPack(a);
   a.w.eval("closeSettings(); applyMindset('n6','design-lenses')"); await finish(a);
   assert.match(a.$('#ntxt').textContent,/connected provider/);
   assert.equal(evalJson(a,'Object.values(S.nodes).filter(n=>n.mindset)').length,0);
 });
 
 test('mindsets UI: chart uses relevant branches beyond a generic root',async t=>{
-  const {a,prompts} = setup(t,JSON.stringify(tagged({id:'t1',parent:'n6',ticket:'research'}))); await sleep(60); importPack(a);
+  const {a,prompts} = setup(t,JSON.stringify(tagged({id:'t1',parent:'n6',ticket:'research'}))); await sleep(60); await importPack(a);
   a.w.eval("PREFS.goal='Improve traversal'; closeSettings(); chartMap()"); await finish(a);
   assert.match(prompts[0],/MINDSET QUESTION OPTIONS/);
   const q = evalJson(a,'Object.values(S.nodes).find(n=>n.mindset)');
@@ -178,10 +179,10 @@ test('mindsets UI: chart uses relevant branches beyond a generic root',async t=>
 test('mindsets UI: disabling a pack while generation runs prevents stale suggestions',async t=>{
   let release, started;
   const ready = new Promise(resolve=>{started = resolve;});
-  const {a} = setup(t,()=>new Promise(resolve=>{ release = resolve; started(); })); await sleep(60); importPack(a);
+  const {a} = setup(t,()=>new Promise(resolve=>{ release = resolve; started(); })); await sleep(60); await importPack(a);
   a.w.eval("closeSettings(); applyMindset('n6','design-lenses')"); await ready;
   a.click(a.$('#setBtn')); a.click(a.$('[data-tab=mindsets]'));
-  const on = a.$('.mindset-pack input[type=checkbox]'); on.checked = false; on.dispatchEvent(new a.w.Event('change'));
+  const on = a.$('.mindset-pack input[type=checkbox]'); a.click(on);
   release(JSON.stringify(tagged())); await finish(a);
   assert.equal(evalJson(a,'Object.values(S.nodes).filter(n=>n.mindset)').length,0);
   assert.deepEqual(a.errs,[]);

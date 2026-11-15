@@ -55,7 +55,7 @@ function libApply(data){
     S.nodes = t.nodes; S.order = t.order; S.links = t.links || []; S.seq = t.seq || S.order.length; S.sel = null; S.mode = 'detail'; hist.length = 0;
     S.mindsets = mindsets;
     Object.assign(PREFS,{ goal:'', context:'', pillars:'', avoid:'' },data.prefs || {}); savePrefs();
-    syncers.forEach(f=>f()); updatePreview();
+    updatePreview();
     layout(false);
     if(data.view){ vAnim = null; Object.assign(S.view,data.view); applyView(); } else initialView();
     save();

@@ -1,5 +1,6 @@
 'use strict';
 /* ================= mindset controls and generation ================= */
+const MSUI=CascadeUI.proxy({json:'',message:'',revision:0});
 function mindsetContext(id){
   const parts = [], seen = new Set(); let n = S.nodes[id];
   while(n && !seen.has(n.id) && seen.size<3){ seen.add(n.id); parts.push(n.text); n = S.nodes[n.parent]; }
@@ -28,36 +29,31 @@ function downloadMindset(value,name){
   a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 function mindsetChanged(){ save(); renderMindsets(); layout(false);  }
-function renderMindsets(){
-  renderBuiltinMindsets();
-  const list = $('#msList'); list.textContent = '';
-  $('#msEmpty').hidden = S.mindsets.length>0;
-  for(const p of S.mindsets){
-    const card = document.createElement('section'); card.className = 'card mindset-pack'; card.dataset.pack = p.id;
-    const label = document.createElement('label'); label.className = 'check';
-    const on = document.createElement('input'); on.type = 'checkbox'; on.checked = p.enabled; on.setAttribute('aria-label','Enable '+p.name);
-    on.addEventListener('change',()=>{ cancelAI(); pushHist(); p.enabled = on.checked; mindsetChanged(); });
-    const name = document.createElement('strong'); name.textContent = p.name; label.append(on,name); card.appendChild(label);
-    const info = document.createElement('p'); info.className = 'small';
-    info.textContent = `${p.entries.length} ${p.entries.length===1?'entry':'entries'} · ${p.domains.map(d=>DOMAINS[d].label).join(', ')}${p.source.title ? ' · '+p.source.title+(p.source.edition ? ' ('+p.source.edition+')' : '') : ''}`; card.appendChild(info);
-    if(p.source.coverage){ const coverage = document.createElement('p'); coverage.className = 'small'; coverage.textContent = p.source.coverage; card.appendChild(coverage); }
-    const iconLabel = document.createElement('label'); iconLabel.className = 'field'; iconLabel.textContent = 'Node icon';
-    const icon = document.createElement('input'); icon.type = 'text'; icon.maxLength = 16; icon.value = p.icon; icon.setAttribute('aria-label','Icon for '+p.name);
-    icon.addEventListener('change',()=>{
-      cancelAI(); pushHist(); p.icon = icon.value.trim() || '💡';
-      for(const n of Object.values(S.nodes)) if(n.mindset && n.mindset.packId===p.id) n.mindset.icon = p.icon;
-      mindsetChanged();
-    }); iconLabel.appendChild(icon); card.appendChild(iconLabel);
-    const state = document.createElement('p'); state.className = 'small'; const candidates = mindsetCandidates(S.sel,p.id);
-    state.textContent = !p.domains.includes(PREFS.domain || DEFAULT_DOMAIN) ? 'Inactive in this domain.' : !p.enabled ? 'Disabled for this Cascade.' : `${candidates.length} matching ${candidates.length===1?'entry':'entries'} for ${S.sel ? 'the selected branch' : 'this tree'}.`; card.appendChild(state);
-    const row = document.createElement('div'); row.className = 'frow';
-    const button = (text,fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn'; b.textContent = text; b.addEventListener('click',fn); row.appendChild(b); return b; };
-    button('Apply to selected node',()=>{ const id = S.sel; closeSettings(); applyMindset(id,p.id); }).disabled = !S.sel || !candidates.length;
-    button('Export pack',()=>downloadMindset(Mindsets.pack(p),p.id+'.mindset.json'));
-    button('Remove',()=>{ cancelAI(); pushHist(); S.mindsets = S.mindsets.filter(x=>x.id!==p.id); mindsetChanged(); });
-    card.appendChild(row); list.appendChild(card);
-  }
+function renderMindsets(){ CascadeUI.sync(()=>{ MSUI.revision++; }); }
+function enableMindset(id,on){ const pack=S.mindsets.find(p=>p.id===id); if(!pack) return; cancelAI(); pushHist(); pack.enabled=on; mindsetChanged(); }
+function changeMindsetIcon(id,value){
+  const pack=S.mindsets.find(p=>p.id===id); if(!pack) return;
+  cancelAI(); pushHist(); pack.icon=value.trim()||'💡';
+  for(const node of Object.values(S.nodes)) if(node.mindset?.packId===id) node.mindset.icon=pack.icon;
+  mindsetChanged();
 }
+function removeMindset(id){ cancelAI(); pushHist(); S.mindsets=S.mindsets.filter(pack=>pack.id!==id); mindsetChanged(); }
+function exportMindset(id){ const pack=S.mindsets.find(p=>p.id===id); if(pack) downloadMindset(Mindsets.pack(pack),pack.id+'.mindset.json'); }
+function enableBuiltinMindset(id){
+  try{ const installed=S.mindsets.find(p=>p.id===id); if(installed) enableMindset(id,true); else importMindsets(Mindsets.pack(MINDSET_PRESETS.find(p=>p.id===id))); }
+  catch(e){ MSUI.message=e.message; }
+}
+function downloadBuiltinMindset(id){ const pack=Mindsets.pack(MINDSET_PRESETS.find(p=>p.id===id)); downloadMindset(pack,pack.id+'.mindset.json'); }
+async function importMindsetFile(file){
+  if(!file) return;
+  try{ if(file.size>500000) throw new Error('Mindset file must be smaller than 500 KB.'); const count=importMindsets(JSON.parse(await file.text())); MSUI.message=`Imported ${count} mindset${count===1?'':'s'}.`; }
+  catch(e){ MSUI.message=e.message; }
+}
+function importMindsetJson(){
+  try{ const count=importMindsets(JSON.parse(MSUI.json)); MSUI.json=''; MSUI.message=`Imported ${count} mindset${count===1?'':'s'}.`; }
+  catch(e){ MSUI.message=e.message; }
+}
+function downloadMindsetExample(){ downloadMindset(MINDSET_EXAMPLE,'example.mindset.json'); }
 function importMindsets(value){
   if(new TextEncoder().encode(JSON.stringify(value)).length>500000) throw new Error('Mindset import must be smaller than 500 KB.');
   const incoming = Array.isArray(value) ? value : [value];
@@ -99,41 +95,8 @@ function applyMindset(id,only){
     finally{ ctl = null; setBusy(null);  }
   });
 }
-$('#msImport').addEventListener('click',()=>$('#msFile').click());
-$('#msFile').addEventListener('change',async e=>{
-  const file = e.target.files[0]; if(!file) return;
-  try{
-    if(file.size>500000) throw new Error('Mindset file must be smaller than 500 KB.');
-    const count = importMindsets(JSON.parse(await file.text())); $('#msMsg').textContent = `Imported ${count} mindset${count===1?'':'s'}.`;
-  }catch(err){ $('#msMsg').textContent = err.message; }
-  e.target.value = '';
-});
-$('#msPasteImport').addEventListener('click',()=>{
-  try{ const count = importMindsets(JSON.parse($('#msJson').value)); $('#msJson').value = ''; $('#msMsg').textContent = `Imported ${count} mindset${count===1?'':'s'}.`; }
-  catch(err){ $('#msMsg').textContent = err.message; }
-});
-$('#msExample').addEventListener('click',()=>downloadMindset(MINDSET_EXAMPLE,'example.mindset.json'));
 const MINDSET_EXAMPLE = {schemaVersion:1,id:'assumption-checks',version:'1.0.0',name:'Assumption checks',icon:'💡',domains:['general','product','research','game'],
   guidance:'Expose assumptions and ask how to test them.',entries:[{id:'evidence',name:'Evidence',label:'Mindset',topics:['budget','cost','pricing','revenue','assumption','risk','risks'],
     appliesWhen:'A decision depends on an uncertain estimate or claim.',questions:['What evidence supports this assumption?','What small test could show this assumption is wrong?']}]};
-syncers.push(renderMindsets);
-function renderBuiltinMindsets(){
-  const list = $('#msBuiltins'); list.textContent = '';
-  for(const preset of MINDSET_PRESETS){
-    const p = Mindsets.pack(preset), installed = S.mindsets.find(x=>x.id===p.id);
-    const card = document.createElement('section'); card.className = 'card mindset-builtin';
-    const title = document.createElement('strong'); title.textContent = p.icon+' '+p.name; card.appendChild(title);
-    const info = document.createElement('p'); info.className = 'small'; info.textContent = `Included · Game design only · ${p.source.edition}. ${p.source.coverage}`; card.appendChild(info);
-    const row = document.createElement('div'); row.className = 'frow';
-    const enable = document.createElement('button'); enable.type = 'button'; enable.className = 'btn primary'; enable.textContent = installed && installed.enabled ? 'Enabled in this Cascade' : 'Enable starter mindset'; enable.disabled = !!(installed && installed.enabled);
-    enable.addEventListener('click',()=>{
-      try{
-        if(installed){ cancelAI(); pushHist(); installed.enabled = true; mindsetChanged(); }
-        else importMindsets(p);
-      }catch(e){ $('#msMsg').textContent = e.message; }
-    });
-    const download = document.createElement('button'); download.type = 'button'; download.className = 'btn'; download.textContent = 'Download starter JSON'; download.addEventListener('click',()=>downloadMindset(p,p.id+'.mindset.json'));
-    const source = document.createElement('a'); source.href = p.source.url; source.target = '_blank'; source.rel = 'noopener'; source.textContent = 'Source reference';
-    row.append(enable,download,source); card.appendChild(row); list.appendChild(card);
-  }
-}
+CascadeUI.connect({MSUI,MINDSET_PRESETS,Mindsets});
+CascadeUI.mount('mindsets',$('#mindsetsRoot'));

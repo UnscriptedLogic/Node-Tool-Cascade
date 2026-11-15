@@ -1,6 +1,6 @@
 'use strict';
 /* ================= server lifecycle (local version) ================= */
-function showBye(){ $('#bye').hidden = false; CascadeUI.sync(()=>{ SETTINGS.open=false; }); appEl.inert = true; }
+function showBye(){ UI.bye=true; CascadeUI.sync(()=>{ SETTINGS.open=false; }); appEl.inert = true; }
 function initServer(){
   const cid = Math.random().toString(36).slice(2);
   const hello = () => { fetch('/api/hello',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({id:cid}),keepalive:true}).catch(()=>{}); };

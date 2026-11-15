@@ -2,7 +2,7 @@
 /* ================= settings ================= */
 let settingsEl; const appEl = $('#app');
 const SETTINGS = CascadeUI.proxy({open:false,tab:'ai',preview:'',server:CONNECTION.server,drafts:{},results:{},models:{},busy:{},signingIn:false,web:{...CONNECTION.web},webKeyDraft:'',webModelDraft:CONNECTION.web.model,webModels:[],webBusy:false,cloud:CONNECTION.cloud,googleClientId:'',analytics:false,dataMessage:'',statsOn:true});
-let curTab = 'ai', prefsTimer = 0; const syncers = [];
+let curTab = 'ai', prefsTimer = 0;
 
 function applyTheme(){ const r = document.documentElement; if(PREFS.theme==='light' || PREFS.theme==='dark') r.setAttribute('data-theme',PREFS.theme); else r.removeAttribute('data-theme'); }
 async function postJSON(url,body){
@@ -30,7 +30,7 @@ function showTab(n){
   if(n==='mindsets') renderMindsets();
 }
 function openSettings(tab){
-  syncers.forEach(f=>f()); updatePreview(); updateProviders(); updateWeb();
+  updatePreview(); updateProviders(); updateWeb();
   CascadeUI.sync(()=>{ SETTINGS.open = true; }); appEl.inert = true;
   showTab(tab || curTab);
   $('#sClose').focus();
@@ -240,7 +240,6 @@ settingsEl = $('#settings');
 
 /* --- wiring --- */
 addEventListener('keydown',e=>{ if(e.key==='Escape' && !settingsEl.hidden && document.getElementById('srcview').hidden){ e.stopPropagation(); closeSettings(); } },true);
-document.querySelectorAll('[data-modes]').forEach(el=>{ if(el.closest('#settingsRoot')) return; el.hidden = !el.dataset.modes.split(' ').includes(MODE); });
 document.body.classList.add('mode-'+MODE);
 // the provider list is built once, for the local app or for a signed-in cloud account
 let provListBuilt = false;

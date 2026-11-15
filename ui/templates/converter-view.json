@@ -1,0 +1,459 @@
+{
+  "tag": "details",
+  "attrs": {
+    "id": "msConverter",
+    "class": "card"
+  },
+  "children": [
+    "\n            ",
+    {
+      "tag": "summary",
+      "attrs": {},
+      "children": [
+        "Create a mindset from source material"
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "small"
+      },
+      "children": [
+        "Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Files are read on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcFiles"
+          },
+          "children": [
+            "Source files"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcFiles",
+            "type": "file",
+            "multiple": "",
+            "accept": ".pdf,.txt,.md,.markdown,.html,.htm,.json,.csv,.tsv,.xml,.yaml,.yml,.log,text/*,application/pdf,application/json"
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcText"
+          },
+          "children": [
+            "Source text"
+          ]
+        },
+        {
+          "tag": "textarea",
+          "attrs": {
+            "id": "mcText",
+            "rows": "6",
+            "maxlength": "2000000",
+            "placeholder": "Paste notes, an article, a transcript, or exported book text. Uploaded files appear here for review."
+          },
+          "children": []
+        },
+        {
+          "tag": "small",
+          "attrs": {
+            "id": "mcSourceInfo"
+          },
+          "children": [
+            "Scanned PDFs need OCR first. Images, audio and Word files need a text or PDF export."
+          ]
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcName"
+          },
+          "children": [
+            "Mindset name"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcName",
+            "type": "text",
+            "maxlength": "80",
+            "placeholder": "My questioning framework"
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcSourceTitle"
+          },
+          "children": [
+            "Source title or author"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcSourceTitle",
+            "type": "text",
+            "maxlength": "200",
+            "placeholder": "Book title, author, or workshop notes"
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcEdition"
+          },
+          "children": [
+            "Edition or date (optional)"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcEdition",
+            "type": "text",
+            "maxlength": "80"
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcUrl"
+          },
+          "children": [
+            "Source link (optional)"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcUrl",
+            "type": "url",
+            "placeholder": "https://..."
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "fieldset",
+      "attrs": {
+        "id": "mcDomains"
+      },
+      "children": [
+        {
+          "tag": "legend",
+          "attrs": {},
+          "children": [
+            "Where may these questions be used?"
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            "class": "check"
+          },
+          "children": [
+            {
+              "tag": "input",
+              "attrs": {
+                "type": "checkbox",
+                "value": "general"
+              },
+              "children": []
+            },
+            "General / business"
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            "class": "check"
+          },
+          "children": [
+            {
+              "tag": "input",
+              "attrs": {
+                "type": "checkbox",
+                "value": "product"
+              },
+              "children": []
+            },
+            "Product"
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            "class": "check"
+          },
+          "children": [
+            {
+              "tag": "input",
+              "attrs": {
+                "type": "checkbox",
+                "value": "research"
+              },
+              "children": []
+            },
+            "Research"
+          ]
+        },
+        {
+          "tag": "label",
+          "attrs": {
+            "class": "check"
+          },
+          "children": [
+            {
+              "tag": "input",
+              "attrs": {
+                "type": "checkbox",
+                "value": "game"
+              },
+              "children": []
+            },
+            "Game design"
+          ]
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "mcLimit"
+          },
+          "children": [
+            "Maximum entries"
+          ]
+        },
+        {
+          "tag": "input",
+          "attrs": {
+            "id": "mcLimit",
+            "type": "number",
+            "min": "1",
+            "max": "200",
+            "value": "100"
+          },
+          "children": []
+        },
+        {
+          "tag": "small",
+          "attrs": {},
+          "children": [
+            "Large sources can require many provider calls. Progress reports how much was processed; stopping or hitting this limit produces a partial draft."
+          ]
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "frow"
+      },
+      "children": [
+        {
+          "tag": "button",
+          "attrs": {
+            "id": "mcGenerate",
+            "type": "button",
+            "class": "btn primary"
+          },
+          "children": [
+            "Generate draft"
+          ]
+        },
+        {
+          "tag": "button",
+          "attrs": {
+            "id": "mcStop",
+            "type": "button",
+            "class": "btn",
+            "hidden": ""
+          },
+          "children": [
+            "Stop conversion"
+          ]
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "p",
+      "attrs": {
+        "id": "mcStatus",
+        "class": "small",
+        "role": "status",
+        "aria-live": "polite"
+      },
+      "children": []
+    },
+    "\n            ",
+    {
+      "tag": "section",
+      "attrs": {
+        "id": "mcReview",
+        "hidden": ""
+      },
+      "children": [
+        "\n              ",
+        {
+          "tag": "h4",
+          "attrs": {},
+          "children": [
+            "Review draft"
+          ]
+        },
+        {
+          "tag": "p",
+          "attrs": {
+            "id": "mcReport",
+            "class": "small"
+          },
+          "children": []
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "id": "mcEntries"
+          },
+          "children": []
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "field"
+          },
+          "children": [
+            {
+              "tag": "label",
+              "attrs": {
+                "for": "mcJson"
+              },
+              "children": [
+                "Mindset JSON (editable)"
+              ]
+            },
+            {
+              "tag": "textarea",
+              "attrs": {
+                "id": "mcJson",
+                "rows": "10",
+                "spellcheck": "false"
+              },
+              "children": []
+            }
+          ]
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "frow"
+          },
+          "children": [
+            {
+              "tag": "button",
+              "attrs": {
+                "id": "mcImport",
+                "type": "button",
+                "class": "btn primary"
+              },
+              "children": [
+                "Import reviewed draft"
+              ]
+            },
+            {
+              "tag": "button",
+              "attrs": {
+                "id": "mcDownload",
+                "type": "button",
+                "class": "btn"
+              },
+              "children": [
+                "Download JSON"
+              ]
+            }
+          ]
+        },
+        "\n            "
+      ]
+    },
+    "\n          "
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "tag": "section",
+  "attrs": {
+    "class": "prov",
+    "id": "chatExchange"
+  },
+  "children": [
+    "\n            ",
+    {
+      "tag": "h4",
+      "attrs": {},
+      "children": [
+        "Use your chat account"
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "sub"
+      },
+      "children": [
+        "Try real suggestions without an API key. Copy a prompt into ChatGPT or Claude, then paste its reply here. Free accounts work within their chat limits. This is a manual exchange; no account linking required."
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "p",
+      "attrs": {
+        "class": "small"
+      },
+      "children": [
+        "Select a node before opening Settings to focus on that branch. The prompt includes its accepted descendants and your goal, context, constraints, and enabled project brief. Review it before sharing."
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "class": "field"
+      },
+      "children": [
+        {
+          "tag": "label",
+          "attrs": {
+            "for": "chatTask"
+          },
+          "children": [
+            "What would you like to explore?"
+          ]
+        },
+        {
+          "tag": "textarea",
+          "attrs": {
+            "id": "chatTask",
+            "rows": "2",
+            "maxlength": "2000",
+            "placeholder": "Suggest questions that challenge this decision"
+          },
+          "children": []
+        }
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "button",
+      "attrs": {
+        "class": "btn",
+        "id": "chatPrepare",
+        "type": "button"
+      },
+      "children": [
+        "Prepare chat prompt"
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "div",
+      "attrs": {
+        "id": "chatSteps",
+        "hidden": ""
+      },
+      "children": [
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "field"
+          },
+          "children": [
+            {
+              "tag": "label",
+              "attrs": {
+                "for": "chatPrompt"
+              },
+              "children": [
+                "1. Copy this prompt into your chat"
+              ]
+            },
+            {
+              "tag": "textarea",
+              "attrs": {
+                "id": "chatPrompt",
+                "rows": "8",
+                "readonly": ""
+              },
+              "children": []
+            }
+          ]
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "frow"
+          },
+          "children": [
+            {
+              "tag": "button",
+              "attrs": {
+                "class": "btn",
+                "id": "chatCopy",
+                "type": "button"
+              },
+              "children": [
+                "Copy prompt"
+              ]
+            },
+            {
+              "tag": "a",
+              "attrs": {
+                "href": "https://chatgpt.com/",
+                "target": "_blank",
+                "rel": "noopener noreferrer"
+              },
+              "children": [
+                "Open ChatGPT"
+              ]
+            },
+            {
+              "tag": "a",
+              "attrs": {
+                "href": "https://claude.ai/",
+                "target": "_blank",
+                "rel": "noopener noreferrer"
+              },
+              "children": [
+                "Open Claude"
+              ]
+            }
+          ]
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "class": "field"
+          },
+          "children": [
+            {
+              "tag": "label",
+              "attrs": {
+                "for": "chatReply"
+              },
+              "children": [
+                "2. Paste the full reply"
+              ]
+            },
+            {
+              "tag": "textarea",
+              "attrs": {
+                "id": "chatReply",
+                "rows": "6",
+                "maxlength": "100000",
+                "spellcheck": "false"
+              },
+              "children": []
+            }
+          ]
+        },
+        "\n              ",
+        {
+          "tag": "button",
+          "attrs": {
+            "class": "btn",
+            "id": "chatReview",
+            "type": "button"
+          },
+          "children": [
+            "Preview suggestions"
+          ]
+        },
+        "\n              ",
+        {
+          "tag": "div",
+          "attrs": {
+            "id": "chatPreview",
+            "hidden": ""
+          },
+          "children": [
+            {
+              "tag": "h4",
+              "attrs": {},
+              "children": [
+                "3. Review suggestions"
+              ]
+            },
+            {
+              "tag": "ul",
+              "attrs": {
+                "id": "chatSuggestions"
+              },
+              "children": []
+            },
+            {
+              "tag": "button",
+              "attrs": {
+                "class": "btn primary",
+                "id": "chatImport",
+                "type": "button"
+              },
+              "children": [
+                "Add as suggestions"
+              ]
+            },
+            {
+              "tag": "p",
+              "attrs": {
+                "class": "small"
+              },
+              "children": [
+                "Keep or dismiss each suggestion on the canvas. Undo removes this import."
+              ]
+            }
+          ]
+        },
+        "\n            "
+      ]
+    },
+    "\n            ",
+    {
+      "tag": "p",
+      "attrs": {
+        "id": "chatStatus",
+        "class": "small",
+        "role": "status",
+        "aria-live": "polite"
+      },
+      "children": []
+    },
+    "\n          "
+  ]
+}

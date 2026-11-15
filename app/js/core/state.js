@@ -35,4 +35,4 @@ function applySnap(s){ const o = JSON.parse(s); S.nodes=o.nodes; S.order=o.order
 
 
 const AI=CascadeUI.proxy({checked:false,sample:null,off:false});
-const UI=CascadeUI.proxy({busy:null,stoppable:false,note:[],noteOpen:false,noteUndo:false,small:false,minimal:false,panel:null,ask:null,library:null,seed:false,providerLabels:{},settingsTitle:'Settings',moodColors:{},compose:{open:false,type:'question',text:'',x:0,y:0,w:300,wpos:null,focus:0},menu:null});
+const UI=CascadeUI.proxy({bye:false,busy:null,stoppable:false,note:[],noteOpen:false,noteUndo:false,small:false,minimal:false,panel:null,ask:null,library:null,seed:false,providerLabels:{},settingsTitle:'Settings',moodColors:{},compose:{open:false,type:'question',text:'',x:0,y:0,w:300,wpos:null,focus:0},menu:null});

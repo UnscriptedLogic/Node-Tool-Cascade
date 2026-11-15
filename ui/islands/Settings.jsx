@@ -15,9 +15,9 @@ const style = value => Object.fromEntries(value.split(';').filter(Boolean).map(p
 }));
 
 export default function Settings() {
-  const {PREFS,SETTINGS,DOMAINS,STEER_HELP,MODE} = getLegacy();
+  const {PREFS,SETTINGS,DOMAINS,STEER_HELP,MODE,UI} = getLegacy();
   const prefs = useSnapshot(PREFS,{sync:true}), settings = useSnapshot(SETTINGS,{sync:true});
-  const fileInput=useRef(null);
+  const shell=useSnapshot(UI,{sync:true}),fileInput=useRef(null);
   const domain = DOMAINS[prefs.domain] || DOMAINS.general;
   const setPref = (key,value) => {
     PREFS[key]=value; call('savePrefs'); call('updatePreview');
@@ -28,6 +28,8 @@ export default function Settings() {
   function render(node,index,parent) {
     if(typeof node==='string') return node;
     const {tag,attrs,children}=node, id=attrs.id;
+    if(id==='p-mindsets') return <section key={id} id={id} className="spane" role="tabpanel" hidden={settings.tab!=='mindsets'}><div id="mindsetsRoot"/></section>;
+    if(id==='chatExchange') return <div key={id} id="chatRoot"/>;
     if(id==='p-project') return <section key={id} id={id} className="spane" role="tabpanel" hidden={settings.tab!=='project'}><div id="projectRoot"/></section>;
     if(id==='provList') return <Providers key="provList"/>;
     const props={key:id || index};
@@ -95,5 +97,5 @@ export default function Settings() {
     if(props.value!==undefined) delete props.defaultValue;
     return <Tag {...props}>{content.length?content.map((child,i)=>render(child,i,node)):undefined}</Tag>;
   }
-  return render(template,0);
+  return <>{render(template,0)}<div id="bye" hidden={!shell.bye}><div className="card"><b>Cascade has stopped.</b><p>The port is free again. You can close this tab. Run the start script to open it again.</p></div></div></>;
 }
