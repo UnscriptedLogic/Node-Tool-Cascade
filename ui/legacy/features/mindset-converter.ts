@@ -58,7 +58,9 @@ export async function extractMindsetPdf(
 	};
 	const loading = lib.getDocument(documentOptions);
 	const abort = () => {
-		loading.destroy().catch(() => {});
+		loading.destroy().catch(() => {
+			/* Cleanup may race with cancellation or an already destroyed PDF task. */
+		});
 	};
 	if (signal)
 		signal.addEventListener("abort", abort, {
@@ -115,7 +117,9 @@ export async function extractMindsetPdf(
 		};
 	} finally {
 		if (signal) signal.removeEventListener("abort", abort);
-		await loading.destroy().catch(() => {});
+		await loading.destroy().catch(() => {
+			/* Cleanup may race with cancellation or an already destroyed PDF task. */
+		});
 	}
 }
 export async function extractMindsetFile(file, options) {

@@ -10,8 +10,8 @@ export function loadPrefs() {
 		return {};
 	}
 }
-export // trees saved before domains existed were all game design
-function loadWebAI() {
+// trees saved before domains existed were all game design
+export function loadWebAI() {
 	try {
 		const o = JSON.parse(localStorage.getItem(WEBAI_KEY) || "{}");
 		return {

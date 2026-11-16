@@ -24,8 +24,8 @@ export let loaded: CascadeTree | null,
 	snap: () => string,
 	AI = null,
 	UI = null;
-export /* ================= state ================= */
-function seed() {
+/* ================= state ================= */
+export function seed() {
 	return DOM().sample();
 }
 export function load() {
@@ -52,7 +52,7 @@ export function save() {
 	try {
 		localStorage.setItem(KEY, payload);
 	} catch {}
-	if (typeof libAfterSave === "function") libAfterSave();
+	libAfterSave();
 	if (LOCAL) {
 		clearTimeout(saveTimer);
 		saveTimer = setTimeout(() => {
@@ -62,7 +62,9 @@ export function save() {
 					"content-type": "application/json",
 				},
 				body: payload,
-			}).catch(() => {});
+			}).catch(() => {
+				/* The local saved tree remains available if server saving fails. */
+			});
 		}, 400);
 	}
 }

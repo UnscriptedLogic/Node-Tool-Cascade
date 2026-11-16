@@ -64,7 +64,9 @@ export async function postJSON(url: string, body: unknown): Promise<ApiReply> {
 	let j: ApiReply = {};
 	try {
 		j = await r.json();
-	} catch {}
+	} catch {
+		/* Use the HTTP status if the reply has no JSON body. */
+	}
 	if (!r.ok) throw new Error(j.detail || j.error || `HTTP ${r.status}`);
 	return j;
 }
@@ -84,7 +86,9 @@ export function savePrefs() {
 		prefsTimer = setTimeout(() => {
 			postSettings({
 				prefs: PREFS,
-			}).catch(() => {});
+			}).catch(() => {
+				/* Preferences remain available in local storage if server saving fails. */
+			});
 		}, 450);
 	}
 }
@@ -98,7 +102,9 @@ export function showTab(n: string) {
 		setTimeout(() => {
 			try {
 				loadProjectData();
-			} catch {}
+			} catch {
+				/* The settings panel remains usable if project loading is unavailable. */
+			}
 		}, 0);
 	flushSync(() => {
 		SETTINGS.tab = n;
@@ -255,7 +261,9 @@ export async function chatgptSignIn(consent, say) {
 	} catch (e) {
 		try {
 			if (w) w.close();
-		} catch {}
+		} catch {
+			/* The sign-in window may already be closed. */
+		}
 		say(e.message || "Sign-in failed.", "bad");
 	} finally {
 		SETTINGS.signingIn = false;

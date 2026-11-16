@@ -415,7 +415,9 @@ export function toHex(c: string) {
 					.map((x) => (+x).toString(16).padStart(2, "0"))
 					.join("")
 			);
-	} catch {}
+	} catch {
+		/* Unsupported color syntax falls through to the existing fallback. */
+	}
 	return "#808080";
 }
 export function wirePreview() {

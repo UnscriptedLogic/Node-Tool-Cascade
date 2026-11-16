@@ -49,8 +49,8 @@ export async function readSSE(res, onData) {
 		}
 	}
 }
-export /* local server: it holds the keys and talks to the provider */
-async function serverSample(prompt, o) {
+/* local server: it holds the keys and talks to the provider */
+export async function serverSample(prompt, o) {
 	o = o || {};
 	const body: { prompt: string; temperature?: number } = {
 		prompt,
@@ -76,7 +76,9 @@ async function serverSample(prompt, o) {
 		let j: ProviderReply = {};
 		try {
 			j = await r.json();
-		} catch {}
+		} catch {
+			/* Use the HTTP status when the error response is not JSON. */
+		}
 		throw {
 			code:
 				r.status === 401 || r.status === 403
@@ -170,7 +172,9 @@ export async function webSample(prompt, o) {
 		let j: ProviderReply = {};
 		try {
 			j = await r.json();
-		} catch {}
+		} catch {
+			/* Use the HTTP status when the error response is not JSON. */
+		}
 		const msg = String(
 			(j.error && (j.error.message || j.error)) ||
 				j.message ||
@@ -283,7 +287,9 @@ export async function finishOpenRouterLogin() {
 	try {
 		saved = JSON.parse(sessionStorage.getItem("cascade-or-pkce") || "null");
 		sessionStorage.removeItem("cascade-or-pkce");
-	} catch {}
+	} catch {
+		/* An unavailable or invalid session cannot complete sign-in. */
+	}
 	if (!saved?.verifier) return;
 	history.replaceState(null, "", location.pathname + location.hash);
 	try {
@@ -307,7 +313,9 @@ export async function finishOpenRouterLogin() {
 			let j: ProviderReply = {};
 			try {
 				j = await r.json();
-			} catch {}
+			} catch {
+				/* Use the HTTP status when the error response is not JSON. */
+			}
 			if (!r.ok || !j.key)
 				throw new Error(
 					String(

@@ -49,7 +49,9 @@ export async function fetchJSON(url: string | URL | Request) {
 	let j: ApiReply = {};
 	try {
 		j = await r.json();
-	} catch {}
+	} catch {
+		/* Use the HTTP status if the reply has no JSON body. */
+	}
 	if (!r.ok) throw new Error(j.detail || j.error || `HTTP ${r.status}`);
 	return j;
 }
@@ -164,7 +166,9 @@ export async function copySource() {
 		setTimeout(() => {
 			SV.copyText = "Copy path";
 		}, 1400);
-	} catch {}
+	} catch {
+		/* Clipboard access may be denied; leave the source view usable. */
+	}
 }
 export function updateAskFiles() {
 	AN.projectReady = LOCAL && projectReady();
@@ -640,7 +644,9 @@ export function editProjectBrief(value) {
 			});
 			PROJECTUI.project = CONNECTION.project;
 			updatePreview();
-		} catch {}
+		} catch {
+			/* Keep the editable brief when background saving fails. */
+		}
 	}, 600);
 }
 export async function restoreProjectBrief() {
@@ -657,7 +663,9 @@ export async function restoreProjectBrief() {
 			},
 		});
 		updatePreview();
-	} catch {}
+	} catch {
+		/* Keep the current preview if restoring the brief fails. */
+	}
 	renderProject();
 }
 export async function forgetProject() {
@@ -681,7 +689,9 @@ export function stopProject() {
 	if (projCtl) projCtl.abort();
 }
 export function cancelProjectScan() {
-	postJSON("/api/project/cancel", {}).catch(() => {});
+	postJSON("/api/project/cancel", {}).catch(() => {
+		/* Cancellation is best effort; polling will report the current scan state. */
+	});
 }
 export function initProject() {
 	if (CONNECTION.project?.has) loadProjectData();
@@ -702,7 +712,9 @@ export async function seedFromProject() {
 	let findings = [];
 	try {
 		findings = (await fetchJSON("/api/project/findings")).findings || [];
-	} catch {}
+	} catch {
+		/* No findings are available when the project service cannot be reached. */
+	}
 	if (!findings.length) {
 		showNote(
 			["Build the project brief first. Seeding works from what it finds."],

@@ -21,8 +21,8 @@ import {
 	nodeW,
 } from "./look.ts";
 export let clsFor = null;
-export /* ================= layout ================= */
-function syncDom(vis) {
+/* ================= layout ================= */
+export function syncDom(vis) {
 	for (const id in R) {
 		if (!S.nodes[id]) {
 			R[id].el.remove();

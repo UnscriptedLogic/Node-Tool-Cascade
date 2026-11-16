@@ -12,8 +12,8 @@ import { clamp, ICONS, LABEL } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
 import { UI } from "../core/state.ts";
 import { setBusy } from "./hud.ts";
-export /* ================= compose + palette ================= */
-function closeCompose() {
+/* ================= compose + palette ================= */
+export function closeCompose() {
 	flushSync(() => {
 		UI.compose.open = false;
 	});

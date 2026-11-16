@@ -35,8 +35,12 @@ export function track(name, o?) {
 				},
 				body,
 				keepalive: true,
-			}).catch(() => {});
-	} catch {}
+			}).catch(() => {
+				/* Analytics must not interrupt editing. */
+			});
+	} catch {
+		/* Analytics must not interrupt editing. */
+	}
 }
 // ghost suggestions a person kept or dismissed, counted per block type
 export function trackGhosts(name, ids) {

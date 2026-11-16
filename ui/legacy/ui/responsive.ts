@@ -73,11 +73,13 @@ export function applyResponsive(force: boolean) {
 	if (!first)
 		try {
 			fitIfNeeded();
-		} catch {} // the first call is start-up: the saved view stays
+		} catch {
+			/* Keep the current view if fitting is temporarily unavailable. */
+		} // the first call is start-up: the saved view stays
 }
 // the stage changes size when the dock or bars appear: keep the tree in view
 export function fitIfNeeded() {
-	if (S.order.length && typeof fitTo === "function")
+	if (S.order.length)
 		requestAnimationFrame(() =>
 			fitTo(visibleIds(), {
 				maxZ: 1,
@@ -101,8 +103,8 @@ export function hintMinimal() {
 		600,
 	);
 }
-export // keep sheets above the on-screen keyboard
-function updateKeyboard() {
+// keep sheets above the on-screen keyboard
+export function updateKeyboard() {
 	const vv = window.visualViewport;
 	if (!vv) return;
 	document.documentElement.style.setProperty(
@@ -110,9 +112,9 @@ function updateKeyboard() {
 		`${Math.max(0, Math.round(innerHeight - vv.height - vv.offsetTop))}px`,
 	);
 }
-export /* ---------- running a block's action, from the desktop bar, the strip, or a menu ---------- */
+/* ---------- running a block's action, from the desktop bar, the strip, or a menu ---------- */
 // built when used, because the functions live in files that load after this one
-function runNodeAction(act: string, id) {
+export function runNodeAction(act: string, id) {
 	if (act === "mindset") {
 		select(id);
 		openSettings("mindsets");

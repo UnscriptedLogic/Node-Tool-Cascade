@@ -24,7 +24,9 @@ export function startBoot() {
 		applyView();
 	} else initialView(true);
 	setBusy(null);
-	libReady = libInit().catch(() => {});
+	libReady = libInit().catch(() => {
+		/* The canvas remains usable if the library cannot be loaded. */
+	});
 	// finds the library (and, signed in on the cloud, the account's AI) this page can use
 	if (new URLSearchParams(location.search).has("code"))
 		libReady.then(() => finishOpenRouterLogin());

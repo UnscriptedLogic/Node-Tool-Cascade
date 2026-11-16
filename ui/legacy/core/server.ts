@@ -1,8 +1,8 @@
 import { flushSync } from "react-dom";
 import { postJSON, SETTINGS } from "../ui/settings.ts";
 import { UI } from "./state.ts";
-export /* ================= server lifecycle (local version) ================= */
-function showBye() {
+/* ================= server lifecycle (local version) ================= */
+export function showBye() {
 	UI.bye = true;
 	flushSync(() => {
 		SETTINGS.open = false;
@@ -20,7 +20,9 @@ export function initServer() {
 				id: cid,
 			}),
 			keepalive: true,
-		}).catch(() => {});
+		}).catch(() => {
+			/* Lifecycle notifications are best effort when the server is unavailable. */
+		});
 	};
 	hello();
 	addEventListener("pageshow", (e) => {
@@ -41,12 +43,16 @@ export function initServer() {
 					},
 				),
 			);
-		} catch {}
+		} catch {
+			/* Unloading must continue if the browser refuses the beacon. */
+		}
 	});
 }
 export async function quitCascade() {
 	try {
 		await postJSON("/api/quit", {});
-	} catch {}
+	} catch {
+		/* The server may close the connection while quitting. */
+	}
 	showBye();
 }

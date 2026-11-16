@@ -1,6 +1,6 @@
 import { PREFS } from "./constants.ts";
-export // Builds {nodes,order,links,seq} from nested specs: {t:type, x:text, k:key, mood, c:[children]}; links reference keys.
-function sampleTree(roots, linkSpecs) {
+// Builds {nodes,order,links,seq} from nested specs: {t:type, x:text, k:key, mood, c:[children]}; links reference keys.
+export function sampleTree(roots, linkSpecs) {
 	const nodes = {},
 		order: string[] = [],
 		keys = {};

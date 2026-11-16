@@ -270,8 +270,8 @@ export function contrastText(fill: string) {
 	if (!rgb) return "var(--ink)";
 	return lum(rgb) > 0.42 ? "#142033" : "#ffffff";
 }
-export // CSS variables, shape and size for one block type (n is the node, for its mood)
-function nodeVars(type, n, o) {
+// CSS variables, shape and size for one block type (n is the node, for its mood)
+export function nodeVars(type, n, o) {
 	o = o || {};
 	const st = effLook().nodes[type] || effLook().nodes.answer,
 		mood = n?.mood || "curiosity",

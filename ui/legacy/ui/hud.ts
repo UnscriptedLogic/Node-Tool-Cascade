@@ -4,8 +4,8 @@ import { flushSync } from "react-dom";
 import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { S, save, UI } from "../core/state.ts";
-export /* ================= transient UI actions ================= */
-function setBusy(message: string | null, stoppable?: boolean) {
+/* ================= transient UI actions ================= */
+export function setBusy(message: string | null, stoppable?: boolean) {
 	flushSync(() => {
 		UI.busy = message;
 		UI.stoppable = !!stoppable;

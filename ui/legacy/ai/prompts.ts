@@ -46,13 +46,19 @@ export function cancelAI() {
 	if (ctl) ctl.abort();
 	try {
 		if (G.ctl) G.ctl.abort();
-	} catch {}
+	} catch {
+		/* Cancellation is best effort across independently initialized panels. */
+	}
 	try {
 		if (AN.ctl) AN.ctl.abort();
-	} catch {}
+	} catch {
+		/* Cancellation is best effort across independently initialized panels. */
+	}
 	try {
 		if (MSCONVERT.ctl) MSCONVERT.ctl.abort();
-	} catch {}
+	} catch {
+		/* Cancellation is best effort across independently initialized panels. */
+	}
 }
 export function enqueue(job) {
 	queued++;
@@ -508,7 +514,9 @@ Rules:
 			if (!ln.startsWith("{")) continue;
 			try {
 				queue.push(JSON.parse(ln));
-			} catch {}
+			} catch {
+				/* Ignore incomplete or malformed streamed JSON lines. */
+			}
 		}
 	};
 	const pendingBlocks = [];

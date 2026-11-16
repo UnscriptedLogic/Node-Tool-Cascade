@@ -23,8 +23,8 @@ import {
 } from "../core/tree.ts";
 import { commit, showNote } from "./hud.ts";
 import { isMobile } from "./responsive.ts";
-export /* ================= actions ================= */
-function acceptGhost(id) {
+/* ================= actions ================= */
+export function acceptGhost(id) {
 	pushHist();
 	{
 		const chain = [];

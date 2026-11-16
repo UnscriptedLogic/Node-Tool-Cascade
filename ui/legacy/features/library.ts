@@ -40,7 +40,9 @@ export async function libApi(method, path, body?) {
 	let j = null;
 	try {
 		j = await r.json();
-	} catch {}
+	} catch {
+		/* Use the HTTP status if the reply has no JSON body. */
+	}
 	if (!r.ok) {
 		const err = new Error((j && (j.detail || j.error)) || `HTTP ${r.status}`);
 		Object.assign(err, { status: r.status });
@@ -309,9 +311,9 @@ export async function libDelete(kind: string, id) {
 }
 
 /* ---- the list ---- */
-export /* ---- AI through the account (cloud only) ---- */
+/* ---- AI through the account (cloud only) ---- */
 // Signed in on the cloud, the AI settings screen and every AI call use the account's saved keys, through the server.
-async function cloudAiRefresh() {
+export async function cloudAiRefresh() {
 	if (LIB.kind !== "cloud") return;
 	if (LIB.user) {
 		try {
@@ -387,7 +389,9 @@ export async function libGoogleDone(resp) {
 export async function libSignOut() {
 	try {
 		await libApi("POST", "auth/logout", {});
-	} catch {}
+	} catch {
+		/* Clear local sign-in state even if logout cannot reach the server. */
+	}
 	LIB.user = null;
 	cloudAiRefresh();
 	libRemember(null);
@@ -432,7 +436,9 @@ export async function libInit() {
 					ANALYTICS.on = !!c.analytics;
 				}
 			}
-		} catch {}
+		} catch {
+			/* Keep the current local configuration if account discovery fails. */
+		}
 	}
 	if (!LIB.kind) return;
 	try {

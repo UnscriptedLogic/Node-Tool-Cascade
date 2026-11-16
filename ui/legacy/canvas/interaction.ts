@@ -37,8 +37,8 @@ export const state = {
 	lastTap: undefined,
 };
 export let ptrs = null;
-export /* ================= canvas interaction ================= */
-function dragUi(on?: boolean) {
+/* ================= canvas interaction ================= */
+export function dragUi(on?: boolean) {
 	document.body.classList.toggle("dragging", on);
 	if (on) {
 		try {
