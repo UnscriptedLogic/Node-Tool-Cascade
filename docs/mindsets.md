@@ -30,23 +30,25 @@ Questions keep normal answer, resolution and blocker behavior. Their header show
 
 ```json
 {
-  "schemaVersion": 1,
-  "id": "assumption-checks",
-  "version": "1.0.0",
-  "name": "Assumption checks",
-  "icon": "💡",
-  "domains": ["general", "product", "research", "game"],
-  "source": { "title": "My workshop notes", "edition": "2026" },
-  "guidance": "Expose assumptions and ask how to test them.",
-  "entries": [{
-    "id": "evidence",
-    "name": "Evidence",
-    "label": "Lens",
-    "number": "1",
-    "topics": ["budget", "pricing", "risk"],
-    "appliesWhen": "A decision depends on an uncertain estimate.",
-    "questions": ["What evidence supports this assumption?"]
-  }]
+	"schemaVersion": 1,
+	"id": "assumption-checks",
+	"version": "1.0.0",
+	"name": "Assumption checks",
+	"icon": "💡",
+	"domains": ["general", "product", "research", "game"],
+	"source": { "title": "My workshop notes", "edition": "2026" },
+	"guidance": "Expose assumptions and ask how to test them.",
+	"entries": [
+		{
+			"id": "evidence",
+			"name": "Evidence",
+			"label": "Lens",
+			"number": "1",
+			"topics": ["budget", "pricing", "risk"],
+			"appliesWhen": "A decision depends on an uncertain estimate.",
+			"questions": ["What evidence supports this assumption?"]
+		}
+	]
 }
 ```
 

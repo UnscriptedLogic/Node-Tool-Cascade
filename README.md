@@ -38,7 +38,7 @@ Project excerpts used for these features go to your selected provider. Use a loc
 
 ## 🛠️ Development
 
-Built with JavaScript and Node.js. The UI build bundles React and Valtio locally.
+Built with TypeScript and Node.js. The UI build bundles React and Valtio locally.
 
 ```bash
 npm install
@@ -51,3 +51,5 @@ The build creates `dist/web/index.html` for static hosting. Optional cloud hosti
 ## 📄 License
 
 [MIT](LICENSE)
+
+Run `npm run typecheck` to check all source files. Shared data modules use strict checks; legacy modules use standard checks. Media capture (`npm run capture:media`) requires Node.js 22.12+.

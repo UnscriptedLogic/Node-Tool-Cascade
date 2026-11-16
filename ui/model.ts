@@ -1,0 +1,110 @@
+import type { EnabledMindset, MindsetMetadata } from "../shared/mindsets.ts";
+import type { ProjectInfo } from "../shared/project-types.ts";
+import type { View } from "../shared/types.ts";
+export interface TreeNode {
+	id: string;
+	type: string;
+	text: string;
+	parent: string | null;
+	ghost?: boolean;
+	rel?: string;
+	mood?: string;
+	mindset?: MindsetMetadata;
+	collapsed?: boolean;
+	back?: boolean;
+	decided?: boolean;
+	ticket?: string;
+	state?: string;
+	src?: { f: string; l: number; e?: number; t?: string; note?: string }[];
+	why?: string;
+	note?: string;
+	side?: string;
+	was?: string;
+	unknown?: boolean;
+}
+export interface TreeLink {
+	a: string;
+	b: string;
+	kind: string;
+}
+export interface CascadeTree {
+	nodes: Record<string, TreeNode>;
+	order: string[];
+	links: TreeLink[];
+	seq: number;
+	mindsets: EnabledMindset[];
+	view: View;
+	mode: string;
+	layer: boolean;
+	sel: string | null;
+}
+export interface Point {
+	x: number;
+	y: number;
+}
+export interface RenderedNode {
+	el: HTMLDivElement;
+	cur: Point;
+	tgt: Point;
+	w: number;
+	h: number;
+	shown: boolean;
+	fresh: boolean;
+	drag?: boolean;
+	dragging?: boolean;
+	drop?: boolean;
+	cull?: boolean;
+	culled?: boolean;
+	hot?: boolean;
+	growing?: boolean;
+	bx?: number;
+	by?: number;
+	width?: number;
+	height?: number;
+	anim?: number;
+	editing?: boolean;
+	enter?: boolean;
+	tx?: number;
+	ty?: number;
+	sig?: string;
+	actionSig?: string;
+	kh?: number;
+	sh?: number;
+	settle?: boolean;
+}
+export interface ProviderView {
+	label?: string;
+	ready?: boolean;
+	hasKey?: boolean;
+	hint?: string;
+	source?: string;
+	model?: string;
+	defaultModel?: string;
+	effectiveModel?: string;
+	baseUrl?: string;
+	account?: { email?: string; name?: string };
+	status?: string;
+	problem?: string;
+	error?: string;
+}
+export interface ServerSettings {
+	prefs?: Record<string, string | number | boolean>;
+	look?: object;
+	providers?: Record<string, ProviderView>;
+	project?: ProjectInfo;
+	active?: string;
+	ready?: boolean;
+	server?: { port?: number; preferred?: number; pid?: number };
+	local?: boolean;
+	cloud?: boolean;
+}
+
+export interface TreeMap {
+	frontier: string[];
+	blocked: string[];
+	settled: string[];
+	fog: string[];
+	out: string[];
+	flag: Record<string, string>;
+	blockers?: Record<string, string[]>;
+}

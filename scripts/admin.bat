@@ -9,5 +9,5 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node scripts\admin\server.js --open %*
+node --import tsx scripts\admin\server.ts --open %*
 pause

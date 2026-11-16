@@ -1,4 +1,5 @@
 # Your data and secrets. Never commit these.
+library/
 settings.json
 tree.json
 chatgpt-auth.json

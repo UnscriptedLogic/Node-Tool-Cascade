@@ -7,28 +7,33 @@ Saved Cascades and folders live in D1 (SQLite). Nothing here runs the AI: web us
 ## One-time setup
 
 1. **D1 database**
+
    ```bash
    npx wrangler d1 create cascade
    ```
+
    Paste the printed `database_id` into `worker/wrangler.toml`, then create the tables:
+
    ```bash
    npx wrangler d1 execute cascade --remote --file worker/schema.sql -c worker/wrangler.toml
    ```
-2. **Google sign-in.** In Google Cloud Console, create an OAuth client of type *Web application*. Add your site as an
+2. **Google sign-in.** In Google Cloud Console, create an OAuth client of type _Web application_. Add your site as an
    authorised JavaScript origin (for example `https://cascade.<you>.workers.dev` and `http://localhost:8787` for local
    testing). No client secret is needed. Put the client ID in `GOOGLE_CLIENT_ID` in `worker/wrangler.toml`.
 3. **Deploy**
+
    ```bash
    npm run worker:deploy
    ```
+
    Local preview with a local D1: `npm run worker:dev` (apply `schema.sql` without `--remote` first).
 
 ## Two environments
 
-| | Branch | Address | Worker | Database | Deploy |
-| --- | --- | --- | --- | --- | --- |
-| Production | `main` | https://cascade.unscriptedlogic.com | `cascade` | `cascade` | `npm run worker:deploy` |
-| Dev | `dev` | https://cascade-dev.unscriptedlogic.com | `cascade-dev` | `cascade-dev` | `npm run worker:deploy:dev` |
+|            | Branch | Address                                 | Worker        | Database      | Deploy                      |
+| ---------- | ------ | --------------------------------------- | ------------- | ------------- | --------------------------- |
+| Production | `main` | https://cascade.unscriptedlogic.com     | `cascade`     | `cascade`     | `npm run worker:deploy`     |
+| Dev        | `dev`  | https://cascade-dev.unscriptedlogic.com | `cascade-dev` | `cascade-dev` | `npm run worker:deploy:dev` |
 
 The two never share data or sessions. Add both addresses as authorised JavaScript origins on the Google OAuth client. For a new
 environment, create its database (`wrangler d1 create`), apply `schema.sql` to it with `--env <name>`, and add an `[env.<name>]`
@@ -60,27 +65,27 @@ app. Anything a user wants to spend is on their own provider account; there is n
 
 ## Usage counts
 
-`src/analytics.js` writes anonymous events to Workers Analytics Engine (one dataset per environment: `cascade_events`,
+`src/analytics.ts` writes anonymous events to Workers Analytics Engine (one dataset per environment: `cascade_events`,
 `cascade_events_dev`), and adds the Cloudflare Web Analytics page-view counter to the page. The events, their labels and what is
 never stored are listed at the top of that file, and are checked on the server: anything off the lists is dropped.
 
-**Reading the numbers.** Create an API token with *Account > Account Analytics > Read*. On Windows, double-click
+**Reading the numbers.** Create an API token with _Account > Account Analytics > Read_. On Windows, double-click
 `scripts\analytics-report.bat` (or run `scripts\analytics-report.bat dev 30`): it asks for the token once, hidden, and can save it to
 `scripts/analytics.local.env`, which git ignores. Or from any shell:
 
 ```bash
-CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... node scripts/analytics-report.js --env prod --days 30
+CLOUDFLARE_ACCOUNT_ID=... CLOUDFLARE_API_TOKEN=... npm run analytics:report -- --env prod --days 30
 ```
 
 It prints visits and unique visitors per day, blocks created, kept and dismissed (and the kept percentage), AI calls and unique
 users per provider (`anthropic` is Claude, `openai` is OpenAI), sign-ins, feature use and visits by country. The raw rows can be
-queried with SQL in the dashboard or API; the column layout is in `analytics.js`.
+queried with SQL in the dashboard or API; the column layout is in `analytics.ts`.
 
 **Dashboard.** For charts instead of a table, run `npm run admin` (or double-click `scripts\\admin.bat`) and open
 http://localhost:4400. It shows visits, blocks created and kept, AI use by provider and people per provider, features used and visits
 by country, for production or dev over 7, 30 or 90 days, in light or dark, each chart also as a table. It runs on this computer only,
 reads with your token on the server side (the page never receives it), and asks for the account id and token once; saving them is
-optional and goes to `scripts/analytics.local.env`, which git ignores. `node scripts/admin/server.js --demo` shows made-up numbers.
+optional and goes to `scripts/analytics.local.env`, which git ignores. `npm run admin -- --demo` shows made-up numbers.
 
 **Dashboard online.** The same dashboard is served at `/admin` on each Worker (https://cascade.unscriptedlogic.com/admin), for
 signed-in Google accounts on an allowlist. Anyone else sees a sign-in prompt, or "not on the admin list", and never any numbers. It
@@ -99,21 +104,21 @@ npx wrangler secret put ANALYTICS_READ_TOKEN -c worker/wrangler.toml
 Until all three exist the page says which are missing. The token only ever lives in the Worker; the page receives finished numbers.
 Responses are `no-store` and marked `noindex`. To take access away, remove the email from `ADMIN_EMAILS`, or delete the token secret.
 
-**Page views.** In the Cloudflare dashboard open *Analytics & Logs > Web Analytics > Add a site*, enter the hostname
+**Page views.** In the Cloudflare dashboard open _Analytics & Logs > Web Analytics > Add a site_, enter the hostname
 (`cascade.unscriptedlogic.com`, and again for `cascade-dev.unscriptedlogic.com`), choose manual setup, and copy the token from the
 snippet (`data-cf-beacon='{"token": "..."}'`). Put it in `CF_BEACON_TOKEN` in `wrangler.toml` for that environment. The token is
 public. The Worker adds the snippet to the page, skipping visitors who send Do Not Track.
 
 ## How it works
 
-| Piece | File |
-| --- | --- |
-| Routes: config, Google sign-in, sessions, library | `src/index.js` |
-| Google ID token check (RS256 against Google's keys, audience, issuer, expiry) | `src/auth.js` |
-| D1 storage: folders, Cascades, users, sessions | `src/d1store.js` |
-| Anonymous usage counts, page-view counter | `src/analytics.js` |
-| AI keys, model calls, streaming | `src/ai.js` (uses `../../shared/providers.js`, the same adapters as the local app) |
-| Library rules shared with the local app | `../shared/library.js` |
+| Piece                                                                         | File                                                                               |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Routes: config, Google sign-in, sessions, library                             | `src/index.ts`                                                                     |
+| Google ID token check (RS256 against Google's keys, audience, issuer, expiry) | `src/auth.ts`                                                                      |
+| D1 storage: folders, Cascades, users, sessions                                | `src/d1store.ts`                                                                   |
+| Anonymous usage counts, page-view counter                                     | `src/analytics.ts`                                                                 |
+| AI keys, model calls, streaming                                               | `src/ai.ts` (uses `../../shared/providers.ts`, the same adapters as the local app) |
+| Library rules shared with the local app                                       | `../shared/library.ts`                                                             |
 
 - The browser gets a random session token in an `HttpOnly; Secure; SameSite=Lax` cookie. Only its SHA-256 is stored.
 - Sessions last 30 days. Every library query is scoped to the signed-in user. Writes must be same-origin JSON.
@@ -121,7 +126,7 @@ public. The Worker adds the snippet to the page, skipping visitors who send Do N
 
 ## Sign in with ChatGPT or Claude on the web
 
-- **ChatGPT:** the flow in `server/lib/chatgpt.js` uses OpenAI's open-source, loopback (`127.0.0.1`) registration, so it only
+- **ChatGPT:** the flow in `server/lib/chatgpt.ts` uses OpenAI's open-source, loopback (`127.0.0.1`) registration, so it only
   works for the locally run app. For a hosted site, OpenAI's [website guide](https://developers.openai.com/siwc/website) needs an
   OpenAI-issued client ID (`oaiapp_…`) and an exactly registered callback URL, and OpenAI describes the programme as a limited
   trial for selected partners. If you get access, add it as a new route module here; the page already routes AI calls through one adapter.

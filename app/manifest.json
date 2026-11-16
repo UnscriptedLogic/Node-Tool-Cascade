@@ -1,8 +1,4 @@
 {
-  "css": [
-    "gen/ui.css"
-  ],
-  "js": [
-    "gen/ui.js"
-  ]
+	"css": ["gen/ui.css"],
+	"js": ["gen/ui.js"]
 }

@@ -5,6 +5,7 @@
 - Do not add AI attribution, generation notices, or development-assistance remarks to project files, commit messages, or pull requests.
 - Provider names and integration documentation may describe app functionality.
 - Preserve required license and third-party copyright notices.
+- Run `npx biome check .` after every change and before every commit.
 
 ## Commits and versions
 
