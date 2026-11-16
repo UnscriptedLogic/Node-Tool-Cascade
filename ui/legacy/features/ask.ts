@@ -1,4 +1,7 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
+import { proxy, ref } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
 	aiNeed,
@@ -182,7 +185,7 @@ export function localAnalyse(q) {
 	};
 }
 export function setAskBusy(on: boolean) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		AN.busy = on;
 	});
 }
@@ -201,7 +204,7 @@ export async function runAsk(q) {
 		setAskBusy(true);
 		setBusy("Reading the graph…", true);
 		const c = new AbortController();
-		AN.ctl = CascadeUI.ref(c);
+		AN.ctl = ref(c);
 		try {
 			const ev = await projectEvidence(q, 6);
 			res = cleanAsk(
@@ -432,7 +435,7 @@ export async function summarize(kind: string) {
 	setAskBusy(true);
 	setBusy("Summarizing…", true);
 	const c = new AbortController();
-	AN.ctl = CascadeUI.ref(c);
+	AN.ctl = ref(c);
 	AN.summaryKind = kind;
 	AN.summaryBusy = true;
 	AN.summary = "";
@@ -494,7 +497,7 @@ export async function copyAskSummary() {
 	}
 }
 export function initialize() {
-	AN = CascadeUI.proxy({
+	AN = proxy({
 		input: "",
 		next: false,
 		copyText: "Copy",
@@ -513,7 +516,7 @@ export function initialize() {
 		ctl: null,
 		busy: false,
 	});
-	AHIST = CascadeUI.proxy([]);
+	AHIST = proxy([]);
 	TCOL = ["var(--t0)", "var(--t1)", "var(--t2)"];
 	VERDICT = {
 		answered: "Answered by the tree",
@@ -521,11 +524,11 @@ export function initialize() {
 		unanswered: "The tree can’t answer this yet",
 	};
 	UI.ask = AN;
-	CascadeUI.connect({
+	connect({
 		AN,
 		AHIST,
 		TCOL,
 		VERDICT,
 	});
-	CascadeUI.mount("ask", $("#askRoot"));
+	mount("ask", $("#askRoot"));
 }

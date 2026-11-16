@@ -1,10 +1,10 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
 import { postJSON, SETTINGS } from "../ui/settings.ts";
 import { UI } from "./state.ts";
 export /* ================= server lifecycle (local version) ================= */
 function showBye() {
 	UI.bye = true;
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SETTINGS.open = false;
 	});
 }

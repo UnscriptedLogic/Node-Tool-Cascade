@@ -1,4 +1,4 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
 import { state as aiPromptsState, enqueue, placeBlock } from "../ai/prompts.ts";
 import { dragUi } from "../canvas/interaction.ts";
 import { decorate, nodeW } from "../canvas/look.ts";
@@ -9,7 +9,7 @@ import { UI } from "../core/state.ts";
 import { setBusy } from "./hud.ts";
 export /* ================= compose + palette ================= */
 function closeCompose() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.compose.open = false;
 	});
 }
@@ -18,7 +18,7 @@ export function openCompose(type, cx, cy) {
 		w = Math.min(300, sr.width - 24);
 	const x = clamp(cx - sr.left - 24, 12, sr.width - w - 12),
 		y = clamp(cy - sr.top - 24, 100, Math.max(100, sr.height - 190));
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		Object.assign(UI.compose, {
 			type,
 			wpos: screenToWorld(cx, cy),

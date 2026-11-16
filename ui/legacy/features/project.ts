@@ -1,5 +1,8 @@
+import { flushSync } from "react-dom";
+import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
-import * as CascadeUI from "../../runtime.tsx";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -105,7 +108,7 @@ export async function projectEvidence(q: string, k: number) {
 
 /* --- source viewer --- */
 export function closeSrcView() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SV.open = false;
 		SV.request++;
 	});
@@ -137,7 +140,7 @@ export async function showSrc() {
 }
 export function openSrcView(list, i) {
 	if (!list.length) return;
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SV.list = list;
 		SV.i = i || 0;
 		SV.open = true;
@@ -857,7 +860,7 @@ export function initialize() {
 	state.projCtl = null;
 	state.prevBrief = null;
 	state.scanBusy = false;
-	PROJECTUI = CascadeUI.proxy({
+	PROJECTUI = proxy({
 		project: CONNECTION.project || {
 			has: false,
 		},
@@ -877,7 +880,7 @@ export function initialize() {
 		buildLabel: "Build brief",
 		canRestore: false,
 	});
-	CascadeUI.connect({
+	connect({
 		PROJECTUI,
 		DEPTHS,
 	});
@@ -891,7 +894,7 @@ export function initialize() {
 			: n >= 1000
 				? `${(n / 1000).toFixed(1)}k`
 				: String(n);
-	CascadeUI.mount("project", $("#projectRoot"));
+	mount("project", $("#projectRoot"));
 	pMsg = (t: string, cls: string) => {
 		PROJECTUI.message = t || "";
 		PROJECTUI.messageClass = cls || "";
@@ -901,7 +904,7 @@ export function initialize() {
 		PROJECTUI.progressClass = cls || "";
 	};
 	citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
-	SV = CascadeUI.proxy({
+	SV = proxy({
 		list: [],
 		i: 0,
 		open: false,
@@ -911,10 +914,10 @@ export function initialize() {
 		copyText: "Copy path",
 		request: 0,
 	});
-	CascadeUI.connect({
+	connect({
 		SV,
 	});
-	CascadeUI.mount("source", $("#sourceRoot"));
+	mount("source", $("#sourceRoot"));
 	addEventListener(
 		"keydown",
 		(e) => {

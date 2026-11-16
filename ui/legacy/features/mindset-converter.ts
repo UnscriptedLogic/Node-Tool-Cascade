@@ -1,4 +1,6 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { proxy, ref } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -166,7 +168,7 @@ export async function readMindsetSources(files) {
 	cancelAI();
 	clearMindsetDraft();
 	const c = new AbortController();
-	MSCONVERT.ctl = CascadeUI.ref(c);
+	MSCONVERT.ctl = ref(c);
 	conversionBusy(true);
 	try {
 		let units = [],
@@ -260,10 +262,10 @@ export function generateMindsetDraft() {
 	clearMindsetDraft();
 	const c = new AbortController(),
 		warnings = [...MSCONVERT.warnings];
-	MSCONVERT.ctl = CascadeUI.ref(c);
+	MSCONVERT.ctl = ref(c);
 	conversionBusy(true);
 	MSCONVERT.status = `Queued conversion: up to ${chunks.length} provider ${chunks.length === 1 ? "call" : "calls"}.`;
-	MSCONVERT.task = CascadeUI.ref(
+	MSCONVERT.task = ref(
 		enqueue(async () => {
 			aiPromptsState.ctl = c;
 			setBusy("Converting mindset source…", true);
@@ -404,7 +406,7 @@ export function downloadConvertedMindset() {
 	}
 }
 export function initialize() {
-	MSCONVERT = CascadeUI.proxy({
+	MSCONVERT = proxy({
 		ctl: null,
 		units: null,
 		warnings: [],
@@ -423,8 +425,8 @@ export function initialize() {
 		json: "",
 		domains: [],
 	});
-	CascadeUI.connect({
+	connect({
 		MSCONVERT,
 	});
-	CascadeUI.mount("converter", $("#converterRoot"));
+	mount("converter", $("#converterRoot"));
 }

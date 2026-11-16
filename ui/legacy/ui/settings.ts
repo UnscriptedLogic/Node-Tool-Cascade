@@ -1,6 +1,9 @@
+import { flushSync } from "react-dom";
+import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
+import { connect } from "../../bridge.ts";
 import type { TreeNode } from "../../model.ts";
-import * as CascadeUI from "../../runtime.tsx";
+import { mount } from "../../runtime.tsx";
 import { cancelAI, guidance } from "../ai/prompts.ts";
 import {
 	getJSON,
@@ -104,7 +107,7 @@ export function showTab(n: string) {
 				loadProjectData();
 			} catch {}
 		}, 0);
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SETTINGS.tab = n;
 	});
 	if (n === "look") ensureLookUI();
@@ -113,14 +116,14 @@ export function openSettings(tab?: string) {
 	updatePreview();
 	updateProviders();
 	updateWeb();
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SETTINGS.open = true;
 	});
 	showTab(tab || SETTINGS.tab);
 	focusControl("sClose");
 }
 export function closeSettings() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		SETTINGS.open = false;
 	});
 	focusControl("setBtn");
@@ -630,7 +633,7 @@ export async function onDataAction(action, file?) {
 	}
 }
 export function initialize() {
-	SETTINGS = CascadeUI.proxy({
+	SETTINGS = proxy({
 		open: false,
 		tab: "ai",
 		preview: "",
@@ -715,7 +718,7 @@ export function initialize() {
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);
-	CascadeUI.connect({
+	connect({
 		S,
 		PREFS,
 		SETTINGS,
@@ -726,7 +729,7 @@ export function initialize() {
 		PROV_ORDER,
 		LOCAL,
 	});
-	CascadeUI.mount("settings", $("#settingsRoot"));
+	mount("settings", $("#settingsRoot"));
 
 	/* --- wiring --- */
 	addEventListener(

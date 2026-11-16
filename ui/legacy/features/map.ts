@@ -1,4 +1,7 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
+import { proxy, ref } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
 	aiNeed,
@@ -36,7 +39,7 @@ import { citeText, projectEvidence } from "./project.ts";
 export let PANEL = undefined,
 	G = undefined;
 export function showStab(t: string) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		PANEL.tab = t;
 	});
 	S.layer = t !== "ask";
@@ -45,14 +48,14 @@ export function showStab(t: string) {
 	if (t === "map") renderMap();
 }
 export function openSide(tab: string) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		PANEL.open = true;
 	});
 	(stage as HTMLElement).style.setProperty("--drawer", `${drawerW()}px`);
 	showStab(tab || PANEL.tab);
 }
 export function closeSide() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		PANEL.open = false;
 	});
 	S.layer = false;
@@ -158,7 +161,7 @@ export function finishBlock(blockerId?) {
 export function renderMap() {
 	PANEL.hint = "";
 	coreStateState.MAP = computeMap();
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		PANEL.map = coreStateState.MAP;
 	});
 }
@@ -376,7 +379,7 @@ Push back only when you see a real problem: a hidden assumption, a conflict with
 ${ev ? "If the answer conflicts with what the excerpts show, say so and cite the excerpt id like [f2].\n" : ""}Reply with ONLY a JSON object, no markdown:
 {"verdict":"solid or challenge","text":"if challenge: one or two sentences phrased as a pointed question. If solid: empty."}`;
 	const c = new AbortController();
-	G.ctl = CascadeUI.ref(c);
+	G.ctl = ref(c);
 	try {
 		const out = await callAI(prompt, {
 			signal: c.signal,
@@ -550,7 +553,7 @@ export async function nextRound() {
 		5,
 	);
 	const c = new AbortController();
-	G.ctl = CascadeUI.ref(c);
+	G.ctl = ref(c);
 	const candidates = mindsetCandidates(G.scope);
 	let done = 0,
 		got = 0,
@@ -636,7 +639,7 @@ export function toggleAsk() {
 	else closeSide();
 }
 export function initialize() {
-	PANEL = CascadeUI.proxy({
+	PANEL = proxy({
 		open: false,
 		tab: "map",
 		map: null,
@@ -646,7 +649,7 @@ export function initialize() {
 		doneMessage: "",
 		canSeed: false,
 	});
-	G = CascadeUI.proxy({
+	G = proxy({
 		active: false,
 		scope: null,
 		focus: "",
@@ -663,7 +666,7 @@ export function initialize() {
 		seq: 0,
 	});
 	UI.panel = PANEL;
-	CascadeUI.connect({
+	connect({
 		PANEL,
 		G,
 		S,
@@ -673,5 +676,5 @@ export function initialize() {
 		LABEL,
 		Mindsets,
 	});
-	CascadeUI.mount("side", $("#sideRoot"));
+	mount("side", $("#sideRoot"));
 }

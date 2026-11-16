@@ -1,4 +1,6 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
+import { ref } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
 import { bridgeTo, growNode, traceBack } from "../ai/prompts.ts";
 import { beginEdit } from "../canvas/interaction.ts";
 import { nodeActions } from "../canvas/layout.ts";
@@ -69,7 +71,7 @@ export function applyResponsive(force: boolean) {
 	cl.toggle("m-standard", small && choice === "standard");
 	cl.toggle("m-minimal", small && choice === "minimal");
 	closeMenu();
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.small = small;
 		UI.minimal = small && choice === "minimal";
 	});
@@ -153,7 +155,7 @@ export function setMenuElement(element?: undefined) {
 	state.menuEl = element;
 }
 export function closeMenu() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.menu = null;
 	});
 	state.menuSpec = null;
@@ -184,8 +186,8 @@ export function openMenu(spec, at) {
 		at,
 		focus: !hadMenu,
 	};
-	CascadeUI.sync(() => {
-		UI.menu = CascadeUI.ref(state.menuSpec);
+	flushSync(() => {
+		UI.menu = ref(state.menuSpec);
 	});
 	if (!hadMenu) {
 		document.addEventListener("pointerdown", menuOutside, true);
@@ -434,7 +436,7 @@ export function initialize() {
 	state.menuEl = null;
 	state.menuSpec = null;
 	state.tapSuppressed = false;
-	CascadeUI.connect({
+	connect({
 		SHORT,
 	});
 	MI = {

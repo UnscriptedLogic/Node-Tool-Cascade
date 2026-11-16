@@ -1,4 +1,7 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
+import { proxy } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -623,14 +626,14 @@ export function lkRefreshBar() {
 	LK.revision++;
 }
 export function lkRefresh() {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		LK.revision++;
 		if (!LK.textFocused)
 			LK.text = JSON.stringify(canvasLookState.LOOK, null, 2);
 	});
 }
 export function lkShowTab(tab) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		LK.tab = tab;
 	});
 	lkRefresh();
@@ -652,7 +655,7 @@ wires: style ${WIRE_STYLES.join(" | ")}, curvature 0-1, elbow 0.1-0.9, radius 0-
 canvas: bg, grid dots | lines | none, gridColor, gridSize 10-80
 layout: colGap 16-200, rowGap 2-80
 moods: ${MOOD_KEYS.join(" | ")}: "#rrggbb"`;
-	CascadeUI.connect({
+	connect({
 		LK,
 		PRESETS,
 		SHAPES,
@@ -672,7 +675,7 @@ moods: ${MOOD_KEYS.join(" | ")}: "#rrggbb"`;
 		lookSheet,
 		getLook: () => canvasLookState.LOOK,
 	});
-	CascadeUI.mount("look", $("#lookRoot"));
+	mount("look", $("#lookRoot"));
 	lkRefresh();
 }
 export function initialize() {
@@ -1100,7 +1103,7 @@ export function initialize() {
 		fog: "fog|clouds?",
 		base: "nodes?|blocks?|boxes|cards?|everything|all",
 	};
-	LK = CascadeUI.proxy({
+	LK = proxy({
 		tab: "presets",
 		type: "base",
 		pend: null,

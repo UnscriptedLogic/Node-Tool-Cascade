@@ -1,4 +1,4 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { ref } from "valtio/vanilla";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { applyView, fitTo, setMode } from "../canvas/view.ts";
@@ -123,7 +123,7 @@ export function clearGraph() {
 	coreStateState.flashId = null;
 	S.mode = "detail";
 	coreStateState.vAnim = null;
-	S.view = CascadeUI.ref({
+	S.view = ref({
 		x: 140,
 		y: 200,
 		z: 1,

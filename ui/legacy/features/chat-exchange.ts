@@ -1,4 +1,7 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
+import { proxy } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import { guidance } from "../ai/prompts.ts";
 import { $, PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
@@ -9,12 +12,12 @@ import { closeSettings } from "../ui/settings.ts";
 export let CHATUI = undefined,
 	CHAT_EXCHANGE = undefined;
 export function chatAction(name, ...args) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		CHAT_EXCHANGE[name](...args);
 	});
 }
 export function initialize() {
-	CHATUI = CascadeUI.proxy({
+	CHATUI = proxy({
 		task: "",
 		reply: "",
 		prompt: "",
@@ -225,8 +228,8 @@ export function initialize() {
 			},
 		};
 	})();
-	CascadeUI.connect({
+	connect({
 		CHATUI,
 	});
-	CascadeUI.mount("chat", $("#chatRoot"));
+	mount("chat", $("#chatRoot"));
 }

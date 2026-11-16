@@ -1,4 +1,5 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	$,
 	ACT,
@@ -24,7 +25,7 @@ export function initialize() {
 	gEdges = $("#eg");
 	gTh = $("#th");
 	elabel = $("#elabel");
-	CascadeUI.connect({
+	connect({
 		S,
 		PREFS,
 		UI,
@@ -40,8 +41,8 @@ export function initialize() {
 		LOCAL,
 		WEB,
 	});
-	CascadeUI.mount("rail", $("#railRoot"));
-	CascadeUI.mount("hud", $("#hudRoot"));
-	CascadeUI.mount("compose", $("#composeRoot"));
-	CascadeUI.mount("menu", $("#menuRoot"));
+	mount("rail", $("#railRoot"));
+	mount("hud", $("#hudRoot"));
+	mount("compose", $("#composeRoot"));
+	mount("menu", $("#menuRoot"));
 }

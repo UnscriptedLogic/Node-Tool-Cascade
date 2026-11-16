@@ -1,4 +1,6 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { proxy } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -303,7 +305,7 @@ export function applyMindset(id, only) {
 	});
 }
 export function initialize() {
-	MSUI = CascadeUI.proxy({
+	MSUI = proxy({
 		json: "",
 		message: "",
 	});
@@ -337,10 +339,10 @@ export function initialize() {
 			},
 		],
 	};
-	CascadeUI.connect({
+	connect({
 		MSUI,
 		MINDSET_PRESETS,
 		Mindsets,
 	});
-	CascadeUI.mount("mindsets", $("#mindsetsRoot"));
+	mount("mindsets", $("#mindsetsRoot"));
 }

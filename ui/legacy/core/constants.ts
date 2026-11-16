@@ -1,5 +1,5 @@
+import { proxy } from "valtio/vanilla";
 import type { ServerSettings } from "../../model.ts";
-import * as CascadeUI from "../../runtime.tsx";
 import { UI } from "./state.ts";
 export let TYPES = undefined,
 	BLOCKS = undefined,
@@ -197,10 +197,10 @@ export function initialize() {
 		useProject: true,
 		askFiles: true,
 	};
-	PREFS = CascadeUI.proxy(Object.assign({}, DEFAULT_PREFS, loadPrefs()));
+	PREFS = proxy(Object.assign({}, DEFAULT_PREFS, loadPrefs()));
 	if (!loadPrefs().domain && Object.keys(loadPrefs()).length)
 		PREFS.domain = "game";
-	CONNECTION = CascadeUI.proxy({
+	CONNECTION = proxy({
 		cloud: false,
 		server: LOCAL ? window.__SETTINGS__ || null : null,
 		project: LOCAL ? window.__SETTINGS__?.project || null : null,

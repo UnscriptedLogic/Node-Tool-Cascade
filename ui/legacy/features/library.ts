@@ -1,4 +1,6 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { proxy } from "valtio/vanilla";
+import { connect } from "../../bridge.ts";
+import { mount } from "../../runtime.tsx";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
@@ -444,7 +446,7 @@ export async function libInit() {
 	await libRefresh();
 }
 export function initialize() {
-	LIB = CascadeUI.proxy({
+	LIB = proxy({
 		kind: null,
 		user: null,
 		folders: [],
@@ -462,9 +464,9 @@ export function initialize() {
 	LIB_CURRENT = "cascade-current-v1";
 	libSignedIn = () => LIB.kind === "local" || !!LIB.user;
 	libCurrent = () => LIB.cascades.find((c) => c.id === LIB.currentId) || null;
-	CascadeUI.connect({
+	connect({
 		LIB,
 		DOMAINS,
 	});
-	CascadeUI.mount("library", $("#libraryRoot"));
+	mount("library", $("#libraryRoot"));
 }

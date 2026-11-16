@@ -1,4 +1,4 @@
-import * as CascadeUI from "../../runtime.tsx";
+import { flushSync } from "react-dom";
 import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { S, save, UI } from "../core/state.ts";
@@ -7,13 +7,13 @@ export const state = {
 };
 export /* ================= transient UI actions ================= */
 function setBusy(message: string | null, stoppable?: boolean) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.busy = message;
 		UI.stoppable = !!stoppable;
 	});
 }
 export function showNote(parts, withUndo) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.note = parts;
 		UI.noteUndo = !!withUndo;
 		UI.noteOpen = true;
@@ -33,7 +33,7 @@ export function select(id: string | null) {
 	kick();
 }
 export function focusControl(id: string, select?: boolean) {
-	CascadeUI.sync(() => {
+	flushSync(() => {
 		UI.focus = {
 			id,
 			select: !!select,

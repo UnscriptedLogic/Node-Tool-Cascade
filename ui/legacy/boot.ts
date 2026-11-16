@@ -1,4 +1,4 @@
-import * as CascadeUI from "../runtime.tsx";
+import { subscribe } from "valtio/vanilla";
 import { finishOpenRouterLogin } from "./ai/transport.ts";
 import { layout } from "./canvas/layout.ts";
 import { applyLook } from "./canvas/look.ts";
@@ -36,7 +36,7 @@ export function initialize() {
 			}
 		} catch {}
 	}
-	CascadeUI.subscribe(S, () => {
+	subscribe(S, () => {
 		pruneThreads();
 		if (PANEL.open && PANEL.tab === "map") renderMap();
 	});

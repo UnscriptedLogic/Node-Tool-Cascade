@@ -1,5 +1,5 @@
+import { proxy, ref } from "valtio/vanilla";
 import type { CascadeTree, Point, RenderedNode } from "../../model.ts";
-import * as CascadeUI from "../../runtime.tsx";
 import { libAfterSave } from "../features/library.ts";
 import { KEY, LOCAL } from "./constants.ts";
 import { Mindsets } from "./mindsets.ts";
@@ -107,7 +107,7 @@ export function initialize() {
 		},
 		loaded || {},
 	);
-	initialState.view = CascadeUI.ref(
+	initialState.view = ref(
 		initialState.view && Number.isFinite(+initialState.view.z)
 			? initialState.view
 			: {
@@ -116,7 +116,7 @@ export function initialize() {
 					z: 1,
 				},
 	);
-	S = CascadeUI.proxy(initialState);
+	S = proxy(initialState);
 	S.mode = "detail";
 	S.sel = null;
 	try {
@@ -127,7 +127,7 @@ export function initialize() {
 	R = {};
 	state.KM = {};
 	spawnAt = {};
-	hist = CascadeUI.proxy([]);
+	hist = proxy([]);
 	state.flashId = null;
 	state.vAnim = null;
 	state.linkFrom = null;
@@ -150,12 +150,12 @@ export function initialize() {
 			mindsets: S.mindsets,
 		});
 	state.saveTimer = 0;
-	AI = CascadeUI.proxy({
+	AI = proxy({
 		checked: false,
 		sample: null,
 		off: false,
 	});
-	UI = CascadeUI.proxy({
+	UI = proxy({
 		focus: null,
 		bye: false,
 		busy: null,
