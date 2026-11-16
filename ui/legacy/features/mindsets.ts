@@ -5,12 +5,14 @@ import {
 	activeProvider,
 	aiAvailable,
 	aiNeed,
-	state as aiPromptsState,
 	callAI,
 	cancelAI,
 	enqueue,
 	guideBlock,
 	handleAIError,
+	isRevealStopped,
+	setController,
+	setRevealStopped,
 	treeText,
 } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
@@ -236,8 +238,8 @@ export function applyMindset(id, only) {
 		const candidates = mindsetCandidates(id, only);
 		if (!candidates.length) return;
 		const c = new AbortController();
-		aiPromptsState.ctl = c;
-		aiPromptsState.stopReveal = false;
+		setController(c);
+		setRevealStopped(false);
 		setBusy("Applying mindset…", true);
 		const prompt = `Ask up to 3 useful questions about the focus branch in this ${DOM().treeName}. Never answer them. Return no lines if no supplied mindset applies.\n${guideBlock()}\nTREE:\n${treeText()}\nFOCUS: ${id} | ${S.nodes[id].text}\n${mindsetBlock(candidates, true)}\nWrite NDJSON only, one object per line: {"type":"question","text":"<at most 24 words>","mindset":{"packId":"<id>","entryId":"<id>","why":"<why relevant>"}}`;
 		try {
@@ -246,11 +248,7 @@ export function applyMindset(id, only) {
 				signal: c.signal,
 				temperature: PREFS.creativity,
 			});
-			if (
-				c.signal.aborted ||
-				aiPromptsState.stopReveal ||
-				S.nodes[id] !== target
-			)
+			if (c.signal.aborted || isRevealStopped() || S.nodes[id] !== target)
 				return;
 			let count = 0;
 			const texts = new Set(S.order.map((i) => S.nodes[i].text.toLowerCase()));
@@ -298,7 +296,7 @@ export function applyMindset(id, only) {
 		} catch (e) {
 			if (!c.signal.aborted) handleAIError(e);
 		} finally {
-			aiPromptsState.ctl = null;
+			setController(null);
 			setBusy(null);
 		}
 	});

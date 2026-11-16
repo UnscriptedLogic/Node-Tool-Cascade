@@ -1,3 +1,8 @@
+let ctl: AbortController | null = null;
+let chain: Promise<unknown> = Promise.resolve();
+let queued: number = 0;
+let stopReveal: boolean = false;
+
 import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { ensureVisible, setMode } from "../canvas/view.ts";
@@ -36,15 +41,9 @@ import {
 import { briefText, projectBriefOn } from "../features/project.ts";
 import { commit, setBusy, showNote } from "../ui/hud.ts";
 import { demoSample, serverSample, webSample } from "./transport.ts";
-export const state = {
-	ctl: undefined,
-	chain: undefined,
-	queued: undefined,
-	stopReveal: undefined,
-};
 export function cancelAI() {
-	state.stopReveal = true;
-	if (state.ctl) state.ctl.abort();
+	stopReveal = true;
+	if (ctl) ctl.abort();
 	try {
 		if (G.ctl) G.ctl.abort();
 	} catch {}
@@ -56,14 +55,14 @@ export function cancelAI() {
 	} catch {}
 }
 export function enqueue(job) {
-	state.queued++;
-	state.chain = state.chain
+	queued++;
+	chain = chain
 		.then(job)
 		.catch((e) => console.error(e))
 		.finally(() => {
-			state.queued--;
+			queued--;
 		});
-	return state.chain;
+	return chain;
 }
 export function aiAvailable() {
 	if (AI.off) return false;
@@ -419,7 +418,7 @@ export async function expandFrom(
 		return;
 	}
 	f.collapsed = false;
-	state.stopReveal = false;
+	stopReveal = false;
 	const fr = R[fid];
 	if (fr) {
 		fr.growing = true;
@@ -616,7 +615,7 @@ Rules:
 	};
 	const reveal = (async () => {
 		while (streaming || queue.length) {
-			if (state.stopReveal) {
+			if (stopReveal) {
 				queue.length = 0;
 				break;
 			}
@@ -642,7 +641,7 @@ Rules:
 		parse(out.text, true);
 	} catch (e) {
 		if (!(e && e.code === "cancelled")) handleAIError(e);
-		if (e && e.code === "cancelled") state.stopReveal = true;
+		if (e && e.code === "cancelled") stopReveal = true;
 	} finally {
 		streaming = false;
 	}
@@ -674,16 +673,16 @@ Rules:
 		fr.growing = false;
 		restyle();
 	}
-	if (count === 0 && !state.stopReveal)
+	if (count === 0 && !stopReveal)
 		showNote(["No new branches came back for that node."], false);
-	else if (chart && !state.stopReveal)
+	else if (chart && !stopReveal)
 		showNote(
 			[
 				`Charted ${count} suggestions against the destination. Keep the ones that belong.`,
 			],
 			false,
 		);
-	else if (bridge && !state.stopReveal) {
+	else if (bridge && !stopReveal) {
 		const gap =
 			verdict && typeof verdict.gap === "string"
 				? verdict.gap.trim().slice(0, 220)
@@ -720,7 +719,7 @@ Rules:
 			],
 			false,
 		);
-	} else if (back && !state.stopReveal)
+	} else if (back && !stopReveal)
 		showNote(
 			[
 				"Traced back from ",
@@ -762,12 +761,12 @@ export function traceBack(id) {
 	}
 	enqueue(async () => {
 		const c = new AbortController();
-		state.ctl = c;
+		ctl = c;
 		pushHist();
 		try {
 			await expandFrom(id, c.signal, "back");
 		} finally {
-			state.ctl = null;
+			ctl = null;
 		}
 	});
 }
@@ -778,12 +777,12 @@ export function bridgeTo(id) {
 	}
 	enqueue(async () => {
 		const c = new AbortController();
-		state.ctl = c;
+		ctl = c;
 		pushHist();
 		try {
 			await expandFrom(id, c.signal, "bridge");
 		} finally {
-			state.ctl = null;
+			ctl = null;
 		}
 	});
 }
@@ -794,12 +793,12 @@ export function growNode(id) {
 	}
 	enqueue(async () => {
 		const c = new AbortController();
-		state.ctl = c;
+		ctl = c;
 		pushHist();
 		try {
 			await expandFrom(id, c.signal);
 		} finally {
-			state.ctl = null;
+			ctl = null;
 		}
 	});
 }
@@ -884,10 +883,6 @@ export const MOOD_WORDS: string[][] = [
 ];
 
 export function initialize() {
-	state.ctl = null;
-	state.chain = Promise.resolve();
-	state.queued = 0;
-	state.stopReveal = false;
 	(async () => {
 		await null; // let the rest of the script finish initialising before touching it
 		try {
@@ -898,3 +893,26 @@ export function initialize() {
 		AI.checked = true;
 	})();
 }
+
+export function setController(value: AbortController | null) {
+	ctl = value;
+}
+export function getController() {
+	return ctl;
+}
+export function queuedCount() {
+	return queued;
+}
+export function setRevealStopped(value: boolean) {
+	stopReveal = value;
+}
+export function isRevealStopped() {
+	return stopReveal;
+}
+
+// The legacy test harness awaits the current queue until plan 007.
+export const state = {
+	get chain() {
+		return chain;
+	},
+};

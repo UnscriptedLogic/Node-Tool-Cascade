@@ -1,3 +1,5 @@
+let prefsTimer: ReturnType<typeof setTimeout> | undefined;
+
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
@@ -36,9 +38,6 @@ import { clearGraph, initialView } from "./actions.ts";
 import { focusControl, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
-export const state = {
-	prefsTimer: undefined,
-};
 export let SETTINGS = undefined;
 export function setPreference(key: string, value: string | number | boolean) {
 	PREFS[key] = value;
@@ -81,8 +80,8 @@ export function savePrefs() {
 		localStorage.setItem("cascade-prefs-v1", JSON.stringify(PREFS));
 	} catch {}
 	if (LOCAL) {
-		clearTimeout(state.prefsTimer);
-		state.prefsTimer = setTimeout(() => {
+		clearTimeout(prefsTimer);
+		prefsTimer = setTimeout(() => {
 			postSettings({
 				prefs: PREFS,
 			}).catch(() => {});
@@ -712,7 +711,6 @@ export function initialize() {
 		dataMessage: "",
 		statsOn: true,
 	});
-	state.prefsTimer = 0;
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);

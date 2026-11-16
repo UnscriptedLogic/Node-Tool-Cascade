@@ -1,3 +1,12 @@
+let projDepth: string = "standard";
+let PGROUPS = null;
+let PFIND = null;
+let projBusy: boolean = false;
+let projCtl: AbortController | null = null;
+let prevBrief: string | null = null;
+let scanBusy: boolean = false;
+let briefTimer: ReturnType<typeof setTimeout> | undefined;
+
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
@@ -7,11 +16,13 @@ import {
 	activeProvider,
 	aiAvailable,
 	aiNeed,
-	state as aiPromptsState,
 	callAI,
 	enqueue,
 	guideBlock,
 	handleAIError,
+	isRevealStopped,
+	setController,
+	setRevealStopped,
 	treeText,
 } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
@@ -31,16 +42,6 @@ import { focusControl, setBusy, showNote } from "../ui/hud.ts";
 import { openSettings, postJSON, updatePreview } from "../ui/settings.ts";
 import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
-export const state = {
-	projDepth: undefined,
-	PGROUPS: undefined,
-	PFIND: undefined,
-	projBusy: undefined,
-	projCtl: undefined,
-	prevBrief: undefined,
-	scanBusy: undefined,
-	briefTimer: undefined,
-};
 export let PROJECTUI = undefined,
 	SV = undefined;
 export async function fetchJSON(url: string | URL | Request) {
@@ -298,21 +299,21 @@ export async function refreshProject() {
 export async function loadProjectData() {
 	if (!LOCAL) return;
 	if (!projectReady()) {
-		state.PGROUPS = null;
-		state.PFIND = null;
+		PGROUPS = null;
+		PFIND = null;
 		renderProject();
 		return;
 	}
 	try {
 		const [g, f] = await Promise.all([
-			fetchJSON(`/api/project/groups?chars=${DEPTHS[state.projDepth].chars}`),
+			fetchJSON(`/api/project/groups?chars=${DEPTHS[projDepth].chars}`),
 			fetchJSON("/api/project/findings"),
 		]);
-		state.PGROUPS = g.groups;
-		state.PFIND = f;
+		PGROUPS = g.groups;
+		PFIND = f;
 	} catch {
-		state.PGROUPS = null;
-		state.PFIND = null;
+		PGROUPS = null;
+		PFIND = null;
 	}
 	renderProject();
 }
@@ -329,13 +330,13 @@ export async function projectPick() {
 	}
 }
 export async function projectScan() {
-	if (state.scanBusy) return;
+	if (scanBusy) return;
 	const folder = PROJECTUI.path.trim();
 	if (!folder) {
 		pMsg("Choose or paste a folder first.", "bad");
 		return;
 	}
-	state.scanBusy = true;
+	scanBusy = true;
 	PROJECTUI.scanBusy = true;
 	pMsg("Scanning…");
 	try {
@@ -365,7 +366,7 @@ export async function projectScan() {
 	} catch (e) {
 		pMsg(e.message, "bad");
 	} finally {
-		state.scanBusy = false;
+		scanBusy = false;
 		PROJECTUI.scanBusy = false;
 	}
 }
@@ -377,8 +378,8 @@ export function renderProject() {
 		has = !!P.has;
 	PROJECTUI.project = P;
 	if (!PROJECTUI.path) PROJECTUI.path = P.root || "";
-	if (!state.projBusy) PROJECTUI.brief = P.brief || "";
-	PROJECTUI.canRestore = !!state.prevBrief;
+	if (!projBusy) PROJECTUI.brief = P.brief || "";
+	PROJECTUI.canRestore = !!prevBrief;
 	if (!has) return;
 	const c = P.counts || {},
 		sk = P.skipped || {};
@@ -421,9 +422,9 @@ export function renderProject() {
 	const hasBrief = !!briefText();
 	let est = "",
 		label = "Build brief";
-	if (state.PGROUPS && state.PFIND) {
-		const sel = state.PGROUPS.slice(0, DEPTHS[state.projDepth].groups),
-			have = state.PFIND.groupFindings || {},
+	if (PGROUPS && PFIND) {
+		const sel = PGROUPS.slice(0, DEPTHS[projDepth].groups),
+			have = PFIND.groupFindings || {},
 			stale = sel.filter((g) => have[g.id] !== g.fingerprint);
 		const mode = !hasBrief ? "build" : stale.length ? "update" : "rebuild",
 			work = mode === "update" ? stale : sel;
@@ -434,11 +435,11 @@ export function renderProject() {
 					? `Update brief (${stale.length} changed)`
 					: "Rebuild brief";
 		const tok = Math.round(work.reduce((a, g) => a + g.chars, 0) / 4) + 1500;
-		est = `${DEPTHS[state.projDepth].groups < state.PGROUPS.length ? `Reads the ${sel.length} most design-relevant of ${state.PGROUPS.length} folders. ` : `Reads all ${sel.length} folders. `}${mode === "update" ? "Only the changed ones this time: " : ""}about ${fmtN(tok)} tokens across ${work.length} call${work.length === 1 ? "" : "s"}, plus one to write the brief.`;
+		est = `${DEPTHS[projDepth].groups < PGROUPS.length ? `Reads the ${sel.length} most design-relevant of ${PGROUPS.length} folders. ` : `Reads all ${sel.length} folders. `}${mode === "update" ? "Only the changed ones this time: " : ""}about ${fmtN(tok)} tokens across ${work.length} call${work.length === 1 ? "" : "s"}, plus one to write the brief.`;
 	}
 	PROJECTUI.buildLabel = label;
 	PROJECTUI.estimate = est;
-	PROJECTUI.canRestore = !!state.prevBrief;
+	PROJECTUI.canRestore = !!prevBrief;
 }
 export function syncProjectButtons() {
 	if (!LOCAL) return;
@@ -484,7 +485,7 @@ export async function readGroup(g, engine, signal) {
 	return out.slice(0, 14);
 }
 export async function buildBrief() {
-	if (state.projBusy) return;
+	if (projBusy) return;
 	if (!projectReady()) {
 		pMsg("Scan a folder first.", "bad");
 		return;
@@ -496,24 +497,24 @@ export async function buildBrief() {
 		);
 		return;
 	}
-	if (!state.PGROUPS || !state.PFIND) await loadProjectData();
-	if (!state.PGROUPS || !state.PFIND) {
+	if (!PGROUPS || !PFIND) await loadProjectData();
+	if (!PGROUPS || !PFIND) {
 		pMsg("Couldn’t load the scan. Try scanning again.", "bad");
 		return;
 	}
-	const sel = state.PGROUPS.slice(0, DEPTHS[state.projDepth].groups),
-		have = state.PFIND.groupFindings || {},
+	const sel = PGROUPS.slice(0, DEPTHS[projDepth].groups),
+		have = PFIND.groupFindings || {},
 		stale = sel.filter((g) => have[g.id] !== g.fingerprint);
 	const mode = !briefText() ? "build" : stale.length ? "update" : "rebuild",
 		work = mode === "update" ? stale : sel;
 	const kept =
 		mode === "update"
-			? state.PFIND.findings.filter((f) =>
+			? PFIND.findings.filter((f) =>
 					sel.some((g) => g.label === f.group && have[g.id] === g.fingerprint),
 				)
 			: [];
-	state.projBusy = true;
-	state.projCtl = new AbortController();
+	projBusy = true;
+	projCtl = new AbortController();
 	lockProject(true);
 	pMsg("");
 	const engine = CONNECTION.project?.engineLabel || "",
@@ -525,10 +526,10 @@ export async function buildBrief() {
 		const worker = async () => {
 			for (;;) {
 				const g = queue.shift();
-				if (!g || state.projCtl.signal.aborted) return;
+				if (!g || projCtl.signal.aborted) return;
 				pProg(`Reading ${g.label} (${nDone + 1} of ${work.length})…`);
 				try {
-					fresh.push(...(await readGroup(g, engine, state.projCtl.signal)));
+					fresh.push(...(await readGroup(g, engine, projCtl.signal)));
 				} catch (e) {
 					if (e && e.code === "cancelled") return;
 					failed++;
@@ -542,7 +543,7 @@ export async function buildBrief() {
 			}
 		};
 		await Promise.all([worker(), worker()]);
-		if (state.projCtl.signal.aborted) {
+		if (projCtl.signal.aborted) {
 			pMsg("Stopped. Nothing was changed.");
 			return;
 		}
@@ -560,7 +561,7 @@ export async function buildBrief() {
 		pProg(`Writing the brief from ${all.length} findings…`);
 		const out = await callAI(briefPrompt(all, engine), {
 			cache: false,
-			signal: state.projCtl.signal,
+			signal: projCtl.signal,
 			temperature: 0.3,
 			onText: ({ text }) => {
 				PROJECTUI.brief = text;
@@ -571,7 +572,7 @@ export async function buildBrief() {
 			pMsg("The AI returned an empty brief.", "bad");
 			return;
 		}
-		state.prevBrief = briefText() || null;
+		prevBrief = briefText() || null;
 		const gf =
 			mode === "update"
 				? {
@@ -609,8 +610,8 @@ export async function buildBrief() {
 			pMsg("The brief couldn’t be written.", "bad");
 		}
 	} finally {
-		state.projBusy = false;
-		state.projCtl = null;
+		projBusy = false;
+		projCtl = null;
 		lockProject(false);
 		pProg("");
 		PROJECTUI.brief = CONNECTION.project?.brief || "";
@@ -621,14 +622,14 @@ export function setProjectField(key, value) {
 	PROJECTUI[key] = value;
 }
 export function setProjectDepth(value?: undefined) {
-	state.projDepth = value;
+	projDepth = value;
 	PROJECTUI.depth = value;
 	loadProjectData();
 }
 export function editProjectBrief(value) {
 	PROJECTUI.brief = value;
-	clearTimeout(state.briefTimer);
-	state.briefTimer = setTimeout(async () => {
+	clearTimeout(briefTimer);
+	briefTimer = setTimeout(async () => {
 		try {
 			CONNECTION.project = await postJSON("/api/project/brief", {
 				brief: PROJECTUI.brief,
@@ -643,9 +644,9 @@ export function editProjectBrief(value) {
 	}, 600);
 }
 export async function restoreProjectBrief() {
-	if (!state.prevBrief) return;
-	const brief = state.prevBrief;
-	state.prevBrief = null;
+	if (!prevBrief) return;
+	const brief = prevBrief;
+	prevBrief = null;
 	PROJECTUI.brief = brief;
 	try {
 		CONNECTION.project = await postJSON("/api/project/brief", {
@@ -663,9 +664,9 @@ export async function forgetProject() {
 	try {
 		const r = await postJSON("/api/project/forget", {});
 		CONNECTION.project = r.project;
-		state.PGROUPS = null;
-		state.PFIND = null;
-		state.prevBrief = null;
+		PGROUPS = null;
+		PFIND = null;
+		prevBrief = null;
 		PROJECTUI.path = "";
 		PROJECTUI.brief = "";
 		pMsg("This project was forgotten.");
@@ -677,7 +678,7 @@ export async function forgetProject() {
 	}
 }
 export function stopProject() {
-	if (state.projCtl) state.projCtl.abort();
+	if (projCtl) projCtl.abort();
 }
 export function cancelProjectScan() {
 	postJSON("/api/project/cancel", {}).catch(() => {});
@@ -712,17 +713,17 @@ export async function seedFromProject() {
 	}
 	enqueue(async () => {
 		const c = new AbortController();
-		aiPromptsState.ctl = c;
+		setController(c);
 		pushHist();
 		try {
 			await runSeed(findings, c.signal);
 		} finally {
-			aiPromptsState.ctl = null;
+			setController(null);
 		}
 	});
 }
 export async function runSeed(findings, signal) {
-	aiPromptsState.stopReveal = false;
+	setRevealStopped(false);
 	setBusy("Seeding from the project…", true);
 	if (S.mode === "outer") setMode("detail");
 	const byId = Object.fromEntries(findings.map((x) => [x.id, x])),
@@ -785,7 +786,7 @@ export async function runSeed(findings, signal) {
 	};
 	const reveal = (async () => {
 		while (streaming || queue.length) {
-			if (aiPromptsState.stopReveal) {
+			if (isRevealStopped()) {
 				queue.length = 0;
 				break;
 			}
@@ -803,7 +804,7 @@ export async function runSeed(findings, signal) {
 			onObj: (o) => queue.push(o),
 		});
 	} catch (e) {
-		if (e && e.code === "cancelled") aiPromptsState.stopReveal = true;
+		if (e && e.code === "cancelled") setRevealStopped(true);
 		else handleAIError(e);
 	} finally {
 		streaming = false;
@@ -817,7 +818,7 @@ export async function runSeed(findings, signal) {
 			],
 			true,
 		);
-	else if (!aiPromptsState.stopReveal)
+	else if (!isRevealStopped())
 		showNote(["Nothing in the findings could be turned into nodes."], false);
 }
 export const DEPTHS = {
@@ -867,13 +868,6 @@ export const pProg = (t: string, cls?: string) => {
 export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 
 export function initialize() {
-	state.projDepth = "standard";
-	state.PGROUPS = null;
-	state.PFIND = null;
-	state.projBusy = false;
-	state.projCtl = null;
-	state.prevBrief = null;
-	state.scanBusy = false;
 	PROJECTUI = proxy({
 		project: CONNECTION.project || {
 			has: false,
@@ -923,6 +917,5 @@ export function initialize() {
 		},
 		true,
 	);
-	state.briefTimer = 0;
 	if (LOCAL) initProject();
 }

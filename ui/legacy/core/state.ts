@@ -1,3 +1,5 @@
+let saveTimer: ReturnType<typeof setTimeout> | undefined;
+
 import { proxy, ref } from "valtio/vanilla";
 import type { CascadeTree, Point, RenderedNode } from "../../model.ts";
 import { libAfterSave } from "../features/library.ts";
@@ -12,7 +14,6 @@ export const state = {
 	MAP: undefined,
 	THMAP: undefined,
 	THR: undefined,
-	saveTimer: undefined,
 };
 export let loaded: CascadeTree | null,
 	initialState: CascadeTree,
@@ -53,8 +54,8 @@ export function save() {
 	} catch {}
 	if (typeof libAfterSave === "function") libAfterSave();
 	if (LOCAL) {
-		clearTimeout(state.saveTimer);
-		state.saveTimer = setTimeout(() => {
+		clearTimeout(saveTimer);
+		saveTimer = setTimeout(() => {
 			fetch("/api/tree", {
 				method: "POST",
 				headers: {
@@ -149,7 +150,6 @@ export function initialize() {
 			seq: S.seq,
 			mindsets: S.mindsets,
 		});
-	state.saveTimer = 0;
 	AI = proxy({
 		checked: false,
 		sample: null,

@@ -5,13 +5,13 @@ import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
 	aiNeed,
-	state as aiPromptsState,
 	callAI,
 	enqueue,
 	expandFrom,
 	guideBlock,
 	handleAIError,
 	parseObj,
+	setController,
 	treeText,
 } from "../ai/prompts.ts";
 import { beginEdit } from "../canvas/interaction.ts";
@@ -202,12 +202,12 @@ export function chartMap() {
 	if (S.mode === "outer") setMode("detail");
 	enqueue(async () => {
 		const c = new AbortController();
-		aiPromptsState.ctl = c;
+		setController(c);
 		pushHist();
 		try {
 			await expandFrom(root, c.signal, "chart");
 		} finally {
-			aiPromptsState.ctl = null;
+			setController(null);
 		}
 	});
 }

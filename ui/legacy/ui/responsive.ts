@@ -1,3 +1,9 @@
+let lastSmall: boolean | null = null;
+let lastChoice: string | null = null;
+let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+let menuEl: HTMLElement | null = null;
+let menuSpec = null;
+
 import { flushSync } from "react-dom";
 import { ref } from "valtio/vanilla";
 import { connect } from "../../bridge.ts";
@@ -37,11 +43,6 @@ import { fitCanvas } from "./controls.ts";
 import { select, showNote } from "./hud.ts";
 import { openSettings, setPreference } from "./settings.ts";
 export const state = {
-	lastSmall: undefined,
-	lastChoice: undefined,
-	resizeTimer: undefined,
-	menuEl: undefined,
-	menuSpec: undefined,
 	tapSuppressed: undefined,
 };
 export function layoutChoice() {
@@ -55,11 +56,10 @@ export function layoutChoice() {
 export function applyResponsive(force: boolean) {
 	const small = isSmall(),
 		choice = layoutChoice(),
-		first = state.lastSmall === null;
-	if (!force && small === state.lastSmall && choice === state.lastChoice)
-		return;
-	state.lastSmall = small;
-	state.lastChoice = choice;
+		first = lastSmall === null;
+	if (!force && small === lastSmall && choice === lastChoice) return;
+	lastSmall = small;
+	lastChoice = choice;
 	const cl = document.body.classList;
 	cl.toggle("m", small);
 	cl.toggle("m-standard", small && choice === "standard");
@@ -146,18 +146,18 @@ function runNodeAction(act: string, id) {
 /* ---------- standard layout: the strip of actions for the selected block ---------- */
 /* ---------- context menu: popover at a point (minimal) or bottom sheet (standard's "more") ---------- */
 export function setMenuElement(element?: undefined) {
-	state.menuEl = element;
+	menuEl = element;
 }
 export function closeMenu() {
 	flushSync(() => {
 		UI.menu = null;
 	});
-	state.menuSpec = null;
+	menuSpec = null;
 	document.removeEventListener("pointerdown", menuOutside, true);
 	document.removeEventListener("keydown", menuKey, true);
 }
 export function menuOutside(e) {
-	if (state.menuEl && !state.menuEl.contains(e.target)) {
+	if (menuEl && !menuEl.contains(e.target)) {
 		state.tapSuppressed = true;
 		closeMenu();
 	}
@@ -170,18 +170,18 @@ export function menuKey(e) {
 }
 export function openMenu(spec, at) {
 	at = at ||
-		state.menuSpec?.at || {
+		menuSpec?.at || {
 			x: innerWidth / 2,
 			y: innerHeight / 2,
 		};
 	const hadMenu = !!UI.menu;
-	state.menuSpec = {
+	menuSpec = {
 		spec,
 		at,
 		focus: !hadMenu,
 	};
 	flushSync(() => {
-		UI.menu = ref(state.menuSpec);
+		UI.menu = ref(menuSpec);
 	});
 	if (!hadMenu) {
 		document.addEventListener("pointerdown", menuOutside, true);
@@ -189,7 +189,7 @@ export function openMenu(spec, at) {
 	}
 }
 export function chooseMenuItem(index) {
-	const { spec, at } = state.menuSpec,
+	const { spec, at } = menuSpec,
 		item = spec.items[index];
 	if (item.sub)
 		openMenu(
@@ -206,8 +206,7 @@ export function chooseMenuItem(index) {
 	}
 }
 export function backMenu() {
-	if (state.menuSpec?.spec.back)
-		openMenu(state.menuSpec.spec.back, state.menuSpec.at);
+	if (menuSpec?.spec.back) openMenu(menuSpec.spec.back, menuSpec.at);
 }
 export function openMoreMenu() {
 	openMenu(canvasMenuSpec(innerWidth / 2, innerHeight / 2), {
@@ -413,8 +412,8 @@ export const isSmall = () =>
 export const isMobile = () => document.body.classList.contains("m");
 export const isMinimal = () => document.body.classList.contains("m-minimal");
 export const onResize = () => {
-	clearTimeout(state.resizeTimer);
-	state.resizeTimer = setTimeout(() => applyResponsive(false), 120);
+	clearTimeout(resizeTimer);
+	resizeTimer = setTimeout(() => applyResponsive(false), 120);
 	updateKeyboard();
 };
 export const MI = {
@@ -446,15 +445,11 @@ export const TYPE_ORDER = [
 ];
 
 export function initialize() {
-	state.lastSmall = null;
-	state.lastChoice = null;
-	state.resizeTimer = 0;
 	addEventListener("resize", onResize);
 	addEventListener("orientationchange", onResize);
 	if (window.visualViewport)
 		visualViewport.addEventListener("resize", updateKeyboard);
-	state.menuEl = null;
-	state.menuSpec = null;
+
 	state.tapSuppressed = false;
 	connect({
 		SHORT,

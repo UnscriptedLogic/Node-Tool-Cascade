@@ -4,11 +4,12 @@ import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
-	state as aiPromptsState,
 	callAI,
 	cancelAI,
 	enqueue,
+	getController,
 	parseObj,
+	setController,
 } from "../ai/prompts.ts";
 import { $, LOCAL, WEB } from "../core/constants.ts";
 import { MindsetConversion } from "../core/mindset-conversion.ts";
@@ -267,7 +268,7 @@ export function generateMindsetDraft() {
 	MSCONVERT.status = `Queued conversion: up to ${chunks.length} provider ${chunks.length === 1 ? "call" : "calls"}.`;
 	MSCONVERT.task = ref(
 		enqueue(async () => {
-			aiPromptsState.ctl = c;
+			setController(c);
 			setBusy("Converting mindset source…", true);
 			let entries = [],
 				processed = 0,
@@ -349,8 +350,8 @@ export function generateMindsetDraft() {
 					MSCONVERT.ctl = null;
 					conversionBusy(false);
 				}
-				if (aiPromptsState.ctl === c) {
-					aiPromptsState.ctl = null;
+				if (getController() === c) {
+					setController(null);
 					setBusy(null);
 				}
 			}

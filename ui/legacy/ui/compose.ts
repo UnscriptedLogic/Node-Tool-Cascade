@@ -1,5 +1,10 @@
 import { flushSync } from "react-dom";
-import { state as aiPromptsState, enqueue, placeBlock } from "../ai/prompts.ts";
+import {
+	enqueue,
+	placeBlock,
+	queuedCount,
+	setController,
+} from "../ai/prompts.ts";
 import { dragUi } from "../canvas/interaction.ts";
 import { decorate, nodeW } from "../canvas/look.ts";
 import { screenToWorld } from "../canvas/view.ts";
@@ -52,13 +57,13 @@ export function submitCompose() {
 	stage.appendChild(pend);
 	enqueue(async () => {
 		const c = new AbortController();
-		aiPromptsState.ctl = c;
+		setController(c);
 		try {
 			await placeBlock(type, text, wpos, pend, c.signal);
 		} finally {
-			aiPromptsState.ctl = null;
+			setController(null);
 			pend.remove();
-			if (!aiPromptsState.queued || aiPromptsState.queued === 1) setBusy(null);
+			if (!queuedCount() || queuedCount() === 1) setBusy(null);
 		}
 	});
 }
