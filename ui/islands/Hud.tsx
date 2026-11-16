@@ -1,10 +1,26 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useMemo } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import { nodeActions } from "../legacy/canvas/layout.ts";
+import { setMode } from "../legacy/canvas/view.ts";
+import {
+	ACT,
+	CONNECTION,
+	LOCAL,
+	PREFS,
+	WEB,
+} from "../legacy/core/constants.ts";
+import { AI, hist, S, UI } from "../legacy/core/state.ts";
+import { isOuter } from "../legacy/core/tree.ts";
+import { clearAskHighlight } from "../legacy/features/ask.ts";
+import { toggleAsk, toggleMap } from "../legacy/features/map.ts";
+import { seedFromProject } from "../legacy/features/project.ts";
+import { dismissAll, keepAll, undo } from "../legacy/ui/actions.ts";
+import { fitCanvas, stopCanvasAI, zoomCanvas } from "../legacy/ui/controls.ts";
+import { runNodeAction, SHORT } from "../legacy/ui/responsive.ts";
+import { openSettings } from "../legacy/ui/settings.ts";
 
 export default function Hud() {
-	const { S, PREFS, UI, AI, CONNECTION, hist, ACT, LOCAL, WEB } = getLegacy();
 	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		ui = useSnapshot(UI, { sync: true }),
@@ -49,18 +65,22 @@ export default function Hud() {
 			node &&
 			ui.small &&
 			!ui.minimal &&
-			(state.mode !== "outer" || call("isOuter", node))
+			(state.mode !== "outer" || isOuter(node))
 		);
-	// These inputs also affect nodeActions, which is shared with the imperative canvas.
-	void state.mindsets.length;
-	void prefs.domain;
-	const actions = showBar
-		? call(
-				"nodeActions",
-				node,
-				Object.values(state.nodes).some((n) => n.parent === node.id),
-			)
-		: [];
+	const hasKids =
+		!!node && Object.values(state.nodes).some((n) => n.parent === node.id);
+	const actions = useMemo(
+		() => (showBar ? nodeActions(node, hasKids) : []),
+		[
+			showBar,
+			state.mode,
+			state.layer,
+			state.mindsets.length,
+			prefs.domain,
+			node,
+			hasKids,
+		],
+	);
 	useLayoutEffect(() => {
 		if (ui.focus) {
 			const element = document.getElementById(ui.focus.id);
@@ -92,7 +112,7 @@ export default function Hud() {
 						type="button"
 						hidden={!ui.seed}
 						style={{ pointerEvents: "auto", marginTop: 14 }}
-						onClick={() => call("seedFromProject")}
+						onClick={() => seedFromProject()}
 					>
 						Seed from your project
 					</Button>
@@ -108,7 +128,7 @@ export default function Hud() {
 					hidden={
 						!((LOCAL || WEB) && ai.checked && !ui.busy && (!available || demo))
 					}
-					onClick={() => call("openSettings", "ai")}
+					onClick={() => openSettings("ai")}
 				>
 					{demo ? "Use your chat or connect AI" : "Open settings"}
 				</button>
@@ -117,7 +137,7 @@ export default function Hud() {
 					id="stopBtn"
 					type="button"
 					hidden={!(ui.busy && ui.stoppable)}
-					onClick={() => call("stopCanvasAI")}
+					onClick={() => stopCanvasAI()}
 				>
 					Stop
 				</button>
@@ -128,7 +148,7 @@ export default function Hud() {
 				type="button"
 				title={goal || "Set an overarching goal to steer the questions"}
 				onClick={() => {
-					call("openSettings", "goal");
+					openSettings("goal");
 					setTimeout(() => document.getElementById("gGoal").focus(), 30);
 				}}
 			>
@@ -149,7 +169,7 @@ export default function Hud() {
 					id="provBtn"
 					type="button"
 					title="Open Settings > AI model"
-					onClick={() => call("openSettings", "ai")}
+					onClick={() => openSettings("ai")}
 				>
 					Change
 				</button>
@@ -160,7 +180,7 @@ export default function Hud() {
 				type="button"
 				hidden={!highlighted}
 				title="Clear the highlight"
-				onClick={() => call("clearAskHighlight")}
+				onClick={() => clearAskHighlight()}
 			>
 				<span className="hl">
 					{ask?.q ? `Highlighting: ${ask.q.slice(0, 56)}` : ""}
@@ -173,7 +193,7 @@ export default function Hud() {
 						type="button"
 						id="mDetail"
 						aria-pressed={Boolean(state.mode === "detail")}
-						onClick={() => call("setMode", "detail")}
+						onClick={() => setMode("detail")}
 					>
 						Detail
 					</button>
@@ -181,7 +201,7 @@ export default function Hud() {
 						type="button"
 						id="mOuter"
 						aria-pressed={Boolean(state.mode === "outer")}
-						onClick={() => call("setMode", "outer")}
+						onClick={() => setMode("outer")}
 					>
 						Loops
 					</button>
@@ -191,7 +211,7 @@ export default function Hud() {
 						type="button"
 						id="zOut"
 						aria-label="Zoom out"
-						onClick={() => call("zoomCanvas", 0.8)}
+						onClick={() => zoomCanvas(0.8)}
 					>
 						−
 					</button>
@@ -199,7 +219,7 @@ export default function Hud() {
 						type="button"
 						id="zFit"
 						aria-label="Fit to screen"
-						onClick={() => call("fitCanvas")}
+						onClick={() => fitCanvas()}
 					>
 						Fit
 					</button>
@@ -207,7 +227,7 @@ export default function Hud() {
 						type="button"
 						id="zIn"
 						aria-label="Zoom in"
-						onClick={() => call("zoomCanvas", 1.25)}
+						onClick={() => zoomCanvas(1.25)}
 					>
 						+
 					</button>
@@ -217,7 +237,7 @@ export default function Hud() {
 					id="askBtn"
 					type="button"
 					aria-pressed={Boolean(!!ui.panel?.open && ui.panel.tab === "ask")}
-					onClick={() => call("toggleAsk")}
+					onClick={() => toggleAsk()}
 				>
 					Ask
 				</Button>
@@ -226,7 +246,7 @@ export default function Hud() {
 					id="mapBtn"
 					type="button"
 					aria-pressed={Boolean(!!ui.panel?.open && ui.panel.tab !== "ask")}
-					onClick={() => call("toggleMap")}
+					onClick={() => toggleMap()}
 				>
 					Map
 				</Button>
@@ -235,7 +255,7 @@ export default function Hud() {
 					id="undoBtn"
 					type="button"
 					disabled={!history.length}
-					onClick={() => call("undo")}
+					onClick={() => undo()}
 				>
 					Undo
 				</Button>
@@ -245,7 +265,7 @@ export default function Hud() {
 					type="button"
 					aria-label="Settings"
 					title={ui.settingsTitle}
-					onClick={() => call("openSettings")}
+					onClick={() => openSettings()}
 				>
 					<svg
 						viewBox="0 0 16 16"
@@ -278,13 +298,13 @@ export default function Hud() {
 						data-act={action}
 						aria-label={title}
 						title={title}
-						onClick={() => call("runNodeAction", action, state.sel)}
+						onClick={() => runNodeAction(action, state.sel)}
 					>
 						<span
 							className="ic"
 							dangerouslySetInnerHTML={{ __html: ACT[action] }}
 						/>
-						<span>{getLegacy().SHORT[action] || action}</span>
+						<span>{SHORT[action] || action}</span>
 					</button>
 				))}
 			</div>
@@ -299,7 +319,7 @@ export default function Hud() {
 					id="noteUndo"
 					type="button"
 					hidden={!ui.noteUndo}
-					onClick={() => call("undo")}
+					onClick={() => undo()}
 				>
 					Undo
 				</button>
@@ -314,7 +334,7 @@ export default function Hud() {
 					className="btn primary"
 					id="keepAll"
 					type="button"
-					onClick={() => call("keepAll")}
+					onClick={() => keepAll()}
 				>
 					Keep all
 				</Button>
@@ -322,7 +342,7 @@ export default function Hud() {
 					className="btn"
 					id="dismissAll"
 					type="button"
-					onClick={() => call("dismissAll")}
+					onClick={() => dismissAll()}
 				>
 					Dismiss all
 				</Button>
