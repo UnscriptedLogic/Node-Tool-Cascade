@@ -110,8 +110,6 @@ export function initialize() {
 	layout.startLayout();
 	// Prepare edge rendering before interaction starts.
 	edges.startEdges();
-	// Prepare AI startup after stores exist.
-	prompts.startPrompts();
 	// Attach palette actions after the shell mounts.
 	compose.startCompose();
 	// Attach canvas interaction after DOM and stores exist.
@@ -140,4 +138,6 @@ export function initialize() {
 	converter.startConverter();
 	// Render the initial canvas and begin loading the library last.
 	boot.startBoot();
+	// Detect the provider after every store and panel is ready.
+	void prompts.detectProvider();
 }

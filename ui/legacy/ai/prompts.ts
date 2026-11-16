@@ -882,16 +882,16 @@ export const MOOD_WORDS: string[][] = [
 	["fear", "tension"],
 ];
 
-export function startPrompts() {
-	(async () => {
-		await null; // let the rest of the script finish initialising before touching it
-		try {
-			if (LOCAL) AI.sample = serverSample;
-			else if (!WEB && window.claude && claude.use)
-				AI.sample = await claude.use("sample");
-		} catch {}
+export async function detectProvider(): Promise<void> {
+	try {
+		if (LOCAL) AI.sample = serverSample;
+		else if (!WEB && window.claude?.use)
+			AI.sample = await window.claude.use("sample");
+	} catch (error) {
+		console.warn("Claude sampling unavailable", error);
+	} finally {
 		AI.checked = true;
-	})();
+	}
 }
 
 export function setController(value: AbortController | null) {
