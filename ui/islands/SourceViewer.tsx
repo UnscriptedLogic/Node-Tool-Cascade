@@ -1,9 +1,14 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import {
+	closeSrcView,
+	copySource,
+	SV,
+	stepSource,
+} from "../legacy/features/project.ts";
 
 export default function SourceViewer() {
-	const source = useSnapshot(getLegacy().SV, { sync: true }),
+	const source = useSnapshot(SV, { sync: true }),
 		current = source.list[source.i];
 	return (
 		<div
@@ -27,7 +32,7 @@ export default function SourceViewer() {
 						className="btn"
 						id="svClose"
 						type="button"
-						onClick={() => call("closeSrcView")}
+						onClick={() => closeSrcView()}
 					>
 						Close
 					</Button>
@@ -61,7 +66,7 @@ export default function SourceViewer() {
 							id="svPrev"
 							type="button"
 							disabled={source.list.length < 2}
-							onClick={() => call("stepSource", -1)}
+							onClick={() => stepSource(-1)}
 						>
 							Previous
 						</Button>{" "}
@@ -70,7 +75,7 @@ export default function SourceViewer() {
 							id="svNext"
 							type="button"
 							disabled={source.list.length < 2}
-							onClick={() => call("stepSource", 1)}
+							onClick={() => stepSource(1)}
 						>
 							Next
 						</Button>{" "}
@@ -78,7 +83,7 @@ export default function SourceViewer() {
 							className="btn"
 							id="svCopy"
 							type="button"
-							onClick={() => call("copySource")}
+							onClick={() => copySource()}
 						>
 							{source.copyText}
 						</Button>
