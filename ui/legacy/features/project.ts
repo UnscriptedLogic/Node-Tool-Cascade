@@ -624,7 +624,7 @@ export async function buildBrief() {
 export function setProjectField(key, value) {
 	PROJECTUI[key] = value;
 }
-export function setProjectDepth(value?: undefined) {
+export function setProjectDepth(value?: keyof typeof DEPTHS) {
 	projDepth = value;
 	PROJECTUI.depth = value;
 	loadProjectData();
