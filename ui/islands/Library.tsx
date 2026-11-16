@@ -2,7 +2,20 @@ import { useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { call, getLegacy } from "../bridge.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import {
+	LIB,
+	libDelete,
+	libDeleteAccount,
+	libMountGoogle,
+	libMove,
+	libNewCascade,
+	libNewFolder,
+	libOpen,
+	libRename,
+	libSaveCurrent,
+	libSignOut,
+} from "../legacy/features/library.ts";
 
 const when = (time: string | number | Date) => {
 	const date = new Date(time);
@@ -31,22 +44,18 @@ function NameCell({ kind, item, editing }) {
 				className="lib-name-input"
 				onKeyDown={(event) => {
 					if (event.key === "Enter")
-						call("libRename", kind, item.id, event.currentTarget.value);
-					else if (event.key === "Escape") getLegacy().LIB.editing = null;
+						libRename(kind, item.id, event.currentTarget.value);
+					else if (event.key === "Escape") LIB.editing = null;
 				}}
 				onBlur={(event) => {
-					const current = getLegacy().LIB.editing;
+					const current = LIB.editing;
 					if (current?.kind === kind && current.id === item.id)
-						call("libRename", kind, item.id, event.currentTarget.value);
+						libRename(kind, item.id, event.currentTarget.value);
 				}}
 			/>
 		);
 	return kind === "cascade" ? (
-		<Button
-			type="button"
-			className="lib-open"
-			onClick={() => call("libOpen", item.id)}
-		>
+		<Button type="button" className="lib-open" onClick={() => libOpen(item.id)}>
 			{item.name}
 		</Button>
 	) : (
@@ -62,8 +71,8 @@ function DeleteButton({ kind, item, armed }) {
 			className={`btn small${armed === key ? " danger" : ""}`}
 			aria-label={`Delete ${item.name}`}
 			onClick={() => {
-				if (armed === key) return call("libDelete", kind, item.id);
-				const { LIB } = getLegacy();
+				if (armed === key) return libDelete(kind, item.id);
+
 				LIB.armed = key;
 				window.setTimeout(() => {
 					if (LIB.armed === key) LIB.armed = null;
@@ -76,7 +85,6 @@ function DeleteButton({ kind, item, armed }) {
 }
 
 function CascadeRow({ item, lib }) {
-	const { LIB, DOMAINS } = getLegacy();
 	return (
 		<li
 			className={`lib-row${item.id === lib.currentId ? " current" : ""}`}
@@ -103,7 +111,7 @@ function CascadeRow({ item, lib }) {
 				<select
 					aria-label={`Move ${item.name} to a folder`}
 					value={item.folderId || ""}
-					onChange={(event) => call("libMove", item.id, event.target.value)}
+					onChange={(event) => libMove(item.id, event.target.value)}
 				>
 					<option value="">No folder</option>
 					{lib.folders.map((folder) => (
@@ -119,14 +127,13 @@ function CascadeRow({ item, lib }) {
 }
 
 export default function Library() {
-	const { LIB } = getLegacy();
 	const lib = useSnapshot(LIB);
 	const googleHost = useRef(null);
 	const signed = lib.kind === "local" || !!lib.user;
 	const current = lib.cascades.some((item) => item.id === lib.currentId);
 	useEffect(() => {
 		if (lib.kind === "cloud" && !lib.user && googleHost.current)
-			call("libMountGoogle");
+			libMountGoogle();
 	}, [lib.kind, lib.user, lib.googleClientId]);
 	const loose = lib.cascades.filter((item) => !item.folderId);
 	return (
@@ -145,7 +152,7 @@ export default function Library() {
 						id="libSignOut"
 						type="button"
 						hidden={!lib.user}
-						onClick={() => call("libSignOut")}
+						onClick={() => libSignOut()}
 					>
 						Sign out
 					</Button>
@@ -154,7 +161,7 @@ export default function Library() {
 						id="libDeleteAccount"
 						type="button"
 						hidden={!lib.user}
-						onClick={() => call("libDeleteAccount")}
+						onClick={() => libDeleteAccount()}
 					>
 						{lib.armed === "account"
 							? "Really delete my account and every saved Cascade?"
@@ -168,7 +175,7 @@ export default function Library() {
 						className="btn primary"
 						id="libNew"
 						type="button"
-						onClick={() => call("libNewCascade", null)}
+						onClick={() => libNewCascade(null)}
 					>
 						New Cascade
 					</Button>
@@ -176,7 +183,7 @@ export default function Library() {
 						className="btn"
 						id="libFolder"
 						type="button"
-						onClick={() => call("libNewFolder")}
+						onClick={() => libNewFolder()}
 					>
 						New folder
 					</Button>
@@ -185,7 +192,7 @@ export default function Library() {
 						id="libSaveCur"
 						type="button"
 						hidden={!signed || current}
-						onClick={() => call("libSaveCurrent")}
+						onClick={() => libSaveCurrent()}
 					>
 						Save the tree I have open
 					</Button>
@@ -222,7 +229,7 @@ export default function Library() {
 										<Button
 											type="button"
 											className="btn small"
-											onClick={() => call("libNewCascade", folder.id)}
+											onClick={() => libNewCascade(folder.id)}
 										>
 											New Cascade here
 										</Button>
