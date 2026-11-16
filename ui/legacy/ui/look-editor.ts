@@ -31,6 +31,7 @@ import {
 } from "../canvas/look.ts";
 import { $, ICONS, LABEL, MOOD_KEYS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
+export let lookSheet: string;
 export let LK = null;
 export function lookFromText(desc) {
 	const t =
@@ -637,7 +638,7 @@ export function lkShowTab(tab) {
 }
 export function ensureLookUI() {
 	LK.built = true;
-	const lookSheet = `nodes.base | question | answer | emotion | consequence | decision | loop | fog:
+	lookSheet = `nodes.base | question | answer | emotion | consequence | decision | loop | fog:
   shape: ${SHAPES.join(" | ")}
   radius 0-60 (or four numbers)   fill, stroke, text, iconColor: "#rrggbb"
   fill "mood" and text "auto" follow the mood and contrast

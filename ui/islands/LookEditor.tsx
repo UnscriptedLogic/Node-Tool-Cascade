@@ -1,9 +1,45 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import {
+	state as canvasLookState,
+	decorate,
+	effLook,
+	KIND_LABEL,
+	moodColor,
+	NODE_TYPES,
+	SHAPES,
+	WIRE_KINDS,
+} from "../legacy/canvas/look.ts";
+import { ICONS, LABEL, MOOD_KEYS } from "../legacy/core/constants.ts";
+import { DOM } from "../legacy/core/profiles.ts";
+import {
+	LK,
+	lkApply,
+	lkCheckpoint,
+	lkCommitPending,
+	lkCopy,
+	lkFormat,
+	lkGenerate,
+	lkPreset,
+	lkRefresh,
+	lkReset,
+	lkResetType,
+	lkRevert,
+	lkSetGroup,
+	lkSetKind,
+	lkSetMood,
+	lkSetNode,
+	lkShowTab,
+	lkStyle,
+	lkUndo,
+	lookSheet,
+	PRESETS,
+	toHex,
+	wirePreview,
+} from "../legacy/ui/look-editor.ts";
 
-const checkpoint = () => call("lkCheckpoint");
+const checkpoint = () => lkCheckpoint();
 
 function Range({
 	label,
@@ -80,8 +116,7 @@ function Color({
 	keyword = undefined,
 	keywordLabel = undefined,
 }) {
-	const { toHex } = getLegacy(),
-		isKeyword = !!keyword && value === keyword;
+	const isKeyword = !!keyword && value === keyword;
 	const lastColor = useRef("#000000");
 	if (!isKeyword) lastColor.current = toHex(value || "#808080");
 	return (
@@ -129,8 +164,7 @@ function Color({
 }
 function Preview({ type, revision }) {
 	const element = useRef(null),
-		box = useRef(null),
-		{ DOM, ICONS, decorate } = getLegacy();
+		box = useRef(null);
 	const kind = type === "base" ? "question" : type;
 	useLayoutEffect(() => {
 		const d = decorate(element.current, kind, {
@@ -171,34 +205,18 @@ function Segment({ id, label, items, value, set, attr = "v" }) {
 }
 
 export default function LookEditor() {
-	const legacy = getLegacy(),
-		{
-			LK,
-			PRESETS,
-			SHAPES,
-			NODE_TYPES,
-			LABEL,
-			MOOD_KEYS,
-			WIRE_KINDS,
-			KIND_LABEL,
-			effLook,
-			moodColor,
-			toHex,
-			getLook,
-			lkStyle,
-		} = legacy;
 	const state = useSnapshot(LK, { sync: true }),
 		text = useRef(null),
-		look = getLook(),
+		look = canvasLookState.LOOK,
 		node = lkStyle(),
 		wires = effLook().wires,
 		canvas = effLook().canvas,
 		layout = effLook().layout;
-	const nodeSet = (field: string) => (value) => call("lkSetNode", field, value);
+	const nodeSet = (field: string) => (value) => lkSetNode(field, value);
 	const set = (group: string, field: string) => (value) =>
-		call("lkSetGroup", group, field, value);
+		lkSetGroup(group, field, value);
 	useLayoutEffect(() => {
-		call("wirePreview");
+		wirePreview();
 	}, [state.revision]);
 	const tabs = [
 		["presets", "Presets"],
@@ -220,7 +238,7 @@ export default function LookEditor() {
 						disabled={
 							!state.hist.some((item: string) => item !== JSON.stringify(look))
 						}
-						onClick={() => call("lkUndo")}
+						onClick={() => lkUndo()}
 					>
 						Undo
 					</Button>
@@ -228,7 +246,7 @@ export default function LookEditor() {
 						type="button"
 						className="btn"
 						id="lkReset"
-						onClick={() => call("lkReset")}
+						onClick={() => lkReset()}
 					>
 						Reset look
 					</Button>
@@ -247,7 +265,7 @@ export default function LookEditor() {
 						key={key}
 						data-lk={key}
 						aria-pressed={Boolean(state.tab === key)}
-						onClick={() => call("lkShowTab", key)}
+						onClick={() => lkShowTab(key)}
 					>
 						{label}
 					</button>
@@ -261,7 +279,7 @@ export default function LookEditor() {
 							className="lk-preset"
 							data-id={preset.id}
 							key={preset.id}
-							onClick={() => call("lkPreset", preset.id)}
+							onClick={() => lkPreset(preset.id)}
 						>
 							<b>{preset.name}</b>
 							<small>{preset.desc}</small>
@@ -311,7 +329,7 @@ export default function LookEditor() {
 							key={description}
 							onClick={() => {
 								LK.desc = description;
-								call("lkGenerate");
+								lkGenerate();
 							}}
 						>
 							{description}
@@ -324,7 +342,7 @@ export default function LookEditor() {
 						className="btn primary"
 						id="lkGo"
 						disabled={state.busy}
-						onClick={() => call("lkGenerate")}
+						onClick={() => lkGenerate()}
 					>
 						Design it
 					</Button>
@@ -347,7 +365,7 @@ export default function LookEditor() {
 							type="button"
 							className="btn primary"
 							id="lkKeep"
-							onClick={() => call("lkCommitPending")}
+							onClick={() => lkCommitPending()}
 						>
 							Keep it
 						</Button>
@@ -355,7 +373,7 @@ export default function LookEditor() {
 							type="button"
 							className="btn"
 							id="lkRevert"
-							onClick={() => call("lkRevert")}
+							onClick={() => lkRevert()}
 						>
 							Put it back
 						</Button>
@@ -377,7 +395,7 @@ export default function LookEditor() {
 							value={state.type}
 							set={(type) => {
 								LK.type = type;
-								call("lkRefresh");
+								lkRefresh();
 							}}
 						/>
 					</div>
@@ -582,16 +600,14 @@ export default function LookEditor() {
 									value={toHex(moodColor(mood))}
 									onChange={() => {}}
 									onPointerDown={checkpoint}
-									onInput={(e) =>
-										call("lkSetMood", mood, e.currentTarget.value)
-									}
+									onInput={(e) => lkSetMood(mood, e.currentTarget.value)}
 								/>
 								<button
 									type="button"
 									className="lk-mini"
 									onClick={() => {
 										checkpoint();
-										call("lkSetMood", mood, undefined);
+										lkSetMood(mood, undefined);
 									}}
 								>
 									default
@@ -606,7 +622,7 @@ export default function LookEditor() {
 						className="btn"
 						id="lkTypeReset"
 						hidden={!look.nodes?.[state.type]}
-						onClick={() => call("lkResetType")}
+						onClick={() => lkResetType()}
 					>
 						Reset these blocks
 					</Button>
@@ -732,7 +748,7 @@ export default function LookEditor() {
 									wires.kinds[kind]?.color ||
 									(kind === "block" ? "var(--focus)" : "var(--ink2)")
 								}
-								set={(v) => call("lkSetKind", kind, "color", v)}
+								set={(v) => lkSetKind(kind, "color", v)}
 							/>
 							<Select
 								label=""
@@ -742,7 +758,7 @@ export default function LookEditor() {
 									(["flow", "block"].includes(kind) ? "dashed" : "dotted")
 								}
 								options={["solid", "dashed", "dotted"]}
-								set={(v) => call("lkSetKind", kind, "dash", v)}
+								set={(v) => lkSetKind(kind, "dash", v)}
 							/>
 						</div>
 					))}
@@ -841,7 +857,7 @@ export default function LookEditor() {
 						type="button"
 						className="btn primary"
 						id="lkApply"
-						onClick={() => call("lkApply", text.current.value)}
+						onClick={() => lkApply(text.current.value)}
 					>
 						Apply
 					</Button>
@@ -849,7 +865,7 @@ export default function LookEditor() {
 						type="button"
 						className="btn"
 						id="lkFormat"
-						onClick={() => call("lkFormat")}
+						onClick={() => lkFormat()}
 					>
 						Reload from current look
 					</Button>
@@ -857,7 +873,7 @@ export default function LookEditor() {
 						type="button"
 						className="btn"
 						id="lkCopy"
-						onClick={() => call("lkCopy", text.current.value)}
+						onClick={() => lkCopy(text.current.value)}
 					>
 						Copy
 					</Button>
@@ -873,7 +889,7 @@ export default function LookEditor() {
 							margin: "10px 0 0",
 						}}
 					>
-						{legacy.lookSheet}
+						{lookSheet}
 					</pre>
 				</details>
 			</div>
