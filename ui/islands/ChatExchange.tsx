@@ -1,11 +1,11 @@
 import { useSnapshot } from "valtio";
-import { call, getLegacy } from "../bridge.ts";
 import LegacyTemplate from "../components/LegacyTemplate.tsx";
+import { S } from "../legacy/core/state.ts";
+import { CHATUI, chatAction } from "../legacy/features/chat-exchange.ts";
 import template from "../templates/chat-view.json";
 
 export default function ChatExchange() {
-	const { CHATUI, S } = getLegacy(),
-		chat = useSnapshot(CHATUI, { sync: true }),
+	const chat = useSnapshot(CHATUI, { sync: true }),
 		state = useSnapshot(S, { sync: true });
 	const bind = ({ attrs }) => {
 		const id = attrs.id,
@@ -17,8 +17,7 @@ export default function ChatExchange() {
 			props.value = chat[field];
 			props.onChange = () => {};
 			props.onInput = (e) =>
-				call(
-					"chatAction",
+				chatAction(
 					field === "task"
 						? "editTask"
 						: field === "reply"
@@ -36,7 +35,7 @@ export default function ChatExchange() {
 			chatReview: "review",
 			chatImport: "importDraft",
 		}[id];
-		if (action) props.onClick = () => call("chatAction", action);
+		if (action) props.onClick = () => chatAction(action);
 		return props;
 	};
 	return (
