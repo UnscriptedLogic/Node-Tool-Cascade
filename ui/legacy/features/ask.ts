@@ -1,6 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
@@ -523,11 +522,5 @@ export function startAsk() {
 	});
 	AHIST = proxy([]);
 	UI.ask = AN;
-	connect({
-		AN,
-		AHIST,
-		TCOL,
-		VERDICT,
-	});
 	mount("ask", $("#askRoot"));
 }

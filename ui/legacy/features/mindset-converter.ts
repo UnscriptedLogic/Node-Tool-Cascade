@@ -1,7 +1,6 @@
 import { proxy, ref } from "valtio/vanilla";
 import MindsetConversion from "../../../shared/mindset-conversion.ts";
 import Mindsets from "../../../shared/mindsets.ts";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
@@ -429,9 +428,6 @@ export function startConverter() {
 		text: "",
 		json: "",
 		domains: [],
-	});
-	connect({
-		MSCONVERT,
 	});
 	mount("converter", $("#converterRoot"));
 }

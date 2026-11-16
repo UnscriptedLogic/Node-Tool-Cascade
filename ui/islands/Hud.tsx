@@ -69,6 +69,7 @@ export default function Hud() {
 		);
 	const hasKids =
 		!!node && Object.values(state.nodes).some((n) => n.parent === node.id);
+	// Bridge availability also depends on other nodes in the tree.
 	const actions = useMemo(
 		() => (showBar ? nodeActions(node, hasKids) : []),
 		[
@@ -76,6 +77,8 @@ export default function Hud() {
 			state.mode,
 			state.layer,
 			state.mindsets.length,
+			state.nodes,
+			state.order,
 			prefs.domain,
 			node,
 			hasKids,

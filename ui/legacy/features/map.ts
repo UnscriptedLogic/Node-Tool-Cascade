@@ -1,7 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
-import Mindsets from "../../../shared/mindsets.ts";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
@@ -19,15 +17,7 @@ import { beginEdit } from "../canvas/interaction.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { applyView, ensureVisible, setMode } from "../canvas/view.ts";
 import { track } from "../core/analytics.ts";
-import {
-	$,
-	drawerW,
-	LABEL,
-	PREFS,
-	TICKET_ASK,
-	TICKET_LABEL,
-	TICKETS,
-} from "../core/constants.ts";
+import { $, drawerW, PREFS, TICKETS } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
@@ -666,15 +656,5 @@ export function startMap() {
 		seq: 0,
 	});
 	UI.panel = PANEL;
-	connect({
-		PANEL,
-		G,
-		S,
-		PREFS,
-		TICKET_LABEL,
-		TICKET_ASK,
-		LABEL,
-		Mindsets,
-	});
 	mount("side", $("#sideRoot"));
 }

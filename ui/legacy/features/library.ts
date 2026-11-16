@@ -1,13 +1,12 @@
 import { proxy } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
 import { ANALYTICS } from "../core/analytics.ts";
 import { $, CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
-import { DEFAULT_DOMAIN, DOMAINS } from "../core/profiles.ts";
+import { DEFAULT_DOMAIN } from "../core/profiles.ts";
 import {
 	AI,
 	state as coreStateState,
@@ -469,9 +468,5 @@ export function startLibrary() {
 		gsi: false,
 	});
 	UI.library = LIB;
-	connect({
-		LIB,
-		DOMAINS,
-	});
 	mount("library", $("#libraryRoot"));
 }

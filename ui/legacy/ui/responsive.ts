@@ -6,7 +6,6 @@ let menuSpec = null;
 
 import { flushSync } from "react-dom";
 import { ref } from "valtio/vanilla";
-import { connect } from "../../bridge.ts";
 import { bridgeTo, growNode, traceBack } from "../ai/prompts.ts";
 import { beginEdit } from "../canvas/interaction.ts";
 import { nodeActions } from "../canvas/layout.ts";
@@ -453,8 +452,5 @@ export function startResponsive() {
 		visualViewport.addEventListener("resize", updateKeyboard);
 
 	state.tapSuppressed = false;
-	connect({
-		SHORT,
-	});
 	applyResponsive(true);
 }

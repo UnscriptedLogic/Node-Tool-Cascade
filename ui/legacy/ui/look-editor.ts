@@ -1,6 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
@@ -12,12 +11,9 @@ import {
 	applyLook,
 	applyWire,
 	state as canvasLookState,
-	decorate,
 	deepMerge,
 	effLook,
 	isObj,
-	KIND_LABEL,
-	moodColor,
 	NAMED,
 	NODE_TYPES,
 	rgbOf,
@@ -29,8 +25,7 @@ import {
 	WIRE_STYLES,
 	wirePath,
 } from "../canvas/look.ts";
-import { $, ICONS, LABEL, MOOD_KEYS } from "../core/constants.ts";
-import { DOM } from "../core/profiles.ts";
+import { $, LABEL, MOOD_KEYS } from "../core/constants.ts";
 export let lookSheet: string;
 export let LK = null;
 export function lookFromText(desc) {
@@ -653,26 +648,6 @@ wires: style ${WIRE_STYLES.join(" | ")}, curvature 0-1, elbow 0.1-0.9, radius 0-
 canvas: bg, grid dots | lines | none, gridColor, gridSize 10-80
 layout: colGap 16-200, rowGap 2-80
 moods: ${MOOD_KEYS.join(" | ")}: "#rrggbb"`;
-	connect({
-		LK,
-		PRESETS,
-		SHAPES,
-		NODE_TYPES,
-		LABEL,
-		MOOD_KEYS,
-		WIRE_KINDS,
-		KIND_LABEL,
-		WIRE_STYLES,
-		ICONS,
-		DOM,
-		effLook,
-		moodColor,
-		toHex,
-		decorate,
-		lkStyle,
-		lookSheet,
-		getLook: () => canvasLookState.LOOK,
-	});
 	mount("look", $("#lookRoot"));
 	lkRefresh();
 }

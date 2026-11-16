@@ -10,7 +10,6 @@ let briefTimer: ReturnType<typeof setTimeout> | undefined;
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
@@ -900,10 +899,6 @@ export function startProject() {
 		buildLabel: "Build brief",
 		canRestore: false,
 	});
-	connect({
-		PROJECTUI,
-		DEPTHS,
-	});
 	mount("project", $("#projectRoot"));
 	SV = proxy({
 		list: [],
@@ -914,9 +909,6 @@ export function startProject() {
 		error: "",
 		copyText: "Copy path",
 		request: 0,
-	});
-	connect({
-		SV,
 	});
 	mount("source", $("#sourceRoot"));
 	addEventListener(

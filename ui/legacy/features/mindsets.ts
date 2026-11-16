@@ -1,7 +1,6 @@
 import { proxy } from "valtio/vanilla";
 import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
 import Mindsets from "../../../shared/mindsets.ts";
-import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
@@ -336,11 +335,6 @@ export function startMindsets() {
 	MSUI = proxy({
 		json: "",
 		message: "",
-	});
-	connect({
-		MSUI,
-		MINDSET_PRESETS,
-		Mindsets,
 	});
 	mount("mindsets", $("#mindsetsRoot"));
 }
