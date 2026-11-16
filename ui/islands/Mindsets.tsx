@@ -2,8 +2,26 @@ import { useEffect, useRef, useState } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { call, getLegacy } from "../bridge.ts";
+import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
+import MindsetCollection from "../../shared/mindsets.ts";
 import LegacyTemplate from "../components/LegacyTemplate.tsx";
+import { PREFS } from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import { S } from "../legacy/core/state.ts";
+import {
+	applyMindset,
+	changeMindsetIcon,
+	downloadBuiltinMindset,
+	downloadMindsetExample,
+	enableBuiltinMindset,
+	enableMindset,
+	exportMindset,
+	importMindsetFile,
+	importMindsetJson,
+	MSUI,
+	removeMindset,
+} from "../legacy/features/mindsets.ts";
+import { closeSettings } from "../legacy/ui/settings.ts";
 import template from "../templates/mindsets-view.json";
 
 function MindsetIcon({ pack }) {
@@ -18,7 +36,7 @@ function MindsetIcon({ pack }) {
 			onChange={() => {}}
 			onInput={(e) => setValue(e.currentTarget.value)}
 			onBlur={() => {
-				if (value !== pack.icon) call("changeMindsetIcon", pack.id, value);
+				if (value !== pack.icon) changeMindsetIcon(pack.id, value);
 			}}
 		/>
 	);
@@ -44,8 +62,7 @@ function context(state, prefs) {
 			].join("\n");
 }
 export default function Mindsets() {
-	const { S, PREFS, MSUI, DOMAINS, MINDSET_PRESETS, Mindsets } = getLegacy(),
-		state = useSnapshot(S, { sync: true }),
+	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		ui = useSnapshot(MSUI, { sync: true }),
 		file = useRef(null);
@@ -66,15 +83,15 @@ export default function Mindsets() {
 				ref: file,
 				onChange: async (e) => {
 					const input = e.currentTarget;
-					await call("importMindsetFile", input.files[0]);
+					await importMindsetFile(input.files[0]);
 					input.value = "";
 				},
 			};
 		const action = {
-			msPasteImport: "importMindsetJson",
-			msExample: "downloadMindsetExample",
+			msPasteImport: importMindsetJson,
+			msExample: downloadMindsetExample,
 		}[attrs.id];
-		if (action) return { onClick: () => call(action) };
+		if (action) return { onClick: () => action() };
 		if (attrs.id === "msImport") return { onClick: () => file.current.click() };
 		return {};
 	};
@@ -85,7 +102,7 @@ export default function Mindsets() {
 			return (
 				<div key={attrs.id} id={attrs.id}>
 					{MINDSET_PRESETS.map((preset) => {
-						const pack = Mindsets.pack(preset),
+						const pack = MindsetCollection.pack(preset),
 							installed = state.mindsets.find((p) => p.id === pack.id);
 						return (
 							<section className="card mindset-builtin" key={pack.id}>
@@ -96,7 +113,7 @@ export default function Mindsets() {
 										type="button"
 										className="btn primary"
 										disabled={!!installed?.enabled}
-										onClick={() => call("enableBuiltinMindset", pack.id)}
+										onClick={() => enableBuiltinMindset(pack.id)}
 									>
 										{installed?.enabled
 											? "Enabled in this Cascade"
@@ -105,7 +122,7 @@ export default function Mindsets() {
 									<Button
 										type="button"
 										className="btn"
-										onClick={() => call("downloadBuiltinMindset", pack.id)}
+										onClick={() => downloadBuiltinMindset(pack.id)}
 									>
 										Download starter JSON
 									</Button>
@@ -122,7 +139,7 @@ export default function Mindsets() {
 			return (
 				<div key={attrs.id} id={attrs.id}>
 					{state.mindsets.map((pack) => {
-						const candidates = Mindsets.candidates(
+						const candidates = MindsetCollection.candidates(
 							state.mindsets,
 							prefs.domain,
 							topic,
@@ -140,7 +157,7 @@ export default function Mindsets() {
 										checked={pack.enabled}
 										aria-label={`Enable ${pack.name}`}
 										onChange={(e) =>
-											call("enableMindset", pack.id, e.currentTarget.checked)
+											enableMindset(pack.id, e.currentTarget.checked)
 										}
 									/>
 									<strong>{pack.name}</strong>
@@ -166,8 +183,8 @@ export default function Mindsets() {
 										className="btn"
 										disabled={!state.sel || !candidates.length}
 										onClick={() => {
-											call("closeSettings");
-											call("applyMindset", state.sel, pack.id);
+											closeSettings();
+											applyMindset(state.sel, pack.id);
 										}}
 									>
 										Apply to selected node
@@ -175,14 +192,14 @@ export default function Mindsets() {
 									<Button
 										type="button"
 										className="btn"
-										onClick={() => call("exportMindset", pack.id)}
+										onClick={() => exportMindset(pack.id)}
 									>
 										Export pack
 									</Button>
 									<Button
 										type="button"
 										className="btn"
-										onClick={() => call("removeMindset", pack.id)}
+										onClick={() => removeMindset(pack.id)}
 									>
 										Remove
 									</Button>
