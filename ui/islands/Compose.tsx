@@ -1,11 +1,13 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import { ICONS, LABEL, PREFS } from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import { UI } from "../legacy/core/state.ts";
+import { closeCompose, submitCompose } from "../legacy/ui/compose.ts";
 
 export default function Compose() {
-	const { UI, PREFS, DOMAINS, LABEL, ICONS } = getLegacy(),
-		ui = useSnapshot(UI, { sync: true }),
+	const ui = useSnapshot(UI, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		input = useRef(null);
 	const compose = ui.compose,
@@ -46,10 +48,10 @@ export default function Compose() {
 				onKeyDown={(e) => {
 					if (e.key === "Enter" && !e.shiftKey) {
 						e.preventDefault();
-						call("submitCompose");
+						submitCompose();
 					} else if (e.key === "Escape") {
 						e.preventDefault();
-						call("closeCompose");
+						closeCompose();
 					}
 				}}
 			/>
@@ -60,7 +62,7 @@ export default function Compose() {
 						className="btn"
 						id="cCancel"
 						type="button"
-						onClick={() => call("closeCompose")}
+						onClick={() => closeCompose()}
 					>
 						Cancel
 					</Button>{" "}
@@ -68,7 +70,7 @@ export default function Compose() {
 						className="btn primary"
 						id="cOk"
 						type="button"
-						onClick={() => call("submitCompose")}
+						onClick={() => submitCompose()}
 					>
 						Place
 					</Button>
