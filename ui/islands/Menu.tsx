@@ -1,14 +1,19 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
-import { call, getLegacy } from "../bridge.ts";
+import { UI } from "../legacy/core/state.ts";
+import {
+	backMenu,
+	chooseMenuItem,
+	setMenuElement,
+} from "../legacy/ui/responsive.ts";
 
 export default function Menu() {
-	const ui = useSnapshot(getLegacy().UI, { sync: true }),
+	const ui = useSnapshot(UI, { sync: true }),
 		element = useRef(null),
 		menu = ui.menu;
 	useLayoutEffect(() => {
 		if (!menu) return;
-		call("setMenuElement", element.current);
+		setMenuElement(element.current);
 		const node = element.current,
 			pad = 8;
 		if (!menu.at.sheet) {
@@ -51,7 +56,7 @@ export default function Menu() {
 								type="button"
 								className="ctx-back"
 								aria-label="Back"
-								onClick={() => call("backMenu")}
+								onClick={() => backMenu()}
 							>
 								<svg
 									viewBox="0 0 16 16"
@@ -81,7 +86,7 @@ export default function Menu() {
 							key={i}
 							disabled={!!item.disabled}
 							className={item.danger ? "danger" : undefined}
-							onClick={() => call("chooseMenuItem", i)}
+							onClick={() => chooseMenuItem(i)}
 						>
 							<span
 								className="ic"
