@@ -68,7 +68,6 @@ export default function Mindsets() {
 	const topic = context(state, prefs);
 	return (
 		<>
-			{" "}
 			<h3>{"Mindsets"}</h3>
 			<p className="sub">
 				{
