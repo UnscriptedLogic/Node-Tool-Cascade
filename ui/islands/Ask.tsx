@@ -1,9 +1,25 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import { LABEL, PREFS } from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import { S } from "../legacy/core/state.ts";
+import {
+	AHIST,
+	AN,
+	addGaps,
+	copyAskSummary,
+	openAskSource,
+	restoreAsk,
+	runAsk,
+	setAskFiles,
+	summarize,
+	TCOL,
+	toggleAskThread,
+	VERDICT,
+} from "../legacy/features/ask.ts";
+import { focusNode } from "../legacy/features/map.ts";
 
 export default function Ask() {
-	const { AN, AHIST, S, PREFS, TCOL, VERDICT, DOMAINS } = getLegacy();
 	const ask = useSnapshot(AN, { sync: true }),
 		history = useSnapshot(AHIST, { sync: true }),
 		state = useSnapshot(S, { sync: true }),
@@ -34,7 +50,7 @@ export default function Ask() {
 				onKeyDown={(e) => {
 					if (e.key === "Enter" && !e.shiftKey) {
 						e.preventDefault();
-						call("runAsk", AN.input);
+						runAsk(AN.input);
 					}
 				}}
 			/>
@@ -50,7 +66,7 @@ export default function Ask() {
 						key={question}
 						onClick={() => {
 							AN.input = question;
-							call("runAsk", question);
+							runAsk(question);
 						}}
 					>
 						{question}
@@ -68,7 +84,7 @@ export default function Ask() {
 					type="checkbox"
 					id="aFiles"
 					checked={prefs.askFiles}
-					onChange={(e) => call("setAskFiles", e.currentTarget.checked)}
+					onChange={(e) => setAskFiles(e.currentTarget.checked)}
 				/>
 				<span>Also use the project’s files</span>
 			</label>
@@ -78,7 +94,7 @@ export default function Ask() {
 					id="aGo"
 					type="button"
 					disabled={ask.busy}
-					onClick={() => call("runAsk", AN.input)}
+					onClick={() => runAsk(AN.input)}
 				>
 					Ask
 				</Button>
@@ -87,7 +103,7 @@ export default function Ask() {
 					id="aSumAll"
 					type="button"
 					disabled={ask.busy}
-					onClick={() => call("summarize", "tree")}
+					onClick={() => summarize("tree")}
 				>
 					Summarize the whole tree
 				</Button>
@@ -123,7 +139,7 @@ export default function Ask() {
 									type="button"
 									className="cite"
 									data-cite={id}
-									onClick={() => call("openAskSource", id)}
+									onClick={() => openAskSource(id)}
 								>
 									{`${source.f.split("/").pop()}:${source.l}`}
 								</button>
@@ -145,7 +161,7 @@ export default function Ask() {
 										type="button"
 										className="cite"
 										data-cite={source.id}
-										onClick={() => call("openAskSource", source.id)}
+										onClick={() => openAskSource(source.id)}
 									>
 										{source.f +
 											":" +
@@ -171,7 +187,7 @@ export default function Ask() {
 									className="btn"
 									type="button"
 									data-aact="toggle"
-									onClick={() => call("toggleAskThread", i)}
+									onClick={() => toggleAskThread(i)}
 								>
 									{thread.on ? "Hide" : "Show"}
 								</Button>
@@ -181,12 +197,8 @@ export default function Ask() {
 								{thread.ids.map((id) => {
 									const node = state.nodes[id];
 									return node ? (
-										<li
-											key={id}
-											data-id={id}
-											onClick={() => call("focusNode", id)}
-										>
-											<i>{getLegacy().LABEL[node.type] || node.type}</i>
+										<li key={id} data-id={id} onClick={() => focusNode(id)}>
+											<i>{LABEL[node.type] || node.type}</i>
 											{node.text}
 										</li>
 									) : null;
@@ -210,7 +222,7 @@ export default function Ask() {
 						className="btn"
 						id="aAddGaps"
 						type="button"
-						onClick={() => call("addGaps")}
+						onClick={() => addGaps()}
 					>
 						Add as questions
 					</Button>
@@ -222,7 +234,7 @@ export default function Ask() {
 						type="button"
 						disabled={ask.busy}
 						hidden={!ask.threads.length}
-						onClick={() => call("summarize", "threads")}
+						onClick={() => summarize("threads")}
 					>
 						Summarize this
 					</Button>
@@ -254,7 +266,7 @@ export default function Ask() {
 						className="btn"
 						id="aCopy"
 						type="button"
-						onClick={() => call("copyAskSummary")}
+						onClick={() => copyAskSummary()}
 					>
 						{ask.copyText}
 					</Button>
@@ -278,7 +290,7 @@ export default function Ask() {
 							data-hi={i}
 							key={entry.q}
 							title={entry.q}
-							onClick={() => call("restoreAsk", i)}
+							onClick={() => restoreAsk(i)}
 						>
 							{entry.q.length > 44 ? `${entry.q.slice(0, 43)}…` : entry.q}
 						</button>
