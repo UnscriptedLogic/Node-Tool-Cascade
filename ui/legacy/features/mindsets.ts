@@ -22,8 +22,7 @@ import { pushHist, S, save } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
 import { setBusy, showNote } from "../ui/hud.ts";
 import { libData } from "./library.ts";
-export let MSUI = undefined,
-	MINDSET_EXAMPLE = undefined;
+export let MSUI = undefined;
 export function mindsetContext(id) {
 	const parts = [],
 		seen = new Set();
@@ -304,41 +303,42 @@ export function applyMindset(id, only) {
 		}
 	});
 }
+export const MINDSET_EXAMPLE = {
+	schemaVersion: 1,
+	id: "assumption-checks",
+	version: "1.0.0",
+	name: "Assumption checks",
+	icon: "💡",
+	domains: ["general", "product", "research", "game"],
+	guidance: "Expose assumptions and ask how to test them.",
+	entries: [
+		{
+			id: "evidence",
+			name: "Evidence",
+			label: "Mindset",
+			topics: [
+				"budget",
+				"cost",
+				"pricing",
+				"revenue",
+				"assumption",
+				"risk",
+				"risks",
+			],
+			appliesWhen: "A decision depends on an uncertain estimate or claim.",
+			questions: [
+				"What evidence supports this assumption?",
+				"What small test could show this assumption is wrong?",
+			],
+		},
+	],
+};
+
 export function initialize() {
 	MSUI = proxy({
 		json: "",
 		message: "",
 	});
-	MINDSET_EXAMPLE = {
-		schemaVersion: 1,
-		id: "assumption-checks",
-		version: "1.0.0",
-		name: "Assumption checks",
-		icon: "💡",
-		domains: ["general", "product", "research", "game"],
-		guidance: "Expose assumptions and ask how to test them.",
-		entries: [
-			{
-				id: "evidence",
-				name: "Evidence",
-				label: "Mindset",
-				topics: [
-					"budget",
-					"cost",
-					"pricing",
-					"revenue",
-					"assumption",
-					"risk",
-					"risks",
-				],
-				appliesWhen: "A decision depends on an uncertain estimate or claim.",
-				questions: [
-					"What evidence supports this assumption?",
-					"What small test could show this assumption is wrong?",
-				],
-			},
-		],
-	};
 	connect({
 		MSUI,
 		MINDSET_PRESETS,

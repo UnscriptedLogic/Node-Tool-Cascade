@@ -42,14 +42,6 @@ export const state = {
 	queued: undefined,
 	stopReveal: undefined,
 };
-export let activeProvider = undefined,
-	aiNeed = undefined,
-	STEER = undefined,
-	GROW = undefined,
-	guideBlock = undefined,
-	STOP: Set<string>,
-	toks = undefined,
-	MOOD_WORDS: string[][];
 export function cancelAI() {
 	state.stopReveal = true;
 	if (state.ctl) state.ctl.abort();
@@ -811,6 +803,86 @@ export function growNode(id) {
 		}
 	});
 }
+export const activeProvider = () =>
+	CONNECTION.cloud
+		? CONNECTION.server?.active || "demo"
+		: WEB
+			? CONNECTION.web.provider
+			: LOCAL
+				? CONNECTION.server?.active || "demo"
+				: "claude";
+export const aiNeed = (what) =>
+	LOCAL || WEB
+		? `${what} needs an AI. Connect one in Settings.`
+		: `${what} needs Claude, which isn’t available in this view.`;
+export const STEER = {
+	light: "Let the goal color your questions lightly. Keep exploring freely.",
+	balanced:
+		"Most of your questions and answers should help the user move toward the goal. Allow the occasional lateral one.",
+	strong:
+		"Every question and answer must directly serve the goal. Prefer questions that test whether a specific change would achieve it, and avoid tangents.",
+};
+export const GROW = {
+	small: {
+		w1: "2",
+		w2: "2",
+		w3: "2",
+		max: 6,
+		back: 4,
+	},
+	medium: {
+		w1: "2 or 3",
+		w2: "2 to 4",
+		w3: "2 or 3",
+		max: 9,
+		back: 6,
+	},
+	large: {
+		w1: "3 or 4",
+		w2: "4 or 5",
+		w3: "3 or 4",
+		max: 13,
+		back: 8,
+	},
+};
+export const guideBlock = () => {
+	const g = guidance();
+	return g ? `${g}\n\n` : "";
+};
+export const STOP: Set<string> = new Set(
+	"the a an and or of to in on for is are be it this that with would could should can will do does how why what when where which more less than then into from by at as we our you your their they them if not".split(
+		" ",
+	),
+);
+export const toks = (s: string) =>
+	s
+		.toLowerCase()
+		.replace(/[^a-z0-9 ]/g, " ")
+		.split(/\s+/)
+		.filter((w) => w.length > 2 && !STOP.has(w));
+export const MOOD_WORDS: string[][] = [
+	["frustrat", "frustration"],
+	["annoy", "frustration"],
+	["tedious", "frustration"],
+	["bor", "boredom"],
+	["empty", "boredom"],
+	["curio", "curiosity"],
+	["explor", "curiosity"],
+	["discover", "curiosity"],
+	["delight", "delight"],
+	["fun", "delight"],
+	["joy", "delight"],
+	["awe", "awe"],
+	["wonder", "awe"],
+	["epic", "awe"],
+	["confus", "confusion"],
+	["lost", "confusion"],
+	["tens", "tension"],
+	["pressure", "tension"],
+	["anxi", "tension"],
+	["fear", "tension"],
+];
+
 export function initialize() {
 	state.ctl = null;
 	state.chain = Promise.resolve();
@@ -825,83 +897,4 @@ export function initialize() {
 		} catch {}
 		AI.checked = true;
 	})();
-	activeProvider = () =>
-		CONNECTION.cloud
-			? CONNECTION.server?.active || "demo"
-			: WEB
-				? CONNECTION.web.provider
-				: LOCAL
-					? CONNECTION.server?.active || "demo"
-					: "claude";
-	aiNeed = (what) =>
-		LOCAL || WEB
-			? `${what} needs an AI. Connect one in Settings.`
-			: `${what} needs Claude, which isn’t available in this view.`;
-	STEER = {
-		light: "Let the goal color your questions lightly. Keep exploring freely.",
-		balanced:
-			"Most of your questions and answers should help the user move toward the goal. Allow the occasional lateral one.",
-		strong:
-			"Every question and answer must directly serve the goal. Prefer questions that test whether a specific change would achieve it, and avoid tangents.",
-	};
-	GROW = {
-		small: {
-			w1: "2",
-			w2: "2",
-			w3: "2",
-			max: 6,
-			back: 4,
-		},
-		medium: {
-			w1: "2 or 3",
-			w2: "2 to 4",
-			w3: "2 or 3",
-			max: 9,
-			back: 6,
-		},
-		large: {
-			w1: "3 or 4",
-			w2: "4 or 5",
-			w3: "3 or 4",
-			max: 13,
-			back: 8,
-		},
-	};
-	guideBlock = () => {
-		const g = guidance();
-		return g ? `${g}\n\n` : "";
-	};
-	STOP = new Set(
-		"the a an and or of to in on for is are be it this that with would could should can will do does how why what when where which more less than then into from by at as we our you your their they them if not".split(
-			" ",
-		),
-	);
-	toks = (s: string) =>
-		s
-			.toLowerCase()
-			.replace(/[^a-z0-9 ]/g, " ")
-			.split(/\s+/)
-			.filter((w) => w.length > 2 && !STOP.has(w));
-	MOOD_WORDS = [
-		["frustrat", "frustration"],
-		["annoy", "frustration"],
-		["tedious", "frustration"],
-		["bor", "boredom"],
-		["empty", "boredom"],
-		["curio", "curiosity"],
-		["explor", "curiosity"],
-		["discover", "curiosity"],
-		["delight", "delight"],
-		["fun", "delight"],
-		["joy", "delight"],
-		["awe", "awe"],
-		["wonder", "awe"],
-		["epic", "awe"],
-		["confus", "confusion"],
-		["lost", "confusion"],
-		["tens", "tension"],
-		["pressure", "tension"],
-		["anxi", "tension"],
-		["fear", "tension"],
-	];
 }

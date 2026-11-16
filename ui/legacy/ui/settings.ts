@@ -39,13 +39,7 @@ import { applyResponsive } from "./responsive.ts";
 export const state = {
 	prefsTimer: undefined,
 };
-export let SETTINGS = undefined,
-	PROV_ORDER: string[],
-	PROV: Record<
-		string,
-		{ label: string; sub?: string; key?: string; model?: string; base?: string }
-	>,
-	STEER_HELP = undefined;
+export let SETTINGS = undefined;
 export function setPreference(key: string, value: string | number | boolean) {
 	PREFS[key] = value;
 	savePrefs();
@@ -632,6 +626,68 @@ export async function onDataAction(action, file?) {
 		}
 	}
 }
+export const PROV_ORDER: string[] = [
+	"chatgpt",
+	"claudecode",
+	"openrouter",
+	"anthropic",
+	"openai",
+	"custom",
+	"demo",
+];
+export const PROV: Record<
+	string,
+	{ label: string; sub?: string; key?: string; model?: string; base?: string }
+> = {
+	chatgpt: {
+		label: "ChatGPT plan",
+		sub: "Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s “Sign in with ChatGPT” for open-source apps, which is still a preview.",
+	},
+	claudecode: {
+		label: "Claude plan (Claude Code)",
+		sub: "Use your Claude Pro or Max plan instead of an API key. Cascade runs the Claude Code app installed on this computer, which uses the account it’s logged in with.",
+		model: "haiku",
+	},
+	openrouter: {
+		label: "OpenRouter",
+		sub: "One sign-in, many models: Claude, GPT, Gemini and more. You pay OpenRouter for usage.",
+		key: "sk-or-…",
+		model: "Choose one with Fetch models",
+		base: "https://openrouter.ai/api/v1",
+	},
+	anthropic: {
+		label: "Claude (Anthropic)",
+		sub: "Claude models through the Anthropic API, with your own key.",
+		key: "sk-ant-…",
+		model: "claude-haiku-5-5",
+		base: "https://api.anthropic.com",
+	},
+	openai: {
+		label: "OpenAI API",
+		sub: "OpenAI models through the OpenAI API, with your own key. Use Fetch models to see what your key can use.",
+		key: "sk-…",
+		model: "Choose one with Fetch models",
+		base: "https://api.openai.com/v1",
+	},
+	custom: {
+		label: "Custom endpoint",
+		sub: "Anything that speaks the OpenAI chat format: Ollama, LM Studio, Groq, Gemini’s compatible endpoint and more.",
+		key: "Only if the service needs one",
+		model: "Model name, for example llama3.1",
+		base: "http://localhost:11434/v1",
+	},
+	demo: {
+		label: "Demo (no account)",
+		sub: "Scripted responses on the example tree. Nothing leaves your computer.",
+	},
+};
+export const STEER_HELP = {
+	light: "The goal is a gentle lean. Questions still wander.",
+	balanced:
+		"Most questions help you move toward the goal, with room for tangents.",
+	strong: "Everything is framed as a step toward the goal. Few tangents.",
+};
+
 export function initialize() {
 	SETTINGS = proxy({
 		open: false,
@@ -657,64 +713,6 @@ export function initialize() {
 		statsOn: true,
 	});
 	state.prefsTimer = 0;
-	PROV_ORDER = [
-		"chatgpt",
-		"claudecode",
-		"openrouter",
-		"anthropic",
-		"openai",
-		"custom",
-		"demo",
-	];
-	PROV = {
-		chatgpt: {
-			label: "ChatGPT plan",
-			sub: "Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s “Sign in with ChatGPT” for open-source apps, which is still a preview.",
-		},
-		claudecode: {
-			label: "Claude plan (Claude Code)",
-			sub: "Use your Claude Pro or Max plan instead of an API key. Cascade runs the Claude Code app installed on this computer, which uses the account it’s logged in with.",
-			model: "haiku",
-		},
-		openrouter: {
-			label: "OpenRouter",
-			sub: "One sign-in, many models: Claude, GPT, Gemini and more. You pay OpenRouter for usage.",
-			key: "sk-or-…",
-			model: "Choose one with Fetch models",
-			base: "https://openrouter.ai/api/v1",
-		},
-		anthropic: {
-			label: "Claude (Anthropic)",
-			sub: "Claude models through the Anthropic API, with your own key.",
-			key: "sk-ant-…",
-			model: "claude-haiku-5-5",
-			base: "https://api.anthropic.com",
-		},
-		openai: {
-			label: "OpenAI API",
-			sub: "OpenAI models through the OpenAI API, with your own key. Use Fetch models to see what your key can use.",
-			key: "sk-…",
-			model: "Choose one with Fetch models",
-			base: "https://api.openai.com/v1",
-		},
-		custom: {
-			label: "Custom endpoint",
-			sub: "Anything that speaks the OpenAI chat format: Ollama, LM Studio, Groq, Gemini’s compatible endpoint and more.",
-			key: "Only if the service needs one",
-			model: "Model name, for example llama3.1",
-			base: "http://localhost:11434/v1",
-		},
-		demo: {
-			label: "Demo (no account)",
-			sub: "Scripted responses on the example tree. Nothing leaves your computer.",
-		},
-	};
-	STEER_HELP = {
-		light: "The goal is a gentle lean. Questions still wander.",
-		balanced:
-			"Most questions help you move toward the goal, with room for tangents.",
-		strong: "Everything is framed as a step toward the goal. Few tangents.",
-	};
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);

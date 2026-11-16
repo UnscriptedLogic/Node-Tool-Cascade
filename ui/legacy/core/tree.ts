@@ -4,7 +4,6 @@ import { state as coreStateState, S, spawnAt } from "./state.ts";
 export const state = {
 	hasLoop: undefined,
 };
-export let isOuter = undefined;
 export function renameNode(id, text: string) {
 	const node = S.nodes[id];
 	if (node) node.text = text.trim().slice(0, 220);
@@ -191,7 +190,9 @@ export function addNode({
 	if (spawn) spawnAt[id] = spawn;
 	return id;
 }
+export const isOuter = (n) =>
+	n.type === "loop" || (!state.hasLoop && !n.parent);
+
 export function initialize() {
 	state.hasLoop = false;
-	isOuter = (n) => n.type === "loop" || (!state.hasLoop && !n.parent);
 }

@@ -31,12 +31,7 @@ import {
 } from "../canvas/look.ts";
 import { $, ICONS, LABEL, MOOD_KEYS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
-export let PRESETS = undefined,
-	mixHex = undefined,
-	TYPE_PHRASE = undefined,
-	LK = undefined,
-	lkStyle = undefined,
-	countLeaves = undefined;
+export let LK = undefined;
 export function lookFromText(desc) {
 	const t =
 		" " +
@@ -678,431 +673,423 @@ moods: ${MOOD_KEYS.join(" | ")}: "#rrggbb"`;
 	mount("look", $("#lookRoot"));
 	lkRefresh();
 }
-export function initialize() {
-	PRESETS = [
-		{
-			id: "default",
-			name: "Default",
-			desc: "The original Cascade look.",
-			words: ["default", "original", "reset", "factory"],
-			sw: ["#e4eaef", "#ffffff", "#16233a", "#16233a", "#7c8da3"],
-			patch: {},
+export const PRESETS = [
+	{
+		id: "default",
+		name: "Default",
+		desc: "The original Cascade look.",
+		words: ["default", "original", "reset", "factory"],
+		sw: ["#e4eaef", "#ffffff", "#16233a", "#16233a", "#7c8da3"],
+		patch: {},
+	},
+	{
+		id: "blueprint",
+		name: "Blueprint",
+		desc: "Technical drawing: right-angle wires on a blue grid.",
+		words: ["blueprint", "technical", "schematic", "engineering", "drafting"],
+		sw: ["#0b2545", "#13315c", "#8da9c4", "#eef4ed", "#8da9c4"],
+		patch: {
+			canvas: {
+				bg: "#0b2545",
+				grid: "lines",
+				gridColor: "#16365f",
+				gridSize: 28,
+			},
+			nodes: {
+				base: {
+					shape: "rect",
+					fill: "#13315c",
+					stroke: "#8da9c4",
+					strokeWidth: 1.5,
+					text: "#eef4ed",
+					iconColor: "#8da9c4",
+				},
+				question: {
+					fill: "#0b2545",
+					stroke: "#eef4ed",
+					strokeWidth: 2,
+				},
+				emotion: {
+					shape: "pill",
+				},
+				consequence: {
+					fill: "#0f2d52",
+					bar: {
+						width: 4,
+						color: "#8da9c4",
+					},
+				},
+				decision: {
+					shape: "diamond",
+					fill: "#eef4ed",
+					stroke: "#eef4ed",
+					text: "#0b2545",
+					width: 240,
+				},
+				loop: {
+					shape: "rect",
+					fill: "#0b2545",
+					stroke: "#eef4ed",
+					ring: null,
+					width: 200,
+				},
+				fog: {
+					fill: "#0b2545",
+					stroke: "#8da9c4",
+					strokeStyle: "dashed",
+					text: "#8da9c4",
+					pattern: "none",
+				},
+			},
+			wires: {
+				style: "manhattan",
+				radius: 0,
+				width: 1.5,
+				color: "#8da9c4",
+				arrows: "end",
+			},
+			layout: {
+				colGap: 56,
+				rowGap: 14,
+			},
 		},
-		{
-			id: "blueprint",
-			name: "Blueprint",
-			desc: "Technical drawing: right-angle wires on a blue grid.",
-			words: ["blueprint", "technical", "schematic", "engineering", "drafting"],
-			sw: ["#0b2545", "#13315c", "#8da9c4", "#eef4ed", "#8da9c4"],
-			patch: {
-				canvas: {
-					bg: "#0b2545",
-					grid: "lines",
-					gridColor: "#16365f",
-					gridSize: 28,
+	},
+	{
+		id: "paper",
+		name: "Paper sketch",
+		desc: "Warm paper, ink outlines, loose curved wires.",
+		words: [
+			"paper",
+			"sketch",
+			"notebook",
+			"hand-drawn",
+			"handdrawn",
+			"ink",
+			"whiteboard",
+		],
+		sw: ["#fbf7ef", "#fffdf8", "#3a3a3a", "#2b2b2b", "#3a3a3a"],
+		patch: {
+			canvas: {
+				bg: "#fbf7ef",
+				grid: "none",
+			},
+			nodes: {
+				base: {
+					fill: "#fffdf8",
+					stroke: "#3a3a3a",
+					strokeWidth: 1.5,
+					text: "#2b2b2b",
+					radius: 6,
+					iconColor: "#6b6b6b",
 				},
-				nodes: {
-					base: {
-						shape: "rect",
-						fill: "#13315c",
-						stroke: "#8da9c4",
-						strokeWidth: 1.5,
-						text: "#eef4ed",
-						iconColor: "#8da9c4",
-					},
-					question: {
-						fill: "#0b2545",
-						stroke: "#eef4ed",
-						strokeWidth: 2,
-					},
-					emotion: {
-						shape: "pill",
-					},
-					consequence: {
-						fill: "#0f2d52",
-						bar: {
-							width: 4,
-							color: "#8da9c4",
-						},
-					},
-					decision: {
-						shape: "diamond",
-						fill: "#eef4ed",
-						stroke: "#eef4ed",
-						text: "#0b2545",
-						width: 240,
-					},
-					loop: {
-						shape: "rect",
-						fill: "#0b2545",
-						stroke: "#eef4ed",
-						ring: null,
-						width: 200,
-					},
-					fog: {
-						fill: "#0b2545",
-						stroke: "#8da9c4",
-						strokeStyle: "dashed",
-						text: "#8da9c4",
-						pattern: "none",
+				question: {
+					radius: [2, 12, 2, 12],
+					strokeWidth: 2,
+				},
+				consequence: {
+					fill: "#f6efe0",
+					bar: {
+						width: 4,
+						color: "#3a3a3a",
 					},
 				},
-				wires: {
-					style: "manhattan",
+				decision: {
+					fill: "#2b2b2b",
+					stroke: "#2b2b2b",
+					text: "#fffdf8",
+					shadow: "hard",
+				},
+				loop: {
+					ring: null,
+					stroke: "#2b2b2b",
+					strokeWidth: 2.5,
+					radius: 8,
+				},
+				fog: {
+					fill: "#f6efe0",
+					stroke: "#6b6b6b",
+					text: "#6b6b6b",
+				},
+			},
+			wires: {
+				style: "bezier",
+				curvature: 0.75,
+				width: 1.4,
+				color: "#3a3a3a",
+			},
+			layout: {
+				colGap: 52,
+				rowGap: 16,
+			},
+		},
+	},
+	{
+		id: "neon",
+		name: "Neon night",
+		desc: "Dark canvas, glowing outlines, colour-coded wires.",
+		words: ["neon", "cyber", "synthwave", "glowing", "cyberpunk", "vaporwave"],
+		sw: ["#0a0a12", "#12121f", "#00f5d4", "#f15bb5", "#7b7bff"],
+		patch: {
+			canvas: {
+				bg: "#0a0a12",
+				grid: "dots",
+				gridColor: "#1c1c30",
+			},
+			nodes: {
+				base: {
+					fill: "#12121f",
+					stroke: "#7b7bff",
+					strokeWidth: 1.5,
+					text: "#f2f2ff",
+					radius: 8,
+					shadow: "glow",
+					iconColor: "#7b7bff",
+				},
+				question: {
+					stroke: "#00f5d4",
+					strokeWidth: 2,
+				},
+				answer: {
+					stroke: "#9b5de5",
+				},
+				emotion: {
+					shadow: "glow",
+				},
+				consequence: {
+					stroke: "#fee440",
+					bar: null,
+					fill: "#12121f",
+				},
+				decision: {
+					fill: "#f15bb5",
+					stroke: "#f15bb5",
+					text: "#12121f",
+				},
+				loop: {
+					fill: "#0a0a12",
+					stroke: "#00bbf9",
+					ring: null,
+				},
+				fog: {
+					fill: "#12121f",
+					stroke: "#7b7bff",
+					strokeStyle: "dashed",
+					text: "#c9c9ff",
+					pattern: "none",
+				},
+			},
+			wires: {
+				style: "straight",
+				width: 1.6,
+				color: "#7b7bff",
+				opacity: 0.85,
+				arrows: "end",
+				colorBy: "child",
+			},
+		},
+	},
+	{
+		id: "mono",
+		name: "Minimal mono",
+		desc: "Square, grey and quiet. Thin straight wires.",
+		words: [
+			"minimal",
+			"monochrome",
+			"mono",
+			"clean",
+			"simple",
+			"greyscale",
+			"grayscale",
+		],
+		sw: ["#ffffff", "#ffffff", "#888888", "#222222", "#999999"],
+		patch: {
+			canvas: {
+				bg: "#ffffff",
+				grid: "none",
+			},
+			nodes: {
+				base: {
+					shape: "rect",
+					fill: "#ffffff",
+					stroke: "#888888",
+					strokeWidth: 1,
+					text: "#222222",
 					radius: 0,
-					width: 1.5,
-					color: "#8da9c4",
-					arrows: "end",
+					fontSize: 13,
+					iconColor: "#888888",
 				},
-				layout: {
-					colGap: 56,
-					rowGap: 14,
+				question: {
+					stroke: "#222222",
+					strokeWidth: 1.5,
 				},
-			},
-		},
-		{
-			id: "paper",
-			name: "Paper sketch",
-			desc: "Warm paper, ink outlines, loose curved wires.",
-			words: [
-				"paper",
-				"sketch",
-				"notebook",
-				"hand-drawn",
-				"handdrawn",
-				"ink",
-				"whiteboard",
-			],
-			sw: ["#fbf7ef", "#fffdf8", "#3a3a3a", "#2b2b2b", "#3a3a3a"],
-			patch: {
-				canvas: {
-					bg: "#fbf7ef",
-					grid: "none",
+				emotion: {
+					shape: "pill",
 				},
-				nodes: {
-					base: {
-						fill: "#fffdf8",
-						stroke: "#3a3a3a",
-						strokeWidth: 1.5,
-						text: "#2b2b2b",
-						radius: 6,
-						iconColor: "#6b6b6b",
-					},
-					question: {
-						radius: [2, 12, 2, 12],
-						strokeWidth: 2,
-					},
-					consequence: {
-						fill: "#f6efe0",
-						bar: {
-							width: 4,
-							color: "#3a3a3a",
-						},
-					},
-					decision: {
-						fill: "#2b2b2b",
-						stroke: "#2b2b2b",
-						text: "#fffdf8",
-						shadow: "hard",
-					},
-					loop: {
-						ring: null,
-						stroke: "#2b2b2b",
-						strokeWidth: 2.5,
-						radius: 8,
-					},
-					fog: {
-						fill: "#f6efe0",
-						stroke: "#6b6b6b",
-						text: "#6b6b6b",
-					},
+				consequence: {
+					bar: null,
+					fill: "#f4f4f4",
 				},
-				wires: {
-					style: "bezier",
-					curvature: 0.75,
-					width: 1.4,
-					color: "#3a3a3a",
+				decision: {
+					fill: "#222222",
+					stroke: "#222222",
+					text: "#ffffff",
 				},
-				layout: {
-					colGap: 52,
-					rowGap: 16,
+				loop: {
+					ring: null,
+					stroke: "#222222",
+					strokeWidth: 2,
+					fontWeight: 700,
+				},
+				fog: {
+					fill: "#ffffff",
+					stroke: "#aaaaaa",
+					text: "#777777",
+					pattern: "none",
+					strokeStyle: "dashed",
 				},
 			},
-		},
-		{
-			id: "neon",
-			name: "Neon night",
-			desc: "Dark canvas, glowing outlines, colour-coded wires.",
-			words: [
-				"neon",
-				"cyber",
-				"synthwave",
-				"glowing",
-				"cyberpunk",
-				"vaporwave",
-			],
-			sw: ["#0a0a12", "#12121f", "#00f5d4", "#f15bb5", "#7b7bff"],
-			patch: {
-				canvas: {
-					bg: "#0a0a12",
-					grid: "dots",
-					gridColor: "#1c1c30",
-				},
-				nodes: {
-					base: {
-						fill: "#12121f",
-						stroke: "#7b7bff",
-						strokeWidth: 1.5,
-						text: "#f2f2ff",
-						radius: 8,
-						shadow: "glow",
-						iconColor: "#7b7bff",
-					},
-					question: {
-						stroke: "#00f5d4",
-						strokeWidth: 2,
-					},
-					answer: {
-						stroke: "#9b5de5",
-					},
-					emotion: {
-						shadow: "glow",
-					},
-					consequence: {
-						stroke: "#fee440",
-						bar: null,
-						fill: "#12121f",
-					},
-					decision: {
-						fill: "#f15bb5",
-						stroke: "#f15bb5",
-						text: "#12121f",
-					},
-					loop: {
-						fill: "#0a0a12",
-						stroke: "#00bbf9",
-						ring: null,
-					},
-					fog: {
-						fill: "#12121f",
-						stroke: "#7b7bff",
-						strokeStyle: "dashed",
-						text: "#c9c9ff",
-						pattern: "none",
-					},
-				},
-				wires: {
-					style: "straight",
-					width: 1.6,
-					color: "#7b7bff",
-					opacity: 0.85,
-					arrows: "end",
-					colorBy: "child",
-				},
+			wires: {
+				style: "straight",
+				width: 1,
+				color: "#999999",
+			},
+			layout: {
+				colGap: 40,
+				rowGap: 10,
 			},
 		},
-		{
-			id: "mono",
-			name: "Minimal mono",
-			desc: "Square, grey and quiet. Thin straight wires.",
-			words: [
-				"minimal",
-				"monochrome",
-				"mono",
-				"clean",
-				"simple",
-				"greyscale",
-				"grayscale",
-			],
-			sw: ["#ffffff", "#ffffff", "#888888", "#222222", "#999999"],
-			patch: {
-				canvas: {
-					bg: "#ffffff",
-					grid: "none",
+	},
+	{
+		id: "pastel",
+		name: "Soft pastel",
+		desc: "Rounded, borderless and gentle.",
+		words: ["pastel", "soft", "cute", "candy", "gentle", "friendly", "playful"],
+		sw: ["#f7f4ff", "#dcebff", "#e6f7ec", "#ffd9e6", "#b8b8d1"],
+		patch: {
+			canvas: {
+				bg: "#f7f4ff",
+				grid: "dots",
+				gridColor: "#e1daf5",
+			},
+			nodes: {
+				base: {
+					radius: 18,
+					strokeStyle: "none",
+					text: "#3b3358",
+					fill: "#ffffff",
+					shadow: "soft",
+					iconColor: "#8a7fb5",
 				},
-				nodes: {
-					base: {
-						shape: "rect",
-						fill: "#ffffff",
-						stroke: "#888888",
-						strokeWidth: 1,
-						text: "#222222",
-						radius: 0,
-						fontSize: 13,
-						iconColor: "#888888",
-					},
-					question: {
-						stroke: "#222222",
-						strokeWidth: 1.5,
-					},
-					emotion: {
-						shape: "pill",
-					},
-					consequence: {
-						bar: null,
-						fill: "#f4f4f4",
-					},
-					decision: {
-						fill: "#222222",
-						stroke: "#222222",
-						text: "#ffffff",
-					},
-					loop: {
-						ring: null,
-						stroke: "#222222",
-						strokeWidth: 2,
-						fontWeight: 700,
-					},
-					fog: {
-						fill: "#ffffff",
-						stroke: "#aaaaaa",
-						text: "#777777",
-						pattern: "none",
-						strokeStyle: "dashed",
-					},
+				question: {
+					fill: "#dcebff",
 				},
-				wires: {
-					style: "straight",
-					width: 1,
-					color: "#999999",
+				answer: {
+					fill: "#e6f7ec",
 				},
-				layout: {
-					colGap: 40,
-					rowGap: 10,
+				consequence: {
+					fill: "#fff1d6",
+					bar: null,
+				},
+				decision: {
+					fill: "#ffd9e6",
+					text: "#5a1f3a",
+				},
+				loop: {
+					fill: "#e9e1ff",
+					ring: null,
+					radius: 20,
+				},
+				fog: {
+					fill: "#f0f0f6",
+					stroke: "#b8b8d1",
+					strokeStyle: "dotted",
+					strokeWidth: 1.5,
+					text: "#6d6d8a",
+					pattern: "none",
+					shadow: "none",
 				},
 			},
-		},
-		{
-			id: "pastel",
-			name: "Soft pastel",
-			desc: "Rounded, borderless and gentle.",
-			words: [
-				"pastel",
-				"soft",
-				"cute",
-				"candy",
-				"gentle",
-				"friendly",
-				"playful",
-			],
-			sw: ["#f7f4ff", "#dcebff", "#e6f7ec", "#ffd9e6", "#b8b8d1"],
-			patch: {
-				canvas: {
-					bg: "#f7f4ff",
-					grid: "dots",
-					gridColor: "#e1daf5",
-				},
-				nodes: {
-					base: {
-						radius: 18,
-						strokeStyle: "none",
-						text: "#3b3358",
-						fill: "#ffffff",
-						shadow: "soft",
-						iconColor: "#8a7fb5",
-					},
-					question: {
-						fill: "#dcebff",
-					},
-					answer: {
-						fill: "#e6f7ec",
-					},
-					consequence: {
-						fill: "#fff1d6",
-						bar: null,
-					},
-					decision: {
-						fill: "#ffd9e6",
-						text: "#5a1f3a",
-					},
-					loop: {
-						fill: "#e9e1ff",
-						ring: null,
-						radius: 20,
-					},
-					fog: {
-						fill: "#f0f0f6",
-						stroke: "#b8b8d1",
-						strokeStyle: "dotted",
-						strokeWidth: 1.5,
-						text: "#6d6d8a",
-						pattern: "none",
-						shadow: "none",
-					},
-				},
-				wires: {
-					style: "bezier",
-					curvature: 0.55,
-					width: 2.5,
-					color: "#b8b8d1",
-				},
-				layout: {
-					colGap: 54,
-					rowGap: 18,
-				},
+			wires: {
+				style: "bezier",
+				curvature: 0.55,
+				width: 2.5,
+				color: "#b8b8d1",
+			},
+			layout: {
+				colGap: 54,
+				rowGap: 18,
 			},
 		},
-		{
-			id: "shapes",
-			name: "Shape sampler",
-			desc: "A different shape for every kind of block.",
-			words: ["shapes", "geometric", "varied shapes", "different shapes"],
-			sw: ["#e4eaef", "#ffffff", "#16233a", "#16233a", "#3566d1"],
-			patch: {
-				nodes: {
-					question: {
-						shape: "hexagon",
-						width: 236,
-					},
-					consequence: {
-						shape: "tag",
-						bar: null,
-					},
-					decision: {
-						shape: "diamond",
-						width: 250,
-					},
-					loop: {
-						shape: "ellipse",
-						width: 210,
-					},
-					fog: {
-						shape: "parallelogram",
-					},
+	},
+	{
+		id: "shapes",
+		name: "Shape sampler",
+		desc: "A different shape for every kind of block.",
+		words: ["shapes", "geometric", "varied shapes", "different shapes"],
+		sw: ["#e4eaef", "#ffffff", "#16233a", "#16233a", "#3566d1"],
+		patch: {
+			nodes: {
+				question: {
+					shape: "hexagon",
+					width: 236,
 				},
-				wires: {
-					style: "manhattan",
-					radius: 12,
-					colorBy: "child",
+				consequence: {
+					shape: "tag",
+					bar: null,
+				},
+				decision: {
+					shape: "diamond",
+					width: 250,
+				},
+				loop: {
+					shape: "ellipse",
+					width: 210,
+				},
+				fog: {
+					shape: "parallelogram",
 				},
 			},
+			wires: {
+				style: "manhattan",
+				radius: 12,
+				colorBy: "child",
+			},
 		},
-	];
-	mixHex = (a, b, t) => {
-		const x = rgbOf(a),
-			y = rgbOf(b);
-		if (!x || !y) return a;
-		return (
-			"#" +
-			x
-				.map((v, i) =>
-					Math.round(v + (y[i] - v) * t)
-						.toString(16)
-						.padStart(2, "0"),
-				)
-				.join("")
-		);
-	};
-	TYPE_PHRASE = {
-		question: "questions?",
-		answer: "answers?",
-		emotion: "emotions?|feelings?|moods?",
-		consequence: "consequences?",
-		decision: "decisions?",
-		loop: "loops?|stages?",
-		fog: "fog|clouds?",
-		base: "nodes?|blocks?|boxes|cards?|everything|all",
-	};
+	},
+];
+export const mixHex = (a, b, t) => {
+	const x = rgbOf(a),
+		y = rgbOf(b);
+	if (!x || !y) return a;
+	return (
+		"#" +
+		x
+			.map((v, i) =>
+				Math.round(v + (y[i] - v) * t)
+					.toString(16)
+					.padStart(2, "0"),
+			)
+			.join("")
+	);
+};
+export const TYPE_PHRASE = {
+	question: "questions?",
+	answer: "answers?",
+	emotion: "emotions?|feelings?|moods?",
+	consequence: "consequences?",
+	decision: "decisions?",
+	loop: "loops?|stages?",
+	fog: "fog|clouds?",
+	base: "nodes?|blocks?|boxes|cards?|everything|all",
+};
+export const lkStyle = () =>
+	effLook().nodes[LK.type === "base" ? "answer" : LK.type];
+export const countLeaves = (o) =>
+	isObj(o) || Array.isArray(o)
+		? Object.values(o).reduce((a, v) => a + countLeaves(v), 0)
+		: 1;
+
+export function initialize() {
 	LK = proxy({
 		tab: "presets",
 		type: "base",
@@ -1121,9 +1108,4 @@ export function initialize() {
 		textError: "",
 		textOk: false,
 	});
-	lkStyle = () => effLook().nodes[LK.type === "base" ? "answer" : LK.type];
-	countLeaves = (o) =>
-		isObj(o) || Array.isArray(o)
-			? Object.values(o).reduce((a, v) => a + countLeaves(v), 0)
-			: 1;
 }

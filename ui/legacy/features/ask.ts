@@ -25,9 +25,7 @@ import { commit, setBusy, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { openSrcView, projectEvidence } from "./project.ts";
 export let AN = undefined,
-	AHIST = undefined,
-	TCOL = undefined,
-	VERDICT = undefined;
+	AHIST = undefined;
 export function linksText() {
 	return S.links
 		.filter((l) => S.nodes[l.a] && S.nodes[l.b])
@@ -496,6 +494,13 @@ export async function copyAskSummary() {
 		}, 2000);
 	}
 }
+export const TCOL = ["var(--t0)", "var(--t1)", "var(--t2)"];
+export const VERDICT = {
+	answered: "Answered by the tree",
+	partial: "Partly answered",
+	unanswered: "The tree can’t answer this yet",
+};
+
 export function initialize() {
 	AN = proxy({
 		input: "",
@@ -517,12 +522,6 @@ export function initialize() {
 		busy: false,
 	});
 	AHIST = proxy([]);
-	TCOL = ["var(--t0)", "var(--t1)", "var(--t2)"];
-	VERDICT = {
-		answered: "Answered by the tree",
-		partial: "Partly answered",
-		unanswered: "The tree can’t answer this yet",
-	};
 	UI.ask = AN;
 	connect({
 		AN,

@@ -26,12 +26,6 @@ import {
 	postJSON,
 } from "../ui/settings.ts";
 import { moodGuess, toks } from "./prompts.ts";
-export let OR_SITE: string,
-	goTo: (arg0: string) => void,
-	getJSON = undefined,
-	streamFail = undefined,
-	J = undefined,
-	demoFind = undefined;
 export function saveWebAI() {
 	try {
 		localStorage.setItem(WEBAI_KEY, JSON.stringify(CONNECTION.web));
@@ -1267,29 +1261,29 @@ export async function demoSample(prompt, o) {
 		truncated: false,
 	};
 }
-export function initialize() {
-	OR_SITE = "https://openrouter.ai";
-	goTo = (url: string) =>
-		window.__navigate ? window.__navigate(String(url)) : location.assign(url);
-	getJSON = async (url: string | URL | Request) => {
-		const r = await fetch(url);
-		return r.json();
-	};
-	streamFail = (e, text) => {
-		if (e && e.name === "AbortError")
-			return {
-				code: "cancelled",
-				message: "aborted",
-				text,
-			};
-		if (e?.code) return e;
+export const OR_SITE: string = "https://openrouter.ai";
+export const goTo: (arg0: string) => void = (url: string) =>
+	window.__navigate ? window.__navigate(String(url)) : location.assign(url);
+export const getJSON = async (url: string | URL | Request) => {
+	const r = await fetch(url);
+	return r.json();
+};
+export const streamFail = (e, text) => {
+	if (e && e.name === "AbortError")
 		return {
-			code: "upstream_error",
-			message: String(e),
+			code: "cancelled",
+			message: "aborted",
 			text,
 		};
+	if (e?.code) return e;
+	return {
+		code: "upstream_error",
+		message: String(e),
+		text,
 	};
-	J = (o) => JSON.stringify(o);
-	demoFind = (rows, re, type) =>
-		rows.find((r) => re.test(r.text) && (!type || r.type === type));
-}
+};
+export const J = (o) => JSON.stringify(o);
+export const demoFind = (rows: DemoNode[], re: RegExp, type?: string) =>
+	rows.find((r) => re.test(r.text) && (!type || r.type === type));
+
+export function initialize() {}

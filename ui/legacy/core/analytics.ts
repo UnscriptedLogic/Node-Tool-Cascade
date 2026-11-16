@@ -1,6 +1,4 @@
 import { S } from "./state.ts";
-export let ANALYTICS = undefined,
-	ANALYTICS_OFF: string;
 export function analyticsAllowed() {
 	try {
 		if (localStorage.getItem(ANALYTICS_OFF) === "1") return false;
@@ -54,9 +52,9 @@ export function trackGhosts(name, ids) {
 		});
 	});
 }
-export function initialize() {
-	ANALYTICS = {
-		on: false,
-	};
-	ANALYTICS_OFF = "cascade-analytics-off";
-}
+export const ANALYTICS = {
+	on: false,
+};
+export const ANALYTICS_OFF: string = "cascade-analytics-off";
+
+export function initialize() {}

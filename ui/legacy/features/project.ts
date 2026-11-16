@@ -41,16 +41,7 @@ export const state = {
 	scanBusy: undefined,
 	briefTimer: undefined,
 };
-export let DEPTHS = undefined,
-	KINDS = undefined,
-	PROJECTUI = undefined,
-	projectReady = undefined,
-	briefText = undefined,
-	projectBriefOn = undefined,
-	fmtN = undefined,
-	pMsg: (arg0: string, arg1?: string) => void,
-	pProg = undefined,
-	citeName = undefined,
+export let PROJECTUI = undefined,
 	SV = undefined;
 export async function fetchJSON(url: string | URL | Request) {
 	const r = await fetch(url);
@@ -829,30 +820,53 @@ export async function runSeed(findings, signal) {
 	else if (!aiPromptsState.stopReveal)
 		showNote(["Nothing in the findings could be turned into nodes."], false);
 }
+export const DEPTHS = {
+	quick: {
+		groups: 6,
+		chars: 16000,
+	},
+	standard: {
+		groups: 12,
+		chars: 22000,
+	},
+	thorough: {
+		groups: 24,
+		chars: 26000,
+	},
+};
+export const KINDS = [
+	"mechanic",
+	"parameter",
+	"state",
+	"decision",
+	"open",
+	"constraint",
+	"system",
+];
+export const projectReady = () => !!CONNECTION.project?.has;
+export const briefText = () => (CONNECTION.project?.brief || "").trim();
+export const projectBriefOn = () =>
+	LOCAL && PREFS.useProject && projectReady() && !!briefText();
+export const fmtN = (n: number) =>
+	n >= 10000
+		? `${Math.round(n / 1000)}k`
+		: n >= 1000
+			? `${(n / 1000).toFixed(1)}k`
+			: String(n);
+export const pMsg: (arg0: string, arg1?: string) => void = (
+	t: string,
+	cls: string,
+) => {
+	PROJECTUI.message = t || "";
+	PROJECTUI.messageClass = cls || "";
+};
+export const pProg = (t: string, cls?: string) => {
+	PROJECTUI.progress = t || "";
+	PROJECTUI.progressClass = cls || "";
+};
+export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
+
 export function initialize() {
-	DEPTHS = {
-		quick: {
-			groups: 6,
-			chars: 16000,
-		},
-		standard: {
-			groups: 12,
-			chars: 22000,
-		},
-		thorough: {
-			groups: 24,
-			chars: 26000,
-		},
-	};
-	KINDS = [
-		"mechanic",
-		"parameter",
-		"state",
-		"decision",
-		"open",
-		"constraint",
-		"system",
-	];
 	state.projDepth = "standard";
 	state.PGROUPS = null;
 	state.PFIND = null;
@@ -884,26 +898,7 @@ export function initialize() {
 		PROJECTUI,
 		DEPTHS,
 	});
-	projectReady = () => !!CONNECTION.project?.has;
-	briefText = () => (CONNECTION.project?.brief || "").trim();
-	projectBriefOn = () =>
-		LOCAL && PREFS.useProject && projectReady() && !!briefText();
-	fmtN = (n: number) =>
-		n >= 10000
-			? `${Math.round(n / 1000)}k`
-			: n >= 1000
-				? `${(n / 1000).toFixed(1)}k`
-				: String(n);
 	mount("project", $("#projectRoot"));
-	pMsg = (t: string, cls: string) => {
-		PROJECTUI.message = t || "";
-		PROJECTUI.messageClass = cls || "";
-	};
-	pProg = (t: string, cls: string) => {
-		PROJECTUI.progress = t || "";
-		PROJECTUI.progressClass = cls || "";
-	};
-	citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 	SV = proxy({
 		list: [],
 		i: 0,

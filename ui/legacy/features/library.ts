@@ -25,10 +25,7 @@ import {
 	updatePreview,
 	updateProviders,
 } from "../ui/settings.ts";
-export let LIB = undefined,
-	LIB_CURRENT: string,
-	libSignedIn = undefined,
-	libCurrent = undefined;
+export let LIB = undefined;
 export async function libApi(method, path, body?) {
 	const r = await fetch(`/api/${path}`, {
 		method,
@@ -445,6 +442,11 @@ export async function libInit() {
 	SETTINGS.library = true;
 	await libRefresh();
 }
+export const LIB_CURRENT: string = "cascade-current-v1";
+export const libSignedIn = () => LIB.kind === "local" || !!LIB.user;
+export const libCurrent = () =>
+	LIB.cascades.find((c) => c.id === LIB.currentId) || null;
+
 export function initialize() {
 	LIB = proxy({
 		kind: null,
@@ -461,9 +463,6 @@ export function initialize() {
 		gsi: false,
 	});
 	UI.library = LIB;
-	LIB_CURRENT = "cascade-current-v1";
-	libSignedIn = () => LIB.kind === "local" || !!LIB.user;
-	libCurrent = () => LIB.cascades.find((c) => c.id === LIB.currentId) || null;
 	connect({
 		LIB,
 		DOMAINS,

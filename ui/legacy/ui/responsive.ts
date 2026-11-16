@@ -5,7 +5,8 @@ import { bridgeTo, growNode, traceBack } from "../ai/prompts.ts";
 import { beginEdit } from "../canvas/interaction.ts";
 import { nodeActions } from "../canvas/layout.ts";
 import { fitTo, setMode } from "../canvas/view.ts";
-import { ACT, ICONS, LABEL, PREFS, svg } from "../core/constants.ts";
+import { ICONS, LABEL, PREFS } from "../core/constants.ts";
+import { ACT, svg } from "../core/data.ts";
 import { state as coreStateState, hist, S, UI } from "../core/state.ts";
 import { visibleIds } from "../core/tree.ts";
 import { clearAskHighlight } from "../features/ask.ts";
@@ -43,13 +44,6 @@ export const state = {
 	menuSpec: undefined,
 	tapSuppressed: undefined,
 };
-export let SHORT = undefined,
-	isSmall = undefined,
-	isMobile = undefined,
-	isMinimal = undefined,
-	onResize = undefined,
-	MI = undefined,
-	TYPE_ORDER = undefined;
 export function layoutChoice() {
 	const q = new URLSearchParams(location.search).get("layout");
 	return q === "minimal" || q === "standard"
@@ -394,41 +388,67 @@ export function openNodeMenu(id, x, y) {
 export function setMobileLayout(v: string) {
 	setPreference("mobileLayout", v === "minimal" ? "minimal" : "standard");
 }
+export const SHORT = {
+	accept: "Keep",
+	dismiss: "Dismiss",
+	grow: "Grow",
+	back: "Trace",
+	bridge: "Bridge",
+	collapse: "Fold",
+	del: "Delete",
+	delb: "Delete all",
+	open: "Open",
+	resolve: "Resolve",
+	reopen: "Reopen",
+	ticket: "Ticket",
+	block: "Block by",
+	out: "Scope",
+	sharpen: "Sharpen",
+	src: "Source",
+	grill: "Grill",
+};
+export const isSmall = () =>
+	innerWidth <= 760 ||
+	(innerHeight <= 520 && matchMedia && matchMedia("(pointer: coarse)").matches);
+export const isMobile = () => document.body.classList.contains("m");
+export const isMinimal = () => document.body.classList.contains("m-minimal");
+export const onResize = () => {
+	clearTimeout(state.resizeTimer);
+	state.resizeTimer = setTimeout(() => applyResponsive(false), 120);
+	updateKeyboard();
+};
+export const MI = {
+	ask: ACT.grill,
+	undo: svg(
+		'<path d="M3.5 6.5h6a3 3 0 0 1 0 6H6"/><path d="M6 4 3.5 6.5 6 9"/>',
+	),
+	fit: svg('<path d="M3 6V3h3M13 6V3h-3M3 10v3h3M13 10v3h-3"/>'),
+	map: svg(
+		'<path d="M2 4l4-1.5 4 1.5 4-1.5v9.5l-4 1.5-4-1.5-4 1.5z"/><path d="M6 2.5v10M10 4v10"/>',
+	),
+	goal: svg('<circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/>'),
+	folder: svg('<path d="M2.5 4.5h4l1.5 1.5h5.5v6.5h-11z"/>'),
+	settings: svg(
+		'<path d="M3 5h10M3 11h10"/><circle cx="6" cy="5" r="1.6"/><circle cx="10" cy="11" r="1.6"/>',
+	),
+	layout: svg(
+		'<rect x="3" y="3" width="10" height="10" rx="2"/><path d="M3 10h10"/>',
+	),
+};
+export const TYPE_ORDER = [
+	"question",
+	"answer",
+	"emotion",
+	"consequence",
+	"decision",
+	"loop",
+	"fog",
+];
+
 export function initialize() {
-	SHORT = {
-		accept: "Keep",
-		dismiss: "Dismiss",
-		grow: "Grow",
-		back: "Trace",
-		bridge: "Bridge",
-		collapse: "Fold",
-		del: "Delete",
-		delb: "Delete all",
-		open: "Open",
-		resolve: "Resolve",
-		reopen: "Reopen",
-		ticket: "Ticket",
-		block: "Block by",
-		out: "Scope",
-		sharpen: "Sharpen",
-		src: "Source",
-		grill: "Grill",
-	};
-	isSmall = () =>
-		innerWidth <= 760 ||
-		(innerHeight <= 520 &&
-			matchMedia &&
-			matchMedia("(pointer: coarse)").matches);
-	isMobile = () => document.body.classList.contains("m");
-	isMinimal = () => document.body.classList.contains("m-minimal");
 	state.lastSmall = null;
 	state.lastChoice = null;
 	state.resizeTimer = 0;
-	onResize = () => {
-		clearTimeout(state.resizeTimer);
-		state.resizeTimer = setTimeout(() => applyResponsive(false), 120);
-		updateKeyboard();
-	};
 	addEventListener("resize", onResize);
 	addEventListener("orientationchange", onResize);
 	if (window.visualViewport)
@@ -439,32 +459,5 @@ export function initialize() {
 	connect({
 		SHORT,
 	});
-	MI = {
-		ask: ACT.grill,
-		undo: svg(
-			'<path d="M3.5 6.5h6a3 3 0 0 1 0 6H6"/><path d="M6 4 3.5 6.5 6 9"/>',
-		),
-		fit: svg('<path d="M3 6V3h3M13 6V3h-3M3 10v3h3M13 10v3h-3"/>'),
-		map: svg(
-			'<path d="M2 4l4-1.5 4 1.5 4-1.5v9.5l-4 1.5-4-1.5-4 1.5z"/><path d="M6 2.5v10M10 4v10"/>',
-		),
-		goal: svg('<circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/>'),
-		folder: svg('<path d="M2.5 4.5h4l1.5 1.5h5.5v6.5h-11z"/>'),
-		settings: svg(
-			'<path d="M3 5h10M3 11h10"/><circle cx="6" cy="5" r="1.6"/><circle cx="10" cy="11" r="1.6"/>',
-		),
-		layout: svg(
-			'<rect x="3" y="3" width="10" height="10" rx="2"/><path d="M3 10h10"/>',
-		),
-	};
-	TYPE_ORDER = [
-		"question",
-		"answer",
-		"emotion",
-		"consequence",
-		"decision",
-		"loop",
-		"fog",
-	];
 	applyResponsive(true);
 }
