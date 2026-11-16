@@ -16,6 +16,7 @@ function showStab(t){
   if(t==='map') renderMap(); else if(t==='grill') renderGrillShell(); else renderAsk();
 }
 function openSide(tab){
+  if(isClassCanvas()){ CLASS_CANVAS.inspect?.(tab==='ask'); return; }
   side.hidden = false;
   stage.style.setProperty('--drawer', drawerW()+'px');
   showStab(tab || curStab);

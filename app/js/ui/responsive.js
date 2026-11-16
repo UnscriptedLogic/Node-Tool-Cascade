@@ -24,7 +24,7 @@ function applyResponsive(force){
   if(!first) try{ fitIfNeeded(); }catch(e){}   // the first call is start-up: the saved view stays
 }
 // the stage changes size when the dock or bars appear: keep the tree in view
-function fitIfNeeded(){ if(S.order.length && typeof fitTo==='function') requestAnimationFrame(()=>fitTo(visibleIds(),{maxZ:1,minZ:.6,pad:24,instant:true})); }
+function fitIfNeeded(){ if(canvasState().order.length && typeof fitTo==='function') requestAnimationFrame(()=>fitTo(visibleIds(),{maxZ:1,minZ:.6,pad:24,instant:true})); }
 function hintMinimal(){
   try{ if(localStorage.getItem('cascade-minimal-hint')) return; localStorage.setItem('cascade-minimal-hint','1'); }catch(e){}
   setTimeout(()=>showNote(['Tap empty space for a menu, or tap a block for its actions.'],false),600);
@@ -39,6 +39,7 @@ if(window.visualViewport) visualViewport.addEventListener('resize',updateKeyboar
 /* ---------- running a block's action, from the desktop bar, the strip, or a menu ---------- */
 // built when used, because the functions live in files that load after this one
 function runNodeAction(act,id){
+  if(isClassCanvas()){ const n=canvasState().nodes[id]; if(n) CLASS_CANVAS.action?.(act,n.codeId); return; }
   if(act==='mindset'){ select(id); openSettings('mindsets'); return; }
   const run = { accept:acceptGhost, dismiss:dismissGhost, grow:growNode, back:traceBack, bridge:bridgeTo, collapse:toggleCollapse, del:(i)=>deleteNode(i,false), delb:(i)=>deleteNode(i,true), open:openLoop, resolve:startResolve, reopen:reopenQ, grill:startGrill, ticket:cycleTicket, block:startBlock, out:toggleOut, sharpen:(i)=>beginEdit(i,{graduate:true}), src:openNodeSrc }[act];
   if(run && S.nodes[id]) run(id);
@@ -47,10 +48,10 @@ function runNodeAction(act,id){
 /* ---------- standard layout: the strip of actions for the selected block ---------- */
 function syncNodeBar(){
   const bar = document.getElementById('nodebar'); if(!bar) return;
-  const n = S.sel && S.nodes[S.sel], show = !!(n && isMobile() && !isMinimal() && (S.mode!=='outer' || isOuter(n)));
+  const model=canvasState(), n = model.sel && model.nodes[model.sel], show = !!(n && isMobile() && !isMinimal() && (model.mode!=='outer' || isOuter(n)));
   stage.classList.toggle('nb',show);
   if(!show){ bar.hidden = true; bar.textContent = ''; bar.dataset.for = ''; return; }
-  const sig = S.sel+'|'+nodeActions(n,!!(KM[n.id] && KM[n.id].length)).map(a=>a[0]+a[1]).join();
+  const sig = model.sel+'|'+nodeActions(n,!!(KM[n.id] && KM[n.id].length)).map(a=>a[0]+a[1]).join();
   if(bar.dataset.for===sig && !bar.hidden) return;   // nothing changed: leave the DOM alone
   bar.dataset.for = sig; bar.hidden = false; bar.textContent = '';
   nodeActions(n,!!(KM[n.id] && KM[n.id].length)).forEach(([act,title])=>{
@@ -59,7 +60,7 @@ function syncNodeBar(){
     b.append(ic,t); bar.appendChild(b);
   });
 }
-document.getElementById('nodebar').addEventListener('click',e=>{ const b = e.target.closest('button[data-act]'); if(b && S.sel) runNodeAction(b.dataset.act,S.sel); });
+document.getElementById('nodebar').addEventListener('click',e=>{ const b = e.target.closest('button[data-act]'), id=canvasState().sel; if(b && id) runNodeAction(b.dataset.act,id); });
 
 /* ---------- context menu: popover at a point (minimal) or bottom sheet (standard's "more") ---------- */
 let menuEl = null, menuBack = null, menuSpec = null, tapSuppressed = false;
@@ -115,11 +116,13 @@ const TYPE_ORDER = ['question','answer','emotion','consequence','decision','loop
 function addBlockSpec(x,y){ return { title:'Add a block', items:TYPE_ORDER.map(t=>({ label:LABEL[t], icon:ICONS[t], run:()=>openCompose(t,x,y) })) }; }
 // everything the desktop screen offers as buttons, as one menu
 function canvasMenuSpec(x,y){
+  if(isClassCanvas()) return {title:'Class map',items:[{label:'Inspect code',icon:MI.map,run:()=>CLASS_CANVAS.inspect?.()},{label:'Fit to screen',icon:MI.fit,run:()=>$('#zFit').click()},{label:'Default workspace',icon:MI.map,run:()=>CLASS_CANVAS.close?.()},{label:'Project folder',icon:MI.settings,run:()=>openSettings('project')}]};
   const ghosts = Object.values(S.nodes).filter(n=>n.ghost).length, items = [];
   items.push({ label:'Add a block', icon:ICONS.question, sub:addBlockSpec(x,y) });
   if(ghosts && S.mode==='detail') items.push({ label:`Keep all ${ghosts} suggestion${ghosts===1 ? '' : 's'}`, icon:ACT.accept, run:keepAll }, { label:'Dismiss all suggestions', icon:ACT.dismiss, run:dismissAll });
   items.push({ sep:true });
   items.push({ label:'Ask the graph', icon:MI.ask, run:()=>document.getElementById('askBtn').click() }, { label:'Map and grill', icon:MI.map, run:()=>document.getElementById('mapBtn').click() });
+  if(LOCAL) items.push({label:'Class workspace',icon:MI.map,run:()=>CLASS_CANVAS.open?.()});
   if(!document.getElementById('hlchip').hidden) items.push({ label:'Clear highlight', icon:ACT.dismiss, run:()=>document.getElementById('hlchip').click() });
   items.push({ sep:true });
   items.push({ label:'Undo', icon:MI.undo, disabled:!hist.length, run:undo }, { label:'Fit to screen', icon:MI.fit, run:()=>document.getElementById('zFit').click() },
@@ -132,8 +135,8 @@ function canvasMenuSpec(x,y){
   return { title:'', items };
 }
 function nodeMenuSpec(id){
-  const n = S.nodes[id], hasKids = !!(KM[id] && KM[id].length), items = [];
-  if(!n.ghost) items.push({ label:'Edit text', icon:ICONS[n.type] || ICONS.question, run:()=>beginEdit(id) });
+  const n = canvasState().nodes[id], hasKids = !!(KM[id] && KM[id].length), items = [];
+  if(!n.ghost && !n.codeId) items.push({ label:'Edit text', icon:ICONS[n.type] || ICONS.question, run:()=>beginEdit(id) });
   const WORDS = { del:hasKids ? 'Delete (its children move up)' : 'Delete', delb:'Delete with everything below', bridge:'Bridge to this feeling', collapse:n.collapsed ? 'Expand' : 'Collapse' };
   nodeActions(n,hasKids).forEach(([act,title])=>items.push({ label:WORDS[act] || title.replace(/\. Click to change$/,''), icon:ACT[act], danger:act==='del' || act==='delb', run:()=>runNodeAction(act,id) }));
   const ghosts = Object.values(S.nodes).filter(x=>x.ghost).length;
@@ -141,7 +144,7 @@ function nodeMenuSpec(id){
   return { title:n.text.length>46 ? n.text.slice(0,45)+'…' : n.text, items };
 }
 function openCanvasMenu(x,y){ openMenu(canvasMenuSpec(x,y),{ x,y }); }
-function openNodeMenu(id,x,y){ if(S.nodes[id]) openMenu(nodeMenuSpec(id),{ x,y }); }
+function openNodeMenu(id,x,y){ if(canvasState().nodes[id]) openMenu(nodeMenuSpec(id),{ x,y }); }
 function setMobileLayout(v){ PREFS.mobileLayout = v==='minimal' ? 'minimal' : 'standard'; savePrefs(); applyResponsive(true); syncers.forEach(f=>f()); }
 
 // the dock's "more" button, the standard layout's way to the same menu

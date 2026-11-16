@@ -53,7 +53,7 @@ async function showSrc(){
 }
 function openSrcView(list,i){ if(!list.length) return; SV = {list,i:i || 0}; $('#srcview').hidden = false; showSrc(); $('#svClose').focus(); }
 function openNodeSrc(id){
-  const n = S.nodes[id]; if(!n || !n.src || !n.src.length) return;
+  const n = canvasState().nodes[id]; if(!n || !n.src || !n.src.length) return;
   openSrcView(n.src.map(x=>({f:x.f,l:x.l,note:x.t || n.text})),0);
 }
 $('#svClose').addEventListener('click',closeSrcView);
@@ -199,7 +199,7 @@ async function projectScan(){
     for(;;){
       await sleep(window.__POLL_MS || 400);
       const st = await fetchJSON('/api/project/status');
-      if(st.running){ pMsg(`Scanning… ${st.files} files in ${st.dirs} folders`); continue; }
+      if(st.running){ pMsg(st.phase==='relationships'?`Analyzing code and asset relationships… ${st.files} files`:`Scanning… ${st.files} files in ${st.dirs} folders`); continue; }
       if(st.error){ pMsg(st.error,'bad'); }
       else { PROJ = st.info; pMsg('Scan finished.','ok'); }
       break;

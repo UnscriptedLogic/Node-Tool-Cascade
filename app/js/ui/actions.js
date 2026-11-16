@@ -23,6 +23,7 @@ function deleteNode(id,branch){
   }
 }
 function clearGraph(){
+  if(isClassCanvas()) return;
   if(!S.order.length) return;
   cancelAI(); pushHist(true);
   S.nodes = {}; S.order = []; S.links = []; S.sel = null; flashId = null; S.mode = 'detail';
@@ -33,12 +34,13 @@ function clearGraph(){
 function toggleCollapse(id){ pushHist(); S.nodes[id].collapsed = !S.nodes[id].collapsed; commit(); }
 function openLoop(id){ setMode('detail',{focus:id}); }
 function undo(){
+  if(isClassCanvas()) return;
   cancelAI();
   const h = hist.pop(); if(!h) return;
   applySnap(h.s); if(h.v){ vAnim = null; Object.assign(S.view,h.v); applyView(); }
   layout(false); save(); updateHud(); note.hidden = true;
 }
-function resetTree(){ cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes; S.order=t.order; S.links=t.links; S.seq=t.seq; S.sel=null; S.mode='detail'; layout(false); initialView(); save(); updateHud(); }
+function resetTree(){ if(isClassCanvas()) return; cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes; S.order=t.order; S.links=t.links; S.seq=t.seq; S.sel=null; S.mode='detail'; layout(false); initialView(); save(); updateHud(); }
 function initialView(instant){
   const ex = S.order.find(id=>S.nodes[id] && S.nodes[id].type==='loop' && S.nodes[id].text==='Explore');
   if(ex){ rebuildKM(); const core = S.nodes[ex].parent; fitTo([core,ex,...descendants(ex)].filter(Boolean),{maxZ:1,minZ:.7,pad:40,instant:!!instant}); }

@@ -5,7 +5,7 @@ const BLOCKS = ['loop',...TYPES,'fog'];
 const TICKETS = ['talk','prototype','research','task'];
 const TICKET_LABEL = {talk:'Talk',prototype:'Prototype',research:'Research',task:'Task'};
 const TICKET_ASK = {talk:'Your answer',prototype:'What did the prototype show, and what do you decide?',research:'What did you find, and what do you decide?',task:'What happened, and what do you decide?'};
-const drawerW = () => { const e = document.getElementById('side'); return e && !e.hidden && innerWidth>760 ? 380 : 0; };
+const drawerW = () => { const code=document.getElementById('codeExplorer'); if(code && !code.hidden && innerWidth>760) return 420; const e = document.getElementById('side'); return e && !e.hidden && innerWidth>760 ? 380 : 0; };
 const LABEL = {question:'Question',answer:'Answer',emotion:'Emotion',consequence:'Consequence',decision:'Decision',loop:'Loop',fog:'Fog'};
 const MOODS = {
   frustration:{bg:'#D94A2B',fg:'#FFFFFF'},

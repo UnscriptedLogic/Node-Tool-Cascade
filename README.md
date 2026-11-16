@@ -12,16 +12,21 @@ Find better questions to reach better decisions. Cascade connects questions, ans
 - Enable questioning mindsets, including a game-design lens starter, or [convert your own source material](docs/mindsets.md) into a pack.
 - Organize multiple trees in folders and choose a domain for each.
 - Customize your canvas, use mobile layouts, and connect local project notes and code.
+- Explore JavaScript, TypeScript, C#, and Unity relationships; inspect classes, serialized instances, and potential change impact locally.
+- Start with a radial project map, expand systems into scripts, and adjust shared system membership.
 
 ## 🚀 Run locally
 
-Requires [Node.js](https://nodejs.org/) 18 or newer. No dependency installation needed to run the app.
+Requires [Node.js](https://nodejs.org/) 18 or newer.
+
+C# analysis also needs [.NET SDK 8 or newer](https://dotnet.microsoft.com/download). Unity scenes and prefabs must use text serialization for object references to appear.
 
 For PDF imports in the mindset converter, run `npm install` first. Current Node.js 22.13+ is recommended for installing the PDF tooling.
 
 ```bash
 git clone https://github.com/UnscriptedLogic/Node-Tool-Cascade.git
 cd Node-Tool-Cascade
+npm install
 npm start
 ```
 
@@ -33,7 +38,7 @@ Project excerpts used for these features go to your selected provider. Use a loc
 
 ## 🛠️ Development
 
-Built with vanilla HTML, CSS, JavaScript, and Node.js. No runtime dependencies for the local app.
+Built with vanilla HTML, CSS, JavaScript, and Node.js. Local code analysis uses TypeScript.
 
 ```bash
 npm install

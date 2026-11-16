@@ -2,6 +2,7 @@
 /* ================= HUD ================= */
 let busyMsg = null;
 function idleText(){
+  if(isClassCanvas()) return 'Class map: select a node or connection to inspect its source and impact.';
   if(aiChecked && (LOCAL || WEB) && activeProvider()==='demo') return 'Demo mode: the AI is scripted. Drag a block onto the canvas to try it.';
   return aiChecked && !aiAvailable() ? ((LOCAL || WEB) ? 'No AI connected, so blocks place by keyword' : 'Claude isn’t available here, so blocks place by keyword') : 'Drag a block onto the canvas, then type your idea';
 }
@@ -28,10 +29,11 @@ function setBusy(msg,stoppable){
 }
 function updateHud(){
   const g = Object.values(S.nodes).filter(n=>n.ghost).length;
-  $('#ghostbar').hidden = !(g>0 && S.mode==='detail');
+  $('#ghostbar').hidden = isClassCanvas() || !(g>0 && S.mode==='detail');
   $('#gcount').textContent = `${g} suggested ${g===1?'node':'nodes'}`;
-  $('#undoBtn').disabled = hist.length===0;
-  $('#empty').hidden = S.order.length>0;
+  $('#undoBtn').disabled = isClassCanvas() || hist.length===0;
+  $('#empty').hidden = isClassCanvas() || S.order.length>0;
+  for(const id of ['#clearBtn','#resetBtn']) $(id).disabled=isClassCanvas();
   $('#mDetail').setAttribute('aria-pressed', S.mode==='detail');
   $('#mOuter').setAttribute('aria-pressed', S.mode==='outer');
   if(!busyMsg) stxt.textContent = idleText();
@@ -48,5 +50,8 @@ function showNote(parts,withUndo){
   clearTimeout(noteTimer); noteTimer = setTimeout(()=>{ note.hidden = true; }, 16000);
 }
 function commit(){ layout(false); save(); updateHud(); }
-function select(id){ S.sel = id; restyle(); kick(); try{ syncNodeBar(); }catch(e){} }
+function select(id){
+  if(isClassCanvas() && id){ const n=canvasState().nodes[id]; if(n && CLASS_CANVAS.select) CLASS_CANVAS.select(n.codeId,n.id); return; }
+  canvasState().sel = id; restyle(); kick(); try{ syncNodeBar(); }catch(e){}
+}
 

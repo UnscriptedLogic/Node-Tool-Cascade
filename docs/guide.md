@@ -83,7 +83,55 @@ Point Cascade at a game project and it learns from it. Scanning and searching ha
   files off with *Also use the project's files*.
 - **Grill** is shown the excerpts for the part of the tree you're working on, so it asks "is this intended?" about
   decisions the code already makes, and pushback can cite code that conflicts with your answer.
-- Reading code needs a real AI. The demo can't do it.
+- Building a brief and seeding from findings need a connected AI. Code exploration works without one.
+
+### Code explorer
+Use the **Default / Class** pill above the canvas to switch between questioning and your project class map.
+Scan a project in Settings > Project first, or use **Choose or rescan project** in the class inspector.
+- Class starts with the **project in the center**, systems around it, and scripts beneath each system. Select a
+  system to open its radial branch; select a script to expand its declarations. **Project overview** folds branches
+  back to the system level. **Inspect code** opens the focused class/member view on the same canvas.
+- Dependency cross-links appear for the selected branch. **Show all system dependencies** reveals the wider map.
+  Large branches open 12 scripts at a time; **Show more scripts** expands them further.
+- Starting systems come from folders, namespaces, or custom assemblies. Under **Organize systems**, rename groups,
+  create systems, and assign a script to several systems. Shared appearances refer to the same source script.
+  Organization is saved per project in this browser and retained across rescans for matching script paths.
+- **Suggest systems with AI** previews editable groups from script names and dependency summaries. Review the
+  proposed memberships, then apply them. Grouping describes organization; source-backed connections remain separate.
+- **Class** uses the same canvas, node shapes, connections, zoom, and source viewer as Default. Select a node or
+  dependency wire to inspect it. Close the inspector for more canvas space; **Map** reopens it and **Ask** focuses
+  your code question. Default keeps its own tree, camera, and undo history. Scanned nodes are read-only.
+- Browse files, classes/interfaces, functions, and variables. Search by name or path.
+- Select a node to see consumers, dependencies, members, and source locations. Filter connections by calls,
+  inheritance, reads, writes, or references. Select a connection to review its evidence.
+- Choose **Change**, **Remove**, or **Add feature here** to explore potential consumers within a chosen depth.
+  Results are conservative review candidates, not proof of breakage. A new feature still needs a proposed design.
+- **Prepare refactor prompt** gathers selected source evidence locally. Copy it to your coding agent, or choose
+  **Ask connected AI** to send it to your selected provider. No code is edited or executed.
+- Rescan after edits, then reopen or reload the explorer. Prompt preparation rejects changed source files.
+- **Changes since previous scan** compares added/removed symbols and relationships. Line shifts are ignored;
+  renames appear as removal and addition. Compare results alongside your planned impact and run your project checks.
+
+**Detail / Loops** now lives inside **Map** for the Default workspace.
+
+Analysis covers relative JavaScript/TypeScript modules, shared script globals, C#, and Unity text assets. Coverage
+shows unresolved connections and limits: 800 code files, 8 MB of source, 20,000 nodes, and 60,000 connections.
+Syntax errors, missing types, and scan exclusions reduce coverage.
+
+### Unity projects
+Install .NET SDK 8 or newer, scan the Unity project root, then choose **Class**.
+- Browse **Assemblies** for `.asmdef` dependencies, **Classes and interfaces** for C# definitions, and
+  **Scenes, prefabs and assets** for serialized wiring. **GameObjects and components** lists individual instances.
+- Classes show their discovered instance counts by scene/prefab. Select an instance to inspect serialized source
+  or jump to its class definition. GUID/fileID references connect objects without merging them into class nodes.
+- C# uses Roslyn to resolve source symbols, overloads, inheritance, calls, and reads/writes. Cascade builds only its
+  own analyzer helper; it never builds or runs your Unity project. The helper is cached in the system temp folder.
+- Unity/package DLLs, active platform defines, generators, dynamic spawning, reflection, and runtime event wiring
+  are not loaded. Missing types produce partial coverage rather than guessed call edges. Prefab overrides remain
+  serialized references; Cascade does not reconstruct the effective runtime scene.
+- Asset analysis adds up to 1,200 metadata/text files and 16 MB, with a 4 MB limit per text asset. Binary assets and
+  generated folders are skipped. Serialized files stay out of design-brief/search text; selected evidence remains
+  available to the source viewer and code questions. Rescan after code, asset, or metadata changes.
 
 ## Local app: ports and quitting
 - Starts at port 4173 and tries the next 50 if busy, then lets the OS choose. Starting it again from the same folder

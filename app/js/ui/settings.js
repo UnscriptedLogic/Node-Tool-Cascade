@@ -22,6 +22,7 @@ function savePrefs(){
 }
 function updatePreview(){ $('#gPreview').textContent = guidance() || 'Nothing yet. Add a goal, context or pillars and they will appear here exactly as the AI sees them.'; }
 function showTab(n){
+  if(isClassCanvas() && (n==='data'||n==='library')) CLASS_CANVAS.close?.();
   if(n==='project' && LOCAL) setTimeout(()=>{ try{ loadProjectData(); }catch(e){} },0);
   curTab = n;
   document.querySelectorAll('.stabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===n)));

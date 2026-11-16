@@ -32,6 +32,23 @@ module.exports = (r) => {
     json(res,200,{ groups:g });
   });
   r.get('/api/project/findings',({ res }) => json(res,200,project.findings()));
+  r.get('/api/project/code',({ res }) => json(res,200,project.codeGraph()));
+  r.get('/api/project/code/impact',({res,url})=>{
+    const graph=project.codeGraph(), id=url.searchParams.get('id'), depth=Math.max(1,Math.min(8,Math.floor(+url.searchParams.get('depth'))||3));
+    if(!graph.nodes.some(n=>n.id===id)) throw new HttpError(404,'That symbol is not in this snapshot.');
+    json(res,200,{snapshot:graph.snapshot,affected:require('../lib/codegraph').impact(graph,id,depth)});
+  });
+  r.post('/api/project/code/impact',async({req,res})=>{
+    const b=await readJSON(req), graph=project.codeGraph(), known=new Set(graph.nodes.map(n=>n.id));
+    const ids=[...new Set((Array.isArray(b.ids)?b.ids:[]).filter(id=>typeof id==='string'))].slice(0,800);
+    if(!ids.length||ids.some(id=>!known.has(id)))throw new HttpError(400,'Select scripts from this snapshot.');
+    const depth=Math.max(1,Math.min(8,Math.floor(+b.depth)||3));
+    json(res,200,{snapshot:graph.snapshot,affected:require('../lib/codegraph').impact(graph,ids,depth)});
+  });
+  r.post('/api/project/code/context',async({req,res})=>{
+    const b=await readJSON(req);
+    json(res,200,await project.codeContext(Array.isArray(b.ids)?b.ids.filter(x=>typeof x==='string').slice(0,8):[],typeof b.edge==='string'?b.edge:null));
+  });
   r.post('/api/project/brief',async({ req, res }) => json(res,200,project.saveBrief(await readJSON(req))));
   r.post('/api/project/search',async({ req, res }) => {
     const b = await readJSON(req);

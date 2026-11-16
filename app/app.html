@@ -53,9 +53,9 @@
     <div id="provchip" class="hud pill" hidden><span class="pt"></span><button class="linkbtn" id="provBtn" type="button" title="Open Settings > AI model">Change</button></div>
     <button id="hlchip" class="hud pill" type="button" hidden title="Clear the highlight"><span class="hl"></span><span class="linkbtn">Clear</span></button>
     <div id="ctrl" class="hud">
-      <div class="seg" role="group" aria-label="View">
-        <button type="button" id="mDetail" aria-pressed="true">Detail</button>
-        <button type="button" id="mOuter" aria-pressed="false">Loops</button>
+      <div class="seg canvas-kind" role="group" aria-label="Workspace" data-modes="local">
+        <button type="button" id="viewDefault" aria-pressed="true">Default</button>
+        <button type="button" id="viewClass" aria-pressed="false">Class</button>
       </div>
       <div class="seg" role="group" aria-label="Zoom">
         <button type="button" id="zOut" aria-label="Zoom out">−</button>
@@ -86,6 +86,7 @@
       </header>
       <div class="sidebody">
         <section id="s-map">
+          <div class="msec"><h4>View</h4><div class="seg" role="group" aria-label="Map view"><button type="button" id="mDetail" aria-pressed="true">Detail</button><button type="button" id="mOuter" aria-pressed="false">Loops</button></div></div>
           <div class="msec">
             <h4>Destination</h4>
             <textarea id="mDest" class="area" rows="2" maxlength="600" placeholder="What does the finished map look like?"></textarea>
@@ -358,6 +359,7 @@
           <div id="pSummary" hidden>
             <div class="pstat" id="pStats"></div>
             <small id="pDetail"></small>
+            <div class="field"><button class="btn primary" id="pCode" type="button">Explore code relationships</button><small>Inspect JavaScript, TypeScript, C#, and Unity text asset relationships. C# analysis needs .NET SDK 8 or newer. No AI needed to explore.</small></div>
           </div>
           <div id="pBriefWrap" hidden>
             <div class="field">
@@ -427,6 +429,35 @@
   </div>
 </div>
 
+<aside id="codeExplorer" aria-labelledby="codeTitle" hidden>
+  <div class="code-card">
+    <header><div><h2 id="codeTitle">Class map</h2><small>Inspect connections on the canvas.</small></div><button class="btn" id="codeReload" type="button">Reload snapshot</button><button class="btn" id="codeClose" type="button" aria-label="Close class inspector">Close</button></header>
+    <p id="codeStatus" role="status" aria-live="polite"></p>
+    <div class="code-project"><button class="linkbtn" id="codeProject" type="button">Choose or rescan project</button></div>
+    <div class="code-project frow"><button class="btn" id="codeOverview" type="button">Project overview</button><button class="btn" id="codeDetails" type="button" disabled>Inspect code</button></div>
+    <details class="code-coverage"><summary>Coverage and limits</summary><p id="codeCoverage"></p><ul id="codeLimitations"></ul><div id="codeUnresolved"></div></details>
+    <details class="code-coverage"><summary>Changes since previous scan</summary><div id="codeChanges"></div></details>
+    <div class="code-body">
+      <nav class="code-nav" aria-label="Code browser">
+        <label for="codeMode">Browse</label><select id="codeMode"><option value="system">Systems</option><option value="file">Scripts</option><option value="class">Classes and interfaces</option><option value="symbol">Functions and variables</option><option value="assembly">Assemblies</option><option value="unity">Scenes, prefabs and assets</option><option value="instance">GameObjects and components</option></select>
+        <label for="codeSearch">Find a file or symbol</label><input id="codeSearch" type="search" placeholder="Name or path" autocomplete="off">
+        <div id="codeList"></div>
+      </nav>
+      <div class="code-main">
+        <h3 id="codeSelection">Select a file or symbol</h3>
+        <details id="codeOrganize"><summary>Organize systems</summary><p class="small">Starting groups use folders or assemblies. Adjust them to match your project. Shared scripts keep one source identity.</p><div id="codeRenameWrap" hidden><label for="codeSystemName">System name</label><input id="codeSystemName" maxlength="80"><button class="btn" id="codeRenameSystem" type="button">Rename system</button></div><fieldset id="codeMemberships" hidden><legend>Systems using this script</legend><div id="codeMembershipList"></div></fieldset><label for="codeNewSystem">New system</label><div class="frow"><input id="codeNewSystem" maxlength="80" placeholder="Combat"><button class="btn" id="codeAddSystem" type="button">Add system</button></div><p id="codeOrganizationStatus" class="small" role="status"></p><button class="btn" id="codeSuggestSystems" type="button">Suggest systems with AI</button><p class="small">Sends script names and dependency summaries to your connected AI. Review suggestions before applying.</p><pre id="codeSystemProposal" hidden></pre><button class="btn" id="codeApplySystems" type="button" hidden>Apply suggested grouping</button></details>
+        <button class="btn" id="codeMoreScripts" type="button" hidden>Show more scripts</button>
+        <label class="code-check"><input id="codeAllLinks" type="checkbox"> Show all system dependencies</label>
+        <div class="frow"><button class="btn" id="codeSource" type="button" disabled>View source</button><label for="codeRelation">Connections</label><select id="codeRelation"><option value="all">All</option><option value="imports">Imports / exports</option><option value="calls">Calls / constructs</option><option value="heritage">Inheritance</option><option value="reads">Reads</option><option value="writes">Writes</option><option value="references">References</option><option value="unity">Scene / prefab wiring</option><option value="assembly-reference">Assembly references</option></select></div>
+        <p id="codeDiagram" class="small" role="status"></p>
+        <div id="codeMembers"></div>
+        <h4>Connections</h4><p class="small">Direction: dependent uses dependency. Select a connection to inspect its evidence or ask about a refactor.</p><div id="codeEdges"></div>
+        <section class="code-impact"><h4>Potential impact</h4><div class="frow"><label for="codeScenario">Scenario</label><select id="codeScenario"><option value="change">Change selected code</option><option value="remove">Remove selected code</option><option value="add">Add feature here</option></select><label for="codeDepth">Dependency depth</label><select id="codeDepth"><option>1</option><option>2</option><option selected>3</option><option>5</option><option>8</option></select></div><p id="codeImpactNote" class="small"></p><div id="codeImpact"></div></section>
+        <section class="code-review"><h4>Review a connection or plan a change</h4><p id="codeEdgeSelection">Select a connection above, or ask about the selected node.</p><label for="codeQuestion">Question or proposed feature</label><textarea id="codeQuestion" rows="3" maxlength="3000" placeholder="Why does this dependency exist? Could it be separated? What needs checking?"></textarea><p class="small">Prepare a prompt locally, or send selected source excerpts and relationship evidence to your connected AI.</p><div class="frow"><button class="btn" id="codePrepare" type="button" disabled>Prepare refactor prompt</button><button class="btn primary" id="codeAsk" type="button" disabled>Ask connected AI</button><button class="btn" id="codeStop" type="button" hidden>Stop</button></div><label for="codePrompt">Prepared prompt</label><textarea id="codePrompt" rows="7" readonly placeholder="Prepared context appears here. Copy it to your coding agent."></textarea><pre id="codeAnswer" aria-live="polite"></pre></section>
+      </div>
+    </div>
+  </div>
+</aside>
 <div id="bye" hidden><div class="card"><b>Cascade has stopped.</b><p>The port is free again. You can close this tab. Run the start script to open it again.</p></div></div>
 
 <!--RUNTIME-->

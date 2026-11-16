@@ -12,6 +12,9 @@ project-index.json
 # Build output and tooling
 dist/
 node_modules/
+.npm-cache/
+tools/csharp-analyzer/bin/
+tools/csharp-analyzer/obj/
 .DS_Store
 npm-debug.log*
 scripts/analytics.local.env

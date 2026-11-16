@@ -56,6 +56,7 @@ async function libRefresh(){
 
 /* ---- opening, creating, moving, deleting ---- */
 function libApply(data){
+  if(isClassCanvas()) CLASS_CANVAS.close?.();
   LIB.suspend = true; cancelAI();
   try{
     const t = JSON.parse(data.tree);

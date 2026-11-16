@@ -14,25 +14,30 @@ function drawEdges(){
   const seen = new Set();
   for(const id in R){
     const r = R[id]; if(!r.shown) continue;
-    const n = S.nodes[id]; if(!n) continue;
+    const n = canvasState().nodes[id]; if(!n) continue;
     const pid = effParent(id); if(!pid) continue;
     const pr = R[pid]; if(!pr || !pr.shown) continue;
     const key = 'e'+id; seen.add(key);
     const p = pathEl(key, (n.ghost?'g':'')+(n.back?' back':''), false, !!n.back); p._e = [id,pid];
-    p.setAttribute('d',wirePath(pr.cur.x+pr.w,pr.cur.y+pr.h/2,r.cur.x,r.cur.y+r.h/2,1,1,effLook().wires,36));
-    applyWire(p,n.back ? 'back' : 'tree',n,S.nodes[pid],n.ghost);
+    p.setAttribute('d',canvasState().layout==='radial'?radialTreePath(pr,r):wirePath(pr.cur.x+pr.w,pr.cur.y+pr.h/2,r.cur.x,r.cur.y+r.h/2,1,1,effLook().wires,36));
+    applyWire(p,n.back ? 'back' : 'tree',n,canvasState().nodes[pid],n.ghost);
   }
-  for(const L of S.links){
+  for(const L of canvasState().links){
     const a = R[L.a], b = R[L.b];
     if(!a || !b || !a.shown || !b.shown) continue;
-    const na = S.nodes[L.a], nb = S.nodes[L.b];
-    if(L.kind==='block' && !S.layer) continue;
-    const key = 'l'+L.a+'_'+L.b; seen.add(key);
+    const na = canvasState().nodes[L.a], nb = canvasState().nodes[L.b];
+    if(L.kind==='block' && !canvasState().layer) continue;
+    const key = L.id || 'l'+L.a+'_'+L.b; seen.add(key);
     const ghost = na.ghost || nb.ghost;
     const kind = L.kind==='flow' ? 'flow' : L.kind==='block' ? 'block' : 'rel';
     const p = pathEl(key, kind + (ghost?' g':''), kind==='flow' || kind==='block'); p._e = [L.a,L.b];
     p.setAttribute('d', linkPath(a,b));
     applyWire(p,kind==='rel' ? 'related' : kind,nb,na,ghost);
+    if(L.codeEdge){
+      p.dataset.codeEdge=L.codeEdge; p.classList.add('code-connection'); p.classList.toggle('code-selected',!!L.codeSelected);
+      p.setAttribute('tabindex','0'); p.setAttribute('role','button'); p.setAttribute('aria-label',na.text+' '+L.codeKind+' '+nb.text+' · '+L.codeCount+' connection(s)');
+      let title=p.querySelector('title'); if(!title){ title=document.createElementNS(SVGNS,'title'); p.appendChild(title); } title.textContent=L.codeKind+' · '+L.codeCount+' connection(s) · '+L.codeLabel;
+    }
   }
   const seenT = new Set();
   for(const t of THR){
@@ -47,10 +52,10 @@ function drawEdges(){
   }
   TPM.forEach((p,k)=>{ if(!seenT.has(k)){ p.remove(); TPM.delete(k); } });
   EP.forEach((p,k)=>{ if(!seen.has(k)){ p.remove(); EP.delete(k); } });
-  let show = false; const fid = S.sel || flashId;
-  if(fid && R[fid] && R[fid].shown && S.nodes[fid]){
-    const n = S.nodes[fid], pid = effParent(fid);
-    if(n.rel && pid && R[pid] && R[pid].shown && S.view.z>=.5){
+  let show = false; const fid = canvasState().sel || flashId;
+  if(fid && R[fid] && R[fid].shown && canvasState().nodes[fid]){
+    const n = canvasState().nodes[fid], pid = effParent(fid);
+    if(n.rel && pid && R[pid] && R[pid].shown && canvasState().view.z>=.5){
       const a = R[pid], b = R[fid];
       elabel.setAttribute('x', (a.cur.x+a.w+b.cur.x)/2);
       elabel.setAttribute('y', (a.cur.y+a.h/2+b.cur.y+b.h/2)/2 - 7);
@@ -73,10 +78,10 @@ function cullNodes(){
     if(culledAny){ culledAny = false; for(const id of ids){ const r = R[id]; if(r.culled){ r.culled = false; r.el.classList.remove('culled'); } } EP.forEach(p=>{ if(p._h){ p._h = false; p.style.visibility = ''; } }); }
     return;
   }
-  const v = S.view, z = v.z, x0 = (-v.x-SW*CULL_MARGIN)/z, x1 = (-v.x+SW*(1+CULL_MARGIN))/z, y0 = (-v.y-SH*CULL_MARGIN)/z, y1 = (-v.y+SH*(1+CULL_MARGIN))/z;
+  const v = canvasState().view, z = v.z, x0 = (-v.x-SW*CULL_MARGIN)/z, x1 = (-v.x+SW*(1+CULL_MARGIN))/z, y0 = (-v.y-SH*CULL_MARGIN)/z, y1 = (-v.y+SH*(1+CULL_MARGIN))/z;
   for(const id of ids){
     const r = R[id];
-    const off = !!(r.shown && !r.dragging && !r.editing && !r.enter && S.sel!==id && (r.cur.x+r.w<x0 || r.cur.x>x1 || r.cur.y+r.h<y0 || r.cur.y>y1));
+    const off = !!(r.shown && !r.dragging && !r.editing && !r.enter && canvasState().sel!==id && (r.cur.x+r.w<x0 || r.cur.x>x1 || r.cur.y+r.h<y0 || r.cur.y>y1));
     if(off!==!!r.culled){ r.culled = off; r.el.classList.toggle('culled',off); if(off) culledAny = true; }
   }
   EP.forEach(p=>{
@@ -104,9 +109,9 @@ function tick(now){
     if(r.tx!==r.cur.x || r.ty!==r.cur.y){ r.tx = r.cur.x; r.ty = r.cur.y; r.el.style.transform = `translate(${r.tx}px,${r.ty}px)`; nodesMoved = true; }
   }
   if(vAnim){
-    const v = S.view, kv = reduce ? 1 : 1 - Math.exp(-dt/.12);
+    const v = canvasState().view, kv = reduce ? 1 : 1 - Math.exp(-dt/.12);
     v.x += (vAnim.x-v.x)*kv; v.y += (vAnim.y-v.y)*kv; v.z += (vAnim.z-v.z)*kv;
-    if(Math.abs(vAnim.x-v.x)<.5 && Math.abs(vAnim.y-v.y)<.5 && Math.abs(vAnim.z-v.z)<.002){ Object.assign(v,vAnim); vAnim = null; save(); }
+    if(Math.abs(vAnim.x-v.x)<.5 && Math.abs(vAnim.y-v.y)<.5 && Math.abs(vAnim.z-v.z)<.002){ Object.assign(v,vAnim); vAnim = null; if(!isClassCanvas()) save(); }
     else moving = true;
     applyView();
   }

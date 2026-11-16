@@ -11,7 +11,7 @@ document.addEventListener('dragstart',e=>{
 });
 const ptrs = new Map(); let pan = null, pinch = null, nd = null, lastTap = {id:null,t:0};
 stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('#compose,.hud,.pending,.bar,#side,.srcmark,.mindset-label')) return;
+  if(e.target.closest('#compose,.hud,.pending,.bar,#side,#codeExplorer,.srcmark,.mindset-label,[data-code-edge]')) return;
   if(e.target.closest('[contenteditable="true"]')) return;
   dragUi(true);
   stage.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -23,9 +23,9 @@ stage.addEventListener('pointerdown',e=>{
   const nodeEl = e.target.closest('.node');
   if(nodeEl){ nd = {id:nodeEl.dataset.id,sx:e.clientX,sy:e.clientY,drag:false,pid:e.pointerId,set:null,drop:null}; }
   else{
-    pan = {sx:e.clientX,sy:e.clientY,vx:S.view.x,vy:S.view.y,moved:false}; stage.classList.add('panning');
+    pan = {sx:e.clientX,sy:e.clientY,vx:canvasState().view.x,vy:canvasState().view.y,moved:false}; stage.classList.add('panning');
     if(compose.hidden===false) closeCompose();
-    if(S.sel) select(null);
+    if(canvasState().sel) select(null);
     if(linkFrom){ linkFrom = null; restyle(); }
   }
 });
@@ -35,17 +35,18 @@ stage.addEventListener('pointermove',e=>{
     const [a,b] = [...ptrs.values()], d = Math.hypot(a.x-b.x,a.y-b.y)||1, r = stage.getBoundingClientRect();
     zoomAt(d/pinch.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,true); pinch.d = d; return;
   }
+  if(nd && isClassCanvas() && Math.hypot(e.clientX-nd.sx,e.clientY-nd.sy)>6){ pan={sx:nd.sx,sy:nd.sy,vx:canvasState().view.x,vy:canvasState().view.y,moved:true}; nd=null; }
   if(nd && e.pointerId===nd.pid){
     if(!nd.drag && Math.hypot(e.clientX-nd.sx,e.clientY-nd.sy)>6){
-      const n = S.nodes[nd.id];
-      if(n && n.parent && S.mode==='detail'){
+      const n = canvasState().nodes[nd.id];
+      if(n && n.parent && canvasState().mode==='detail'){
         rebuildKM(); nd.set = new Set([nd.id,...descendants(nd.id)]);
         nd.set.forEach(x=>{ if(R[x]) R[x].dragging = true; });
         R[nd.id].drag = true; nd.drag = true; nd.lx = e.clientX; nd.ly = e.clientY; select(nd.id);
       } else { nd = null; }
     }
     if(nd && nd.drag){
-      const dx = (e.clientX-nd.lx)/S.view.z, dy = (e.clientY-nd.ly)/S.view.z; nd.lx = e.clientX; nd.ly = e.clientY;
+      const dx = (e.clientX-nd.lx)/canvasState().view.z, dy = (e.clientY-nd.ly)/canvasState().view.z; nd.lx = e.clientX; nd.ly = e.clientY;
       nd.set.forEach(x=>{ const r = R[x]; if(r && r.shown){ r.cur.x += dx; r.cur.y += dy; } });
       let t = null;
       for(const el of document.elementsFromPoint(e.clientX,e.clientY)){
@@ -57,7 +58,7 @@ stage.addEventListener('pointermove',e=>{
     }
   } else if(pan){
     if(!pan.moved && Math.hypot(e.clientX-pan.sx,e.clientY-pan.sy)>8) pan.moved = true;
-    S.view.x = pan.vx + (e.clientX-pan.sx); S.view.y = pan.vy + (e.clientY-pan.sy); scheduleView();
+    canvasState().view.x = pan.vx + (e.clientX-pan.sx); canvasState().view.y = pan.vy + (e.clientY-pan.sy); scheduleView();
   }
 });
 function endPointer(e){
@@ -70,13 +71,13 @@ function endPointer(e){
       nd.set.forEach(x=>{ if(R[x]) R[x].dragging = false; });
       if(R[id]) R[id].drag = false;
       const t = nd.drop; if(t && R[t]) R[t].drop = false;
-      if(t && S.nodes[t] && S.nodes[id] && t!==S.nodes[id].parent){
-        pushHist(); const n = S.nodes[id]; n.parent = t; n.rel = '';
-        S.order = S.order.filter(x=>x!==id); S.order.push(id);
+      if(t && canvasState().nodes[t] && canvasState().nodes[id] && t!==canvasState().nodes[id].parent){
+        pushHist(); const n = canvasState().nodes[id]; n.parent = t; n.rel = '';
+        canvasState().order = canvasState().order.filter(x=>x!==id); canvasState().order.push(id);
         if(!n.ghost) acceptChain(t); expandChain(t);
-        commit(); showNote(['Moved under ',{b:`“${S.nodes[t].text}”`},'.'],true);
+        commit(); showNote(['Moved under ',{b:`“${canvasState().nodes[t].text}”`},'.'],true);
       } else { restyle(); kick(); }
-    } else if(S.nodes[id]){
+    } else if(canvasState().nodes[id]){
       const now = Date.now();
       if(linkFrom){ finishBlock(id); lastTap = {id:null,t:0}; }
       else if(isMinimal()){ select(id); lastTap = {id:null,t:0}; if(!tapSuppressed) openNodeMenu(id,e.clientX,e.clientY); }   // minimal layout: a tap opens the block's menu
@@ -87,7 +88,7 @@ function endPointer(e){
   }
   if(pan){
     const tapped = !pan.moved && e.type==='pointerup' && !ptrs.size;
-    pan = null; stage.classList.remove('panning'); flushView(); save();
+    pan = null; stage.classList.remove('panning'); flushView(); if(!isClassCanvas()) save();
     if(tapped && isMinimal() && !tapSuppressed) openCanvasMenu(e.clientX,e.clientY);   // minimal layout: a tap on empty space opens the menu
   } else if(!ptrs.size) flushView();
   if(!ptrs.size) tapSuppressed = false;
@@ -95,13 +96,14 @@ function endPointer(e){
 stage.addEventListener('pointerup',endPointer);
 stage.addEventListener('pointercancel',endPointer);
 stage.addEventListener('wheel',e=>{
-  if(e.target.closest && e.target.closest('#side')) return;
+  if(e.target.closest && e.target.closest('#side,#codeExplorer')) return;
   e.preventDefault();
   const r = stage.getBoundingClientRect();
   zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016)),e.clientX-r.left,e.clientY-r.top,true);
 },{passive:false});
 function beginEdit(id,opts){
-  const r = R[id], n = S.nodes[id]; if(!r || !n) return;
+  if(isClassCanvas()) return;
+  const r = R[id], n = canvasState().nodes[id]; if(!r || !n) return;
   const txt = r.el.querySelector('.txt'); r.editing = true; txt.contentEditable = 'true'; txt.focus();
   if(opts && opts.graduate) showNote(['Rewrite it as a precise question, then press Enter.'],false);
   const range = document.createRange(); range.selectNodeContents(txt); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
@@ -116,6 +118,7 @@ function beginEdit(id,opts){
   txt.addEventListener('blur',onBlur); txt.addEventListener('keydown',onKey);
 }
 world.addEventListener('click',e=>{
+  const edge=e.target.closest('[data-code-edge]'); if(edge && isClassCanvas()){ e.stopPropagation(); CLASS_CANVAS.edge?.(edge.dataset.codeEdge); return; }
     const ml = e.target.closest('.mindset-label'); if(ml){ e.stopPropagation(); showNote([ml.title.replace(/\n/g,'. ')],false); return; }
   const sm = e.target.closest('.srcmark'); if(sm){ e.stopPropagation(); openNodeSrc(sm.closest('.node').dataset.id); return; }
   const b = e.target.closest('button[data-act]'); if(!b) return;
@@ -125,9 +128,16 @@ world.addEventListener('click',e=>{
 addEventListener('keydown',e=>{
   if(e.target.matches && e.target.matches('input,select,textarea,[contenteditable="true"]')) return;
   if(!document.getElementById('settings').hidden) return;
+  if(isClassCanvas()){
+    if(e.key==='Enter' && e.target.matches('.node')) select(e.target.dataset.id);
+    else if(['Enter',' '].includes(e.key) && e.target.matches('[data-code-edge]')){ e.preventDefault(); CLASS_CANVAS.edge?.(e.target.dataset.codeEdge); }
+    else if(e.key==='Escape') select(null);
+    else if(['Delete','Backspace'].includes(e.key)||(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z') e.preventDefault();
+    return;
+  }
   if((e.metaKey||e.ctrlKey) && e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
   else if(e.key==='Escape'){ closeCompose(); select(null); if(linkFrom){ linkFrom = null; restyle(); } }
-  else if((e.key==='Delete'||e.key==='Backspace') && S.sel){ e.preventDefault(); deleteNode(S.sel,e.shiftKey); }
+  else if((e.key==='Delete'||e.key==='Backspace') && canvasState().sel){ e.preventDefault(); deleteNode(canvasState().sel,e.shiftKey); }
   else if(e.key==='Enter' && e.target.classList && e.target.classList.contains('node')){ select(e.target.dataset.id); }
 });
 

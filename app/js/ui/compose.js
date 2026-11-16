@@ -3,6 +3,7 @@
 let comp = null;
 function closeCompose(){ compose.hidden = true; comp = null; }
 function openCompose(type,cx,cy){
+  if(isClassCanvas()) return;
   const sr = stage.getBoundingClientRect(), w = Math.min(300,sr.width-24);
   let x = clamp(cx-sr.left-24,12,sr.width-w-12), y = clamp(cy-sr.top-24,100,Math.max(100,sr.height-190));
   compose.style.width = w+'px'; compose.style.left = x+'px'; compose.style.top = y+'px';
@@ -39,6 +40,7 @@ document.querySelectorAll('.tile').forEach(t=>{
   t.querySelector('.ico').innerHTML = ICONS[type];
   t.addEventListener('click',e=>{ if(e.detail===0){ const sr = stage.getBoundingClientRect(); openCompose(type,sr.left+sr.width/2,sr.top+sr.height/2); } });
   t.addEventListener('pointerdown',e=>{
+    if(isClassCanvas()) return;
     e.preventDefault(); dragUi(true);
     const sx = e.clientX, sy = e.clientY; let moved = false, chip = null, finished = false;
     const mv = ev => {

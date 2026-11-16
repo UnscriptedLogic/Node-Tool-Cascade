@@ -59,8 +59,8 @@ test('scan: reads the design intent and the code, skips everything that is noise
   assert.equal(s.engine,'unity'); assert.equal(s.engineLabel,'Unity');
   const info = project.publicInfo(); assert.equal(info.has,true);
   const idx = JSON.parse(fs.readFileSync(path.join(DATA,'project-index.json'),'utf8')), files = idx.files.map(f=>f.path);
-  for(const keep of ['Assets/Scripts/Player/PlayerController.cs','Assets/Scripts/Enemies/EnemyAI.cs','Assets/Scripts/World/MapGenerator.cs','docs/DESIGN.md','keep.txt']) assert.ok(files.includes(keep),'kept '+keep);
-  for(const drop of ['Assets/Plugins/Lib/ThirdParty.cs','Library/Cache/cached.cs','Assets/Art/hero.png','Assets/Scenes/Main.unity','Assets/Scripts/Tmp/Scratch.cs','Assets/Scripts/Generated/Auto.cs','Assets/Scripts/blob.cs','Assets/Scripts/min.js','.env','config/keys.pem','scratch.txt'])
+  for(const keep of ['Assets/Scripts/Player/PlayerController.cs','Assets/Scripts/Enemies/EnemyAI.cs','Assets/Scripts/World/MapGenerator.cs','Assets/Scenes/Main.unity','docs/DESIGN.md','keep.txt']) assert.ok(files.includes(keep),'kept '+keep);
+  for(const drop of ['Assets/Plugins/Lib/ThirdParty.cs','Library/Cache/cached.cs','Assets/Art/hero.png','Assets/Scripts/Tmp/Scratch.cs','Assets/Scripts/Generated/Auto.cs','Assets/Scripts/blob.cs','Assets/Scripts/min.js','.env','config/keys.pem','scratch.txt'])
     assert.ok(!files.includes(drop),'skipped '+drop);
   assert.ok(s.skipped.secret>=2 && s.skipped.generated>=2 && s.skipped.tooBig>=1 && s.skipped.binary>=1 && s.skipped.ignored>=3);
   assert.equal(s.redactions,3,'the key, the password and the key in a second form were redacted');
