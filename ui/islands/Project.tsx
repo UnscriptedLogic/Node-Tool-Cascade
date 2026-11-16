@@ -1,7 +1,23 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { call, getLegacy } from "../bridge.ts";
+import { PREFS } from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import {
+	buildBrief,
+	cancelProjectScan,
+	editProjectBrief,
+	forgetProject,
+	PROJECTUI,
+	projectPick,
+	projectScan,
+	restoreProjectBrief,
+	seedFromProject,
+	setProjectDepth,
+	setProjectField,
+	stopProject,
+} from "../legacy/features/project.ts";
+import { closeSettings, setPreference } from "../legacy/ui/settings.ts";
 import template from "../templates/project-view.json";
 
 const formatNumber = (n: number) =>
@@ -18,8 +34,7 @@ const attributes = {
 	autocomplete: "autoComplete",
 };
 export default function Project() {
-	const { PROJECTUI, PREFS, DOMAINS } = getLegacy(),
-		ui = useSnapshot(PROJECTUI, { sync: true }),
+	const ui = useSnapshot(PROJECTUI, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true });
 	const project = ui.project,
 		domain = DOMAINS[prefs.domain] || DOMAINS.general;
@@ -47,18 +62,15 @@ export default function Project() {
 			props.value = ui[field];
 			props.onChange = () => {};
 			props.onInput = (e) =>
-				call(
-					field === "brief" ? "editProjectBrief" : "setProjectField",
-					...(field === "brief"
-						? [e.currentTarget.value]
-						: [field, e.currentTarget.value]),
-				);
+				field === "brief"
+					? editProjectBrief(e.currentTarget.value)
+					: setProjectField(field, e.currentTarget.value);
 		}
 		if (id === "pPath")
 			props.onKeyDown = (e) => {
 				if (e.key === "Enter") {
 					e.preventDefault();
-					call("projectScan");
+					projectScan();
 				}
 			};
 		if (id === "pSummary" || id === "pBriefWrap") props.hidden = !project.has;
@@ -117,28 +129,28 @@ export default function Project() {
 			props.disabled = ui.busy || (id === "pScan" && ui.scanBusy);
 		if (parent?.attrs?.id === "pDepth") {
 			props["aria-pressed"] = String(ui.depth === attrs["data-val"]);
-			props.onClick = () => call("setProjectDepth", attrs["data-val"]);
+			props.onClick = () => setProjectDepth(attrs["data-val"]);
 		}
 		const action = {
-			pPick: "projectPick",
-			pScan: "projectScan",
-			pCancel: "cancelProjectScan",
-			pBuild: "buildBrief",
-			pStop: "stopProject",
-			pRestore: "restoreProjectBrief",
-			pForget: "forgetProject",
+			pPick: projectPick,
+			pScan: projectScan,
+			pCancel: cancelProjectScan,
+			pBuild: buildBrief,
+			pStop: stopProject,
+			pRestore: restoreProjectBrief,
+			pForget: forgetProject,
 		}[id];
-		if (action) props.onClick = () => call(action);
+		if (action) props.onClick = () => action();
 		if (id === "pSeed")
 			props.onClick = () => {
-				call("closeSettings");
-				call("seedFromProject");
+				closeSettings();
+				seedFromProject();
 			};
 		if (id === "pUse" || id === "pAsk") {
 			const key = id === "pUse" ? "useProject" : "askFiles";
 			props.checked = prefs[key];
 			props.onChange = (e) => {
-				call("setPreference", key, e.currentTarget.checked);
+				setPreference(key, e.currentTarget.checked);
 			};
 		}
 		const Tag =
