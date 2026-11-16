@@ -1,11 +1,27 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import Mindsets from "../../shared/mindsets.ts";
+import { PREFS, TICKET_ASK, TICKET_LABEL } from "../legacy/core/constants.ts";
+import { S } from "../legacy/core/state.ts";
+import {
+	chartMap,
+	closeSide,
+	G,
+	grillAction,
+	mapAction,
+	nextRound,
+	PANEL,
+	resetG,
+	setDestination,
+	setGrillAnswer,
+	showStab,
+	startGrill,
+} from "../legacy/features/map.ts";
+import { seedFromProject } from "../legacy/features/project.ts";
 
 function Card({ card, hidden }) {
-	const input = useRef(null),
-		{ TICKET_ASK, TICKET_LABEL, Mindsets } = getLegacy();
+	const input = useRef(null);
 	useLayoutEffect(() => {
 		if (card.focus) input.current.focus();
 	}, [card.focus]);
@@ -15,7 +31,7 @@ function Card({ card, hidden }) {
 		: card.ticket !== "talk"
 			? `${TICKET_LABEL[card.ticket]} ticket`
 			: "";
-	const action = (kind: string) => call("grillAction", card.id, kind);
+	const action = (kind: string) => grillAction(card.id, kind);
 	return (
 		<div
 			className={`gcard${done ? " done" : ""}`}
@@ -39,7 +55,7 @@ function Card({ card, hidden }) {
 				value={card.answer}
 				disabled={done || card.busy}
 				onChange={() => {}}
-				onInput={(e) => call("setGrillAnswer", card.id, e.currentTarget.value)}
+				onInput={(e) => setGrillAnswer(card.id, e.currentTarget.value)}
 			/>
 			<div className="gpush" hidden={done || !card.pushback}>
 				{card.pushback}
@@ -105,7 +121,6 @@ function Card({ card, hidden }) {
 }
 
 export default function SidePanel() {
-	const { PANEL, G, S, PREFS, TICKET_LABEL } = getLegacy();
 	const panel = useSnapshot(PANEL, { sync: true }),
 		grill = useSnapshot(G, { sync: true }),
 		state = useSnapshot(S, { sync: true }),
@@ -175,7 +190,7 @@ export default function SidePanel() {
 								const button = (event.target as HTMLElement).closest(
 									"button[data-act]",
 								);
-								call("mapAction", id, (button as HTMLElement)?.dataset.act);
+								mapAction(id, (button as HTMLElement)?.dataset.act);
 							}}
 						>
 							<div>{node.text}</div>
@@ -222,7 +237,7 @@ export default function SidePanel() {
 							key={key}
 							id={`st${label}`}
 							aria-pressed={Boolean(panel.tab === key)}
-							onClick={() => call("showStab", key)}
+							onClick={() => showStab(key)}
 						>
 							{label}
 						</button>
@@ -232,7 +247,7 @@ export default function SidePanel() {
 					className="btn"
 					id="sideClose"
 					type="button"
-					onClick={() => call("closeSide")}
+					onClick={() => closeSide()}
 				>
 					Close
 				</Button>
@@ -249,7 +264,7 @@ export default function SidePanel() {
 							placeholder="What does the finished map look like?"
 							value={prefs.goal}
 							onChange={() => {}}
-							onInput={(e) => call("setDestination", e.currentTarget.value)}
+							onInput={(e) => setDestination(e.currentTarget.value)}
 						/>
 						<div className="mrow">
 							<div className="prog">
@@ -273,7 +288,7 @@ export default function SidePanel() {
 								className="btn primary"
 								id="mChart"
 								type="button"
-								onClick={() => call("chartMap")}
+								onClick={() => chartMap()}
 							>
 								Chart the map
 							</Button>
@@ -281,7 +296,7 @@ export default function SidePanel() {
 								className="btn"
 								id="mGrillAll"
 								type="button"
-								onClick={() => call("startGrill", null)}
+								onClick={() => startGrill(null)}
 							>
 								Grill me
 							</Button>
@@ -290,7 +305,7 @@ export default function SidePanel() {
 								id="mSeed"
 								type="button"
 								hidden={!panel.canSeed}
-								onClick={() => call("seedFromProject")}
+								onClick={() => seedFromProject()}
 							>
 								Seed from project
 							</Button>
@@ -321,7 +336,7 @@ export default function SidePanel() {
 								className="btn primary"
 								id="gStartAll"
 								type="button"
-								onClick={() => call("startGrill", null)}
+								onClick={() => startGrill(null)}
 							>
 								Grill the whole tree
 							</Button>
@@ -330,7 +345,7 @@ export default function SidePanel() {
 								id="gStartSel"
 								type="button"
 								onClick={() =>
-									call("startGrill", state.nodes[state.sel] ? state.sel : null)
+									startGrill(state.nodes[state.sel] ? state.sel : null)
 								}
 							>
 								Grill the selected node
@@ -380,7 +395,7 @@ export default function SidePanel() {
 								type="button"
 								hidden={grill.resolve || grill.done}
 								disabled={grill.busy}
-								onClick={() => call("nextRound")}
+								onClick={() => nextRound()}
 							>
 								{grill.busy ? "Asking…" : "Next round"}
 							</Button>
@@ -389,7 +404,7 @@ export default function SidePanel() {
 								id="gEnd"
 								type="button"
 								onClick={() => {
-									call("resetG");
+									resetG();
 									PANEL.idleMessage = "";
 								}}
 							>
