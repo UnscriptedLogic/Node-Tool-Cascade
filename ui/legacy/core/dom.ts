@@ -19,7 +19,7 @@ export let stage: HTMLDivElement,
 	gEdges: SVGGElement,
 	gTh: SVGGElement,
 	elabel: HTMLDivElement;
-export function initialize() {
+export function startDom() {
 	stage = $("#stage");
 	world = $("#world");
 	gEdges = $("#eg");

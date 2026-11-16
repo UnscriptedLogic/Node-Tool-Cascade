@@ -25,23 +25,23 @@ export const state = {
 export let LOOK_KEY: string,
 	SVGNS: "http://www.w3.org/2000/svg",
 	NODE_TYPES: string[],
-	SHAPES = undefined,
-	POLY = undefined,
-	SHAPE_PAD = undefined,
-	WIRE_STYLES = undefined,
-	WIRE_KINDS = undefined,
-	KIND_LABEL = undefined,
-	DASH = undefined,
-	SAFE_TOKENS = undefined,
-	NAMED = undefined,
-	DEF_NODE = undefined,
-	DEF_LOOK = undefined,
-	isObj = undefined,
-	nodeW = undefined,
-	lum = undefined,
-	moodColor = undefined,
-	moodFg = undefined,
-	MK = undefined;
+	SHAPES = null,
+	POLY = null,
+	SHAPE_PAD = null,
+	WIRE_STYLES = null,
+	WIRE_KINDS = null,
+	KIND_LABEL = null,
+	DASH = null,
+	SAFE_TOKENS = null,
+	NAMED = null,
+	DEF_NODE = null,
+	DEF_LOOK = null,
+	isObj = null,
+	nodeW = null,
+	lum = null,
+	moodColor = null,
+	moodFg = null,
+	MK = null;
 export function deepMerge(a, b) {
 	const out = Array.isArray(a) ? a.slice() : Object.assign({}, a);
 	for (const k in b) {
@@ -619,7 +619,7 @@ export function applyWire(
 	if (kind === "tree" && W.arrows === "end")
 		p.setAttribute("marker-end", markerFor(color || "var(--edge)"));
 }
-export function initialize() {
+export function startLook() {
 	LOOK_KEY = "cascade-look-v1";
 	SVGNS = "http://www.w3.org/2000/svg";
 	NODE_TYPES = [

@@ -1285,5 +1285,3 @@ export const streamFail = (e, text) => {
 export const J = (o) => JSON.stringify(o);
 export const demoFind = (rows: DemoNode[], re: RegExp, type?: string) =>
 	rows.find((r) => re.test(r.text) && (!type || r.type === type));
-
-export function initialize() {}

@@ -22,6 +22,6 @@ export const stageCenter = () => ({
 	y: stage.clientHeight / 2,
 });
 
-export function initialize() {
+export function startControls() {
 	addEventListener("resize", applyView);
 }

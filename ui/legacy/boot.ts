@@ -11,8 +11,8 @@ import { PANEL, renderMap } from "./features/map.ts";
 import { initialView } from "./ui/actions.ts";
 import { setBusy } from "./ui/hud.ts";
 import { openSettings } from "./ui/settings.ts";
-export let libReady = undefined;
-export function initialize() {
+export let libReady = null;
+export function startBoot() {
 	/* ================= boot ================= */
 	applyLook({
 		noSave: true,

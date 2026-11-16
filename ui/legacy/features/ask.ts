@@ -24,8 +24,8 @@ import { addNode, expandChain, rebuildKM } from "../core/tree.ts";
 import { commit, setBusy, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { openSrcView, projectEvidence } from "./project.ts";
-export let AN = undefined,
-	AHIST = undefined;
+export let AN = null,
+	AHIST = null;
 export function linksText() {
 	return S.links
 		.filter((l) => S.nodes[l.a] && S.nodes[l.b])
@@ -501,7 +501,7 @@ export const VERDICT = {
 	unanswered: "The tree can’t answer this yet",
 };
 
-export function initialize() {
+export function startAsk() {
 	AN = proxy({
 		input: "",
 		next: false,

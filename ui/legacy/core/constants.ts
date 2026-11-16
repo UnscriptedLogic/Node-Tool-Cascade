@@ -140,7 +140,7 @@ export const clamp = (v: number, a: number, b: number) =>
 export const sleep = (ms?: number) => new Promise((r) => setTimeout(r, ms));
 export const $ = (s) => document.querySelector(s);
 
-export function initialize() {
+export function startConstants() {
 	reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 	if (!loadPrefs().domain && Object.keys(loadPrefs()).length)
 		PREFS.domain = "game";

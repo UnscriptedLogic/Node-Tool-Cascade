@@ -193,6 +193,6 @@ export function addNode({
 export const isOuter = (n) =>
 	n.type === "loop" || (!state.hasLoop && !n.parent);
 
-export function initialize() {
+export function startTree() {
 	state.hasLoop = false;
 }

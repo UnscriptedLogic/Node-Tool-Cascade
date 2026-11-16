@@ -194,4 +194,3 @@ export function initialView(instant?: boolean) {
 			instant: !!instant,
 		});
 }
-export function initialize() {}

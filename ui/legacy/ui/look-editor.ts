@@ -31,7 +31,7 @@ import {
 } from "../canvas/look.ts";
 import { $, ICONS, LABEL, MOOD_KEYS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
-export let LK = undefined;
+export let LK = null;
 export function lookFromText(desc) {
 	const t =
 		" " +
@@ -339,7 +339,7 @@ export function lkUndo() {
 	while (LK.hist.length) {
 		prev = LK.hist.pop();
 		if (prev !== cur) break;
-		prev = undefined;
+		prev;
 	}
 	if (prev !== undefined) {
 		LK.pend = null;
@@ -1089,7 +1089,7 @@ export const countLeaves = (o) =>
 		? Object.values(o).reduce((a, v) => a + countLeaves(v), 0)
 		: 1;
 
-export function initialize() {
+export function startLookEditor() {
 	LK = proxy({
 		tab: "presets",
 		type: "base",

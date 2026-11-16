@@ -1,3 +1,6 @@
+import type MindsetConversion from "../shared/mindset-conversion.ts";
+import type MINDSET_PRESETS from "../shared/mindset-presets.ts";
+import type Mindsets from "../shared/mindsets.ts";
 import type * as prompts from "./legacy/ai/prompts.ts";
 import type * as transport from "./legacy/ai/transport.ts";
 import type * as boot from "./legacy/boot.ts";
@@ -9,9 +12,6 @@ import type * as view from "./legacy/canvas/view.ts";
 import type * as analytics from "./legacy/core/analytics.ts";
 import type * as constants from "./legacy/core/constants.ts";
 import type * as dom from "./legacy/core/dom.ts";
-import type * as mindsetConversion from "./legacy/core/mindset-conversion.ts";
-import type * as mindsetPresets from "./legacy/core/mindset-presets.ts";
-import type * as mindsetSchema from "./legacy/core/mindsets.ts";
 import type * as profiles from "./legacy/core/profiles.ts";
 import type * as server from "./legacy/core/server.ts";
 import type * as model from "./legacy/core/state.ts";
@@ -43,11 +43,9 @@ export type LegacyActions = Exports<typeof prompts> &
 	Exports<typeof view> &
 	Exports<typeof analytics> &
 	Exports<typeof constants> &
-	Exports<typeof dom> &
-	Exports<typeof mindsetConversion> &
-	Exports<typeof mindsetPresets> &
-	Exports<typeof mindsetSchema> &
-	Exports<typeof profiles> &
+	Exports<typeof dom> & { MindsetConversion: typeof MindsetConversion } & {
+		MINDSET_PRESETS: typeof MINDSET_PRESETS;
+	} & { Mindsets: typeof Mindsets } & Exports<typeof profiles> &
 	Exports<typeof server> &
 	Exports<typeof model> &
 	Exports<typeof tree> &
@@ -76,9 +74,6 @@ export type LegacyActions = Exports<typeof prompts> &
 	StateOf<typeof analytics> &
 	StateOf<typeof constants> &
 	StateOf<typeof dom> &
-	StateOf<typeof mindsetConversion> &
-	StateOf<typeof mindsetPresets> &
-	StateOf<typeof mindsetSchema> &
 	StateOf<typeof profiles> &
 	StateOf<typeof server> &
 	StateOf<typeof model> &

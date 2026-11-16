@@ -56,5 +56,3 @@ export const ANALYTICS = {
 	on: false,
 };
 export const ANALYTICS_OFF: string = "cascade-analytics-off";
-
-export function initialize() {}

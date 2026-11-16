@@ -1,4 +1,6 @@
 import { proxy } from "valtio/vanilla";
+import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
+import Mindsets from "../../../shared/mindsets.ts";
 import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
@@ -17,14 +19,12 @@ import {
 } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { $, LOCAL, PREFS, WEB } from "../core/constants.ts";
-import { MINDSET_PRESETS } from "../core/mindset-presets.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DEFAULT_DOMAIN, DOM } from "../core/profiles.ts";
 import { pushHist, S, save } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
 import { setBusy, showNote } from "../ui/hud.ts";
 import { libData } from "./library.ts";
-export let MSUI = undefined;
+export let MSUI = null;
 export function mindsetContext(id) {
 	const parts = [],
 		seen = new Set();
@@ -332,7 +332,7 @@ export const MINDSET_EXAMPLE = {
 	],
 };
 
-export function initialize() {
+export function startMindsets() {
 	MSUI = proxy({
 		json: "",
 		message: "",

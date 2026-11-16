@@ -1,4 +1,6 @@
 import { proxy, ref } from "valtio/vanilla";
+import MindsetConversion from "../../../shared/mindset-conversion.ts";
+import Mindsets from "../../../shared/mindsets.ts";
 import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
@@ -12,11 +14,9 @@ import {
 	setController,
 } from "../ai/prompts.ts";
 import { $, LOCAL, WEB } from "../core/constants.ts";
-import { MindsetConversion } from "../core/mindset-conversion.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { setBusy } from "../ui/hud.ts";
 import { downloadMindset, importMindsets } from "./mindsets.ts";
-export let MSCONVERT = undefined;
+export let MSCONVERT = null;
 export function conversionBusy(on: boolean) {
 	MSCONVERT.busy = on;
 }
@@ -406,7 +406,7 @@ export function downloadConvertedMindset() {
 		MSCONVERT.status = e.message;
 	}
 }
-export function initialize() {
+export function startConverter() {
 	MSCONVERT = proxy({
 		ctl: null,
 		units: null,

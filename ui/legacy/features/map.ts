@@ -1,5 +1,6 @@
 import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
+import Mindsets from "../../../shared/mindsets.ts";
 import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import {
@@ -28,7 +29,6 @@ import {
 	TICKETS,
 } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
 import { addNode, blockCycle, computeMap, expandChain } from "../core/tree.ts";
@@ -36,8 +36,8 @@ import { commit, focusControl, select, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
-export let PANEL = undefined,
-	G = undefined;
+export let PANEL = null,
+	G = null;
 export function showStab(t: string) {
 	flushSync(() => {
 		PANEL.tab = t;
@@ -638,7 +638,7 @@ export function toggleAsk() {
 	if (!PANEL.open || PANEL.tab !== "ask") openSide("ask");
 	else closeSide();
 }
-export function initialize() {
+export function startMap() {
 	PANEL = proxy({
 		open: false,
 		tab: "map",

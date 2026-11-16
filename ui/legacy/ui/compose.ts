@@ -67,7 +67,7 @@ export function submitCompose() {
 		}
 	});
 }
-export function initialize() {
+export function startCompose() {
 	document.querySelectorAll<HTMLElement>(".tile").forEach((t) => {
 		const type = (t as HTMLElement).dataset.type;
 		t.addEventListener("click", (e) => {

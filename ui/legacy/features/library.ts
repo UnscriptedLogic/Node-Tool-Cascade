@@ -1,4 +1,5 @@
 import { proxy } from "valtio/vanilla";
+import Mindsets from "../../../shared/mindsets.ts";
 import { connect } from "../../bridge.ts";
 import { mount } from "../../runtime.tsx";
 import { cancelAI } from "../ai/prompts.ts";
@@ -6,7 +7,6 @@ import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
 import { ANALYTICS } from "../core/analytics.ts";
 import { $, CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DEFAULT_DOMAIN, DOMAINS } from "../core/profiles.ts";
 import {
 	AI,
@@ -25,7 +25,7 @@ import {
 	updatePreview,
 	updateProviders,
 } from "../ui/settings.ts";
-export let LIB = undefined;
+export let LIB = null;
 export async function libApi(method, path, body?) {
 	const r = await fetch(`/api/${path}`, {
 		method,
@@ -447,7 +447,7 @@ export const libSignedIn = () => LIB.kind === "local" || !!LIB.user;
 export const libCurrent = () =>
 	LIB.cascades.find((c) => c.id === LIB.currentId) || null;
 
-export function initialize() {
+export function startLibrary() {
 	LIB = proxy({
 		kind: null,
 		user: null,

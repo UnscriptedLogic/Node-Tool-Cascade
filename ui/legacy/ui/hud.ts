@@ -39,4 +39,3 @@ export function focusControl(id: string, select?: boolean) {
 		};
 	});
 }
-export function initialize() {}

@@ -2,6 +2,7 @@ let prefsTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
+import Mindsets from "../../../shared/mindsets.ts";
 import type { ApiReply } from "../../../shared/settings-types.ts";
 import { connect } from "../../bridge.ts";
 import type { TreeNode } from "../../model.ts";
@@ -29,7 +30,6 @@ import {
 	TICKETS,
 	WEB,
 } from "../core/constants.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DOMAINS } from "../core/profiles.ts";
 import { initServer } from "../core/server.ts";
 import { AI, pushHist, S, save, snap, UI } from "../core/state.ts";
@@ -38,7 +38,7 @@ import { clearGraph, initialView } from "./actions.ts";
 import { focusControl, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
-export let SETTINGS = undefined;
+export let SETTINGS = null;
 export function setPreference(key: string, value: string | number | boolean) {
 	PREFS[key] = value;
 	savePrefs();
@@ -687,7 +687,7 @@ export const STEER_HELP = {
 	strong: "Everything is framed as a step toward the goal. Few tangents.",
 };
 
-export function initialize() {
+export function startSettings() {
 	SETTINGS = proxy({
 		open: false,
 		tab: "ai",

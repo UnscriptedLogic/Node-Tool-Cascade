@@ -50,4 +50,3 @@ export async function quitCascade() {
 	} catch {}
 	showBye();
 }
-export function initialize() {}

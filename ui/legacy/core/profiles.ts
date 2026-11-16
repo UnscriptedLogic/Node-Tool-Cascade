@@ -679,5 +679,3 @@ export const DOMAINS = {
 export const DEFAULT_DOMAIN: string = "general";
 export const DOM = () => DOMAINS[PREFS.domain] || DOMAINS[DEFAULT_DOMAIN];
 export const isGameDomain = () => (PREFS.domain || DEFAULT_DOMAIN) === "game";
-
-export function initialize() {}

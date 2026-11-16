@@ -12,8 +12,8 @@ export const state = {
 	last: undefined,
 	edgesDirty: undefined,
 };
-export let EP = undefined,
-	TPM = undefined,
+export let EP = null,
+	TPM = null,
 	CULL_MIN: number,
 	CULL_MARGIN: number;
 export function pathEl(
@@ -274,7 +274,7 @@ export function tick(now?: number) {
 	if (nodesMoved) cullNodes();
 	if (moving) schedule();
 }
-export function initialize() {
+export function startEdges() {
 	EP = new Map();
 	TPM = new Map();
 	CULL_MIN = 100;

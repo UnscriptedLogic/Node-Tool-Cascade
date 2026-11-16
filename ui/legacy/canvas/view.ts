@@ -17,7 +17,7 @@ export const state = {
 	viewRaf: undefined,
 };
 export let gridEl: HTMLElement | null,
-	screenToWorld = undefined;
+	screenToWorld = null;
 export function applyView() {
 	const v = S.view;
 	world.style.transform = `translate(${v.x}px,${v.y}px) scale(${v.z})`;
@@ -191,7 +191,7 @@ export function setMode(m, o?) {
 	applyView();
 	save();
 }
-export function initialize() {
+export function startView() {
 	gridEl = document.getElementById("grid");
 	state.vz = 0;
 	state.vgs = 0;

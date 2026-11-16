@@ -444,7 +444,7 @@ export const TYPE_ORDER = [
 	"fog",
 ];
 
-export function initialize() {
+export function startResponsive() {
 	addEventListener("resize", onResize);
 	addEventListener("orientationchange", onResize);
 	if (window.visualViewport)

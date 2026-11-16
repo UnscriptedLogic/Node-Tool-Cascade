@@ -1,10 +1,10 @@
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { proxy, ref } from "valtio/vanilla";
+import Mindsets from "../../../shared/mindsets.ts";
 import type { CascadeTree, Point, RenderedNode } from "../../model.ts";
 import { libAfterSave } from "../features/library.ts";
 import { KEY, LOCAL } from "./constants.ts";
-import { Mindsets } from "./mindsets.ts";
 import { DOM } from "./profiles.ts";
 export const state = {
 	KM: undefined,
@@ -20,10 +20,10 @@ export let loaded: CascadeTree | null,
 	S: CascadeTree,
 	R: Record<string, RenderedNode>,
 	spawnAt: Record<string, Point>,
-	hist = undefined,
+	hist = null,
 	snap: () => string,
-	AI = undefined,
-	UI = undefined;
+	AI = null,
+	UI = null;
 export /* ================= state ================= */
 function seed() {
 	return DOM().sample();
@@ -88,7 +88,7 @@ export function applySnap(s: string) {
 	S.mindsets = Mindsets.collection(o.mindsets);
 	if (!S.nodes[S.sel]) S.sel = null;
 }
-export function initialize() {
+export function startModel() {
 	loaded = load();
 	initialState = Object.assign(
 		{

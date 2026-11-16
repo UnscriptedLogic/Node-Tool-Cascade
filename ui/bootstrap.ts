@@ -1,3 +1,6 @@
+import MindsetConversion from "../shared/mindset-conversion.ts";
+import MINDSET_PRESETS from "../shared/mindset-presets.ts";
+import Mindsets from "../shared/mindsets.ts";
 import { connect } from "./bridge.ts";
 import * as prompts from "./legacy/ai/prompts.ts";
 import * as transport from "./legacy/ai/transport.ts";
@@ -10,9 +13,6 @@ import * as view from "./legacy/canvas/view.ts";
 import * as analytics from "./legacy/core/analytics.ts";
 import * as constants from "./legacy/core/constants.ts";
 import * as dom from "./legacy/core/dom.ts";
-import * as mindsetConversion from "./legacy/core/mindset-conversion.ts";
-import * as mindsetPresets from "./legacy/core/mindset-presets.ts";
-import * as mindsetSchema from "./legacy/core/mindsets.ts";
 import * as profiles from "./legacy/core/profiles.ts";
 import * as server from "./legacy/core/server.ts";
 import * as model from "./legacy/core/state.ts";
@@ -37,9 +37,9 @@ const modules = [
 	constants,
 	analytics,
 	profiles,
-	mindsetSchema,
-	mindsetPresets,
-	mindsetConversion,
+	{ Mindsets },
+	{ MINDSET_PRESETS },
+	{ MindsetConversion },
 	model,
 	dom,
 	tree,
@@ -94,6 +94,50 @@ for (const entry of modules) {
 
 export function initialize() {
 	connect({ actions: legacy });
-	// Initialize side effects explicitly after module definitions have loaded.
-	for (const module of modules) module.initialize();
+	// Read browser preferences before creating stores.
+	constants.startConstants();
+	// Create the stores before mounting UI.
+	model.startModel();
+	// Resolve canvas elements and mount the shell after stores exist.
+	dom.startDom();
+	// Initialize tree bookkeeping before layout.
+	tree.startTree();
+	// Load the saved look before canvas rendering.
+	look.startLook();
+	// Resolve grid elements before view updates.
+	view.startView();
+	// Initialize layout before dependent startup calls.
+	layout.startLayout();
+	// Prepare edge rendering before interaction starts.
+	edges.startEdges();
+	// Prepare AI startup after stores exist.
+	prompts.startPrompts();
+	// Attach palette actions after the shell mounts.
+	compose.startCompose();
+	// Attach canvas interaction after DOM and stores exist.
+	interaction.startInteraction();
+	// Attach resize controls after canvas setup.
+	controls.startControls();
+	// Mount settings before its nested panels.
+	settings.startSettings();
+	// Mount chat inside the settings panel.
+	chatExchange.startChatExchange();
+	// Apply responsive layout after settings and shell mounts.
+	responsive.startResponsive();
+	// Mount the side panel before its ask panel.
+	map.startMap();
+	// Mount ask inside the side panel.
+	ask.startAsk();
+	// Create look editor state before it can be opened.
+	lookEditor.startLookEditor();
+	// Mount project and source panels after settings.
+	project.startProject();
+	// Create the library before its dependent panels.
+	library.startLibrary();
+	// Mount mindsets before its converter.
+	mindsets.startMindsets();
+	// Mount the converter inside mindsets.
+	converter.startConverter();
+	// Render the initial canvas and begin loading the library last.
+	boot.startBoot();
 }

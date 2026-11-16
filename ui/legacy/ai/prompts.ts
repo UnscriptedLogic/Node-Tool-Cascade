@@ -3,6 +3,7 @@ let chain: Promise<unknown> = Promise.resolve();
 let queued: number = 0;
 let stopReveal: boolean = false;
 
+import Mindsets from "../../../shared/mindsets.ts";
 import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { ensureVisible, setMode } from "../canvas/view.ts";
@@ -19,7 +20,6 @@ import {
 	TYPES,
 	WEB,
 } from "../core/constants.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DOM } from "../core/profiles.ts";
 import {
 	AI,
@@ -882,7 +882,7 @@ export const MOOD_WORDS: string[][] = [
 	["fear", "tension"],
 ];
 
-export function initialize() {
+export function startPrompts() {
 	(async () => {
 		await null; // let the rest of the script finish initialising before touching it
 		try {

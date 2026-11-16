@@ -9,14 +9,14 @@ import { pushHist, S } from "../core/state.ts";
 import { addNode, descendants, rebuildKM } from "../core/tree.ts";
 import { commit, focusControl, showNote } from "../ui/hud.ts";
 import { closeSettings } from "../ui/settings.ts";
-export let CHATUI = undefined,
-	CHAT_EXCHANGE = undefined;
+export let CHATUI = null,
+	CHAT_EXCHANGE = null;
 export function chatAction(name, ...args) {
 	flushSync(() => {
 		CHAT_EXCHANGE[name](...args);
 	});
 }
-export function initialize() {
+export function startChatExchange() {
 	CHATUI = proxy({
 		task: "",
 		reply: "",

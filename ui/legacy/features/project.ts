@@ -42,8 +42,8 @@ import { focusControl, setBusy, showNote } from "../ui/hud.ts";
 import { openSettings, postJSON, updatePreview } from "../ui/settings.ts";
 import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
-export let PROJECTUI = undefined,
-	SV = undefined;
+export let PROJECTUI = null,
+	SV = null;
 export async function fetchJSON(url: string | URL | Request) {
 	const r = await fetch(url);
 	let j: ApiReply = {};
@@ -867,7 +867,7 @@ export const pProg = (t: string, cls?: string) => {
 };
 export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 
-export function initialize() {
+export function startProject() {
 	PROJECTUI = proxy({
 		project: CONNECTION.project || {
 			has: false,

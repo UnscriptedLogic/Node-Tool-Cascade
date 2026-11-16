@@ -1,7 +1,7 @@
+import Mindsets from "../../../shared/mindsets.ts";
 import { hasBridgeGround } from "../ai/prompts.ts";
 import { ACT, ICONS, reduce, TICKET_LABEL } from "../core/constants.ts";
 import { world } from "../core/dom.ts";
-import { Mindsets } from "../core/mindsets.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, R, S, spawnAt } from "../core/state.ts";
 import {
@@ -20,7 +20,7 @@ import {
 	moodColor,
 	nodeW,
 } from "./look.ts";
-export let clsFor = undefined;
+export let clsFor = null;
 export /* ================= layout ================= */
 function syncDom(vis) {
 	for (const id in R) {
@@ -382,7 +382,7 @@ export function layout(initial: boolean) {
 	}
 	kick();
 }
-export function initialize() {
+export function startLayout() {
 	clsFor = (n, r) =>
 		[
 			"node",

@@ -36,7 +36,7 @@ export const state = {
 	nd: undefined,
 	lastTap: undefined,
 };
-export let ptrs = undefined;
+export let ptrs = null;
 export /* ================= canvas interaction ================= */
 function dragUi(on?: boolean) {
 	document.body.classList.toggle("dragging", on);
@@ -172,7 +172,7 @@ export function beginEdit(id, opts?) {
 	txt.addEventListener("blur", onBlur);
 	txt.addEventListener("keydown", onKey);
 }
-export function initialize() {
+export function startInteraction() {
 	document.addEventListener("selectstart", (e) => {
 		if (document.body.classList.contains("dragging")) e.preventDefault();
 	});
