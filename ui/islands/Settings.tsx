@@ -1,7 +1,19 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { version } from "../../package.json";
-import { call, getLegacy } from "../bridge.ts";
+import { MODE, PREFS } from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import { quitCascade } from "../legacy/core/server.ts";
+import { UI } from "../legacy/core/state.ts";
+import {
+	closeSettings,
+	onDataAction,
+	onWebAction,
+	SETTINGS,
+	STEER_HELP,
+	setPreference,
+	showTab,
+} from "../legacy/ui/settings.ts";
 import template from "../templates/settings-view.json";
 import Providers from "./Providers.tsx";
 
@@ -53,7 +65,6 @@ const style = (value) =>
 	);
 
 export default function Settings() {
-	const { PREFS, SETTINGS, DOMAINS, STEER_HELP, MODE, UI } = getLegacy();
 	const prefs = useSnapshot(PREFS, { sync: true }),
 		settings = useSnapshot(SETTINGS, { sync: true });
 	const shell = useSnapshot(UI, { sync: true }),
@@ -63,8 +74,7 @@ export default function Settings() {
 			!!shell.bye || (settings.open && settings.tab !== "look");
 	}, [shell.bye, settings.open, settings.tab]);
 	const domain = DOMAINS[prefs.domain] || DOMAINS.general;
-	const setPref = (key: string, value: number) =>
-		call("setPreference", key, value);
+	const setPref = (key: string, value: number) => setPreference(key, value);
 	function render(node, index, parent?) {
 		if (typeof node === "string") return node;
 		const { tag, attrs, children } = node,
@@ -123,8 +133,7 @@ export default function Settings() {
 		if (id === "dStats") props.hidden = !settings.analytics;
 		if (id === "dStatsOn") {
 			props.checked = settings.statsOn;
-			props.onChange = (e) =>
-				call("onDataAction", "stats", e.currentTarget.checked);
+			props.onChange = (e) => onDataAction("stats", e.currentTarget.checked);
 		}
 		if (id === "dMsg") content = [settings.dataMessage];
 		const dataAction = {
@@ -133,17 +142,17 @@ export default function Settings() {
 			dForgetKey: "forgetKey",
 			dWipeKeys: "wipeKeys",
 		}[id];
-		if (dataAction) props.onClick = () => call("onDataAction", dataAction);
+		if (dataAction) props.onClick = () => onDataAction(dataAction);
 		if (id === "dFile") {
 			props.ref = fileInput;
 			props.onChange = async (event) => {
 				const input = event.currentTarget;
-				await call("onDataAction", "import", input.files[0]);
+				await onDataAction("import", input.files[0]);
 				input.value = "";
 			};
 		}
 		if (id === "dImport") props.onClick = () => fileInput.current.click();
-		if (id === "sQuit") props.onClick = () => call("quitCascade");
+		if (id === "sQuit") props.onClick = () => quitCascade();
 		if (id === "sInfo") {
 			const server = settings.server?.server;
 			content = [
@@ -170,7 +179,7 @@ export default function Settings() {
 		if (id === "wDemoRadio" || id === "wOrRadio") {
 			props.checked = id === "wDemoRadio" ? !useRouter : useRouter;
 			props.onChange = () =>
-				call("onWebAction", id === "wDemoRadio" ? "demo" : "openrouter");
+				onWebAction(id === "wDemoRadio" ? "demo" : "openrouter");
 		}
 		if (id === "wDemoTag") {
 			props.hidden = useRouter;
@@ -204,8 +213,7 @@ export default function Settings() {
 			props.onInput = (e) => {
 				SETTINGS.webModelDraft = e.currentTarget.value;
 			};
-			props.onChange = (e) =>
-				call("onWebAction", "model", e.currentTarget.value);
+			props.onChange = (e) => onWebAction("model", e.currentTarget.value);
 		}
 		if (id === "ml-wor")
 			content = settings.webModels.map((model) => ({
@@ -225,7 +233,7 @@ export default function Settings() {
 			wOrFetch: "fetch",
 			wOrTest: "test",
 		}[id];
-		if (webAction) props.onClick = () => call("onWebAction", webAction);
+		if (webAction) props.onClick = () => onWebAction(webAction);
 		if (id === "wOrTest") props.disabled = settings.webBusy;
 		if (id === "settings") {
 			props.hidden = !settings.open;
@@ -234,9 +242,9 @@ export default function Settings() {
 		if (attrs.class === "spane") props.hidden = id !== `p-${settings.tab}`;
 		if (attrs["data-tab"]) {
 			props["aria-selected"] = String(settings.tab === attrs["data-tab"]);
-			props.onClick = () => call("showTab", attrs["data-tab"]);
+			props.onClick = () => showTab(attrs["data-tab"]);
 		}
-		if (id === "sClose") props.onClick = () => call("closeSettings");
+		if (id === "sClose") props.onClick = () => closeSettings();
 		if (textFields[id]) {
 			props.value = prefs[textFields[id]] || "";
 			props.onInput = (e) => setPref(textFields[id], e.currentTarget.value);
