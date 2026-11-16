@@ -1,10 +1,16 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { call, getLegacy } from "../bridge.ts";
+import { LOCAL } from "../legacy/core/constants.ts";
+import {
+	onProviderAction,
+	onProviderChange,
+	PROV,
+	PROV_ORDER,
+	SETTINGS,
+} from "../legacy/ui/settings.ts";
 
 export default function Providers() {
-	const { SETTINGS, PROV, PROV_ORDER, LOCAL } = getLegacy();
 	const state = useSnapshot(SETTINGS, { sync: true }),
 		server = state.server;
 	return (
@@ -94,16 +100,11 @@ export default function Providers() {
 								"button[data-act]",
 							);
 							if (button)
-								call(
-									"onProviderAction",
-									provider,
-									(button as HTMLElement).dataset.act,
-								);
+								onProviderAction(provider, (button as HTMLElement).dataset.act);
 						}}
 						onChange={(e) => {
 							const input = e.target;
-							call(
-								"onProviderChange",
+							onProviderChange(
 								provider,
 								(input as HTMLInputElement).type === "radio"
 									? "active"
