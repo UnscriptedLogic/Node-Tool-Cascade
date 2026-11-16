@@ -1,11 +1,20 @@
 import { useSnapshot } from "valtio";
-import { call, getLegacy } from "../bridge.ts";
 import LegacyTemplate from "../components/LegacyTemplate.tsx";
+import {
+	downloadConvertedMindset,
+	editMindsetSource,
+	generateMindsetDraft,
+	importConvertedMindset,
+	MSCONVERT,
+	readMindsetSources,
+	setConversionDomain,
+	setConversionField,
+	stopMindsetConversion,
+} from "../legacy/features/mindset-converter.ts";
 import template from "../templates/converter-view.json";
 
 export default function MindsetConverter() {
-	const { MSCONVERT } = getLegacy(),
-		ui = useSnapshot(MSCONVERT, { sync: true });
+	const ui = useSnapshot(MSCONVERT, { sync: true });
 	const bind = ({ tag, attrs }) => {
 		const id = attrs.id,
 			props: import("../components/LegacyTemplate.tsx").TemplateProps = {};
@@ -24,21 +33,17 @@ export default function MindsetConverter() {
 			props.value = ui[field];
 			props.onChange = () => {};
 			props.onInput = (e) =>
-				call(
-					field === "text" ? "editMindsetSource" : "setConversionField",
-					...(field === "text"
-						? [e.currentTarget.value]
-						: [field, e.currentTarget.value]),
-				);
+				field === "text"
+					? editMindsetSource(e.currentTarget.value)
+					: setConversionField(field, e.currentTarget.value);
 		}
 		if (tag === "input" && attrs.type === "checkbox") {
 			props.checked = ui.domains.includes(attrs.value);
 			props.onChange = (e) =>
-				call("setConversionDomain", attrs.value, e.currentTarget.checked);
+				setConversionDomain(attrs.value, e.currentTarget.checked);
 		}
 		if (id === "mcFiles")
-			props.onChange = (e) =>
-				call("readMindsetSources", [...e.currentTarget.files]);
+			props.onChange = (e) => readMindsetSources([...e.currentTarget.files]);
 		const text = {
 			mcStatus: "status",
 			mcSourceInfo: "info",
@@ -48,12 +53,12 @@ export default function MindsetConverter() {
 		if (id === "mcReview") props.hidden = !ui.draft;
 		if (id === "mcStop") props.hidden = !ui.busy;
 		const action = {
-			mcGenerate: "generateMindsetDraft",
-			mcStop: "stopMindsetConversion",
-			mcImport: "importConvertedMindset",
-			mcDownload: "downloadConvertedMindset",
+			mcGenerate: generateMindsetDraft,
+			mcStop: stopMindsetConversion,
+			mcImport: importConvertedMindset,
+			mcDownload: downloadConvertedMindset,
 		}[id];
-		if (action) props.onClick = () => call(action);
+		if (action) props.onClick = () => action();
 		return props;
 	};
 	return (
