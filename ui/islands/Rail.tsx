@@ -1,10 +1,20 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { call, getLegacy } from "../bridge.ts";
+import {
+	ICONS,
+	LABEL,
+	MOOD_KEYS,
+	MOODS,
+	PREFS,
+} from "../legacy/core/constants.ts";
+import { DOMAINS } from "../legacy/core/profiles.ts";
+import { UI } from "../legacy/core/state.ts";
+import { clearGraph, resetTree } from "../legacy/ui/actions.ts";
+import { openMoreMenu } from "../legacy/ui/responsive.ts";
+import { openSettings } from "../legacy/ui/settings.ts";
 
 export default function Rail() {
-	const { UI, PREFS, DOMAINS, LABEL, ICONS, MOOD_KEYS, MOODS } = getLegacy(),
-		ui = useSnapshot(UI, { sync: true }),
+	const ui = useSnapshot(UI, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true });
 	const library = ui.library,
 		signedIn = library && (library.kind === "local" || library.user),
@@ -32,7 +42,7 @@ export default function Rail() {
 							". Open the library."
 						: "This tree is not saved in your library. Open the library to save it."
 				}
-				onClick={() => call("openSettings", "library")}
+				onClick={() => openSettings("library")}
 			>
 				<span className="cf">{folder ? `${folder.name} / ` : ""}</span>
 				<span className="cn">
@@ -82,7 +92,7 @@ export default function Rail() {
 				type="button"
 				aria-label="More: menu"
 				onPointerDown={(e) => e.stopPropagation()}
-				onClick={() => call("openMoreMenu")}
+				onClick={() => openMoreMenu()}
 			>
 				<svg
 					viewBox="0 0 16 16"
@@ -103,7 +113,7 @@ export default function Rail() {
 					id="railLib"
 					type="button"
 					hidden={!library?.kind}
-					onClick={() => call("openSettings", "library")}
+					onClick={() => openSettings("library")}
 				>
 					Library
 				</Button>
@@ -111,7 +121,7 @@ export default function Rail() {
 					className="btn"
 					id="resetBtn"
 					type="button"
-					onClick={() => call("resetTree")}
+					onClick={() => resetTree()}
 				>
 					Load example
 				</Button>
@@ -119,7 +129,7 @@ export default function Rail() {
 					className="btn"
 					id="clearBtn"
 					type="button"
-					onClick={() => call("clearGraph")}
+					onClick={() => clearGraph()}
 				>
 					Clear graph
 				</Button>
