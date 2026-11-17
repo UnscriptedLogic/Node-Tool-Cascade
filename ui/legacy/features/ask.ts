@@ -25,6 +25,26 @@ import { setPreference } from "../ui/settings.ts";
 import { openSrcView, projectEvidence } from "./project.ts";
 export let AN = null,
 	AHIST = null;
+AN = proxy({
+	input: "",
+	next: false,
+	copyText: "Copy",
+	summaryBusy: false,
+	projectReady: false,
+	q: "",
+	verdict: "",
+	answer: "",
+	threads: [],
+	gaps: [],
+	sources: [],
+	basis: "",
+	summary: "",
+	summaryKind: "",
+	local: false,
+	ctl: null,
+	busy: false,
+});
+AHIST = proxy([]);
 export function linksText() {
 	return S.links
 		.filter((l) => S.nodes[l.a] && S.nodes[l.b])
@@ -501,26 +521,6 @@ export const VERDICT = {
 };
 
 export function startAsk() {
-	AN = proxy({
-		input: "",
-		next: false,
-		copyText: "Copy",
-		summaryBusy: false,
-		projectReady: false,
-		q: "",
-		verdict: "",
-		answer: "",
-		threads: [],
-		gaps: [],
-		sources: [],
-		basis: "",
-		summary: "",
-		summaryKind: "",
-		local: false,
-		ctl: null,
-		busy: false,
-	});
-	AHIST = proxy([]);
 	UI.ask = AN;
 	mount("ask", $("#askRoot"));
 }
