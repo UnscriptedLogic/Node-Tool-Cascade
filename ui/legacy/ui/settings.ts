@@ -38,6 +38,29 @@ import { focusControl, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
 export let SETTINGS = null;
+SETTINGS = proxy({
+	open: false,
+	tab: "ai",
+	preview: "",
+	server: CONNECTION.server,
+	drafts: {},
+	results: {},
+	models: {},
+	busy: {},
+	signingIn: false,
+	web: {
+		...CONNECTION.web,
+	},
+	webKeyDraft: "",
+	webModelDraft: CONNECTION.web.model,
+	webModels: [],
+	webBusy: false,
+	cloud: CONNECTION.cloud,
+	googleClientId: "",
+	analytics: false,
+	dataMessage: "",
+	statsOn: true,
+});
 export function setPreference(key: string, value: string | number | boolean) {
 	PREFS[key] = value;
 	savePrefs();
@@ -695,29 +718,6 @@ export const STEER_HELP = {
 };
 
 export function startSettings() {
-	SETTINGS = proxy({
-		open: false,
-		tab: "ai",
-		preview: "",
-		server: CONNECTION.server,
-		drafts: {},
-		results: {},
-		models: {},
-		busy: {},
-		signingIn: false,
-		web: {
-			...CONNECTION.web,
-		},
-		webKeyDraft: "",
-		webModelDraft: CONNECTION.web.model,
-		webModels: [],
-		webBusy: false,
-		cloud: CONNECTION.cloud,
-		googleClientId: "",
-		analytics: false,
-		dataMessage: "",
-		statsOn: true,
-	});
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);
