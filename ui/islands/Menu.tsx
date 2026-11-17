@@ -126,6 +126,7 @@ export default function Menu() {
 					aria-describedby={undefined}
 					onOpenAutoFocus={onOpenAutoFocus}
 					onCloseAutoFocus={onCloseAutoFocus}
+					onEscapeKeyDown={(event) => event.stopPropagation()}
 					onPointerDownOutside={onPointerDownOutside}
 					onFocusOutside={onFocusOutside}
 				>
@@ -147,6 +148,7 @@ export default function Menu() {
 				style={{ maxHeight: "calc(100dvh - 16px)" }}
 				onOpenAutoFocus={onOpenAutoFocus}
 				onCloseAutoFocus={onCloseAutoFocus}
+				onEscapeKeyDown={(event) => event.stopPropagation()}
 				onPointerDownOutside={onPointerDownOutside}
 				onFocusOutside={onFocusOutside}
 			>

@@ -1,14 +1,21 @@
+import { useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { useFocus } from "../hooks/useFocus.ts";
 import {
 	closeSrcView,
 	copySource,
+	onSourceKeyDown,
 	SV,
 	stepSource,
 } from "../legacy/features/project.ts";
 
 export default function SourceViewer() {
+	useEffect(() => {
+		window.addEventListener("keydown", onSourceKeyDown, true);
+		return () => window.removeEventListener("keydown", onSourceKeyDown, true);
+	}, []);
+
 	const close = useFocus<HTMLButtonElement>("sourceClose");
 	const source = useSnapshot(SV, { sync: true }),
 		current = source.list[source.i];

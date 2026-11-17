@@ -712,22 +712,20 @@ export const STEER_HELP = {
 	strong: "Everything is framed as a step toward the goal. Few tangents.",
 };
 
+export function onSettingsKeyDown(e: KeyboardEvent) {
+	if (e.key === "Escape" && SETTINGS.open && !SV.open) {
+		e.stopPropagation();
+		closeSettings();
+	}
+}
+
 export function startSettings() {
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);
 
 	/* --- wiring --- */
-	addEventListener(
-		"keydown",
-		(e) => {
-			if (e.key === "Escape" && SETTINGS.open && !SV.open) {
-				e.stopPropagation();
-				closeSettings();
-			}
-		},
-		true,
-	);
+
 	document.body.classList.add(`mode-${MODE}`);
 	if (LOCAL) {
 		updateProviders();

@@ -421,11 +421,10 @@ export const TYPE_ORDER = [
 ];
 
 export function startResponsive() {
-	addEventListener("resize", onResize);
-	addEventListener("orientationchange", onResize);
-	if (window.visualViewport)
-		visualViewport.addEventListener("resize", updateKeyboard);
-
 	state.tapSuppressed = false;
 	applyResponsive(true);
+}
+
+export function cancelViewportUpdate() {
+	clearTimeout(resizeTimer);
 }

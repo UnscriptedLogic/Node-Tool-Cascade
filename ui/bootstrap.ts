@@ -112,8 +112,6 @@ export function initialize() {
 	edges.startEdges();
 	// Attach canvas interaction after DOM and stores exist.
 	interaction.startInteraction();
-	// Attach resize controls after canvas setup.
-	controls.startControls();
 	// Start settings after canvas setup.
 	settings.startSettings();
 	// Prepare chat actions for the settings panel.

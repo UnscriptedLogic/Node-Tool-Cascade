@@ -1,10 +1,12 @@
 import { memo, useLayoutEffect, useRef } from "react";
+import { useViewport } from "../hooks/useViewport.ts";
 import Compose from "../islands/Compose.tsx";
 import Hud from "../islands/Hud.tsx";
 import SidePanel from "../islands/SidePanel.tsx";
 import { setCanvasElements } from "../legacy/core/dom.ts";
 
 export const CanvasHost = memo(function CanvasHost() {
+	useViewport();
 	const stage = useRef<HTMLElement>(null);
 	const world = useRef<HTMLDivElement>(null);
 	const eg = useRef<SVGGElement>(null);

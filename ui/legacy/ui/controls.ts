@@ -1,5 +1,5 @@
 import { cancelAI } from "../ai/prompts.ts";
-import { applyView, fitTo, zoomAt } from "../canvas/view.ts";
+import { fitTo, zoomAt } from "../canvas/view.ts";
 import { stage } from "../core/dom.ts";
 import { visibleIds } from "../core/tree.ts";
 import { isMobile } from "./responsive.ts";
@@ -21,7 +21,3 @@ export const stageCenter = () => ({
 	x: stage.clientWidth / 2,
 	y: stage.clientHeight / 2,
 });
-
-export function startControls() {
-	addEventListener("resize", applyView);
-}

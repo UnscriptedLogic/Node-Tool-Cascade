@@ -900,16 +900,13 @@ export const pProg = (t: string, cls?: string) => {
 };
 export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 
+export function onSourceKeyDown(e: KeyboardEvent) {
+	if (e.key === "Escape" && SV.open) {
+		e.stopImmediatePropagation();
+		closeSrcView();
+	}
+}
+
 export function startProject() {
-	addEventListener(
-		"keydown",
-		(e) => {
-			if (e.key === "Escape" && SV.open) {
-				e.stopImmediatePropagation();
-				closeSrcView();
-			}
-		},
-		true,
-	);
 	if (LOCAL) initProject();
 }
