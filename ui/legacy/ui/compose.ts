@@ -69,66 +69,61 @@ export function submitCompose() {
 		}
 	});
 }
-export function startCompose() {
-	document.querySelectorAll<HTMLElement>(".tile").forEach((t) => {
-		const type = (t as HTMLElement).dataset.type;
-		t.addEventListener("click", (e) => {
-			if (e.detail === 0) {
-				const sr = stage.getBoundingClientRect();
-				openCompose(type, sr.left + sr.width / 2, sr.top + sr.height / 2);
-			}
-		});
-		t.addEventListener("pointerdown", (e) => {
-			e.preventDefault();
-			dragUi(true);
-			const sx = e.clientX,
-				sy = e.clientY;
-			let moved = false,
-				chip: Node | null = null,
-				finished = false;
-			const mv = (ev) => {
-				if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 6) {
-					moved = true;
-					chip = t.cloneNode(true) as HTMLElement;
-					(chip as HTMLElement).id = "chip";
-					(chip as HTMLElement).removeAttribute("data-type");
-					(chip as HTMLElement).className = `blk t-${type}`;
-					(chip as HTMLElement).style.cssText = "";
-					(chip as HTMLElement).innerHTML =
-						`<span class="ico">${ICONS[type]}</span><span class="txt">${LABEL[type]}</span>`;
-					decorate(chip as HTMLElement, type, null, {
-						tile: true,
-					});
-					document.body.appendChild(chip);
-					stage.classList.add("droptarget");
-				}
-				if (chip)
-					(chip as HTMLElement).style.transform =
-						`translate(${ev.clientX + 10}px,${ev.clientY + 10}px)`;
-			};
-			const up = (ev) => {
-				if (finished) return;
-				finished = true;
-				dragUi(false);
-				removeEventListener("pointerup", up);
-				removeEventListener("pointermove", mv);
-				removeEventListener("pointercancel", up);
-				if (chip) (chip as HTMLElement).remove();
-				stage.classList.remove("droptarget");
-				const sr = stage.getBoundingClientRect();
-				const inside =
-					ev.clientX > sr.left &&
-					ev.clientX < sr.right &&
-					ev.clientY > sr.top &&
-					ev.clientY < sr.bottom;
-				if (!moved)
-					openCompose(type, sr.left + sr.width / 2, sr.top + sr.height / 2);
-				else if (inside && ev.type === "pointerup")
-					openCompose(type, ev.clientX, ev.clientY);
-			};
-			addEventListener("pointermove", mv);
-			addEventListener("pointerup", up);
-			addEventListener("pointercancel", up);
-		});
-	});
+export function startTileDrag(
+	e: Pick<PointerEvent, "preventDefault" | "clientX" | "clientY"> & {
+		currentTarget: EventTarget;
+	},
+	type: string,
+) {
+	const t = e.currentTarget as HTMLElement;
+	e.preventDefault();
+	dragUi(true);
+	const sx = e.clientX,
+		sy = e.clientY;
+	let moved = false,
+		chip: Node | null = null,
+		finished = false;
+	const mv = (ev) => {
+		if (!moved && Math.hypot(ev.clientX - sx, ev.clientY - sy) > 6) {
+			moved = true;
+			chip = t.cloneNode(true) as HTMLElement;
+			(chip as HTMLElement).id = "chip";
+			(chip as HTMLElement).removeAttribute("data-type");
+			(chip as HTMLElement).className = `blk t-${type}`;
+			(chip as HTMLElement).style.cssText = "";
+			(chip as HTMLElement).innerHTML =
+				`<span class="ico">${ICONS[type]}</span><span class="txt">${LABEL[type]}</span>`;
+			decorate(chip as HTMLElement, type, null, {
+				tile: true,
+			});
+			document.body.appendChild(chip);
+			stage.classList.add("droptarget");
+		}
+		if (chip)
+			(chip as HTMLElement).style.transform =
+				`translate(${ev.clientX + 10}px,${ev.clientY + 10}px)`;
+	};
+	const up = (ev) => {
+		if (finished) return;
+		finished = true;
+		dragUi(false);
+		removeEventListener("pointerup", up);
+		removeEventListener("pointermove", mv);
+		removeEventListener("pointercancel", up);
+		if (chip) (chip as HTMLElement).remove();
+		stage.classList.remove("droptarget");
+		const sr = stage.getBoundingClientRect();
+		const inside =
+			ev.clientX > sr.left &&
+			ev.clientX < sr.right &&
+			ev.clientY > sr.top &&
+			ev.clientY < sr.bottom;
+		if (!moved)
+			openCompose(type, sr.left + sr.width / 2, sr.top + sr.height / 2);
+		else if (inside && ev.type === "pointerup")
+			openCompose(type, ev.clientX, ev.clientY);
+	};
+	addEventListener("pointermove", mv);
+	addEventListener("pointerup", up);
+	addEventListener("pointercancel", up);
 }

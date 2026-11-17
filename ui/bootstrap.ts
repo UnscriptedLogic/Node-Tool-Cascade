@@ -110,8 +110,6 @@ export function initialize() {
 	layout.startLayout();
 	// Prepare edge rendering before interaction starts.
 	edges.startEdges();
-	// Attach palette actions after the shell mounts.
-	compose.startCompose();
 	// Attach canvas interaction after DOM and stores exist.
 	interaction.startInteraction();
 	// Attach resize controls after canvas setup.

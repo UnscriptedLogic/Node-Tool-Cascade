@@ -7,9 +7,11 @@ import {
 	MOODS,
 	PREFS,
 } from "../legacy/core/constants.ts";
+import { stage } from "../legacy/core/dom.ts";
 import { DOMAINS } from "../legacy/core/profiles.ts";
 import { UI } from "../legacy/core/state.ts";
 import { clearGraph, resetTree } from "../legacy/ui/actions.ts";
+import { openCompose, startTileDrag } from "../legacy/ui/compose.ts";
 import { openMoreMenu } from "../legacy/ui/responsive.ts";
 import { openSettings } from "../legacy/ui/settings.ts";
 
@@ -64,6 +66,17 @@ export default function Rail() {
 						data-type={type}
 						type="button"
 						key={type}
+						onClick={(e) => {
+							if (e.detail === 0) {
+								const sr = stage.getBoundingClientRect();
+								openCompose(
+									type,
+									sr.left + sr.width / 2,
+									sr.top + sr.height / 2,
+								);
+							}
+						}}
+						onPointerDown={(e) => startTileDrag(e, type)}
 					>
 						<span
 							className="ico"
