@@ -1,6 +1,7 @@
 import { useLayoutEffect } from "react";
 import { useSnapshot } from "valtio";
 import { version } from "../../../package.json";
+import { useFocus } from "../../hooks/useFocus.ts";
 import { MODE } from "../../legacy/core/constants.ts";
 import { UI } from "../../legacy/core/state.ts";
 import { closeSettings, SETTINGS, showTab } from "../../legacy/ui/settings.ts";
@@ -24,6 +25,7 @@ const tabs: readonly { value: string; label: string; modes?: string }[] = [
 	{ value: "data", label: "Data", modes: "local web" },
 ];
 export default function SettingsDialog() {
+	const close = useFocus<HTMLButtonElement>("settingsClose");
 	const settings = useSnapshot(SETTINGS, { sync: true }),
 		shell = useSnapshot(UI, { sync: true });
 	useLayoutEffect(() => {
@@ -49,6 +51,7 @@ export default function SettingsDialog() {
 						<button
 							className="btn primary"
 							id="sClose"
+							ref={close}
 							type="button"
 							onClick={() => closeSettings()}
 						>

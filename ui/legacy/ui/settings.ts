@@ -32,7 +32,7 @@ import { initServer } from "../core/server.ts";
 import { AI, pushHist, S, save, snap, UI } from "../core/state.ts";
 import { loadProjectData, SV } from "../features/project.ts";
 import { clearGraph, initialView } from "./actions.ts";
-import { focusControl, showNote } from "./hud.ts";
+import { requestFocus, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
 export let SETTINGS = null;
@@ -138,11 +138,11 @@ export function openSettings(tab?: string) {
 	updateWeb();
 	SETTINGS.open = true;
 	showTab(tab || SETTINGS.tab);
-	focusControl("sClose");
+	requestFocus(tab === "goal" ? "goal" : "settingsClose");
 }
 export function closeSettings() {
 	SETTINGS.open = false;
-	focusControl("setBtn");
+	requestFocus("settingsButton");
 }
 
 /* --- preferences --- */

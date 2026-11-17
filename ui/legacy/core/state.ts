@@ -162,7 +162,6 @@ AI = proxy({
 	off: false,
 });
 UI = proxy({
-	focus: null,
 	bye: false,
 	busy: null,
 	stoppable: false,

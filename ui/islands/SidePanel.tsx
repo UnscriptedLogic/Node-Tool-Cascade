@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import Mindsets from "../../shared/mindsets.ts";
+import { useFocus } from "../hooks/useFocus.ts";
 import { PREFS, TICKET_ASK, TICKET_LABEL } from "../legacy/core/constants.ts";
 import { S } from "../legacy/core/state.ts";
 import {
@@ -122,6 +123,7 @@ function Card({ card, hidden }) {
 }
 
 export default function SidePanel() {
+	const destination = useFocus<HTMLTextAreaElement>("mapDestination");
 	const panel = useSnapshot(PANEL, { sync: true }),
 		grill = useSnapshot(G, { sync: true }),
 		state = useSnapshot(S, { sync: true }),
@@ -259,6 +261,7 @@ export default function SidePanel() {
 						<h4>Destination</h4>
 						<textarea
 							id="mDest"
+							ref={destination}
 							className="area"
 							rows={2}
 							maxLength={600}

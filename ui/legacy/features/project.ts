@@ -29,7 +29,7 @@ import { CONNECTION, LOCAL, PREFS, sleep, TICKETS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { AI, pushHist, S, save, UI } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
-import { focusControl, setBusy, showNote } from "../ui/hud.ts";
+import { requestFocus, setBusy, showNote } from "../ui/hud.ts";
 import { openSettings, postJSON, updatePreview } from "../ui/settings.ts";
 import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
@@ -161,7 +161,7 @@ export function openSrcView(list, i) {
 	SV.i = i || 0;
 	SV.open = true;
 	showSrc();
-	focusControl("svClose");
+	requestFocus("sourceClose");
 }
 export function stepSource(direction) {
 	SV.i = (SV.i + SV.list.length + direction) % SV.list.length;

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { useFocus } from "../hooks/useFocus.ts";
 import { nodeActions } from "../legacy/canvas/layout.ts";
 import { setMode } from "../legacy/canvas/view.ts";
 import {
@@ -10,6 +11,7 @@ import {
 	PREFS,
 	WEB,
 } from "../legacy/core/constants.ts";
+import { stage } from "../legacy/core/dom.ts";
 import { AI, hist, S, UI } from "../legacy/core/state.ts";
 import { isOuter } from "../legacy/core/tree.ts";
 import { clearAskHighlight } from "../legacy/features/ask.ts";
@@ -21,6 +23,7 @@ import { runNodeAction, SHORT } from "../legacy/ui/responsive.ts";
 import { openSettings } from "../legacy/ui/settings.ts";
 
 export default function Hud() {
+	const settingsButton = useFocus<HTMLButtonElement>("settingsButton");
 	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		ui = useSnapshot(UI, { sync: true }),
@@ -84,15 +87,9 @@ export default function Hud() {
 			hasKids,
 		],
 	);
+
 	useLayoutEffect(() => {
-		if (ui.focus) {
-			const element = document.getElementById(ui.focus.id);
-			element?.focus();
-			if (ui.focus.select) (element as HTMLInputElement)?.select();
-		}
-	}, [ui.focus]);
-	useLayoutEffect(() => {
-		document.getElementById("stage").classList.toggle("nb", showBar);
+		stage?.classList.toggle("nb", showBar);
 	}, [showBar]);
 	const barSignature = showBar
 		? `${state.sel}|${actions.map((action) => action[0] + action[1]).join()}`
@@ -152,7 +149,6 @@ export default function Hud() {
 				title={goal || "Set an overarching goal to steer the questions"}
 				onClick={() => {
 					openSettings("goal");
-					setTimeout(() => document.getElementById("gGoal").focus(), 30);
 				}}
 			>
 				<span className="gl">{goal ? "Goal" : "No goal set"}</span>
@@ -265,6 +261,7 @@ export default function Hud() {
 				<Button
 					className="btn iconbtn"
 					id="setBtn"
+					ref={settingsButton}
 					type="button"
 					aria-label="Settings"
 					title={ui.settingsTitle}

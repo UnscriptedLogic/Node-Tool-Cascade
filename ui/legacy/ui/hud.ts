@@ -1,3 +1,5 @@
+import { type FocusTarget, focusRequest } from "../../stores/focus.ts";
+
 let noteTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { flushSync } from "react-dom";
@@ -30,9 +32,10 @@ export function select(id: string | null) {
 	restyle();
 	kick();
 }
-export function focusControl(id: string, select?: boolean) {
-	UI.focus = {
-		id,
+export function requestFocus(target: FocusTarget, select?: boolean) {
+	Object.assign(focusRequest, {
+		target,
 		select: !!select,
-	};
+		revision: focusRequest.revision + 1,
+	});
 }

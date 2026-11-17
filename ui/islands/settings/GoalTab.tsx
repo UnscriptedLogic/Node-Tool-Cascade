@@ -1,6 +1,7 @@
 import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useFocus } from "../../hooks/useFocus.ts";
 import { PREFS } from "../../legacy/core/constants.ts";
 import { DOMAINS } from "../../legacy/core/profiles.ts";
 import {
@@ -9,6 +10,7 @@ import {
 	setPreference,
 } from "../../legacy/ui/settings.ts";
 export default function GoalTab() {
+	const goal = useFocus<HTMLTextAreaElement>("goal");
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });
 	const domain = DOMAINS[prefs.domain] || DOMAINS.general;
@@ -47,6 +49,7 @@ export default function GoalTab() {
 				<Label htmlFor="gGoal">{"Overarching goal"}</Label>
 				<Textarea
 					id="gGoal"
+					ref={goal}
 					rows={3}
 					maxLength={600}
 					placeholder={domain.goalPlaceholder || ""}

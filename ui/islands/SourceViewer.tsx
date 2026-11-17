@@ -1,5 +1,6 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { useFocus } from "../hooks/useFocus.ts";
 import {
 	closeSrcView,
 	copySource,
@@ -8,6 +9,7 @@ import {
 } from "../legacy/features/project.ts";
 
 export default function SourceViewer() {
+	const close = useFocus<HTMLButtonElement>("sourceClose");
 	const source = useSnapshot(SV, { sync: true }),
 		current = source.list[source.i];
 	return (
@@ -31,6 +33,7 @@ export default function SourceViewer() {
 					<Button
 						className="btn"
 						id="svClose"
+						ref={close}
 						type="button"
 						onClick={() => closeSrcView()}
 					>

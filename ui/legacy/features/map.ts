@@ -20,7 +20,7 @@ import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
 import { addNode, blockCycle, computeMap, expandChain } from "../core/tree.ts";
-import { commit, focusControl, select, showNote } from "../ui/hud.ts";
+import { commit, requestFocus, select, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
@@ -191,7 +191,7 @@ export function chartMap() {
 	if (!(PREFS.goal || "").trim()) {
 		PANEL.hint =
 			"Name the destination first. Everything on the map is measured against it.";
-		focusControl("mDest");
+		requestFocus("mapDestination");
 		return;
 	}
 	if (!aiAvailable()) {

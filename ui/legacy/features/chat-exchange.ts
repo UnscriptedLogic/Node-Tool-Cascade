@@ -5,7 +5,7 @@ import { PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { pushHist, S } from "../core/state.ts";
 import { addNode, descendants, rebuildKM } from "../core/tree.ts";
-import { commit, focusControl, showNote } from "../ui/hud.ts";
+import { commit, requestFocus, showNote } from "../ui/hud.ts";
 import { closeSettings } from "../ui/settings.ts";
 export let CHATUI = null,
 	CHAT_EXCHANGE = null;
@@ -211,7 +211,7 @@ export function startChatExchange() {
 				await navigator.clipboard.writeText(CHATUI.prompt);
 				status("Prompt copied. Paste it into your chat.");
 			} catch {
-				focusControl("chatPrompt", true);
+				requestFocus("chatPrompt", true);
 				status("Select and copy the prompt manually.");
 			}
 		}
