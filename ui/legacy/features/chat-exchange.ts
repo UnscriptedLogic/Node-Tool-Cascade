@@ -10,20 +10,20 @@ import { commit, focusControl, showNote } from "../ui/hud.ts";
 import { closeSettings } from "../ui/settings.ts";
 export let CHATUI = null,
 	CHAT_EXCHANGE = null;
+CHATUI = proxy({
+	task: "",
+	reply: "",
+	prompt: "",
+	status: "",
+	steps: false,
+	draft: [],
+});
 export function chatAction(name, ...args) {
 	flushSync(() => {
 		CHAT_EXCHANGE[name](...args);
 	});
 }
 export function startChatExchange() {
-	CHATUI = proxy({
-		task: "",
-		reply: "",
-		prompt: "",
-		status: "",
-		steps: false,
-		draft: [],
-	});
 	CHAT_EXCHANGE = (() => {
 		let context = null,
 			draft = null;
