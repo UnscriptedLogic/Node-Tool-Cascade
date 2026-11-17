@@ -18,6 +18,7 @@ CHATUI = proxy({
 	draft: [],
 });
 export function chatAction(name, ...args) {
+	// The next chat action reads the rendered review controls (test/chat-exchange.test.ts:29).
 	flushSync(() => {
 		CHAT_EXCHANGE[name](...args);
 	});

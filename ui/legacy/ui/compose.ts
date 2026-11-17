@@ -14,6 +14,7 @@ import { UI } from "../core/state.ts";
 import { setBusy } from "./hud.ts";
 /* ================= compose + palette ================= */
 export function closeCompose() {
+	// Native Escape must also commit the pending menu closure (test/mobile.test.ts:233).
 	flushSync(() => {
 		UI.compose.open = false;
 	});
@@ -23,6 +24,7 @@ export function openCompose(type, cx, cy) {
 		w = Math.min(300, sr.width - 24);
 	const x = clamp(cx - sr.left - 24, 12, sr.width - w - 12),
 		y = clamp(cy - sr.top - 24, 100, Math.max(100, sr.height - 190));
+	// The caller reads the composer placement before returning (test/mobile.test.ts:39).
 	flushSync(() => {
 		Object.assign(UI.compose, {
 			type,

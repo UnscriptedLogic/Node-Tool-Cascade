@@ -1,4 +1,3 @@
-import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
 import {
 	aiAvailable,
@@ -201,9 +200,7 @@ export function localAnalyse(q) {
 	};
 }
 export function setAskBusy(on: boolean) {
-	flushSync(() => {
-		AN.busy = on;
-	});
+	AN.busy = on;
 }
 export async function runAsk(q) {
 	q = (q || "").trim();

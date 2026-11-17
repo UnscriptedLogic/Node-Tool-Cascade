@@ -636,6 +636,7 @@ export function lkRefreshBar() {
 	LK.revision++;
 }
 export function lkRefresh() {
+	// The next event needs the newly built Look controls (test/look.test.ts:29).
 	flushSync(() => {
 		LK.revision++;
 		if (!LK.textFocused)
@@ -643,9 +644,7 @@ export function lkRefresh() {
 	});
 }
 export function lkShowTab(tab) {
-	flushSync(() => {
-		LK.tab = tab;
-	});
+	LK.tab = tab;
 	lkRefresh();
 }
 export function ensureLookUI() {

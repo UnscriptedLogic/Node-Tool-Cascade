@@ -124,6 +124,7 @@ export async function projectEvidence(q: string, k: number) {
 
 /* --- source viewer --- */
 export function closeSrcView() {
+	// Escape must hide the source viewer before its listener returns (test/project.ui.test.ts:407).
 	flushSync(() => {
 		SV.open = false;
 		SV.request++;
@@ -156,11 +157,9 @@ export async function showSrc() {
 }
 export function openSrcView(list, i) {
 	if (!list.length) return;
-	flushSync(() => {
-		SV.list = list;
-		SV.i = i || 0;
-		SV.open = true;
-	});
+	SV.list = list;
+	SV.i = i || 0;
+	SV.open = true;
 	showSrc();
 	focusControl("svClose");
 }

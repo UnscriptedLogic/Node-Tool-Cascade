@@ -1,4 +1,3 @@
-import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
 import {
 	aiAvailable,
@@ -54,25 +53,19 @@ G = proxy({
 	seq: 0,
 });
 export function showStab(t: string) {
-	flushSync(() => {
-		PANEL.tab = t;
-	});
+	PANEL.tab = t;
 	S.layer = t !== "ask";
 	layout(false);
 	applyView();
 	if (t === "map") renderMap();
 }
 export function openSide(tab: string) {
-	flushSync(() => {
-		PANEL.open = true;
-	});
+	PANEL.open = true;
 	(stage as HTMLElement).style.setProperty("--drawer", `${drawerW()}px`);
 	showStab(tab || PANEL.tab);
 }
 export function closeSide() {
-	flushSync(() => {
-		PANEL.open = false;
-	});
+	PANEL.open = false;
 	S.layer = false;
 	coreStateState.linkFrom = null;
 	(stage as HTMLElement).style.setProperty("--drawer", "0px");
@@ -176,9 +169,7 @@ export function finishBlock(blockerId?) {
 export function renderMap() {
 	PANEL.hint = "";
 	coreStateState.MAP = computeMap();
-	flushSync(() => {
-		PANEL.map = coreStateState.MAP;
-	});
+	PANEL.map = coreStateState.MAP;
 }
 export function mapAction(id, action) {
 	if (!action) focusNode(id);

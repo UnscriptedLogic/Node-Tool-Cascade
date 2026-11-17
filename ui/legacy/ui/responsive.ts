@@ -64,10 +64,8 @@ export function applyResponsive(force: boolean) {
 	cl.toggle("m-standard", small && choice === "standard");
 	cl.toggle("m-minimal", small && choice === "minimal");
 	closeMenu();
-	flushSync(() => {
-		UI.small = small;
-		UI.minimal = small && choice === "minimal";
-	});
+	UI.small = small;
+	UI.minimal = small && choice === "minimal";
 	if (small && choice === "minimal") hintMinimal();
 	if (!first)
 		try {
@@ -150,9 +148,7 @@ export function setMenuElement(element?: undefined) {
 	menuEl = element;
 }
 export function closeMenu() {
-	flushSync(() => {
-		UI.menu = null;
-	});
+	UI.menu = null;
 	menuSpec = null;
 	document.removeEventListener("pointerdown", menuOutside, true);
 	document.removeEventListener("keydown", menuKey, true);
@@ -181,6 +177,7 @@ export function openMenu(spec, at) {
 		at,
 		focus: !hadMenu,
 	};
+	// The next menu click needs the rendered items (test/mobile.test.ts:144).
 	flushSync(() => {
 		UI.menu = ref(menuSpec);
 	});

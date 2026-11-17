@@ -6,12 +6,11 @@ import { layout, restyle } from "../canvas/layout.ts";
 import { S, save, UI } from "../core/state.ts";
 /* ================= transient UI actions ================= */
 export function setBusy(message: string | null, stoppable?: boolean) {
-	flushSync(() => {
-		UI.busy = message;
-		UI.stoppable = !!stoppable;
-	});
+	UI.busy = message;
+	UI.stoppable = !!stoppable;
 }
 export function showNote(parts, withUndo) {
+	// Source-label clicks read the note before returning (test/mindsets.test.ts:311).
 	flushSync(() => {
 		UI.note = parts;
 		UI.noteUndo = !!withUndo;
@@ -32,10 +31,8 @@ export function select(id: string | null) {
 	kick();
 }
 export function focusControl(id: string, select?: boolean) {
-	flushSync(() => {
-		UI.focus = {
-			id,
-			select: !!select,
-		};
-	});
+	UI.focus = {
+		id,
+		select: !!select,
+	};
 }

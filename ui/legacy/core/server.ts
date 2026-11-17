@@ -1,12 +1,9 @@
-import { flushSync } from "react-dom";
 import { postJSON, SETTINGS } from "../ui/settings.ts";
 import { UI } from "./state.ts";
 /* ================= server lifecycle (local version) ================= */
 export function showBye() {
 	UI.bye = true;
-	flushSync(() => {
-		SETTINGS.open = false;
-	});
+	SETTINGS.open = false;
 }
 export function initServer() {
 	const cid = Math.random().toString(36).slice(2);

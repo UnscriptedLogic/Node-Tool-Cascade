@@ -126,6 +126,7 @@ export function showTab(n: string) {
 				/* The settings panel remains usable if project loading is unavailable. */
 			}
 		}, 0);
+	// Tab clicks must update sheet mode and inert before returning (test/look.test.ts:101).
 	flushSync(() => {
 		SETTINGS.tab = n;
 	});
@@ -135,16 +136,12 @@ export function openSettings(tab?: string) {
 	updatePreview();
 	updateProviders();
 	updateWeb();
-	flushSync(() => {
-		SETTINGS.open = true;
-	});
+	SETTINGS.open = true;
 	showTab(tab || SETTINGS.tab);
 	focusControl("sClose");
 }
 export function closeSettings() {
-	flushSync(() => {
-		SETTINGS.open = false;
-	});
+	SETTINGS.open = false;
 	focusControl("setBtn");
 }
 
