@@ -16,6 +16,25 @@ import { $, LOCAL, WEB } from "../core/constants.ts";
 import { setBusy } from "../ui/hud.ts";
 import { downloadMindset, importMindsets } from "./mindsets.ts";
 export let MSCONVERT = null;
+MSCONVERT = proxy({
+	ctl: null,
+	units: null,
+	warnings: [],
+	draft: null,
+	task: null,
+	busy: false,
+	status: "",
+	info: "",
+	report: "",
+	name: "",
+	title: "",
+	edition: "",
+	url: "",
+	limit: "100",
+	text: "",
+	json: "",
+	domains: [],
+});
 export function conversionBusy(on: boolean) {
 	MSCONVERT.busy = on;
 }
@@ -410,24 +429,5 @@ export function downloadConvertedMindset() {
 	}
 }
 export function startConverter() {
-	MSCONVERT = proxy({
-		ctl: null,
-		units: null,
-		warnings: [],
-		draft: null,
-		task: null,
-		busy: false,
-		status: "",
-		info: "",
-		report: "",
-		name: "",
-		title: "",
-		edition: "",
-		url: "",
-		limit: "100",
-		text: "",
-		json: "",
-		domains: [],
-	});
 	mount("converter", $("#converterRoot"));
 }
