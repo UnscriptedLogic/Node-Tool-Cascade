@@ -11,6 +11,7 @@ import {
 	AI,
 	state as coreStateState,
 	hist,
+	onTreeSaved,
 	S,
 	save,
 	snap,
@@ -25,6 +26,7 @@ import {
 	updateProviders,
 } from "../ui/settings.ts";
 export let LIB = null;
+onTreeSaved(libAfterSave);
 export async function libApi(method, path, body?) {
 	const r = await fetch(`/api/${path}`, {
 		method,

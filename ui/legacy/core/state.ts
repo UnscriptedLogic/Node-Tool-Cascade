@@ -3,9 +3,14 @@ let saveTimer: ReturnType<typeof setTimeout> | undefined;
 import { proxy, ref } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
 import type { CascadeTree, Point, RenderedNode } from "../../model.ts";
-import { libAfterSave } from "../features/library.ts";
 import { KEY, LOCAL } from "./constants.ts";
 import { DOM } from "./profiles.ts";
+
+const saveListeners = new Set<() => void>();
+export function onTreeSaved(fn: () => void) {
+	saveListeners.add(fn);
+}
+
 export const state = {
 	KM: undefined,
 	flashId: undefined,
@@ -52,7 +57,7 @@ export function save() {
 	try {
 		localStorage.setItem(KEY, payload);
 	} catch {}
-	libAfterSave();
+	for (const listener of saveListeners) listener();
 	if (LOCAL) {
 		clearTimeout(saveTimer);
 		saveTimer = setTimeout(() => {
