@@ -43,6 +43,37 @@ import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
 export let PROJECTUI = null,
 	SV = null;
+PROJECTUI = proxy({
+	project: CONNECTION.project || {
+		has: false,
+	},
+	path: CONNECTION.project?.root || "",
+	ignore: "",
+	include: "",
+	brief: CONNECTION.project?.brief || "",
+	depth: "standard",
+	busy: false,
+	scanBusy: false,
+	message: "",
+	messageClass: "",
+	progress: "",
+	progressClass: "",
+	detail: "",
+	estimate: "",
+	buildLabel: "Build brief",
+	canRestore: false,
+});
+SV = proxy({
+	list: [],
+	i: 0,
+	open: false,
+	loading: false,
+	lines: [],
+	error: "",
+	copyText: "Copy path",
+	request: 0,
+});
+
 export async function fetchJSON(url: string | URL | Request) {
 	const r = await fetch(url);
 	let j: ApiReply = {};
@@ -879,37 +910,8 @@ export const pProg = (t: string, cls?: string) => {
 export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 
 export function startProject() {
-	PROJECTUI = proxy({
-		project: CONNECTION.project || {
-			has: false,
-		},
-		path: CONNECTION.project?.root || "",
-		ignore: "",
-		include: "",
-		brief: CONNECTION.project?.brief || "",
-		depth: "standard",
-		busy: false,
-		scanBusy: false,
-		message: "",
-		messageClass: "",
-		progress: "",
-		progressClass: "",
-		detail: "",
-		estimate: "",
-		buildLabel: "Build brief",
-		canRestore: false,
-	});
 	mount("project", $("#projectRoot"));
-	SV = proxy({
-		list: [],
-		i: 0,
-		open: false,
-		loading: false,
-		lines: [],
-		error: "",
-		copyText: "Copy path",
-		request: 0,
-	});
+
 	mount("source", $("#sourceRoot"));
 	addEventListener(
 		"keydown",
