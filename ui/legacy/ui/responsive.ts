@@ -1,7 +1,6 @@
 let lastSmall: boolean | null = null;
 let lastChoice: string | null = null;
 let resizeTimer: ReturnType<typeof setTimeout> | undefined;
-let menuEl: HTMLElement | null = null;
 let menuSpec = null;
 
 import { flushSync } from "react-dom";
@@ -144,26 +143,9 @@ export function runNodeAction(act: string, id) {
 
 /* ---------- standard layout: the strip of actions for the selected block ---------- */
 /* ---------- context menu: popover at a point (minimal) or bottom sheet (standard's "more") ---------- */
-export function setMenuElement(element?: undefined) {
-	menuEl = element;
-}
 export function closeMenu() {
 	UI.menu = null;
 	menuSpec = null;
-	document.removeEventListener("pointerdown", menuOutside, true);
-	document.removeEventListener("keydown", menuKey, true);
-}
-export function menuOutside(e) {
-	if (menuEl && !menuEl.contains(e.target)) {
-		state.tapSuppressed = true;
-		closeMenu();
-	}
-}
-export function menuKey(e) {
-	if (e.key === "Escape") {
-		e.stopPropagation();
-		closeMenu();
-	}
 }
 export function openMenu(spec, at) {
 	at = at ||
@@ -181,10 +163,6 @@ export function openMenu(spec, at) {
 	flushSync(() => {
 		UI.menu = ref(menuSpec);
 	});
-	if (!hadMenu) {
-		document.addEventListener("pointerdown", menuOutside, true);
-		document.addEventListener("keydown", menuKey, true);
-	}
 }
 export function chooseMenuItem(index) {
 	const { spec, at } = menuSpec,

@@ -1,103 +1,157 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { flushSync } from "react-dom";
 import { useSnapshot } from "valtio";
+import {
+	Popover,
+	PopoverAnchor,
+	PopoverContent,
+} from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { UI } from "../legacy/core/state.ts";
 import {
 	backMenu,
 	chooseMenuItem,
-	setMenuElement,
+	closeMenu,
+	state as responsiveState,
 } from "../legacy/ui/responsive.ts";
 
-export default function Menu() {
-	const ui = useSnapshot(UI, { sync: true }),
-		element = useRef(null),
-		menu = ui.menu;
-	useLayoutEffect(() => {
-		if (!menu) return;
-		setMenuElement(element.current);
-		const node = element.current,
-			pad = 8;
-		if (!menu.at.sheet) {
-			node.style.maxHeight = `${window.innerHeight - 2 * pad}px`;
-			const width = node.offsetWidth,
-				height = node.offsetHeight;
-			const x = Math.min(
-				Math.max(pad, menu.at.x - width / 2),
-				window.innerWidth - width - pad,
-			);
-			let y = menu.at.y + 10;
-			if (y + height > window.innerHeight - pad)
-				y = Math.max(
-					pad,
-					Math.min(menu.at.y - height - 10, window.innerHeight - height - pad),
-				);
-			node.style.left = `${x}px`;
-			node.style.top = `${y}px`;
-		}
-		if (menu.focus)
-			node
-				.querySelector("button:not([disabled])")
-				?.focus({ preventScroll: true });
-	}, [menu]);
-	if (!menu) return null;
-	const { spec, at } = menu;
+function MenuItems({ spec, first }) {
+	const firstIndex = spec.items.findIndex(
+		(item) => !item.sep && !item.disabled,
+	);
 	return (
 		<>
-			{at.sheet && <div id="ctxBack" />}
-			<div
-				ref={element}
-				id="ctx"
-				role="menu"
-				className={at.sheet ? "sheet" : ""}
-			>
-				{(spec.back || spec.title) && (
-					<div className="ctx-head">
-						{spec.back && (
-							<button
-								type="button"
-								className="ctx-back"
-								aria-label="Back"
-								onClick={() => backMenu()}
-							>
-								<svg
-									viewBox="0 0 16 16"
-									width="15"
-									height="15"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="1.5"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									aria-hidden="true"
-								>
-									<path d="M10 3 5 8l5 5" />
-								</svg>
-							</button>
-						)}
-						<span className="ctx-title">{spec.title || ""}</span>
-					</div>
-				)}
-				{spec.items.map((item, i) =>
-					item.sep ? (
-						<div className="ctx-sep" key={i} />
-					) : (
+			{(spec.back || spec.title) && (
+				<div className="ctx-head">
+					{spec.back && (
 						<button
 							type="button"
-							role="menuitem"
-							key={i}
-							disabled={!!item.disabled}
-							className={item.danger ? "danger" : undefined}
-							onClick={() => chooseMenuItem(i)}
+							className="ctx-back"
+							ref={first}
+							aria-label="Back"
+							onClick={() => backMenu()}
 						>
-							<span
-								className="ic"
-								dangerouslySetInnerHTML={{ __html: item.icon || "" }}
-							/>
-							<span className="lb">{item.label}</span>
-							{item.sub && <span className="chev">›</span>}
+							<svg
+								viewBox="0 0 16 16"
+								width="15"
+								height="15"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								aria-hidden="true"
+							>
+								<path d="M10 3 5 8l5 5" />
+							</svg>
 						</button>
-					),
-				)}
-			</div>
+					)}
+					<span className="ctx-title">{spec.title || ""}</span>
+				</div>
+			)}
+			{spec.items.map((item, i) =>
+				item.sep ? (
+					<div className="ctx-sep" key={i} />
+				) : (
+					<button
+						type="button"
+						role="menuitem"
+						key={i}
+						ref={!spec.back && i === firstIndex ? first : undefined}
+						disabled={!!item.disabled}
+						className={item.danger ? "danger" : undefined}
+						onClick={() => chooseMenuItem(i)}
+					>
+						<span
+							className="ic"
+							dangerouslySetInnerHTML={{ __html: item.icon || "" }}
+						/>
+						<span className="lb">{item.label}</span>
+						{item.sub && <span className="chev">›</span>}
+					</button>
+				),
+			)}
 		</>
+	);
+}
+
+export default function Menu() {
+	const { menu } = useSnapshot(UI, { sync: true });
+	const first = useRef<HTMLButtonElement>(null);
+	const content = useRef<HTMLDivElement>(null);
+	const open = !!menu;
+	useEffect(() => {
+		if (!open) return;
+		// Popover defers dismissal until click; canvas taps need pointerdown (test/mobile.test.ts:222).
+		const outside = (event: PointerEvent) => {
+			if (content.current && !content.current.contains(event.target as Node)) {
+				responsiveState.tapSuppressed = true;
+				flushSync(closeMenu);
+			}
+		};
+		document.addEventListener("pointerdown", outside, true);
+		return () => document.removeEventListener("pointerdown", outside, true);
+	}, [open]);
+	const anchor = useRef({ getBoundingClientRect: () => new DOMRect() });
+	anchor.current = {
+		getBoundingClientRect: () =>
+			new DOMRect(menu?.at.x || 0, menu?.at.y || 0, 0, 0),
+	};
+	if (!menu) return null;
+	const onOpenChange = (open: boolean) => {
+		// Native dismissal must commit before returning (test/mobile.test.ts:233).
+		if (!open) flushSync(closeMenu);
+	};
+	const onOpenAutoFocus = (event: Event) => {
+		event.preventDefault();
+		if (menu.focus) first.current?.focus({ preventScroll: true });
+	};
+	const onCloseAutoFocus = (event: Event) => event.preventDefault();
+	const onPointerDownOutside = () => {
+		responsiveState.tapSuppressed = true;
+	};
+	const onFocusOutside = (event: Event) => event.preventDefault();
+	const items = <MenuItems spec={menu.spec} first={first} />;
+	if (menu.at.sheet)
+		return (
+			<Sheet open onOpenChange={onOpenChange}>
+				<SheetContent
+					id="ctx"
+					ref={content}
+					role="menu"
+					side="bottom"
+					className="cui sheet block gap-0 transition-none"
+					showCloseButton={false}
+					overlayProps={{ id: "ctxBack" }}
+					aria-describedby={undefined}
+					onOpenAutoFocus={onOpenAutoFocus}
+					onCloseAutoFocus={onCloseAutoFocus}
+					onPointerDownOutside={onPointerDownOutside}
+					onFocusOutside={onFocusOutside}
+				>
+					<SheetTitle className="sr-only">Actions</SheetTitle>
+					{items}
+				</SheetContent>
+			</Sheet>
+		);
+	return (
+		<Popover open onOpenChange={onOpenChange}>
+			<PopoverAnchor virtualRef={anchor} />
+			<PopoverContent
+				id="ctx"
+				ref={content}
+				role="menu"
+				className="cui w-auto"
+				sideOffset={10}
+				collisionPadding={8}
+				style={{ maxHeight: "calc(100dvh - 16px)" }}
+				onOpenAutoFocus={onOpenAutoFocus}
+				onCloseAutoFocus={onCloseAutoFocus}
+				onPointerDownOutside={onPointerDownOutside}
+				onFocusOutside={onFocusOutside}
+			>
+				{items}
+			</PopoverContent>
+		</Popover>
 	);
 }
