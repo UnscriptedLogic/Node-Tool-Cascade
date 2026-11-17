@@ -24,6 +24,10 @@ import { addNode } from "../core/tree.ts";
 import { setBusy, showNote } from "../ui/hud.ts";
 import { libData } from "./library.ts";
 export let MSUI = null;
+MSUI = proxy({
+	json: "",
+	message: "",
+});
 export function mindsetContext(id) {
 	const parts = [],
 		seen = new Set();
@@ -332,9 +336,5 @@ export const MINDSET_EXAMPLE = {
 };
 
 export function startMindsets() {
-	MSUI = proxy({
-		json: "",
-		message: "",
-	});
 	mount("mindsets", $("#mindsetsRoot"));
 }
