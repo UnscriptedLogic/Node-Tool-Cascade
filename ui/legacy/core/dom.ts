@@ -1,13 +1,16 @@
-import { $ } from "./constants.ts";
-export let stage: HTMLDivElement,
+export interface CanvasElements {
+	stage: HTMLElement;
+	world: HTMLDivElement;
+	gEdges: SVGGElement;
+	gTh: SVGGElement;
+	elabel: SVGTextElement;
+}
+export let stage: HTMLElement,
 	world: HTMLDivElement,
 	gEdges: SVGGElement,
 	gTh: SVGGElement,
-	elabel: HTMLDivElement;
-export function startDom() {
-	stage = $("#stage");
-	world = $("#world");
-	gEdges = $("#eg");
-	gTh = $("#th");
-	elabel = $("#elabel");
+	elabel: SVGTextElement;
+export function setCanvasElements(elements: CanvasElements) {
+	({ stage, world, gEdges, gTh, elabel } = elements);
 }
+export function startDom() {}
