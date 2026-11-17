@@ -10,7 +10,6 @@ let briefTimer: ReturnType<typeof setTimeout> | undefined;
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
 import type { ApiReply } from "../../../shared/settings-types.ts";
-import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -26,14 +25,7 @@ import {
 } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { setMode } from "../canvas/view.ts";
-import {
-	$,
-	CONNECTION,
-	LOCAL,
-	PREFS,
-	sleep,
-	TICKETS,
-} from "../core/constants.ts";
+import { CONNECTION, LOCAL, PREFS, sleep, TICKETS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { AI, pushHist, S, save, UI } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
@@ -910,9 +902,6 @@ export const pProg = (t: string, cls?: string) => {
 export const citeName = (r) => `${r.f.split("/").pop()}:${r.l}`;
 
 export function startProject() {
-	mount("project", $("#projectRoot"));
-
-	mount("source", $("#sourceRoot"));
 	addEventListener(
 		"keydown",
 		(e) => {

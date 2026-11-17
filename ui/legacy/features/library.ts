@@ -1,6 +1,5 @@
 import { proxy } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
-import { mount } from "../../runtime.tsx";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
@@ -470,5 +469,4 @@ export const libCurrent = () =>
 
 export function startLibrary() {
 	UI.library = LIB;
-	mount("library", $("#libraryRoot"));
 }

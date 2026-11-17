@@ -19,6 +19,7 @@ import {
 	startGrill,
 } from "../legacy/features/map.ts";
 import { seedFromProject } from "../legacy/features/project.ts";
+import Ask from "./Ask.tsx";
 
 function Card({ card, hidden }) {
 	const input = useRef(null);
@@ -414,7 +415,9 @@ export default function SidePanel() {
 					</div>
 				</section>
 				<section id="s-ask" hidden={panel.tab !== "ask"}>
-					<div id="askRoot" />
+					<div id="askRoot">
+						<Ask />
+					</div>
 				</section>
 			</div>
 		</aside>

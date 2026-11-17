@@ -1,6 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -666,7 +665,6 @@ wires: style ${WIRE_STYLES.join(" | ")}, curvature 0-1, elbow 0.1-0.9, radius 0-
 canvas: bg, grid dots | lines | none, gridColor, gridSize 10-80
 layout: colGap 16-200, rowGap 2-80
 moods: ${MOOD_KEYS.join(" | ")}: "#rrggbb"`;
-	mount("look", $("#lookRoot"));
 	lkRefresh();
 }
 export const PRESETS = [

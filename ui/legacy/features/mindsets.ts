@@ -1,7 +1,6 @@
 import { proxy } from "valtio/vanilla";
 import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
 import Mindsets from "../../../shared/mindsets.ts";
-import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -17,7 +16,7 @@ import {
 	treeText,
 } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
-import { $, LOCAL, PREFS, WEB } from "../core/constants.ts";
+import { LOCAL, PREFS, WEB } from "../core/constants.ts";
 import { DEFAULT_DOMAIN, DOM } from "../core/profiles.ts";
 import { pushHist, S, save } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
@@ -335,6 +334,4 @@ export const MINDSET_EXAMPLE = {
 	],
 };
 
-export function startMindsets() {
-	mount("mindsets", $("#mindsetsRoot"));
-}
+export function startMindsets() {}

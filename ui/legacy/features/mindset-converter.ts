@@ -1,7 +1,6 @@
 import { proxy, ref } from "valtio/vanilla";
 import MindsetConversion from "../../../shared/mindset-conversion.ts";
 import Mindsets from "../../../shared/mindsets.ts";
-import { mount } from "../../runtime.tsx";
 import {
 	activeProvider,
 	aiAvailable,
@@ -12,7 +11,7 @@ import {
 	parseObj,
 	setController,
 } from "../ai/prompts.ts";
-import { $, LOCAL, WEB } from "../core/constants.ts";
+import { LOCAL, WEB } from "../core/constants.ts";
 import { setBusy } from "../ui/hud.ts";
 import { downloadMindset, importMindsets } from "./mindsets.ts";
 export let MSCONVERT = null;
@@ -428,6 +427,4 @@ export function downloadConvertedMindset() {
 		MSCONVERT.status = e.message;
 	}
 }
-export function startConverter() {
-	mount("converter", $("#converterRoot"));
-}
+export function startConverter() {}

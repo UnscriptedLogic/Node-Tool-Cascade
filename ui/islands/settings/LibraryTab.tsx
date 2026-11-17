@@ -1,5 +1,6 @@
 import { useSnapshot } from "valtio";
 import { SETTINGS } from "../../legacy/ui/settings.ts";
+import Library from "../Library.tsx";
 export default function LibraryTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	return (
@@ -15,7 +16,9 @@ export default function LibraryTab() {
 					"Keep several Cascades and group them in folders. The one you have open saves itself as you work."
 				}
 			</p>
-			<div id="libraryRoot" className="cui" />
+			<div id="libraryRoot" className="cui">
+				<Library />
+			</div>
 		</section>
 	);
 }

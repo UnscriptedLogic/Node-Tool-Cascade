@@ -4,6 +4,8 @@ import { version } from "../../../package.json";
 import { MODE } from "../../legacy/core/constants.ts";
 import { UI } from "../../legacy/core/state.ts";
 import { closeSettings, SETTINGS, showTab } from "../../legacy/ui/settings.ts";
+import Mindsets from "../Mindsets.tsx";
+import Project from "../Project.tsx";
 import AiTab from "./AiTab.tsx";
 import BehaviorTab from "./BehaviorTab.tsx";
 import DataTab from "./DataTab.tsx";
@@ -91,7 +93,9 @@ export default function SettingsDialog() {
 								role="tabpanel"
 								hidden={settings.tab !== "mindsets"}
 							>
-								<div id="mindsetsRoot" />
+								<div id="mindsetsRoot">
+									<Mindsets />
+								</div>
 							</section>
 							<AiTab />
 							<GoalTab />
@@ -104,7 +108,9 @@ export default function SettingsDialog() {
 								role="tabpanel"
 								hidden={settings.tab !== "project"}
 							>
-								<div id="projectRoot" />
+								<div id="projectRoot">
+									<Project />
+								</div>
 							</section>
 							<DataTab />
 						</div>

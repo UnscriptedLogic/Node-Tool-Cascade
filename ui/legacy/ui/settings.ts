@@ -5,7 +5,6 @@ import { proxy } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
 import type { ApiReply } from "../../../shared/settings-types.ts";
 import type { TreeNode } from "../../model.ts";
-import { mount } from "../../runtime.tsx";
 import { cancelAI, guidance } from "../ai/prompts.ts";
 import {
 	getJSON,
@@ -18,7 +17,6 @@ import {
 import { layout } from "../canvas/layout.ts";
 import { ANALYTICS_OFF, track } from "../core/analytics.ts";
 import {
-	$,
 	BLOCKS,
 	CONNECTION,
 	LOCAL,
@@ -721,7 +719,6 @@ export function startSettings() {
 	UI.providerLabels = Object.fromEntries(
 		Object.entries(PROV).map(([key, value]) => [key, value.label]),
 	);
-	mount("settings", $("#settingsRoot"));
 
 	/* --- wiring --- */
 	addEventListener(

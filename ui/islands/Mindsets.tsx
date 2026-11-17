@@ -23,6 +23,7 @@ import {
 	removeMindset,
 } from "../legacy/features/mindsets.ts";
 import { closeSettings } from "../legacy/ui/settings.ts";
+import MindsetConverter from "./MindsetConverter.tsx";
 
 function MindsetIcon({ pack }) {
 	const [value, setValue] = useState(pack.icon);
@@ -246,7 +247,9 @@ export default function Mindsets() {
 					);
 				})}
 			</div>
-			<div id="converterRoot" />{" "}
+			<div id="converterRoot">
+				<MindsetConverter />
+			</div>{" "}
 		</>
 	);
 }

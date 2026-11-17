@@ -1,4 +1,3 @@
-import { mount } from "../../runtime.tsx";
 import { $ } from "./constants.ts";
 export let stage: HTMLDivElement,
 	world: HTMLDivElement,
@@ -11,8 +10,4 @@ export function startDom() {
 	gEdges = $("#eg");
 	gTh = $("#th");
 	elabel = $("#elabel");
-	mount("rail", $("#railRoot"));
-	mount("hud", $("#hudRoot"));
-	mount("compose", $("#composeRoot"));
-	mount("menu", $("#menuRoot"));
 }

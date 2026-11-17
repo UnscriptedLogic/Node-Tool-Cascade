@@ -1,8 +1,7 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import { mount } from "../../runtime.tsx";
 import { guidance } from "../ai/prompts.ts";
-import { $, PREFS } from "../core/constants.ts";
+import { PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { pushHist, S } from "../core/state.ts";
 import { addNode, descendants, rebuildKM } from "../core/tree.ts";
@@ -227,5 +226,4 @@ export function startChatExchange() {
 			},
 		};
 	})();
-	mount("chat", $("#chatRoot"));
 }

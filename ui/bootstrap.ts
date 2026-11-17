@@ -94,11 +94,11 @@ for (const entry of modules) {
 
 export function initialize() {
 	connect({ actions: legacy });
-	// Read browser preferences before creating stores.
+	// Apply browser preferences before startup wiring.
 	constants.startConstants();
-	// Create the stores before mounting UI.
+	// Load the saved tree into the existing stores.
 	model.startModel();
-	// Resolve canvas elements and mount the shell after stores exist.
+	// Resolve canvas elements after React renders the shell.
 	dom.startDom();
 	// Initialize tree bookkeeping before layout.
 	tree.startTree();
@@ -116,25 +116,25 @@ export function initialize() {
 	interaction.startInteraction();
 	// Attach resize controls after canvas setup.
 	controls.startControls();
-	// Mount settings before its nested panels.
+	// Start settings after canvas setup.
 	settings.startSettings();
-	// Mount chat inside the settings panel.
+	// Prepare chat actions for the settings panel.
 	chatExchange.startChatExchange();
 	// Apply responsive layout after settings and shell mounts.
 	responsive.startResponsive();
-	// Mount the side panel before its ask panel.
+	// Connect the side panel to the shell.
 	map.startMap();
-	// Mount ask inside the side panel.
+	// Connect ask state to the shell.
 	ask.startAsk();
-	// Create look editor state before it can be opened.
+	// Start the look editor before it can be opened.
 	lookEditor.startLookEditor();
-	// Mount project and source panels after settings.
+	// Start project and source wiring after settings.
 	project.startProject();
-	// Create the library before its dependent panels.
+	// Connect the library to the shell.
 	library.startLibrary();
-	// Mount mindsets before its converter.
+	// Start mindset features before the converter.
 	mindsets.startMindsets();
-	// Mount the converter inside mindsets.
+	// Start the mindset converter.
 	converter.startConverter();
 	// Render the initial canvas and begin loading the library last.
 	boot.startBoot();

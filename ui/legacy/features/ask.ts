@@ -1,6 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
-import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
 	aiNeed,
@@ -15,7 +14,7 @@ import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { fitTo, setMode } from "../canvas/view.ts";
 import { track } from "../core/analytics.ts";
-import { $, PREFS } from "../core/constants.ts";
+import { PREFS } from "../core/constants.ts";
 import { world } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
@@ -522,5 +521,4 @@ export const VERDICT = {
 
 export function startAsk() {
 	UI.ask = AN;
-	mount("ask", $("#askRoot"));
 }

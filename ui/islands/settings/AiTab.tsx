@@ -2,6 +2,7 @@ import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
 import { MODE } from "../../legacy/core/constants.ts";
 import { onWebAction, SETTINGS } from "../../legacy/ui/settings.ts";
+import ChatExchange from "../ChatExchange.tsx";
 import Providers from "../Providers.tsx";
 export default function AiTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
@@ -17,7 +18,9 @@ export default function AiTab() {
 			hidden={settings.tab !== "ai"}
 		>
 			<h3>{"AI model"}</h3>
-			<div id="chatRoot" />
+			<div id="chatRoot">
+				<ChatExchange />
+			</div>
 			<div data-modes="artifact" hidden={!["artifact"].includes(MODE)}>
 				<p className="lead">
 					{

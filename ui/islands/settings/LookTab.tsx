@@ -1,8 +1,11 @@
 import { useSnapshot } from "valtio";
 import { PREFS } from "../../legacy/core/constants.ts";
+import { LK } from "../../legacy/ui/look-editor.ts";
 import { SETTINGS, setPreference } from "../../legacy/ui/settings.ts";
+import LookEditor from "../LookEditor.tsx";
 export default function LookTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
+	const look = useSnapshot(LK, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });
 	return (
 		<section
@@ -40,7 +43,7 @@ export default function LookTab() {
 					))}
 				</div>
 			</div>
-			<div id="lookRoot" />
+			<div id="lookRoot">{look.built && <LookEditor />}</div>
 		</section>
 	);
 }

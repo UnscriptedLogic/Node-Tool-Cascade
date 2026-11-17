@@ -1,6 +1,5 @@
 import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
-import { mount } from "../../runtime.tsx";
 import {
 	aiAvailable,
 	aiNeed,
@@ -17,7 +16,7 @@ import { beginEdit } from "../canvas/interaction.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { applyView, ensureVisible, setMode } from "../canvas/view.ts";
 import { track } from "../core/analytics.ts";
-import { $, drawerW, PREFS, TICKETS } from "../core/constants.ts";
+import { drawerW, PREFS, TICKETS } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
@@ -656,5 +655,4 @@ export function toggleAsk() {
 }
 export function startMap() {
 	UI.panel = PANEL;
-	mount("side", $("#sideRoot"));
 }
