@@ -1,7 +1,8 @@
-import { useLayoutEffect } from "react";
+import { type RefObject, useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { version } from "../../../package.json";
 import { useFocus } from "../../hooks/useFocus.ts";
+import { useFocusTrap } from "../../hooks/useFocusTrap.ts";
 import { MODE } from "../../legacy/core/constants.ts";
 import { UI } from "../../legacy/core/state.ts";
 import { closeSettings, SETTINGS, showTab } from "../../legacy/ui/settings.ts";
@@ -24,18 +25,29 @@ const tabs: readonly { value: string; label: string; modes?: string }[] = [
 	{ value: "project", label: "Project", modes: "local" },
 	{ value: "data", label: "Data", modes: "local web" },
 ];
-export default function SettingsDialog() {
+export default function SettingsDialog({
+	appElement,
+}: {
+	appElement: RefObject<HTMLDivElement | null>;
+}) {
+	const dialog = useRef<HTMLDivElement>(null);
 	const close = useFocus<HTMLButtonElement>("settingsClose");
 	const settings = useSnapshot(SETTINGS, { sync: true }),
 		shell = useSnapshot(UI, { sync: true });
 	useLayoutEffect(() => {
-		document.getElementById("app").inert =
-			!!shell.bye || (settings.open && settings.tab !== "look");
-	}, [shell.bye, settings.open, settings.tab]);
+		const app = appElement.current;
+		if (!app) return;
+		app.inert = !!shell.bye || (settings.open && settings.tab !== "look");
+		return () => {
+			app.inert = false;
+		};
+	}, [appElement, shell.bye, settings.open, settings.tab]);
+	useFocusTrap(dialog, settings.open && settings.tab !== "look");
 	return (
 		<>
 			<div
 				id="settings"
+				ref={dialog}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby="sTitle"
