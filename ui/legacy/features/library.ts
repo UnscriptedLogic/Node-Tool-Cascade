@@ -26,6 +26,20 @@ import {
 	updateProviders,
 } from "../ui/settings.ts";
 export let LIB = null;
+LIB = proxy({
+	kind: null,
+	user: null,
+	folders: [],
+	cascades: [],
+	currentId: null,
+	googleClientId: "",
+	status: "",
+	editing: null,
+	armed: null,
+	suspend: false,
+	timer: 0,
+	gsi: false,
+});
 onTreeSaved(libAfterSave);
 export async function libApi(method, path, body?) {
 	const r = await fetch(`/api/${path}`, {
@@ -455,20 +469,6 @@ export const libCurrent = () =>
 	LIB.cascades.find((c) => c.id === LIB.currentId) || null;
 
 export function startLibrary() {
-	LIB = proxy({
-		kind: null,
-		user: null,
-		folders: [],
-		cascades: [],
-		currentId: null,
-		googleClientId: "",
-		status: "",
-		editing: null,
-		armed: null,
-		suspend: false,
-		timer: 0,
-		gsi: false,
-	});
 	UI.library = LIB;
 	mount("library", $("#libraryRoot"));
 }
