@@ -28,6 +28,32 @@ import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
 export let PANEL = null,
 	G = null;
+PANEL = proxy({
+	open: false,
+	tab: "map",
+	map: null,
+	hint: "",
+	grillNote: "",
+	idleMessage: "",
+	doneMessage: "",
+	canSeed: false,
+});
+G = proxy({
+	active: false,
+	scope: null,
+	focus: "",
+	cards: [],
+	round: 0,
+	history: [],
+	busy: false,
+	done: false,
+	failed: false,
+	summary: "",
+	resolve: false,
+	yes: 0,
+	ctl: null,
+	seq: 0,
+});
 export function showStab(t: string) {
 	flushSync(() => {
 		PANEL.tab = t;
@@ -629,32 +655,6 @@ export function toggleAsk() {
 	else closeSide();
 }
 export function startMap() {
-	PANEL = proxy({
-		open: false,
-		tab: "map",
-		map: null,
-		hint: "",
-		grillNote: "",
-		idleMessage: "",
-		doneMessage: "",
-		canSeed: false,
-	});
-	G = proxy({
-		active: false,
-		scope: null,
-		focus: "",
-		cards: [],
-		round: 0,
-		history: [],
-		busy: false,
-		done: false,
-		failed: false,
-		summary: "",
-		resolve: false,
-		yes: 0,
-		ctl: null,
-		seq: 0,
-	});
 	UI.panel = PANEL;
 	mount("side", $("#sideRoot"));
 }
