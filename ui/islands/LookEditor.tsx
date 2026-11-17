@@ -207,6 +207,7 @@ function Segment({ id, label, items, value, set, attr = "v" }) {
 export default function LookEditor() {
 	const state = useSnapshot(LK, { sync: true }),
 		text = useRef(null),
+		wireHost = useRef<SVGSVGElement>(null),
 		look = canvasLookState.LOOK,
 		node = lkStyle(),
 		wires = effLook().wires,
@@ -216,7 +217,7 @@ export default function LookEditor() {
 	const set = (group: string, field: string) => (value) =>
 		lkSetGroup(group, field, value);
 	useLayoutEffect(() => {
-		wirePreview();
+		wirePreview(wireHost.current);
 	}, [state.revision]);
 	const tabs = [
 		["presets", "Presets"],
@@ -652,6 +653,7 @@ export default function LookEditor() {
 				</div>
 				<svg
 					id="lkWpv"
+					ref={wireHost}
 					className="lk-wpv"
 					viewBox="0 0 320 132"
 					preserveAspectRatio="xMidYMid meet"

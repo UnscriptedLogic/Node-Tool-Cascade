@@ -133,8 +133,8 @@ export default function Library() {
 	const current = lib.cascades.some((item) => item.id === lib.currentId);
 	useEffect(() => {
 		if (lib.kind === "cloud" && !lib.user && googleHost.current)
-			libMountGoogle();
-	}, [lib.kind, lib.user, lib.googleClientId]);
+			libMountGoogle(googleHost.current);
+	}, [lib.kind, lib.user, lib.googleClientId, lib.gsi]);
 	const loose = lib.cascades.filter((item) => !item.folderId);
 	return (
 		<>

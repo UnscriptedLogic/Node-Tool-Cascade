@@ -24,7 +24,7 @@ import {
 	WIRE_STYLES,
 	wirePath,
 } from "../canvas/look.ts";
-import { $, LABEL, MOOD_KEYS } from "../core/constants.ts";
+import { LABEL, MOOD_KEYS } from "../core/constants.ts";
 export let lookSheet: string;
 export let LK = null;
 LK = proxy({
@@ -433,8 +433,7 @@ export function toHex(c: string) {
 	}
 	return "#808080";
 }
-export function wirePreview() {
-	const svg = $("#lkWpv");
+export function wirePreview(svg: SVGSVGElement | null) {
 	if (!svg) return;
 	svg.textContent = "";
 	const W = effLook().wires,

@@ -4,7 +4,7 @@ import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
 import { ANALYTICS } from "../core/analytics.ts";
-import { $, CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
+import { CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
 import { DEFAULT_DOMAIN } from "../core/profiles.ts";
 import {
 	AI,
@@ -350,14 +350,13 @@ export async function cloudAiRefresh() {
 }
 
 /* ---- Google sign-in (cloud only) ---- */
-export function libMountGoogle() {
-	const host = $("#libGoogle");
+export function libMountGoogle(host: HTMLElement) {
 	if (!LIB.googleClientId) {
 		host.textContent = "Google sign-in is not set up on this server yet.";
 		return;
 	}
 	if (LIB.gsi && window.google && google.accounts) {
-		libDrawGoogle();
+		libDrawGoogle(host);
 		return;
 	}
 	if (document.getElementById("gsi-script")) return;
@@ -367,15 +366,15 @@ export function libMountGoogle() {
 	s.async = true;
 	s.onload = () => {
 		LIB.gsi = true;
-		libDrawGoogle();
 	};
 	s.onerror = () => {
+		if (!host.isConnected) return;
 		host.textContent = "Could not load Google sign-in. Check your connection.";
 	};
 	document.head.append(s);
 }
-export function libDrawGoogle() {
-	const host = $("#libGoogle");
+export function libDrawGoogle(host: HTMLElement) {
+	if (!host.isConnected) return;
 	host.textContent = "";
 	google.accounts.id.initialize({
 		client_id: LIB.googleClientId,
