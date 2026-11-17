@@ -28,6 +28,24 @@ import {
 import { $, LABEL, MOOD_KEYS } from "../core/constants.ts";
 export let lookSheet: string;
 export let LK = null;
+LK = proxy({
+	tab: "presets",
+	type: "base",
+	pend: null,
+	hist: [],
+	built: false,
+	busy: false,
+	revision: 0,
+	desc: "",
+	text: "",
+	textFocused: false,
+	status: "",
+	note: "",
+	changes: [],
+	resultOpen: false,
+	textError: "",
+	textOk: false,
+});
 export function lookFromText(desc) {
 	const t =
 		" " +
@@ -1067,23 +1085,4 @@ export const countLeaves = (o) =>
 		? Object.values(o).reduce((a, v) => a + countLeaves(v), 0)
 		: 1;
 
-export function startLookEditor() {
-	LK = proxy({
-		tab: "presets",
-		type: "base",
-		pend: null,
-		hist: [],
-		built: false,
-		busy: false,
-		revision: 0,
-		desc: "",
-		text: "",
-		textFocused: false,
-		status: "",
-		note: "",
-		changes: [],
-		resultOpen: false,
-		textError: "",
-		textOk: false,
-	});
-}
+export function startLookEditor() {}
