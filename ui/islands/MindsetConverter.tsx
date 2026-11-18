@@ -39,7 +39,9 @@ export default function MindsetConverter() {
 					multiple={true}
 					accept=".pdf,.txt,.md,.markdown,.html,.htm,.json,.csv,.tsv,.xml,.yaml,.yml,.log,text/*,application/pdf,application/json"
 					disabled={ui.busy}
-					onChange={(e) => readMindsetSources([...e.currentTarget.files])}
+					onChange={(e) =>
+						readMindsetSources([...(e.currentTarget.files || [])])
+					}
 				/>
 			</div>
 			<div className="field">
