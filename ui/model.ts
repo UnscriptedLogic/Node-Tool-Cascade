@@ -98,3 +98,57 @@ export interface SourceLocation {
 	t?: string;
 	note?: string;
 }
+
+export interface MenuSpec {
+	title?: string;
+	back?: MenuSpec;
+	items: {
+		sep?: boolean;
+		disabled?: boolean;
+		danger?: boolean;
+		icon?: string;
+		label?: string;
+		sub?: MenuSpec;
+		run?: () => void;
+	}[];
+}
+export interface MenuState {
+	spec: MenuSpec;
+	at: { x?: number; y?: number; sheet?: boolean };
+	focus: boolean;
+}
+export interface UiState {
+	bye: boolean;
+	busy: string | null;
+	stoppable: boolean;
+	note: (string | { b: string })[];
+	noteOpen: boolean;
+	noteUndo: boolean;
+	small: boolean;
+	minimal: boolean;
+	panel: { open: boolean; tab: string } | null;
+	ask: typeof import("./legacy/features/ask.ts").AN | null;
+	library: typeof import("./legacy/features/library.ts").LIB | null;
+	seed: boolean;
+	providerLabels: Record<string, string>;
+	settingsTitle: string;
+	moodColors: Record<string, string>;
+	compose: {
+		open: boolean;
+		type: string;
+		text: string;
+		x: number;
+		y: number;
+		w: number;
+		wpos: Point | null;
+		focus: number;
+	};
+	menu: MenuState | null;
+}
+export interface AiState {
+	checked: boolean;
+	sample:
+		| ((prompt: string, options?: object) => Promise<{ text: string }>)
+		| null;
+	off: boolean;
+}

@@ -4,10 +4,12 @@ import { proxy, ref } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
 import { record, type View } from "../../../shared/types.ts";
 import type {
+	AiState,
 	CascadeTree,
 	Point,
 	RenderedNode,
 	SavedTree,
+	UiState,
 } from "../../model.ts";
 import { KEY, LOCAL } from "./constants.ts";
 import { DOM } from "./profiles.ts";
@@ -32,10 +34,10 @@ export let loaded: SavedTree | null,
 	S: CascadeTree,
 	R: Record<string, RenderedNode>,
 	spawnAt: Record<string, Point>,
-	hist = null,
+	hist: { s: string; v: View | null }[] = null,
 	snap: () => string,
-	AI = null,
-	UI = null;
+	AI: AiState = null,
+	UI: UiState = null;
 /* ================= state ================= */
 export function seed() {
 	return DOM().sample();

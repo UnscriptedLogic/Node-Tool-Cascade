@@ -1,6 +1,6 @@
 export const svg = (d) =>
 	`<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-export const ICONS = {
+export const ICONS: Record<string, string> = {
 	question: svg(
 		'<circle cx="8" cy="8" r="6.3"/><path d="M6.2 6.2a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.7-.9 1.4"/><path d="M8 11.5v.1"/>',
 	),
@@ -20,7 +20,7 @@ export const ICONS = {
 	),
 	file: svg('<path d="M4 1.8h5.2L12.5 5v9.2H4z"/><path d="M9 1.8V5h3.5"/>'),
 };
-export const ACT = {
+export const ACT: Record<string, string> = {
 	mindset: svg('<path d="M5 10a4 4 0 1 1 6 0l-1 1.5H6zM6 14h4"/>'),
 	accept: svg('<path d="m3.5 8.5 3 3 6-7"/>'),
 	dismiss: svg('<path d="m4 4 8 8M12 4l-8 8"/>'),

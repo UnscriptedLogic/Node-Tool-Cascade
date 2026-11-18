@@ -99,7 +99,7 @@ export const TICKET_ASK = {
 export const drawerW: () => number = () => {
 	return UI.panel?.open && innerWidth > 760 ? 380 : 0;
 };
-export const LABEL = {
+export const LABEL: Record<string, string> = {
 	question: "Question",
 	answer: "Answer",
 	emotion: "Emotion",

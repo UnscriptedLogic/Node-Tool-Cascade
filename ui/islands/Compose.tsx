@@ -12,6 +12,7 @@ export default function Compose() {
 		input = useRef<HTMLTextAreaElement>(null);
 	const compose = ui.compose,
 		domain = DOMAINS[prefs.domain] || DOMAINS.general;
+	const blocks: Record<string, string> = domain.blocks;
 	useLayoutEffect(() => {
 		if (compose.open) input.current?.focus();
 	}, [compose.open, compose.focus]);
@@ -39,7 +40,7 @@ export default function Compose() {
 				rows={2}
 				maxLength={220}
 				aria-label="Block text"
-				placeholder={domain.blocks[compose.type]}
+				placeholder={blocks[compose.type]}
 				value={compose.text}
 				onChange={() => {}}
 				onInput={(e) => {
