@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,19 +18,19 @@ export default function Providers() {
 		<div id="provList">
 			{PROV_ORDER.map((provider) => {
 				const meta = PROV[provider],
-					saved = server?.providers[provider],
+					saved = server?.providers?.[provider],
 					active = server?.active === provider;
 				const draft = state.drafts[provider] || {},
 					result = state.results[provider] || {};
 				const account = saved?.account;
-				const draftInput = (event) => {
+				const draftInput = (event: FormEvent<HTMLInputElement>) => {
 					const field =
-						event.target.dataset.role ||
-						(event.target.type === "password" ? "key" : null);
+						event.currentTarget.dataset.role ||
+						(event.currentTarget.type === "password" ? "key" : null);
 					if (field)
 						SETTINGS.drafts[provider] = {
 							...SETTINGS.drafts[provider],
-							[field]: event.target.value,
+							[field]: event.currentTarget.value,
 						};
 				};
 				const model =
@@ -96,11 +97,10 @@ export default function Providers() {
 						key={provider}
 						hidden={!saved}
 						onClick={(e) => {
-							const button = (e.target as HTMLElement).closest(
-								"button[data-act]",
-							);
-							if (button)
-								onProviderAction(provider, (button as HTMLElement).dataset.act);
+							const button = (
+								e.target as HTMLElement
+							).closest<HTMLButtonElement>("button[data-act]");
+							if (button) onProviderAction(provider, button.dataset.act || "");
 						}}
 						onChange={(e) => {
 							const input = e.target;
