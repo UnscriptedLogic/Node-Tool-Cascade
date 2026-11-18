@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSnapshot } from "valtio";
+import { type Snapshot, useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
 import type { Mindset } from "../../shared/mindsets.ts";
 import MindsetCollection from "../../shared/mindsets.ts";
 import { PREFS } from "../legacy/core/constants.ts";
+import type { Preferences } from "../legacy/core/prefs.ts";
 import { DOMAINS } from "../legacy/core/profiles.ts";
 import { S } from "../legacy/core/state.ts";
 import {
@@ -24,6 +25,7 @@ import {
 	removeMindset,
 } from "../legacy/features/mindsets.ts";
 import { closeSettings } from "../legacy/ui/settings.ts";
+import type { CascadeTree } from "../model.ts";
 import MindsetConverter from "./MindsetConverter.tsx";
 
 interface MindsetIconProps {
@@ -45,14 +47,14 @@ function MindsetIcon({ pack }: MindsetIconProps) {
 		/>
 	);
 }
-function context(state, prefs) {
+function context(state: Snapshot<CascadeTree>, prefs: Readonly<Preferences>) {
 	const parts = [],
 		seen = new Set();
-	let node = state.nodes[state.sel];
+	let node = state.nodes[String(state.sel)];
 	while (node && !seen.has(node.id) && seen.size < 3) {
 		seen.add(node.id);
 		parts.push(node.text);
-		node = state.nodes[node.parent];
+		node = state.nodes[String(node.parent)];
 	}
 	return parts.length
 		? parts.join("\n")
@@ -66,6 +68,7 @@ function context(state, prefs) {
 			].join("\n");
 }
 export default function Mindsets() {
+	const domains: Record<string, { label: string }> = DOMAINS;
 	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		ui = useSnapshot(MSUI, { sync: true }),
@@ -123,7 +126,7 @@ export default function Mindsets() {
 					type="button"
 					className="btn primary"
 					id="msImport"
-					onClick={() => file.current.click()}
+					onClick={() => file.current?.click()}
 				>
 					{"Import JSON pack"}
 				</Button>
@@ -144,7 +147,7 @@ export default function Mindsets() {
 				ref={file}
 				onChange={async (e) => {
 					const input = e.currentTarget;
-					await importMindsetFile(input.files[0]);
+					await importMindsetFile(input.files?.[0]);
 					input.value = "";
 				}}
 			/>
@@ -205,7 +208,7 @@ export default function Mindsets() {
 								/>
 								<strong>{pack.name}</strong>
 							</Label>
-							<p className="small">{`${pack.entries.length} ${pack.entries.length === 1 ? "entry" : "entries"} · ${pack.domains.map((d) => DOMAINS[d].label).join(", ")}${pack.source.title ? ` · ${pack.source.title}${pack.source.edition ? ` (${pack.source.edition})` : ""}` : ""}`}</p>
+							<p className="small">{`${pack.entries.length} ${pack.entries.length === 1 ? "entry" : "entries"} · ${pack.domains.map((d) => domains[d].label).join(", ")}${pack.source.title ? ` · ${pack.source.title}${pack.source.edition ? ` (${pack.source.edition})` : ""}` : ""}`}</p>
 							{pack.source.coverage && (
 								<p className="small">{pack.source.coverage}</p>
 							)}
