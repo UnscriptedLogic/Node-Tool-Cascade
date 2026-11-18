@@ -110,6 +110,7 @@ function DeleteButton({ kind, item, armed }: DeleteButtonProps) {
 }
 
 function CascadeRow({ item, lib }: CascadeRowProps) {
+	const domains: Record<string, { label: string }> = DOMAINS;
 	return (
 		<li
 			className={`lib-row${item.id === lib.currentId ? " current" : ""}`}
@@ -117,7 +118,7 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 		>
 			<NameCell kind="cascade" item={item} editing={lib.editing} />
 			<span className="lib-meta">
-				{(DOMAINS[item.domain]?.label || "") +
+				{(domains[item.domain]?.label || "") +
 					" · " +
 					when(item.updatedAt) +
 					(item.id === lib.currentId ? " · open now" : "")}
