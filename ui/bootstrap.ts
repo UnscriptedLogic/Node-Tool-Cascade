@@ -70,6 +70,7 @@ const modules = [
 // Live bindings connect the islands and the jsdom harness without app globals.
 export const legacy = {} as LegacyActions;
 for (const entry of modules) {
+	// Namespace exports and mutable state bags are reflected only for the legacy test harness.
 	const module = entry as unknown as Record<string, unknown> & {
 		state?: Record<string, unknown>;
 	};
