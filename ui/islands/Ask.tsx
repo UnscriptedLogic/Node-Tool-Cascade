@@ -24,6 +24,7 @@ export default function Ask() {
 		history = useSnapshot(AHIST, { sync: true }),
 		state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true });
+	const verdictLabels: Record<string, string> = VERDICT;
 	const domain = DOMAINS[prefs.domain] || DOMAINS.general,
 		sources = Object.fromEntries(
 			ask.sources.map((source) => [source.id, source]),
@@ -111,7 +112,7 @@ export default function Ask() {
 			<div id="aRes" hidden={!ask.q || !ask.verdict}>
 				<span id="aVerdict" className={`averdict ${ask.verdict}`}>
 					{ask.verdict
-						? VERDICT[ask.verdict] + (ask.local ? " (keyword match)" : "")
+						? verdictLabels[ask.verdict] + (ask.local ? " (keyword match)" : "")
 						: ""}
 				</span>{" "}
 				<span
@@ -132,7 +133,7 @@ export default function Ask() {
 						.split(/(\[f\d+\])/)
 						.map((part, i) => {
 							const id = part.match(/^\[(f\d+)\]$/)?.[1],
-								source = sources[id];
+								source = id === undefined ? undefined : sources[id];
 							return source ? (
 								<button
 									key={i}
@@ -166,7 +167,9 @@ export default function Ask() {
 										{source.f +
 											":" +
 											source.l +
-											(source.e > source.l ? `-${source.e}` : "")}
+											(source.e !== undefined && source.e > source.l
+												? `-${source.e}`
+												: "")}
 									</button>
 								</div>
 							</div>

@@ -9,6 +9,7 @@ const folders = [
 	"ui/islands/Compose.tsx",
 	"ui/islands/Hud.tsx",
 	"ui/islands/SidePanel.tsx",
+	"ui/islands/Ask.tsx",
 ];
 const result = spawnSync(
 	process.execPath,
