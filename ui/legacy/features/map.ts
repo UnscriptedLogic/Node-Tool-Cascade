@@ -1,5 +1,6 @@
 import { proxy, ref } from "valtio/vanilla";
 import { isRecord } from "../../../shared/types.ts";
+import type { GrillCard, TreeMap } from "../../model.ts";
 import {
 	aiAvailable,
 	aiNeed,
@@ -25,32 +26,30 @@ import { commit, requestFocus, select, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
-export let PANEL = null,
-	G = null;
-PANEL = proxy({
+export const PANEL = proxy({
 	open: false,
 	tab: "map",
-	map: null,
+	map: null as TreeMap | null,
 	hint: "",
 	grillNote: "",
 	idleMessage: "",
 	doneMessage: "",
 	canSeed: false,
 });
-G = proxy({
+export const G = proxy({
 	active: false,
-	scope: null,
+	scope: null as string | null,
 	focus: "",
-	cards: [],
+	cards: [] as GrillCard[],
 	round: 0,
-	history: [],
+	history: [] as { q: string; a?: string; s: string }[],
 	busy: false,
 	done: false,
 	failed: false,
 	summary: "",
 	resolve: false,
 	yes: 0,
-	ctl: null,
+	ctl: null as AbortController | null,
 	seq: 0,
 });
 export function showStab(t: string) {

@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
-import { useSnapshot } from "valtio";
+import { type Snapshot, useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import type { MindsetMetadata } from "../../shared/mindsets.ts";
 import Mindsets from "../../shared/mindsets.ts";
 import { useFocus } from "../hooks/useFocus.ts";
 import { PREFS, TICKET_ASK, TICKET_LABEL } from "../legacy/core/constants.ts";
@@ -21,26 +20,11 @@ import {
 	startGrill,
 } from "../legacy/features/map.ts";
 import { seedFromProject } from "../legacy/features/project.ts";
+import type { GrillCard } from "../model.ts";
 import Ask from "./Ask.tsx";
 
 interface CardProps {
-	card: {
-		id: string;
-		text: string;
-		status: string;
-		ticket: string;
-		answer: string;
-		focus?: number;
-		why?: string;
-		grillable?: boolean;
-		mindset?: MindsetMetadata;
-		busy?: boolean;
-		busyLabel?: string;
-		checks: number;
-		pushback?: string;
-		message?: string;
-		withPrototype?: boolean;
-	};
+	card: Snapshot<GrillCard>;
 	hidden?: boolean;
 }
 function Card({ card, hidden }: CardProps) {
@@ -170,7 +154,11 @@ export default function SidePanel() {
 						: "");
 	const scope = grill.scope && state.nodes[grill.scope],
 		firstOpen = grill.cards.find((card) => card.status === "open");
-	function section(title, ids, kind) {
+	function section(
+		title: string,
+		ids: readonly string[] | undefined,
+		kind: string,
+	) {
 		if (!ids?.length) return null;
 		return (
 			<div className="msec" key={title}>
@@ -183,7 +171,7 @@ export default function SidePanel() {
 					if (!node) return null;
 					const waiting =
 						kind === "blocked"
-							? (map.blockers[id] || [])
+							? (map?.blockers?.[id] || [])
 									.map((key) => state.nodes[key])
 									.find((n) => n && n.state !== "settled" && n.state !== "out")
 							: null;
@@ -198,12 +186,13 @@ export default function SidePanel() {
 							: [];
 					const decision =
 						(answers.find((n) => n.decided) || answers[0])?.text || "";
-					const action = {
+					const actions: Record<string, string[]> = {
 						frontier: ["resolve", "Resolve"],
 						settled: ["reopen", "Reopen"],
 						fog: ["sharpen", "Sharpen"],
 						out: ["restore", "Bring back"],
-					}[kind];
+					};
+					const action = actions[kind];
 					return (
 						<div
 							className="mitem"
@@ -297,13 +286,15 @@ export default function SidePanel() {
 									id="mProg"
 									style={{
 										width: `${
-											total ? Math.round((map.settled.length / total) * 100) : 0
+											total && map
+												? Math.round((map.settled.length / total) * 100)
+												: 0
 										}%`,
 									}}
 								/>
 							</div>
 							<span id="mProgTxt" className="small">
-								{total
+								{total && map
 									? `${map.settled.length} of ${total} settled`
 									: "No decisions yet"}
 							</span>
@@ -370,7 +361,7 @@ export default function SidePanel() {
 								id="gStartSel"
 								type="button"
 								onClick={() =>
-									startGrill(state.nodes[state.sel] ? state.sel : null)
+									startGrill(state.nodes[String(state.sel)] ? state.sel : null)
 								}
 							>
 								Grill the selected node

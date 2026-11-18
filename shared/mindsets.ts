@@ -187,7 +187,7 @@ const Mindsets = (() => {
 			why: text(v.why, 300),
 		};
 	}
-	const label = (m: MindsetMetadata, withIcon = true) =>
+	const label = (m: ReadonlyData<MindsetMetadata>, withIcon = true) =>
 		`${withIcon ? `${m.icon} ` : ""}${m.label}${m.number ? ` #${m.number}` : ""}: ${m.name}`;
 	return { pack, collection, candidates, snapshot, metadata, label };
 })();

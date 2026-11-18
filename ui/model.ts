@@ -152,3 +152,23 @@ export interface AiState {
 		| null;
 	off: boolean;
 }
+
+export interface GrillCard {
+	id: string;
+	nodeId: string | null;
+	parent: string | null;
+	text: string;
+	why: string;
+	ticket: string;
+	grillable: boolean;
+	status: string;
+	checks: number;
+	mindset: import("../shared/mindsets.ts").MindsetMetadata | null;
+	answer: string;
+	pushback: string;
+	message: string;
+	withPrototype: boolean;
+	busy: boolean;
+	busyLabel: string;
+	focus: number;
+}

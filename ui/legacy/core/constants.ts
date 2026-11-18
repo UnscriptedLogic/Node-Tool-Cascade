@@ -84,13 +84,13 @@ export const TYPES = [
 ];
 export const BLOCKS = ["loop", ...TYPES, "fog"];
 export const TICKETS = ["talk", "prototype", "research", "task"];
-export const TICKET_LABEL = {
+export const TICKET_LABEL: Record<string, string> = {
 	talk: "Talk",
 	prototype: "Prototype",
 	research: "Research",
 	task: "Task",
 };
-export const TICKET_ASK = {
+export const TICKET_ASK: Record<string, string> = {
 	talk: "Your answer",
 	prototype: "What did the prototype show, and what do you decide?",
 	research: "What did you find, and what do you decide?",
