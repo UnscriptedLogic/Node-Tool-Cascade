@@ -27,7 +27,16 @@ export default function GoalTab() {
 				<select
 					id="gDomain"
 					value={prefs.domain}
-					onChange={(e) => setPreference("domain", e.currentTarget.value)}
+					onChange={(e) => {
+						const value = e.currentTarget.value;
+						if (
+							value === "general" ||
+							value === "game" ||
+							value === "product" ||
+							value === "research"
+						)
+							setPreference("domain", value);
+					}}
 				>
 					{Object.entries(DOMAINS).map(([key, value]) => (
 						<option key={key} value={key}>

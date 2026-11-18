@@ -1,3 +1,5 @@
+import type { Preferences } from "../core/prefs.ts";
+
 let prefsTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { flushSync } from "react-dom";
@@ -59,7 +61,10 @@ SETTINGS = proxy({
 	dataMessage: "",
 	statsOn: true,
 });
-export function setPreference(key: string, value: string | number | boolean) {
+export function setPreference<K extends keyof Preferences>(
+	key: K,
+	value: Preferences[K],
+) {
 	PREFS[key] = value;
 	savePrefs();
 	updatePreview();
