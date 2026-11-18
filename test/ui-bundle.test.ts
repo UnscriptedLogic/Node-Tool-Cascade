@@ -99,6 +99,7 @@ test("production loads without exposing model globals", async (t) => {
 	])
 		assert.equal(a.w[name], undefined, name);
 	assert.ok(a.api.tree);
+	assert.equal("legacy" in a.w.CascadeUI, false);
 	assert.equal(a.$("#rail").tagName, "ASIDE");
 	assert.deepEqual(a.errs, []);
 });

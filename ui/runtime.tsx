@@ -1,5 +1,4 @@
 export {
-	connect,
 	mount,
 	proxy,
 	ref,

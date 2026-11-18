@@ -4,12 +4,10 @@ import { flushSync } from "react-dom";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
 import { App } from "./app/App.tsx";
-import { initialize } from "./bootstrap.ts";
+import { start } from "./start.ts";
 
 export { flushSync as sync } from "react-dom";
 export { proxy, ref, snapshot, subscribe } from "valtio/vanilla";
-export { legacy } from "./bootstrap.ts";
-export { connect } from "./bridge.ts";
 export { testApi } from "./test-api.ts";
 
 import "./ui.css";
@@ -49,7 +47,7 @@ export function unmount(name: string) {
 const container = document.getElementById("root");
 if (container) {
 	flushSync(() => createRoot(container).render(<App />));
-	initialize();
+	start();
 }
 
 import "../app/css/base.css";
