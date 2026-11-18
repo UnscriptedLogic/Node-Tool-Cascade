@@ -54,16 +54,17 @@ export default function Hud() {
 					? "No AI connected, so blocks place by keyword"
 					: "Claude isn’t available here, so blocks place by keyword"
 				: "Drag a block onto the canvas, then type your idea";
-	const providerLabel = ui.providerLabels[connection.server?.active],
+	const providerLabel = ui.providerLabels[String(connection.server?.active)],
 		effectiveModel =
-			connection.server?.providers?.[connection.server.active]?.effectiveModel;
+			connection.server?.providers?.[String(connection.server.active)]
+				?.effectiveModel;
 	const goal = (prefs.goal || "").trim(),
 		ghosts = Object.values(state.nodes).filter((n) => n.ghost).length,
 		ask = ui.ask;
 	const highlighted = ask?.threads.some(
 		(thread) => thread.on && thread.ids.some((id) => state.nodes[id]),
 	);
-	const node = state.nodes[state.sel],
+	const node = state.nodes[String(state.sel)],
 		showBar = !!(
 			node &&
 			ui.small &&

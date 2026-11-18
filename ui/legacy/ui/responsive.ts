@@ -363,7 +363,7 @@ export function openNodeMenu(id, x, y) {
 export function setMobileLayout(v: string) {
 	setPreference("mobileLayout", v === "minimal" ? "minimal" : "standard");
 }
-export const SHORT = {
+export const SHORT: Record<string, string> = {
 	accept: "Keep",
 	dismiss: "Dismiss",
 	grow: "Grow",
