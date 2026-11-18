@@ -129,7 +129,7 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`));
 	await sleep(500);
 	assert.equal(
-		a.w.eval("LIB.currentId"),
+		a.api.library.currentId,
 		first.id,
 		"the first Cascade is the open one",
 	);
@@ -220,13 +220,13 @@ test("library UI: with a cloud backend the page shows Google sign-in, and the li
 	assert.equal(a.$("#libTools").hidden, true, "no tools until signed in");
 	assert.equal(a.$$("#libList .lib-row").length, 0);
 	signedIn = true;
-	await a.w.libRefresh();
+	await a.api.refreshLibrary();
 	await tick();
 	assert.match(a.$("#libWho").textContent, /Ada/);
 	assert.equal(a.$("#libTools").hidden, false);
 	assert.equal(a.$$("#libList .lib-row").length, 1);
 	assert.equal(a.$("#libList .lib-open").textContent, "Cloud one");
-	a.w.eval("LIB.cascades[0].name = 'Renamed without libRender'");
+	a.api.library.cascades[0].name = "Renamed without libRender";
 	await tick();
 	assert.equal(
 		a.$("#libList .lib-open").textContent,
@@ -236,7 +236,7 @@ test("library UI: with a cloud backend the page shows Google sign-in, and the li
 		marker = a.d.createElement("span");
 	marker.textContent = "Google-owned content";
 	google.append(marker);
-	a.w.eval("LIB.status = 'A status update'");
+	a.api.library.status = "A status update";
 	await tick();
 	assert.equal(a.$("#libGoogle"), google);
 	assert.equal(marker.parentNode, google);

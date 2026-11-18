@@ -215,9 +215,10 @@ async function importPack(a, p: unknown = pack()) {
 	a.click(a.$("#msPasteImport"));
 	await tick();
 }
-const evalJson = (a, code) => JSON.parse(a.w.eval(`JSON.stringify(${code})`));
+const mindsetNodes = (a: ReturnType<typeof open>) =>
+	Object.values(a.api.tree.nodes).filter((node) => node.mindset);
 async function finish(a) {
-	await a.w.eval("chain");
+	await a.api.waitForAi();
 }
 
 test("mindsets UI: import several, disable, override icons, remove and undo without losing tree data", async (t) => {
@@ -232,18 +233,18 @@ test("mindsets UI: import several, disable, override icons, remove and undo with
 	);
 	const on = a.$(".mindset-pack input[type=checkbox]");
 	a.click(on);
-	assert.equal(evalJson(a, "S.mindsets")[0].enabled, false);
+	assert.equal(a.api.tree.mindsets[0].enabled, false);
 	a.type(a.$(".mindset-pack input[type=text]"), "💡");
 	a.$(".mindset-pack input[type=text]").dispatchEvent(
 		new a.w.FocusEvent("focusout", { bubbles: true }),
 	);
-	assert.equal(evalJson(a, "S.mindsets")[0].icon, "💡");
+	assert.equal(a.api.tree.mindsets[0].icon, "💡");
 	a.click(
 		[...a.$$(".mindset-pack button")].find((b) => b.textContent === "Remove"),
 	);
 	await tick();
 	assert.equal(a.$$(".mindset-pack").length, 1);
-	a.w.eval("undo()");
+	a.api.undo();
 	await tick();
 	assert.equal(a.$$(".mindset-pack").length, 2);
 	const saved = JSON.parse(
@@ -254,7 +255,7 @@ test("mindsets UI: import several, disable, override icons, remove and undo with
 		local: { "cascade-tree-v1": a.w.localStorage.getItem("cascade-tree-v1") },
 	});
 	t.after(() => loaded.dom.window.close());
-	assert.equal(evalJson(loaded, "S.mindsets")[0].enabled, false);
+	assert.equal(loaded.api.tree.mindsets[0].enabled, false);
 	assert.deepEqual(a.errs, []);
 	assert.deepEqual(loaded.errs, []);
 });
@@ -285,7 +286,7 @@ test("mindsets UI: explicit generation creates labelled question suggestions and
 	const { a, prompts } = setup(t, lines);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("select('n6')");
+	a.api.selectNode("n6");
 	await tick();
 	a.click(
 		[...a.$$(".mindset-pack button")].find(
@@ -293,7 +294,7 @@ test("mindsets UI: explicit generation creates labelled question suggestions and
 		),
 	);
 	await finish(a);
-	const nodes = evalJson(a, "Object.values(S.nodes).filter(n=>n.mindset)");
+	const nodes = mindsetNodes(a);
 	assert.equal(nodes.length, 1);
 	const q = nodes[0];
 	assert.equal(q.type, "question");
@@ -311,15 +312,18 @@ test("mindsets UI: explicit generation creates labelled question suggestions and
 	assert.match(a.$("#ntxt").textContent, /Workshop notes/);
 	assert.match(prompts[0], /ONLY when they directly help/);
 	assert.doesNotMatch(prompts[0], /Readable Combat/);
-	a.w.eval(`acceptGhost('${q.id}'); startResolve('${q.id}')`);
+	a.api.acceptGhost(q.id);
+	a.api.startResolve(q.id);
 	await tick();
 	assert.match(a.$(".gq").textContent, /Meaningful Return/);
 	a.type(a.$(".gans"), "Returning unlocks new paths.");
 	a.click(a.$("[data-gact=answer]"));
 	await sleep(30);
-	assert.equal(evalJson(a, `S.nodes['${q.id}']`).state, "settled");
-	a.w.eval("S.mindsets = []; save(); layout(false)");
-	const imported = evalJson(a, "sanitizeTree(JSON.parse(snap()))");
+	assert.equal(a.api.tree.nodes[q.id].state, "settled");
+	a.api.tree.mindsets = [];
+	a.api.saveTree();
+	a.api.layoutCanvas(false);
+	const imported = a.api.sanitizeTree(JSON.parse(a.api.serializeTree()));
 	assert.equal(imported.nodes[q.id].mindset.source.edition, "First");
 	assert.match(a.byId(q.id).textContent, /Meaningful Return/);
 	assert.deepEqual(a.errs, []);
@@ -333,27 +337,23 @@ test("mindsets UI: business trees never send game-only packs, even when branch k
 	);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval(
-		"S.nodes.n1.text='Business traversal of the sales pipeline'; select('n1'); applyMindset('n1','design-lenses')",
-	);
+	a.api.tree.nodes.n1.text = "Business traversal of the sales pipeline";
+	a.api.selectNode("n1");
+	a.api.applyMindset("n1", "design-lenses");
 	await finish(a);
 	assert.equal(
 		prompts.length,
 		0,
 		"explicit action cannot bypass the domain gate",
 	);
-	a.w.eval("growNode('n1')");
+	a.api.growNode("n1");
 	await finish(a);
 	assert.equal(prompts.length, 1);
 	assert.doesNotMatch(
 		prompts[0],
 		/Meaningful Return|Workshop notes|What changes on return/,
 	);
-	assert.equal(
-		evalJson(a, "Object.values(S.nodes).filter(n=>n.mindset)").length,
-		0,
-		"forged tagged output rejected",
-	);
+	assert.equal(mindsetNodes(a).length, 0, "forged tagged output rejected");
 	assert.deepEqual(a.errs, []);
 });
 
@@ -370,12 +370,10 @@ test("mindsets UI: automatic grow validates entries against actual parent branch
 	const { a } = setup(t, reply);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("closeSettings(); growNode('n6')");
+	a.api.closeSettings();
+	a.api.growNode("n6");
 	await finish(a);
-	assert.equal(
-		evalJson(a, "Object.values(S.nodes).filter(n=>n.mindset)").length,
-		2,
-	);
+	assert.equal(mindsetNodes(a).length, 2);
 	assert.ok(a.byText("Ordinary follow-up"));
 	assert.equal(a.byText("Unrelated combat branch"), undefined);
 	assert.deepEqual(a.errs, []);
@@ -388,14 +386,15 @@ test("mindsets UI: interview questions keep lens metadata when answered", async 
 	);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("closeSettings(); startGrill('n6')");
+	a.api.closeSettings();
+	a.api.startGrill("n6");
 	await sleep(150);
 	assert.match(prompts[0], /MINDSET QUESTION OPTIONS/);
 	assert.match(a.$(".gq").textContent, /Meaningful Return/);
 	a.type(a.$(".gans"), "New routes open after each trip.");
 	a.click(a.$("[data-gact=answer]"));
 	await sleep(40);
-	const q = evalJson(a, "Object.values(S.nodes).find(n=>n.mindset)");
+	const q = mindsetNodes(a)[0];
 	assert.equal(q.state, "settled");
 	assert.equal(q.mindset.entryId, "return");
 	assert.deepEqual(a.errs, []);
@@ -405,11 +404,11 @@ test("mindsets UI: switching library trees isolates packs; older exports stay co
 	const { a } = setup(t);
 	await sleep(60);
 	await importPack(a);
-	const data = evalJson(a, "libData()");
-	a.w.eval("libApply(libBlankData())");
-	assert.equal(evalJson(a, "S.mindsets").length, 0);
-	a.w.eval(`libApply(${JSON.stringify(data)})`);
-	assert.equal(evalJson(a, "S.mindsets").length, 1);
+	const data = JSON.parse(JSON.stringify(a.api.readLibraryData()));
+	a.api.applyLibraryData(a.api.blankLibraryData());
+	assert.equal(a.api.tree.mindsets.length, 0);
+	a.api.applyLibraryData(data);
+	assert.equal(a.api.tree.mindsets.length, 1);
 	const legacy = {
 		nodes: {
 			n1: { id: "n1", type: "question", text: "Legacy question", parent: null },
@@ -419,7 +418,7 @@ test("mindsets UI: switching library trees isolates packs; older exports stay co
 		seq: 1,
 	};
 	assert.deepEqual(
-		evalJson(a, `sanitizeTree(${JSON.stringify(legacy)}).mindsets`),
+		JSON.parse(JSON.stringify(a.api.sanitizeTree(legacy).mindsets)),
 		[],
 	);
 	assert.deepEqual(a.errs, []);
@@ -429,13 +428,11 @@ test("mindsets UI: demo mode does not pretend to apply imported packs", async (t
 	const { a } = setup(t, "", "game", { html: webHtml() });
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("closeSettings(); applyMindset('n6','design-lenses')");
+	a.api.closeSettings();
+	a.api.applyMindset("n6", "design-lenses");
 	await finish(a);
 	assert.match(a.$("#ntxt").textContent, /connected provider/);
-	assert.equal(
-		evalJson(a, "Object.values(S.nodes).filter(n=>n.mindset)").length,
-		0,
-	);
+	assert.equal(mindsetNodes(a).length, 0);
 });
 
 test("mindsets UI: chart uses relevant branches beyond a generic root", async (t) => {
@@ -445,10 +442,12 @@ test("mindsets UI: chart uses relevant branches beyond a generic root", async (t
 	);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("PREFS.goal='Improve traversal'; closeSettings(); chartMap()");
+	a.api.prefs.goal = "Improve traversal";
+	a.api.closeSettings();
+	a.api.chartMap();
 	await finish(a);
 	assert.match(prompts[0], /MINDSET QUESTION OPTIONS/);
-	const q = evalJson(a, "Object.values(S.nodes).find(n=>n.mindset)");
+	const q = mindsetNodes(a)[0];
 	assert.equal(q.ticket, "research");
 	assert.equal(q.parent, "n6");
 	assert.deepEqual(a.errs, []);
@@ -470,7 +469,8 @@ test("mindsets UI: disabling a pack while generation runs prevents stale suggest
 	);
 	await sleep(60);
 	await importPack(a);
-	a.w.eval("closeSettings(); applyMindset('n6','design-lenses')");
+	a.api.closeSettings();
+	a.api.applyMindset("n6", "design-lenses");
 	await ready;
 	a.click(a.$("#setBtn"));
 	a.click(a.$("[data-tab=mindsets]"));
@@ -478,9 +478,6 @@ test("mindsets UI: disabling a pack while generation runs prevents stale suggest
 	a.click(on);
 	release(JSON.stringify(tagged()));
 	await finish(a);
-	assert.equal(
-		evalJson(a, "Object.values(S.nodes).filter(n=>n.mindset)").length,
-		0,
-	);
+	assert.equal(mindsetNodes(a).length, 0);
 	assert.deepEqual(a.errs, []);
 });

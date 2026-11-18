@@ -69,7 +69,11 @@ test("startup: saved empty canvases preserve camera and imported mindsets on rel
 	t.after(() => a.dom.window.close());
 	assert.equal(a.nodes().length, 0);
 	const restored = JSON.parse(
-		a.w.eval("JSON.stringify({view:S.view,mindsets:S.mindsets,seq:S.seq})"),
+		JSON.stringify({
+			view: a.api.tree.view,
+			mindsets: a.api.tree.mindsets,
+			seq: a.api.tree.seq,
+		}),
 	);
 	assert.deepEqual(restored.view, view);
 	assert.equal(restored.seq, 7);

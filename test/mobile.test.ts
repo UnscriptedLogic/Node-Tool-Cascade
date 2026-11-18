@@ -14,7 +14,7 @@ test("composer switches between desktop placement and the mobile sheet on resize
 	t.after(() => a.dom.window.close());
 	await tick();
 	a.$("#stage").getBoundingClientRect = () => new a.w.DOMRect(0, 0, 900, 600);
-	a.w.eval("openCompose('question',300,350)");
+	a.api.openCompose("question", 300, 350);
 	const composer = a.$("#compose");
 	const desktop = {
 		left: composer.style.left,
@@ -22,9 +22,10 @@ test("composer switches between desktop placement and the mobile sheet on resize
 		width: composer.style.width,
 	};
 	assert.equal(desktop.width, "300px");
-	for (const mode of ["standard", "minimal"]) {
+	for (const mode of ["standard", "minimal"] as const) {
 		a.w.innerWidth = 390;
-		a.w.eval(`PREFS.mobileLayout='${mode}';applyResponsive(true)`);
+		a.api.prefs.mobileLayout = mode;
+		a.api.applyResponsive(true);
 		await tick();
 		assert.equal(composer.hidden, false);
 		assert.equal(composer.style.left, "");
@@ -34,7 +35,7 @@ test("composer switches between desktop placement and the mobile sheet on resize
 		assert.equal(a.w.getComputedStyle(composer).left, "0px");
 	}
 	a.w.innerWidth = 1200;
-	a.w.eval("applyResponsive(true)");
+	a.api.applyResponsive(true);
 	await tick();
 	assert.equal(composer.style.left, desktop.left);
 	assert.equal(composer.style.top, desktop.top);
@@ -192,13 +193,13 @@ test("mobile minimal: a tap on empty space opens a menu, Add a block opens the c
 	a.escape();
 	await sleep(50);
 	// a drag across the canvas pans and does not open a menu
-	const x0 = a.w.eval("S.view.x");
+	const x0 = a.api.tree.view.x;
 	ptr(a, "pointerdown", a.$("#stage"), 100, 300);
 	ptr(a, "pointermove", a.$("#stage"), 160, 320);
 	ptr(a, "pointerup", a.$("#stage"), 160, 320);
 	await sleep(60);
 	assert.ok(!a.$("#ctx"), "no menu after a pan");
-	assert.notEqual(a.w.eval("S.view.x"), x0, "the view moved");
+	assert.notEqual(a.api.tree.view.x, x0, "the view moved");
 	assert.deepEqual(a.errs, []);
 });
 
@@ -272,7 +273,9 @@ test("mobile minimal: suggestions are handled from the menu, and the hint appear
 test("performance: the grid layer carries the pan and zoom variables, so no block is restyled by a camera move", async () => {
 	const a = open({ local: GAME });
 	await sleep(400);
-	a.w.eval("S.view.x += 40; S.view.z = .9; applyView()");
+	a.api.tree.view.x += 40;
+	a.api.tree.view.z = 0.9;
+	a.api.applyView();
 	const stage = a.$("#stage"),
 		grid = a.$("#grid");
 	for (const v of ["--gx", "--gy", "--gs", "--z"])
@@ -283,7 +286,8 @@ test("performance: the grid layer carries the pan and zoom variables, so no bloc
 		);
 	assert.match(grid.style.transform, /translate3d/);
 	assert.notEqual(grid.style.getPropertyValue("--gs"), "");
-	a.w.eval("S.view.z = .4; applyView()");
+	a.api.tree.view.z = 0.4;
+	a.api.applyView();
 	assert.equal(
 		a.$("#world").style.getPropertyValue("--z"),
 		"0.40",
@@ -306,12 +310,12 @@ test("performance: a camera-only animation does not redraw the edges, but changi
 	});
 	await sleep(300);
 	n = 0;
-	a.w.eval("fitTo(visibleIds(),{maxZ:1,minZ:.3,pad:56})");
+	a.api.fitTo(a.api.visibleNodeIds(), { maxZ: 1, minZ: 0.3, pad: 56 });
 	await sleep(700);
 	assert.equal(n, 0, "panning and zooming leave the edges as they are");
-	a.w.eval(
-		"S.nodes[S.order.find(i=>S.nodes[i].type==='question')].text = 'Changed'; layout(false)",
-	);
+	const { nodes, order } = a.api.tree;
+	nodes[order.find((id) => nodes[id].type === "question")].text = "Changed";
+	a.api.layoutCanvas(false);
 	await sleep(400);
 	assert.ok(n > 0, "a change to the tree redraws them");
 	observer.disconnect();
@@ -331,12 +335,12 @@ test("performance: a burst of pointer moves is applied once per frame", async ()
 	ptr(a, "pointerdown", a.$("#stage"), 100, 300);
 	for (let i = 1; i <= 40; i++)
 		ptr(a, "pointermove", a.$("#stage"), 100 + i * 2, 300);
-	const x = a.w.eval("S.view.x");
+	const x = a.api.tree.view.x;
 	ptr(a, "pointerup", a.$("#stage"), 180, 300);
 	await sleep(80);
 	assert.ok(n <= 4, `40 moves caused ${n} camera updates`);
 	assert.ok(
-		a.w.eval("S.view.x") === x,
+		a.api.tree.view.x === x,
 		"and the view still ended where the finger did",
 	);
 	observer.disconnect();
@@ -361,8 +365,9 @@ test("performance: restyle leaves blocks whose classes did not change alone", as
 			proto.set.call(this, v);
 		},
 	});
-	a.w.eval("restyle()");
+	a.api.restyleNodes();
 	assert.equal(writes, 0, "same classes, no write");
-	a.w.eval(`S.sel = '${el.dataset.id}'; restyle()`);
+	a.api.tree.sel = el.dataset.id;
+	a.api.restyleNodes();
 	assert.equal(writes, 1, "it changed, so it was written once");
 });

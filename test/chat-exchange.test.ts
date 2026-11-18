@@ -71,7 +71,7 @@ test("manual exchange accepts fenced JSON, renders text safely, and invalidates 
 });
 test("manual exchange focuses selected branch and rejects import after tree reset", async (t) => {
 	const a = await start(t);
-	a.w.eval("S.sel = 'n6'");
+	a.api.tree.sel = "n6";
 	a.click(a.$("#chatPrepare"));
 	assert.match(a.$("#chatPrompt").value, /FOCUS: n6/);
 	const tree = JSON.parse(
@@ -80,7 +80,7 @@ test("manual exchange focuses selected branch and rejects import after tree rese
 	assert.equal(tree[0].id, "n6");
 	assert.ok(tree.length < a.nodes().length);
 	reply(a, [row]);
-	a.w.eval("resetTree()");
+	a.api.resetTree();
 	a.click(a.$("#chatImport"));
 	assert.equal(a.byText(row.text), undefined);
 	assert.match(a.$("#chatStatus").textContent, /fresh prompt/);

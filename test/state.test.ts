@@ -6,17 +6,31 @@ test("HUD and rail react to store writes without a manual refresh", async (t) =>
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
-	assert.equal(a.w.eval("typeof updateHud"), "undefined");
-	a.w.eval(
-		"PREFS.goal='A reactive destination'; S.mode='outer'; hist.push({s:snap(),v:null})",
-	);
+	assert.equal(typeof a.w.updateHud, "undefined");
+	a.api.prefs.goal = "A reactive destination";
+	a.api.tree.mode = "outer";
+	a.api.history.push({ s: a.api.serializeTree(), v: null });
 	await sleep(0);
 	assert.equal(a.$("#goalchip .gt").textContent, "A reactive destination");
 	assert.equal(a.$("#mOuter").getAttribute("aria-pressed"), "true");
 	assert.equal(a.$("#undoBtn").disabled, false);
-	a.w.eval(
-		"UI.library={kind:'local',user:null,currentId:'test',cascades:[{id:'test',name:'A new name',folderId:'folder'}],folders:[{id:'folder',name:'A folder'}]}",
-	);
+	a.api.ui.library = {
+		...a.api.library,
+		kind: "local",
+		user: null,
+		currentId: "test",
+		cascades: [
+			{
+				id: "test",
+				name: "A new name",
+				folderId: "folder",
+				domain: "game",
+				createdAt: 0,
+				updatedAt: 0,
+			},
+		],
+		folders: [{ id: "folder", name: "A folder", createdAt: 0 }],
+	};
 	await sleep(0);
 	assert.equal(a.$("#openName .cn").textContent, "A new name");
 	assert.equal(a.$("#openName .cf").textContent, "A folder / ");
@@ -28,9 +42,11 @@ test("side panels render streamed state as text and keep card edits reactive", a
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
-	a.w.eval(
-		"openSide('ask'); AN.summaryBusy=true; AN.summaryKind='tree'; AN.summary='<img src=x onerror=alert(1)> First chunk'; AN.busy=true",
-	);
+	a.api.openSidePanel("ask");
+	a.api.ask.summaryBusy = true;
+	a.api.ask.summaryKind = "tree";
+	a.api.ask.summary = "<img src=x onerror=alert(1)> First chunk";
+	a.api.ask.busy = true;
 	await sleep(0);
 	assert.equal(a.$("#aSummaryWrap").hidden, false);
 	assert.equal(
@@ -43,21 +59,21 @@ test("side panels render streamed state as text and keep card edits reactive", a
 		"model text is never interpreted as HTML",
 	);
 	assert.equal(a.$("#aGo").disabled, true);
-	a.w.eval(
-		"AN.summary+=' Second chunk'; AN.busy=false; AN.summaryBusy=false; startResolve('n6')",
-	);
+	a.api.ask.summary += " Second chunk";
+	a.api.ask.busy = false;
+	a.api.ask.summaryBusy = false;
+	a.api.startResolve("n6");
 	await sleep(0);
 	assert.match(a.$("#aSumText").textContent, /First chunk Second chunk$/);
 	assert.equal(a.$("#aGo").disabled, false);
-	a.w.eval(
-		"G.cards[0].answer='A draft answer'; G.cards[0].pushback='<b>A challenge</b>'",
-	);
+	a.api.grill.cards[0].answer = "A draft answer";
+	a.api.grill.cards[0].pushback = "<b>A challenge</b>";
 	await sleep(0);
 	assert.equal(a.$(".gcard textarea").value, "A draft answer");
 	assert.equal(a.$(".gpush").textContent, "<b>A challenge</b>");
 	assert.equal(a.$(".gpush b"), null);
 	a.type(a.$(".gcard textarea"), "A revised answer");
-	assert.equal(a.w.eval("G.cards[0].answer"), "A revised answer");
+	assert.equal(a.api.grill.cards[0].answer, "A revised answer");
 	assert.deepEqual(a.errs, []);
 });
 
@@ -65,7 +81,8 @@ test("settings reflect preference writes without reopening or manual syncing", a
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
-	a.w.eval("PREFS.goal='A goal from a legacy action'; PREFS.domain='research'");
+	a.api.prefs.goal = "A goal from a legacy action";
+	a.api.prefs.domain = "research";
 	await sleep(0);
 	assert.equal(a.$("#gGoal").value, "A goal from a legacy action");
 	assert.equal(a.$("#gDomain").value, "research");
@@ -76,28 +93,30 @@ test("legacy state writes notify Valtio subscribers and snapshots preserve saved
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
-	const state = a.w.eval("S"),
-		prefs = a.w.eval("PREFS"),
-		lib = a.w.eval("LIB");
+	const state = a.api.tree,
+		prefs = a.api.prefs,
+		lib = a.api.library;
 	let updates = 0;
 	const unsub = a.w.CascadeUI.subscribe(state, () => updates++);
 	t.after(unsub);
-	a.w.eval("S.nodes.n6.text = 'A revised question'");
+	a.api.tree.nodes.n6.text = "A revised question";
 	await Promise.resolve();
 	assert.equal(updates, 1);
 	assert.equal(
 		a.w.CascadeUI.snapshot(state).nodes.n6.text,
 		"A revised question",
 	);
-	a.w.eval(
-		"pushHist(); clearGraph(); undo(); Object.assign(PREFS,{goal:'A goal'}); LIB.status='Saved'",
-	);
-	assert.equal(a.w.eval("S"), state);
-	assert.equal(a.w.eval("PREFS"), prefs);
-	assert.equal(a.w.eval("LIB"), lib);
+	a.api.pushHistory();
+	a.api.clearGraph();
+	a.api.undo();
+	Object.assign(a.api.prefs, { goal: "A goal" });
+	a.api.library.status = "Saved";
+	assert.equal(a.api.tree, state);
+	assert.equal(a.api.prefs, prefs);
+	assert.equal(a.api.library, lib);
 	assert.equal(state.nodes.n6.text, "A revised question");
 	assert.equal(
-		JSON.parse(a.w.eval("snap()")).nodes.n6.text,
+		JSON.parse(a.api.serializeTree()).nodes.n6.text,
 		"A revised question",
 	);
 });
@@ -106,7 +125,7 @@ test("canvas view mutations are untracked, including after clearing the tree", a
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
-	const state = a.w.eval("S");
+	const state = a.api.tree;
 	let updates = 0;
 	const unsub = a.w.CascadeUI.subscribe(state, () => updates++);
 	t.after(unsub);
@@ -114,7 +133,7 @@ test("canvas view mutations are untracked, including after clearing the tree", a
 	state.view.z = 2;
 	await Promise.resolve();
 	assert.equal(updates, 0);
-	a.w.eval("clearGraph()");
+	a.api.clearGraph();
 	await Promise.resolve();
 	updates = 0;
 	state.view.x += 10;

@@ -98,9 +98,17 @@ test("domain: project-reading prompts follow the profile, and name an engine onl
 	const g = prompts("general");
 	await sleep(300);
 	const grp = { label: "docs", digest: "FILE a.md (md)", excerpts: "" };
-	const map = g.w.eval(`mapPrompt(${JSON.stringify(grp)},'')`),
-		brief = g.w.eval(
-			`briefPrompt([{id:'f1',kind:'decision',text:'We ship monthly.',refs:[{file:'a.md',line:1}]}],'')`,
+	const map = g.api.buildMapPrompt(grp, ""),
+		brief = g.api.buildBriefPrompt(
+			[
+				{
+					id: "f1",
+					kind: "decision",
+					text: "We ship monthly.",
+					refs: [{ file: "a.md", line: 1 }],
+				},
+			],
+			"",
 		);
 	for (const p of [map, brief]) assert.doesNotMatch(p, GAMEY);
 	assert.match(map, /part of a project so its decision-maker/);
@@ -108,7 +116,7 @@ test("domain: project-reading prompts follow the profile, and name an engine onl
 	const k = prompts("game");
 	await sleep(300);
 	assert.match(
-		k.w.eval(`mapPrompt(${JSON.stringify(grp)},'Unity')`),
+		k.api.buildMapPrompt(grp, "Unity"),
 		/part of a game project \(Unity\) so its designer/,
 	);
 });

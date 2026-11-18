@@ -168,9 +168,10 @@ test("analytics page: Do Not Track, the static web build and the local app send 
 	const c = cloud(),
 		a = page(c, {});
 	await sleep(300);
-	a.w.eval(
-		"Object.defineProperty(navigator,'doNotTrack',{ value:'1', configurable:true })",
-	);
+	Object.defineProperty(a.w.navigator, "doNotTrack", {
+		value: "1",
+		configurable: true,
+	});
 	await a.drop("question", "Would a bigger map help?", 800);
 	assert.equal(c.events.length, 0, "Do Not Track is honoured");
 	const calls: string[] = [];
@@ -196,5 +197,5 @@ test("analytics page: Do Not Track, the static web build and the local app send 
 	);
 	const local = open({ claude: { use: async () => null } });
 	await sleep(300);
-	assert.equal(local.w.eval("ANALYTICS.on"), false);
+	assert.equal(local.api.analyticsEnabled, false);
 });

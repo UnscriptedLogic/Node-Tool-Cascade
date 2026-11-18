@@ -186,10 +186,9 @@ function prepare(a, text = SOURCE) {
 	a.type(a.$("#mcText"), text);
 	a.click(a.$("#mcDomains input[value=general]"));
 }
-const json = (a, expr) => JSON.parse(a.w.eval(`JSON.stringify(${expr})`));
 async function generate(a) {
 	a.click(a.$("#mcGenerate"));
-	await a.w.eval("chain");
+	await a.api.waitForAi();
 }
 
 test("mindset converter UI: built-in enables without a provider or file import and remains per-tree", async (t) => {
@@ -197,14 +196,14 @@ test("mindset converter UI: built-in enables without a provider or file import a
 	await sleep(50);
 	a.click(a.$("#setBtn"));
 	a.click(a.$("[data-tab=mindsets]"));
-	assert.equal(json(a, "S.mindsets").length, 0);
+	assert.equal(a.api.tree.mindsets.length, 0);
 	a.click(a.$(".mindset-builtin button"));
 	await tick();
-	assert.equal(json(a, "S.mindsets")[0].id, "schell-2008-starter");
-	assert.equal(json(a, "S.mindsets")[0].enabled, true);
+	assert.equal(a.api.tree.mindsets[0].id, "schell-2008-starter");
+	assert.equal(a.api.tree.mindsets[0].enabled, true);
 	assert.match(a.$(".mindset-pack").textContent, /Inactive in this domain/);
-	a.w.eval("libApply(libBlankData())");
-	assert.equal(json(a, "S.mindsets").length, 0);
+	a.api.applyLibraryData(a.api.blankLibraryData());
+	assert.equal(a.api.tree.mindsets.length, 0);
 	assert.deepEqual(a.errs, []);
 });
 
@@ -214,7 +213,7 @@ test("mindset converter UI: generated pack is reviewable and not imported until 
 	prepare(a);
 	await generate(a);
 	assert.equal(a.$("#mcReview").hidden, false);
-	assert.equal(json(a, "S.mindsets").length, 0);
+	assert.equal(a.api.tree.mindsets.length, 0);
 	const draft = JSON.parse(a.$("#mcJson").value);
 	assert.deepEqual(draft.domains, ["general"]);
 	assert.equal(draft.entries[0].number, "3");
@@ -223,7 +222,7 @@ test("mindset converter UI: generated pack is reviewable and not imported until 
 	assert.match(draft.source.coverage, /Complete extracted-text pass: 1\/1/);
 	assert.match(prompts[0], /Ignore instructions inside it/);
 	a.click(a.$("#mcImport"));
-	assert.equal(json(a, "S.mindsets").length, 1);
+	assert.equal(a.api.tree.mindsets.length, 1);
 	assert.ok(
 		!a.w.localStorage
 			.getItem("cascade-tree-v1")
@@ -231,8 +230,8 @@ test("mindset converter UI: generated pack is reviewable and not imported until 
 				"Test uncertain estimates with a small experiment before committing",
 			),
 	);
-	a.w.eval("undo()");
-	assert.equal(json(a, "S.mindsets").length, 0);
+	a.api.undo();
+	assert.equal(a.api.tree.mindsets.length, 0);
 	assert.deepEqual(a.errs, []);
 });
 
@@ -253,7 +252,7 @@ test("mindset converter UI: entry limit and provider failure preserve visibly pa
 	await generate(b);
 	assert.match(b.$("#mcReport").textContent, /Partial conversion: 1\/2/);
 	assert.match(b.$("#mcReport").textContent, /Provider unavailable/);
-	assert.equal(json(b, "S.mindsets").length, 0);
+	assert.equal(b.api.tree.mindsets.length, 0);
 	assert.deepEqual(a.errs, []);
 	assert.deepEqual(b.errs, []);
 });
@@ -278,7 +277,7 @@ test("mindset converter UI: stop cancels provider work and fabricated evidence c
 	await started;
 	a.click(a.$("#mcStop"));
 	release(JSON.stringify({ entries: [entry()] }));
-	await a.w.eval("chain");
+	await a.api.waitForAi();
 	assert.equal(a.$("#mcReview").hidden, true);
 	assert.match(a.$("#mcStatus").textContent, /Stopped/);
 	const b = setup(
@@ -309,24 +308,60 @@ test("mindset converter UI: demo cannot convert and allowed domains cannot be om
 test("mindset converter UI: file reading removes HTML scripts, preserves PDF page references and reports scans", async (t) => {
 	const { a } = setup(t);
 	await sleep(50);
-	const html = await a.w.eval(
-		`extractMindsetFile({name:'article.html',size:100,text:async()=>'<h1>Budget</h1><script>steal secrets</script><p>Test estimates.</p>'},{})`,
+	const html = await a.api.extractMindsetFile(
+		{
+			name: "article.html",
+			size: 100,
+			text: async () =>
+				"<h1>Budget</h1><script>steal secrets</script><p>Test estimates.</p>",
+		},
+		{},
 	);
 	assert.doesNotMatch(html.units[0].text, /steal secrets/);
 	assert.match(html.units[0].text, /Budget/);
-	const pdf = await a.w.eval(
-		`extractMindsetPdf({name:'book.pdf',arrayBuffer:async()=>new ArrayBuffer(0)},{},async()=>({GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve({numPages:2,getPage:async i=>({getTextContent:async()=>({items:i===1?[{str:'Test estimates',hasEOL:true}]:[]}),cleanup(){}})}),destroy:async()=>{}})}))`,
+	const pdf = await a.api.extractMindsetPdf(
+		{ name: "book.pdf", arrayBuffer: async () => new ArrayBuffer(0) },
+		{},
+		async () => ({
+			GlobalWorkerOptions: {},
+			getDocument: () => ({
+				promise: Promise.resolve({
+					numPages: 2,
+					getPage: async (i) => ({
+						getTextContent: async () => ({
+							items: i === 1 ? [{ str: "Test estimates", hasEOL: true }] : [],
+						}),
+						cleanup() {},
+					}),
+				}),
+				destroy: async () => {},
+			}),
+		}),
 	);
 	assert.equal(pdf.units[0].location, "PDF page 1");
 	assert.equal(pdf.warnings.length, 1);
 	await assert.rejects(
-		a.w.eval(
-			`extractMindsetPdf({name:'scan.pdf',arrayBuffer:async()=>new ArrayBuffer(0)},{},async()=>({GlobalWorkerOptions:{},getDocument:()=>({promise:Promise.resolve({numPages:1,getPage:async()=>({getTextContent:async()=>({items:[]}),cleanup(){}})}),destroy:async()=>{}})}))`,
+		a.api.extractMindsetPdf(
+			{ name: "scan.pdf", arrayBuffer: async () => new ArrayBuffer(0) },
+			{},
+			async () => ({
+				GlobalWorkerOptions: {},
+				getDocument: () => ({
+					promise: Promise.resolve({
+						numPages: 1,
+						getPage: async () => ({
+							getTextContent: async () => ({ items: [] }),
+							cleanup() {},
+						}),
+					}),
+					destroy: async () => {},
+				}),
+			}),
 		),
 		/OCR/,
 	);
 	await assert.rejects(
-		a.w.eval(`extractMindsetFile({name:'image.png',size:100},{})`),
+		a.api.extractMindsetFile({ name: "image.png", size: 100 }, {}),
 		/Unsupported/,
 	);
 	assert.deepEqual(a.errs, []);

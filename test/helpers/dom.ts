@@ -7,12 +7,18 @@ export type TestFetch = (
 	headers: Pick<Headers, "get">;
 	json(): Promise<unknown>;
 }>;
-type TestWindow = Omit<DOMWindow, "eval" | "innerWidth"> & {
+type TestWindow = Omit<DOMWindow, "innerWidth"> & {
 	innerWidth: number;
-	eval(code: string): ReturnType<typeof JSON.parse>;
+	CascadeUI?: Pick<
+		typeof import("valtio/vanilla"),
+		"subscribe" | "snapshot"
+	> & {
+		testApi: typeof import("../../ui/test-api.ts").testApi;
+	};
 };
 
 import type { DOMWindow } from "jsdom";
+import type {} from "../../ui/globals.d.ts";
 export interface OpenOptions {
 	html?: string;
 	url?: string;
@@ -23,7 +29,6 @@ export interface OpenOptions {
 	width?: number;
 	height?: number;
 	example?: boolean;
-	exposeInternals?: boolean;
 }
 export type TestElement = HTMLElement &
 	Pick<
@@ -62,7 +67,6 @@ function open({
 	width,
 	height,
 	example = true,
-	exposeInternals = true,
 }: OpenOptions = {}) {
 	const errs: string[] = [],
 		navigated = [],
@@ -122,7 +126,7 @@ function open({
 				return o;
 			}) as unknown as DOMWindow["open"];
 			if (fetchImpl) w.fetch = fetchImpl as typeof fetch;
-			if (claude) w.claude = claude;
+			if (claude) Object.assign(w, { claude });
 			if (session)
 				for (const [k, v] of Object.entries(session))
 					w.sessionStorage.setItem(k, v);
@@ -142,20 +146,9 @@ function open({
 	});
 	const w = dom.window as TestWindow,
 		d: Document = dom.window.document;
-	// Keep existing model assertions in this harness; production exposes only CascadeUI.
-	if (exposeInternals && w.CascadeUI?.legacy)
-		for (const key of Object.keys(w.CascadeUI.legacy)) {
-			Object.defineProperty(w, key, {
-				configurable: true,
-				get: () => w.CascadeUI.legacy[key],
-				set: (value) => {
-					w.CascadeUI.legacy[key] = value;
-				},
-			});
-		}
+	const api = w.CascadeUI?.testApi;
 	// Canvas tests use explicit example data. Startup tests opt out to exercise the real blank canvas.
-	if (example && d.getElementById("stage") && !w.eval("loaded"))
-		w.eval("Object.assign(S,seed()); layout(true); initialView(true);");
+	if (example && d.getElementById("stage")) api.seedExample();
 	const $ = <T extends Element = TestElement>(s: string): T =>
 			d.querySelector<T>(s),
 		$$ = <T extends Element = TestElement>(s: string): T[] => [
@@ -193,6 +186,7 @@ function open({
 	};
 	return {
 		dom,
+		api,
 		w,
 		d,
 		$,

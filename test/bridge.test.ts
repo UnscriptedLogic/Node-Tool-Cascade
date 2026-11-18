@@ -80,7 +80,7 @@ test("bridge: dropping an emotion into a tree with content grows both ends, link
 	const prompts = [],
 		probe = open({ claude: model([], "") });
 	await sleep(300);
-	const emoId = `n${probe.w.eval("S.seq") + 1}`; // the new feeling gets the next id; the model refers to it by that id
+	const emoId = `n${probe.api.tree.seq + 1}`; // the new feeling gets the next id; the model refers to it by that id
 	const bridge = NODES.map((n) => J(n).replace('"EMO"', J(emoId)))
 		.concat(J({ verdict: "bridged", gap: "" }))
 		.join("\n");
@@ -111,7 +111,7 @@ test("bridge: when the ends cannot meet, a grill starts with the missing step as
 	const prompts = [];
 	const probe = open({ claude: model([], "") });
 	await sleep(300);
-	const emo = `n${probe.w.eval("S.seq") + 1}`;
+	const emo = `n${probe.api.tree.seq + 1}`;
 	const bridge =
 		[
 			{

@@ -22,7 +22,7 @@ for (const mode of ["artifact", "web", "local"]) {
 		const a = open({ html, example: false, fetchImpl });
 		t.after(() => a.dom.window.close());
 		await sleep(20);
-		assert.equal(a.w.eval("MODE"), mode);
+		assert.equal(a.api.mode, mode);
 		for (const name of [
 			"proxy",
 			"subscribe",
@@ -43,9 +43,12 @@ test("UI bundle mounts once per name and releases its root", async (t) => {
 		pretendToBeVisual: true,
 	});
 	t.after(() => dom.window.close());
-	dom.window.eval(
-		fs.readFileSync(path.join(import.meta.dirname, "../app/gen/ui.js"), "utf8"),
+	const script = dom.window.document.createElement("script");
+	script.textContent = fs.readFileSync(
+		path.join(import.meta.dirname, "../app/gen/ui.js"),
+		"utf8",
 	);
+	dom.window.document.head.append(script);
 	const ui = dom.window.CascadeUI,
 		el = dom.window.document.getElementById("island");
 	assert.throws(() => ui.mount("missing", el), /Unknown Cascade UI island/);
@@ -82,7 +85,7 @@ test("manifest uses one script bundle and emits only the expected files", () => 
 });
 
 test("production loads without exposing model globals", async (t) => {
-	const a = open({ example: false, exposeInternals: false });
+	const a = open({ example: false });
 	t.after(() => a.dom.window.close());
 	await sleep(20);
 	for (const name of [
@@ -95,7 +98,7 @@ test("production loads without exposing model globals", async (t) => {
 		"openSettings",
 	])
 		assert.equal(a.w[name], undefined, name);
-	assert.ok(a.w.CascadeUI.legacy.S);
+	assert.ok(a.api.tree);
 	assert.equal(a.$("#rail").tagName, "ASIDE");
 	assert.deepEqual(a.errs, []);
 });
