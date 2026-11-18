@@ -2,9 +2,16 @@ let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { proxy, ref } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
-import type { CascadeTree, Point, RenderedNode } from "../../model.ts";
+import { record, type View } from "../../../shared/types.ts";
+import type {
+	CascadeTree,
+	Point,
+	RenderedNode,
+	SavedTree,
+} from "../../model.ts";
 import { KEY, LOCAL } from "./constants.ts";
 import { DOM } from "./profiles.ts";
+import { decodeSavedTree } from "./saved-tree.ts";
 
 const saveListeners = new Set<() => void>();
 export function onTreeSaved(fn: () => void) {
@@ -20,7 +27,7 @@ export const state = {
 	THMAP: undefined,
 	THR: undefined,
 };
-export let loaded: CascadeTree | null,
+export let loaded: SavedTree | null,
 	initialState: CascadeTree,
 	S: CascadeTree,
 	R: Record<string, RenderedNode>,
@@ -35,15 +42,18 @@ export function seed() {
 }
 export function load() {
 	try {
-		let o = window.__CASCADE_SAVED__;
-		if (!o) {
+		let value: unknown = window.__CASCADE_SAVED__;
+		if (!value) {
 			const raw = localStorage.getItem(KEY);
 			if (!raw) return null;
-			o = JSON.parse(raw);
+			value = JSON.parse(raw);
 		}
-		const t = JSON.parse(o.tree);
-		if (!t?.nodes || !Array.isArray(t.order)) return null;
-		t.view = o.view;
+		const o = record(value);
+		const parsed: unknown = JSON.parse(String(o.tree));
+		const t = decodeSavedTree(parsed);
+		if (!t) return null;
+		// Keep the saved camera unchanged; startModel applies the existing fallback.
+		t.view = o.view as View;
 		return t;
 	} catch {
 		return null;

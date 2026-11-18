@@ -87,3 +87,6 @@ export interface TreeMap {
 	flag: Record<string, string>;
 	blockers?: Record<string, string[]>;
 }
+
+export type SavedTree = Pick<CascadeTree, "nodes" | "order"> &
+	Partial<CascadeTree>;

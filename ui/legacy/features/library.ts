@@ -7,6 +7,7 @@ import { applyView } from "../canvas/view.ts";
 import { ANALYTICS } from "../core/analytics.ts";
 import { CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
 import { DEFAULT_DOMAIN } from "../core/profiles.ts";
+import { decodeSavedTree } from "../core/saved-tree.ts";
 import {
 	AI,
 	state as coreStateState,
@@ -149,7 +150,9 @@ export function libApply(data) {
 	LIB.suspend = true;
 	cancelAI();
 	try {
-		const t = JSON.parse(data.tree);
+		const parsed: unknown = JSON.parse(data.tree);
+		const t = decodeSavedTree(parsed);
+		if (!t) throw new Error("That file doesn’t look like a Cascade tree.");
 		const mindsets = Mindsets.collection(t.mindsets);
 		S.nodes = t.nodes;
 		S.order = t.order;
