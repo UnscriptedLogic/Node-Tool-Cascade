@@ -218,6 +218,7 @@ function Preview({ type, revision }: PreviewProps) {
 	const element = useRef<HTMLDivElement>(null),
 		box = useRef<HTMLDivElement>(null);
 	const kind = type === "base" ? "question" : type;
+	const blocks: Record<string, string> = DOM().blocks;
 	useLayoutEffect(() => {
 		if (!element.current || !box.current) return;
 		const d = decorate(element.current, kind, {
@@ -234,7 +235,7 @@ function Preview({ type, revision }: PreviewProps) {
 					className="ico"
 					dangerouslySetInnerHTML={{ __html: ICONS[kind] }}
 				/>
-				<span className="txt">{DOM().blocks[kind]}</span>
+				<span className="txt">{blocks[kind]}</span>
 			</div>
 		</div>
 	);
@@ -266,8 +267,9 @@ export default function LookEditor() {
 		wires = effLook().wires,
 		canvas = effLook().canvas,
 		layout = effLook().layout;
-	const nodeSet = (field: string) => (value) => lkSetNode(field, value);
-	const set = (group: string, field: string) => (value) =>
+	const nodeSet = (field: string) => (value: unknown) =>
+		lkSetNode(field, value);
+	const set = (group: string, field: string) => (value: unknown) =>
 		lkSetGroup(group, field, value);
 	useLayoutEffect(() => {
 		wirePreview(wireHost.current);
@@ -912,7 +914,9 @@ export default function LookEditor() {
 						type="button"
 						className="btn primary"
 						id="lkApply"
-						onClick={() => lkApply(text.current.value)}
+						onClick={() => {
+							if (text.current) lkApply(text.current.value);
+						}}
 					>
 						Apply
 					</Button>
@@ -928,7 +932,9 @@ export default function LookEditor() {
 						type="button"
 						className="btn"
 						id="lkCopy"
-						onClick={() => lkCopy(text.current.value)}
+						onClick={() => {
+							if (text.current) lkCopy(text.current.value);
+						}}
 					>
 						Copy
 					</Button>
