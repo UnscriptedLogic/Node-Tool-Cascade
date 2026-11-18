@@ -19,11 +19,14 @@ import {
 	LIB,
 	libApply,
 	libBlankData,
+	libCreate,
 	libData,
 	libRefresh,
+	libRemember,
 } from "./legacy/features/library.ts";
 import {
 	chartMap,
+	closeSide,
 	G,
 	openSide,
 	startGrill,
@@ -99,8 +102,11 @@ export const testApi = {
 	blankLibraryData: libBlankData,
 	readLibraryData: libData,
 	refreshLibrary: libRefresh,
+	libCreate,
+	libRemember,
 	openCompose,
 	openSidePanel: openSide,
+	closeSide,
 	startGrill,
 	startResolve,
 };

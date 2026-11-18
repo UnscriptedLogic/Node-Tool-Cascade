@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 interface CaptureWindow extends Window {
 	CascadeUI: {
-		legacy: {
+		testApi: {
 			resetTree(): void;
 			closeSide(): void;
-			libData(): unknown;
+			readLibraryData(): unknown;
 			libCreate(
 				data: unknown,
 				name: string,
 				folderId: string,
 			): Promise<{ id: string }>;
 			libRemember(id: string): void;
-			libRefresh(): Promise<void>;
+			refreshLibrary(): Promise<void>;
 		};
 	};
 }
@@ -158,8 +158,9 @@ async function main() {
 			await page.goto(BASE, { waitUntil: "domcontentloaded" });
 			await sleep(1200);
 			await page.evaluate(() => {
-				(window as unknown as CaptureWindow).CascadeUI.legacy.resetTree();
-				(window as unknown as CaptureWindow).CascadeUI.legacy.closeSide();
+				const api = (window as unknown as CaptureWindow).CascadeUI.testApi;
+				api.resetTree();
+				api.closeSide();
 			});
 			await sleep(700);
 			await page.click("#zFit");
@@ -170,8 +171,12 @@ async function main() {
 		await sleep(1200);
 		const folder = await api("POST", "folders", { name: "Game Dev" });
 		await page.evaluate(async (fid) => {
-			const api = (window as unknown as CaptureWindow).CascadeUI.legacy;
-			const m = await api.libCreate(api.libData(), "Traversal feel", fid);
+			const api = (window as unknown as CaptureWindow).CascadeUI.testApi;
+			const m = await api.libCreate(
+				api.readLibraryData(),
+				"Traversal feel",
+				fid,
+			);
 			api.libRemember(m.id);
 			return m.id;
 		}, folder.id);
@@ -333,7 +338,7 @@ async function main() {
 				data: { tree: T, prefs: { domain: "research" } },
 			});
 			await page.evaluate(() =>
-				(window as unknown as CaptureWindow).CascadeUI.legacy.libRefresh(),
+				(window as unknown as CaptureWindow).CascadeUI.testApi.refreshLibrary(),
 			);
 			await sleep(400);
 			await page.click(".stabs [data-tab=library]");
