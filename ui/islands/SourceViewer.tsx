@@ -34,7 +34,9 @@ export default function SourceViewer() {
 							? current.f +
 								":" +
 								current.l +
-								(current.e > current.l ? `-${current.e}` : "")
+								(current.e !== undefined && current.e > current.l
+									? `-${current.e}`
+									: "")
 							: ""}
 					</b>
 					<Button
