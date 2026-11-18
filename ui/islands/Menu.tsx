@@ -1,6 +1,6 @@
 import { type Ref, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
-import { useSnapshot } from "valtio";
+import { type Snapshot, useSnapshot } from "valtio";
 import {
 	Popover,
 	PopoverAnchor,
@@ -14,20 +14,10 @@ import {
 	closeMenu,
 	state as responsiveState,
 } from "../legacy/ui/responsive.ts";
+import type { MenuSpec } from "../model.ts";
 
 interface MenuItemsProps {
-	spec: {
-		back?: unknown;
-		title?: string;
-		items: readonly {
-			sep?: boolean;
-			disabled?: boolean;
-			danger?: boolean;
-			icon?: string;
-			label?: string;
-			sub?: unknown;
-		}[];
-	};
+	spec: Snapshot<MenuSpec>;
 	first: Ref<HTMLButtonElement>;
 }
 function MenuItems({ spec, first }: MenuItemsProps) {

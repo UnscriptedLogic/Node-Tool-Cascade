@@ -41,7 +41,7 @@ import { fitCanvas } from "./controls.ts";
 import { select, showNote } from "./hud.ts";
 import { openSettings, setPreference } from "./settings.ts";
 export const state = {
-	tapSuppressed: undefined,
+	tapSuppressed: undefined as boolean | undefined,
 };
 export function layoutChoice() {
 	const q = new URLSearchParams(location.search).get("layout");
