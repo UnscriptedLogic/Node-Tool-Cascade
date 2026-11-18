@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import type { MindsetMetadata } from "../../shared/mindsets.ts";
 import Mindsets from "../../shared/mindsets.ts";
 import { useFocus } from "../hooks/useFocus.ts";
 import { PREFS, TICKET_ASK, TICKET_LABEL } from "../legacy/core/constants.ts";
@@ -22,7 +23,27 @@ import {
 import { seedFromProject } from "../legacy/features/project.ts";
 import Ask from "./Ask.tsx";
 
-function Card({ card, hidden }) {
+interface CardProps {
+	card: {
+		id: string;
+		text: string;
+		status: string;
+		ticket: string;
+		answer: string;
+		focus?: number;
+		why?: string;
+		grillable?: boolean;
+		mindset?: MindsetMetadata;
+		busy?: boolean;
+		busyLabel?: string;
+		checks: number;
+		pushback?: string;
+		message?: string;
+		withPrototype?: boolean;
+	};
+	hidden?: boolean;
+}
+function Card({ card, hidden }: CardProps) {
 	const input = useRef<HTMLTextAreaElement>(null);
 	useLayoutEffect(() => {
 		if (card.focus) input.current?.focus();

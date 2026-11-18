@@ -374,7 +374,7 @@ export function lookChanged() {
 	applyLook();
 	lkRefresh();
 }
-export function lkSetNode(field, val?: undefined) {
+export function lkSetNode(field, val?: unknown) {
 	const t = LK.type;
 	canvasLookState.LOOK.nodes = canvasLookState.LOOK.nodes || {};
 	canvasLookState.LOOK.nodes[t] = canvasLookState.LOOK.nodes[t] || {};
@@ -386,7 +386,7 @@ export function lkSetNode(field, val?: undefined) {
 		delete canvasLookState.LOOK.nodes;
 	lookChanged();
 }
-export function lkSetGroup(group, field, val?: undefined) {
+export function lkSetGroup(group, field, val?: unknown) {
 	canvasLookState.LOOK[group] = canvasLookState.LOOK[group] || {};
 	if (val === undefined) delete canvasLookState.LOOK[group][field];
 	else canvasLookState.LOOK[group][field] = val;
@@ -394,7 +394,7 @@ export function lkSetGroup(group, field, val?: undefined) {
 		delete canvasLookState.LOOK[group];
 	lookChanged();
 }
-export function lkSetKind(kind, field, val?: undefined) {
+export function lkSetKind(kind, field, val?: unknown) {
 	canvasLookState.LOOK.wires = canvasLookState.LOOK.wires || {};
 	canvasLookState.LOOK.wires.kinds = canvasLookState.LOOK.wires.kinds || {};
 	canvasLookState.LOOK.wires.kinds[kind] =

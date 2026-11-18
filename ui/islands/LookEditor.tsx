@@ -41,6 +41,51 @@ import {
 
 const checkpoint = () => lkCheckpoint();
 
+interface RangeProps {
+	label: string;
+	field: string;
+	value: number;
+	set: (value: number) => void;
+	min: number;
+	max: number;
+	step: number;
+	unit?: string;
+	show?: boolean;
+}
+interface SelectProps {
+	label: string;
+	field: string;
+	options: readonly (string | number)[];
+	value: unknown;
+	set: (value: string) => void;
+	show?: boolean;
+}
+interface CheckProps {
+	label: string;
+	field: string;
+	value: boolean;
+	set: (value: boolean) => void;
+}
+interface ColorProps {
+	label: string;
+	field: string;
+	value?: string;
+	set: (value: string | undefined) => void;
+	keyword?: string;
+	keywordLabel?: string;
+}
+interface PreviewProps {
+	type: string;
+	revision: number;
+}
+interface SegmentProps {
+	id: string;
+	label: string;
+	items: readonly (readonly string[])[];
+	value: string;
+	set: (value: string) => void;
+	attr?: string;
+}
 function Range({
 	label,
 	field,
@@ -51,7 +96,7 @@ function Range({
 	step,
 	unit = "",
 	show = true,
-}) {
+}: RangeProps) {
 	return (
 		<label className="lk-row" hidden={!show}>
 			<span className="lk-l">{label}</span>
@@ -71,7 +116,14 @@ function Range({
 		</label>
 	);
 }
-function Select({ label, field, options, value, set, show = true }) {
+function Select({
+	label,
+	field,
+	options,
+	value,
+	set,
+	show = true,
+}: SelectProps) {
 	return (
 		<div className="lk-row" hidden={!show}>
 			<span className="lk-l">{label}</span>
@@ -90,7 +142,7 @@ function Select({ label, field, options, value, set, show = true }) {
 		</div>
 	);
 }
-function Check({ label, field, value, set }) {
+function Check({ label, field, value, set }: CheckProps) {
 	return (
 		<div className="lk-row">
 			<span className="lk-l">{label}</span>
@@ -115,7 +167,7 @@ function Color({
 	set,
 	keyword = undefined,
 	keywordLabel = undefined,
-}) {
+}: ColorProps) {
 	const isKeyword = !!keyword && value === keyword;
 	const lastColor = useRef("#000000");
 	if (!isKeyword) lastColor.current = toHex(value || "#808080");
@@ -162,7 +214,7 @@ function Color({
 		</div>
 	);
 }
-function Preview({ type, revision }) {
+function Preview({ type, revision }: PreviewProps) {
 	const element = useRef<HTMLDivElement>(null),
 		box = useRef<HTMLDivElement>(null);
 	const kind = type === "base" ? "question" : type;
@@ -187,7 +239,7 @@ function Preview({ type, revision }) {
 		</div>
 	);
 }
-function Segment({ id, label, items, value, set, attr = "v" }) {
+function Segment({ id, label, items, value, set, attr = "v" }: SegmentProps) {
 	return (
 		<div className="seg" id={id} role="group" aria-label={label}>
 			{items.map(([key, text]) => (

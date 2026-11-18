@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { CascadeMeta, Folder } from "../../shared/types.ts";
 import { DOMAINS } from "../legacy/core/profiles.ts";
 import {
 	LIB,
@@ -24,7 +25,31 @@ const when = (time: string | number | Date) => {
 		: "";
 };
 
-function NameCell({ kind, item, editing }) {
+type LibraryKind = "cascade" | "folder";
+interface LibraryEditing {
+	kind: LibraryKind;
+	id: string;
+}
+interface NameCellProps {
+	kind: LibraryKind;
+	item: Pick<Folder, "id" | "name">;
+	editing?: LibraryEditing | null;
+}
+interface DeleteButtonProps {
+	kind: LibraryKind;
+	item: Pick<Folder, "id" | "name">;
+	armed?: string | null;
+}
+interface CascadeRowProps {
+	item: CascadeMeta;
+	lib: {
+		currentId?: string | null;
+		editing?: LibraryEditing | null;
+		armed?: string | null;
+		folders: readonly Folder[];
+	};
+}
+function NameCell({ kind, item, editing }: NameCellProps) {
 	const input = useRef<HTMLInputElement>(null);
 	const active = editing?.kind === kind && editing.id === item.id;
 	useEffect(() => {
@@ -63,7 +88,7 @@ function NameCell({ kind, item, editing }) {
 	);
 }
 
-function DeleteButton({ kind, item, armed }) {
+function DeleteButton({ kind, item, armed }: DeleteButtonProps) {
 	const key = kind + item.id;
 	return (
 		<Button
@@ -84,7 +109,7 @@ function DeleteButton({ kind, item, armed }) {
 	);
 }
 
-function CascadeRow({ item, lib }) {
+function CascadeRow({ item, lib }: CascadeRowProps) {
 	return (
 		<li
 			className={`lib-row${item.id === lib.currentId ? " current" : ""}`}

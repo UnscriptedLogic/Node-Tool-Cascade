@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { type Ref, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import { useSnapshot } from "valtio";
 import {
@@ -15,7 +15,22 @@ import {
 	state as responsiveState,
 } from "../legacy/ui/responsive.ts";
 
-function MenuItems({ spec, first }) {
+interface MenuItemsProps {
+	spec: {
+		back?: unknown;
+		title?: string;
+		items: readonly {
+			sep?: boolean;
+			disabled?: boolean;
+			danger?: boolean;
+			icon?: string;
+			label?: string;
+			sub?: unknown;
+		}[];
+	};
+	first: Ref<HTMLButtonElement>;
+}
+function MenuItems({ spec, first }: MenuItemsProps) {
 	const firstIndex = spec.items.findIndex(
 		(item) => !item.sep && !item.disabled,
 	);

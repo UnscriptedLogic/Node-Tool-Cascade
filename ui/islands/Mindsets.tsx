@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
+import type { Mindset } from "../../shared/mindsets.ts";
 import MindsetCollection from "../../shared/mindsets.ts";
 import { PREFS } from "../legacy/core/constants.ts";
 import { DOMAINS } from "../legacy/core/profiles.ts";
@@ -25,7 +26,10 @@ import {
 import { closeSettings } from "../legacy/ui/settings.ts";
 import MindsetConverter from "./MindsetConverter.tsx";
 
-function MindsetIcon({ pack }) {
+interface MindsetIconProps {
+	pack: Pick<Mindset, "id" | "name" | "icon">;
+}
+function MindsetIcon({ pack }: MindsetIconProps) {
 	const [value, setValue] = useState(pack.icon);
 	useEffect(() => setValue(pack.icon), [pack.icon]);
 	return (
