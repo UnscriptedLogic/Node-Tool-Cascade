@@ -9,11 +9,11 @@ import { closeCompose, submitCompose } from "../legacy/ui/compose.ts";
 export default function Compose() {
 	const ui = useSnapshot(UI, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
-		input = useRef(null);
+		input = useRef<HTMLTextAreaElement>(null);
 	const compose = ui.compose,
 		domain = DOMAINS[prefs.domain] || DOMAINS.general;
 	useLayoutEffect(() => {
-		if (compose.open) input.current.focus();
+		if (compose.open) input.current?.focus();
 	}, [compose.open, compose.focus]);
 	return (
 		<div

@@ -186,7 +186,8 @@ export let reduce: boolean;
 export const clamp = (v: number, a: number, b: number) =>
 	Math.max(a, Math.min(b, v));
 export const sleep = (ms?: number) => new Promise((r) => setTimeout(r, ms));
-export const $ = (s) => document.querySelector(s);
+export const $ = <T extends Element = HTMLElement>(s: string): T | null =>
+	document.querySelector<T>(s);
 
 export function startConstants() {
 	reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;

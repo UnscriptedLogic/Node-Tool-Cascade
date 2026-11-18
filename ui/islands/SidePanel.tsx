@@ -23,9 +23,9 @@ import { seedFromProject } from "../legacy/features/project.ts";
 import Ask from "./Ask.tsx";
 
 function Card({ card, hidden }) {
-	const input = useRef(null);
+	const input = useRef<HTMLTextAreaElement>(null);
 	useLayoutEffect(() => {
-		if (card.focus) input.current.focus();
+		if (card.focus) input.current?.focus();
 	}, [card.focus]);
 	const done = card.status !== "open";
 	const tag = !card.grillable

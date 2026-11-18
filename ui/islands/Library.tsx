@@ -25,12 +25,12 @@ const when = (time: string | number | Date) => {
 };
 
 function NameCell({ kind, item, editing }) {
-	const input = useRef(null);
+	const input = useRef<HTMLInputElement>(null);
 	const active = editing?.kind === kind && editing.id === item.id;
 	useEffect(() => {
 		if (active) {
-			input.current.focus();
-			input.current.select();
+			input.current?.focus();
+			input.current?.select();
 		}
 	}, [active]);
 	if (active)
@@ -128,7 +128,7 @@ function CascadeRow({ item, lib }) {
 
 export default function Library() {
 	const lib = useSnapshot(LIB);
-	const googleHost = useRef(null);
+	const googleHost = useRef<HTMLDivElement>(null);
 	const signed = lib.kind === "local" || !!lib.user;
 	const current = lib.cascades.some((item) => item.id === lib.currentId);
 	useEffect(() => {

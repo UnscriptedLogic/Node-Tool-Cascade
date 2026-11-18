@@ -13,6 +13,14 @@ export const CanvasHost = memo(function CanvasHost() {
 	const th = useRef<SVGGElement>(null);
 	const elabel = useRef<SVGTextElement>(null);
 	useLayoutEffect(() => {
+		if (
+			!stage.current ||
+			!world.current ||
+			!eg.current ||
+			!th.current ||
+			!elabel.current
+		)
+			return;
 		setCanvasElements({
 			stage: stage.current,
 			world: world.current,

@@ -163,10 +163,11 @@ function Color({
 	);
 }
 function Preview({ type, revision }) {
-	const element = useRef(null),
-		box = useRef(null);
+	const element = useRef<HTMLDivElement>(null),
+		box = useRef<HTMLDivElement>(null);
 	const kind = type === "base" ? "question" : type;
 	useLayoutEffect(() => {
+		if (!element.current || !box.current) return;
 		const d = decorate(element.current, kind, {
 			type: kind,
 			mood: "curiosity",
@@ -206,7 +207,7 @@ function Segment({ id, label, items, value, set, attr = "v" }) {
 
 export default function LookEditor() {
 	const state = useSnapshot(LK, { sync: true }),
-		text = useRef(null),
+		text = useRef<HTMLTextAreaElement>(null),
 		wireHost = useRef<SVGSVGElement>(null),
 		look = canvasLookState.LOOK,
 		node = lkStyle(),
