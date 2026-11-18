@@ -1,4 +1,4 @@
-import { isRecord, record } from "../../../shared/types.ts";
+import { isRecord, record } from "../../shared/types.ts";
 
 interface ProviderReply {
 	detail?: string;

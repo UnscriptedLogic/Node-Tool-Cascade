@@ -1,7 +1,7 @@
 import { proxy } from "valtio/vanilla";
-import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
-import Mindsets from "../../../shared/mindsets.ts";
-import { isRecord } from "../../../shared/types.ts";
+import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
+import Mindsets from "../../shared/mindsets.ts";
+import { isRecord } from "../../shared/types.ts";
 import {
 	activeProvider,
 	aiAvailable,

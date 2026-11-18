@@ -13,7 +13,7 @@ import {
 	setConversionDomain,
 	setConversionField,
 	stopMindsetConversion,
-} from "../legacy/features/mindset-converter.ts";
+} from "../features/mindset-converter.ts";
 
 const conversionDomains: readonly (readonly [string, string])[] = [
 	["general", "General / business"],

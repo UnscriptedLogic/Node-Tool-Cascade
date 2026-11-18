@@ -2,9 +2,9 @@ import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { S } from "../core/state.ts";
+import { CHATUI, chatAction } from "../features/chat-exchange.ts";
 import { useFocus } from "../hooks/useFocus.ts";
-import { S } from "../legacy/core/state.ts";
-import { CHATUI, chatAction } from "../legacy/features/chat-exchange.ts";
 
 export default function ChatExchange() {
 	const prompt = useFocus<HTMLTextAreaElement>("chatPrompt");

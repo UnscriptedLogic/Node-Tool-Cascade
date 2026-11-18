@@ -1,13 +1,9 @@
 import { useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
-import { MODE, PREFS } from "../../legacy/core/constants.ts";
-import { quitCascade } from "../../legacy/core/server.ts";
-import {
-	onDataAction,
-	SETTINGS,
-	setPreference,
-} from "../../legacy/shell/settings.ts";
+import { MODE, PREFS } from "../../core/constants.ts";
+import { quitCascade } from "../../core/server.ts";
+import { onDataAction, SETTINGS, setPreference } from "../../shell/settings.ts";
 export default function DataTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });

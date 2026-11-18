@@ -1,8 +1,8 @@
-import { state as aiQueue, growNode } from "./legacy/ai/prompts.ts";
-import { layout, restyle } from "./legacy/canvas/layout.ts";
-import { applyView, fitTo } from "./legacy/canvas/view.ts";
-import { ANALYTICS } from "./legacy/core/analytics.ts";
-import { MODE, PREFS } from "./legacy/core/constants.ts";
+import { state as aiQueue, growNode } from "./ai/prompts.ts";
+import { layout, restyle } from "./canvas/layout.ts";
+import { applyView, fitTo } from "./canvas/view.ts";
+import { ANALYTICS } from "./core/analytics.ts";
+import { MODE, PREFS } from "./core/constants.ts";
 import {
 	hist,
 	loaded,
@@ -12,9 +12,9 @@ import {
 	seed,
 	snap,
 	UI,
-} from "./legacy/core/state.ts";
-import { visibleIds } from "./legacy/core/tree.ts";
-import { AN } from "./legacy/features/ask.ts";
+} from "./core/state.ts";
+import { visibleIds } from "./core/tree.ts";
+import { AN } from "./features/ask.ts";
 import {
 	LIB,
 	libApply,
@@ -23,7 +23,7 @@ import {
 	libData,
 	libRefresh,
 	libRemember,
-} from "./legacy/features/library.ts";
+} from "./features/library.ts";
 import {
 	chartMap,
 	closeSide,
@@ -31,24 +31,24 @@ import {
 	openSide,
 	startGrill,
 	startResolve,
-} from "./legacy/features/map.ts";
+} from "./features/map.ts";
 import {
 	extractMindsetFile,
 	extractMindsetPdf,
-} from "./legacy/features/mindset-converter.ts";
-import { applyMindset } from "./legacy/features/mindsets.ts";
-import { briefPrompt, mapPrompt } from "./legacy/features/project.ts";
+} from "./features/mindset-converter.ts";
+import { applyMindset } from "./features/mindsets.ts";
+import { briefPrompt, mapPrompt } from "./features/project.ts";
 import {
 	acceptGhost,
 	clearGraph,
 	initialView,
 	resetTree,
 	undo,
-} from "./legacy/shell/actions.ts";
-import { openCompose } from "./legacy/shell/compose.ts";
-import { select } from "./legacy/shell/hud.ts";
-import { applyResponsive } from "./legacy/shell/responsive.ts";
-import { closeSettings, sanitizeTree } from "./legacy/shell/settings.ts";
+} from "./shell/actions.ts";
+import { openCompose } from "./shell/compose.ts";
+import { select } from "./shell/hud.ts";
+import { applyResponsive } from "./shell/responsive.ts";
+import { closeSettings, sanitizeTree } from "./shell/settings.ts";
 
 export const testApi = {
 	get tree() {

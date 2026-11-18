@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { PREFS } from "../legacy/core/constants.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
+import { PREFS } from "../core/constants.ts";
+import { DOMAINS } from "../core/profiles.ts";
 import {
 	buildBrief,
 	cancelProjectScan,
@@ -18,8 +18,8 @@ import {
 	setProjectDepth,
 	setProjectField,
 	stopProject,
-} from "../legacy/features/project.ts";
-import { closeSettings, setPreference } from "../legacy/shell/settings.ts";
+} from "../features/project.ts";
+import { closeSettings, setPreference } from "../shell/settings.ts";
 
 const formatNumber = (n: number) =>
 	n >= 10000

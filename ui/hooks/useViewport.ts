@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { applyView } from "../legacy/canvas/view.ts";
+import { applyView } from "../canvas/view.ts";
 import {
 	cancelViewportUpdate,
 	onResize,
 	updateKeyboard,
-} from "../legacy/shell/responsive.ts";
+} from "../shell/responsive.ts";
 export function useViewport() {
 	useEffect(() => {
 		const viewport = window.visualViewport;

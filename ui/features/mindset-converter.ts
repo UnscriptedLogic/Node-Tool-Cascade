@@ -1,8 +1,8 @@
 import { proxy, ref } from "valtio/vanilla";
-import type { TextUnit } from "../../../shared/mindset-conversion.ts";
-import MindsetConversion from "../../../shared/mindset-conversion.ts";
-import type { Mindset } from "../../../shared/mindsets.ts";
-import Mindsets from "../../../shared/mindsets.ts";
+import type { TextUnit } from "../../shared/mindset-conversion.ts";
+import MindsetConversion from "../../shared/mindset-conversion.ts";
+import type { Mindset } from "../../shared/mindsets.ts";
+import Mindsets from "../../shared/mindsets.ts";
 import {
 	activeProvider,
 	aiAvailable,

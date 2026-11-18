@@ -1,11 +1,11 @@
-import { record } from "../../../shared/types.ts";
+import { record } from "../../shared/types.ts";
 
 let ctl: AbortController | null = null;
 let chain: Promise<unknown> = Promise.resolve();
 let queued: number = 0;
 let stopReveal: boolean = false;
 
-import Mindsets from "../../../shared/mindsets.ts";
+import Mindsets from "../../shared/mindsets.ts";
 import { kick } from "../canvas/edges.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { ensureVisible, setMode } from "../canvas/view.ts";

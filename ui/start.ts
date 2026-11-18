@@ -1,24 +1,24 @@
-import { detectProvider } from "./legacy/ai/prompts.ts";
-import { startBoot } from "./legacy/boot.ts";
-import { startEdges } from "./legacy/canvas/edges.ts";
-import { startInteraction } from "./legacy/canvas/interaction.ts";
-import { startLayout } from "./legacy/canvas/layout.ts";
-import { startLook } from "./legacy/canvas/look.ts";
-import { startView } from "./legacy/canvas/view.ts";
-import { startConstants } from "./legacy/core/constants.ts";
-import { startDom } from "./legacy/core/dom.ts";
-import { startModel } from "./legacy/core/state.ts";
-import { startTree } from "./legacy/core/tree.ts";
-import { startAsk } from "./legacy/features/ask.ts";
-import { startChatExchange } from "./legacy/features/chat-exchange.ts";
-import { startLibrary } from "./legacy/features/library.ts";
-import { startMap } from "./legacy/features/map.ts";
-import { startConverter } from "./legacy/features/mindset-converter.ts";
-import { startMindsets } from "./legacy/features/mindsets.ts";
-import { startProject } from "./legacy/features/project.ts";
-import { startLookEditor } from "./legacy/shell/look-editor.ts";
-import { startResponsive } from "./legacy/shell/responsive.ts";
-import { startSettings } from "./legacy/shell/settings.ts";
+import { detectProvider } from "./ai/prompts.ts";
+import { startBoot } from "./boot.ts";
+import { startEdges } from "./canvas/edges.ts";
+import { startInteraction } from "./canvas/interaction.ts";
+import { startLayout } from "./canvas/layout.ts";
+import { startLook } from "./canvas/look.ts";
+import { startView } from "./canvas/view.ts";
+import { startConstants } from "./core/constants.ts";
+import { startDom } from "./core/dom.ts";
+import { startModel } from "./core/state.ts";
+import { startTree } from "./core/tree.ts";
+import { startAsk } from "./features/ask.ts";
+import { startChatExchange } from "./features/chat-exchange.ts";
+import { startLibrary } from "./features/library.ts";
+import { startMap } from "./features/map.ts";
+import { startConverter } from "./features/mindset-converter.ts";
+import { startMindsets } from "./features/mindsets.ts";
+import { startProject } from "./features/project.ts";
+import { startLookEditor } from "./shell/look-editor.ts";
+import { startResponsive } from "./shell/responsive.ts";
+import { startSettings } from "./shell/settings.ts";
 
 export function start() {
 	// Apply browser preferences before startup wiring.

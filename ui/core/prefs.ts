@@ -1,4 +1,4 @@
-import type { Domain } from "../../../shared/types.ts";
+import type { Domain } from "../../shared/types.ts";
 
 export interface Preferences {
 	domain: Domain;

@@ -1,6 +1,6 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import { record } from "../../../shared/types.ts";
+import { record } from "../../shared/types.ts";
 import { guidance } from "../ai/prompts.ts";
 import { PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";

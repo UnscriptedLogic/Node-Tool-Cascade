@@ -1,13 +1,12 @@
-import { record } from "../../../shared/types.ts";
+import { record } from "../../shared/types.ts";
 import type { Preferences } from "../core/prefs.ts";
 
 let prefsTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import Mindsets from "../../../shared/mindsets.ts";
-import type { ApiReply } from "../../../shared/settings-types.ts";
-import type { TreeNode } from "../../model.ts";
+import Mindsets from "../../shared/mindsets.ts";
+import type { ApiReply } from "../../shared/settings-types.ts";
 import { cancelAI, guidance } from "../ai/prompts.ts";
 import {
 	getJSON,
@@ -30,10 +29,10 @@ import {
 	TICKETS,
 	WEB,
 } from "../core/constants.ts";
-
 import { initServer } from "../core/server.ts";
 import { AI, pushHist, S, save, snap, UI } from "../core/state.ts";
 import { loadProjectData, SV } from "../features/project.ts";
+import type { TreeNode } from "../model.ts";
 import { clearGraph, initialView } from "./actions.ts";
 import { requestFocus, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";

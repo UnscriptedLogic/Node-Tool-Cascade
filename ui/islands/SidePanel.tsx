@@ -2,9 +2,8 @@ import { useLayoutEffect, useRef } from "react";
 import { type Snapshot, useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import Mindsets from "../../shared/mindsets.ts";
-import { useFocus } from "../hooks/useFocus.ts";
-import { PREFS, TICKET_ASK, TICKET_LABEL } from "../legacy/core/constants.ts";
-import { S } from "../legacy/core/state.ts";
+import { PREFS, TICKET_ASK, TICKET_LABEL } from "../core/constants.ts";
+import { S } from "../core/state.ts";
 import {
 	chartMap,
 	closeSide,
@@ -18,8 +17,9 @@ import {
 	setGrillAnswer,
 	showStab,
 	startGrill,
-} from "../legacy/features/map.ts";
-import { seedFromProject } from "../legacy/features/project.ts";
+} from "../features/map.ts";
+import { seedFromProject } from "../features/project.ts";
+import { useFocus } from "../hooks/useFocus.ts";
 import type { GrillCard } from "../model.ts";
 import Ask from "./Ask.tsx";
 

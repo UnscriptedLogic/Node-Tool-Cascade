@@ -1,5 +1,5 @@
 import { useSnapshot } from "valtio";
-import { SETTINGS } from "../../legacy/shell/settings.ts";
+import { SETTINGS } from "../../shell/settings.ts";
 import Library from "../Library.tsx";
 export default function LibraryTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });

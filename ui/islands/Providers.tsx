@@ -2,14 +2,14 @@ import type { FormEvent } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LOCAL } from "../legacy/core/constants.ts";
+import { LOCAL } from "../core/constants.ts";
 import {
 	onProviderAction,
 	onProviderChange,
 	PROV,
 	PROV_ORDER,
 	SETTINGS,
-} from "../legacy/shell/settings.ts";
+} from "../shell/settings.ts";
 
 export default function Providers() {
 	const state = useSnapshot(SETTINGS, { sync: true }),

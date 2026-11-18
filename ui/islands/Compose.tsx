@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { ICONS, LABEL, PREFS } from "../legacy/core/constants.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
-import { UI } from "../legacy/core/state.ts";
-import { closeCompose, submitCompose } from "../legacy/shell/compose.ts";
+import { ICONS, LABEL, PREFS } from "../core/constants.ts";
+import { DOMAINS } from "../core/profiles.ts";
+import { UI } from "../core/state.ts";
+import { closeCompose, submitCompose } from "../shell/compose.ts";
 
 export default function Compose() {
 	const ui = useSnapshot(UI, { sync: true }),

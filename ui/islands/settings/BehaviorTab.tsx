@@ -1,7 +1,7 @@
 import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
-import { MODE, PREFS } from "../../legacy/core/constants.ts";
-import { SETTINGS, setPreference } from "../../legacy/shell/settings.ts";
+import { MODE, PREFS } from "../../core/constants.ts";
+import { SETTINGS, setPreference } from "../../shell/settings.ts";
 export default function BehaviorTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });

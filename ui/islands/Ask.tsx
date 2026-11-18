@@ -1,8 +1,8 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { LABEL, PREFS } from "../legacy/core/constants.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
-import { S } from "../legacy/core/state.ts";
+import { LABEL, PREFS } from "../core/constants.ts";
+import { DOMAINS } from "../core/profiles.ts";
+import { S } from "../core/state.ts";
 import {
 	AHIST,
 	AN,
@@ -16,8 +16,8 @@ import {
 	TCOL,
 	toggleAskThread,
 	VERDICT,
-} from "../legacy/features/ask.ts";
-import { focusNode } from "../legacy/features/map.ts";
+} from "../features/ask.ts";
+import { focusNode } from "../features/map.ts";
 
 export default function Ask() {
 	const ask = useSnapshot(AN, { sync: true }),

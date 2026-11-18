@@ -1,19 +1,13 @@
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import {
-	ICONS,
-	LABEL,
-	MOOD_KEYS,
-	MOODS,
-	PREFS,
-} from "../legacy/core/constants.ts";
-import { stage } from "../legacy/core/dom.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
-import { UI } from "../legacy/core/state.ts";
-import { clearGraph, resetTree } from "../legacy/shell/actions.ts";
-import { openCompose, startTileDrag } from "../legacy/shell/compose.ts";
-import { openMoreMenu } from "../legacy/shell/responsive.ts";
-import { openSettings } from "../legacy/shell/settings.ts";
+import { ICONS, LABEL, MOOD_KEYS, MOODS, PREFS } from "../core/constants.ts";
+import { stage } from "../core/dom.ts";
+import { DOMAINS } from "../core/profiles.ts";
+import { UI } from "../core/state.ts";
+import { clearGraph, resetTree } from "../shell/actions.ts";
+import { openCompose, startTileDrag } from "../shell/compose.ts";
+import { openMoreMenu } from "../shell/responsive.ts";
+import { openSettings } from "../shell/settings.ts";
 
 export default function Rail() {
 	const ui = useSnapshot(UI, { sync: true }),

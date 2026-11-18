@@ -1,30 +1,20 @@
 import { useLayoutEffect, useMemo } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { nodeActions } from "../canvas/layout.ts";
+import { setMode } from "../canvas/view.ts";
+import { ACT, CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
+import { stage } from "../core/dom.ts";
+import { AI, hist, S, UI } from "../core/state.ts";
+import { isOuter } from "../core/tree.ts";
+import { clearAskHighlight } from "../features/ask.ts";
+import { toggleAsk, toggleMap } from "../features/map.ts";
+import { seedFromProject } from "../features/project.ts";
 import { useFocus } from "../hooks/useFocus.ts";
-import { nodeActions } from "../legacy/canvas/layout.ts";
-import { setMode } from "../legacy/canvas/view.ts";
-import {
-	ACT,
-	CONNECTION,
-	LOCAL,
-	PREFS,
-	WEB,
-} from "../legacy/core/constants.ts";
-import { stage } from "../legacy/core/dom.ts";
-import { AI, hist, S, UI } from "../legacy/core/state.ts";
-import { isOuter } from "../legacy/core/tree.ts";
-import { clearAskHighlight } from "../legacy/features/ask.ts";
-import { toggleAsk, toggleMap } from "../legacy/features/map.ts";
-import { seedFromProject } from "../legacy/features/project.ts";
-import { dismissAll, keepAll, undo } from "../legacy/shell/actions.ts";
-import {
-	fitCanvas,
-	stopCanvasAI,
-	zoomCanvas,
-} from "../legacy/shell/controls.ts";
-import { runNodeAction, SHORT } from "../legacy/shell/responsive.ts";
-import { openSettings } from "../legacy/shell/settings.ts";
+import { dismissAll, keepAll, undo } from "../shell/actions.ts";
+import { fitCanvas, stopCanvasAI, zoomCanvas } from "../shell/controls.ts";
+import { runNodeAction, SHORT } from "../shell/responsive.ts";
+import { openSettings } from "../shell/settings.ts";
 
 export default function Hud() {
 	const settingsButton = useFocus<HTMLButtonElement>("settingsButton");

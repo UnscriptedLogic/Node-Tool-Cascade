@@ -1,7 +1,7 @@
 import { proxy } from "valtio/vanilla";
-import Mindsets from "../../../shared/mindsets.ts";
-import type { CascadeMeta, Folder } from "../../../shared/types.ts";
-import { record } from "../../../shared/types.ts";
+import Mindsets from "../../shared/mindsets.ts";
+import type { CascadeMeta, Folder } from "../../shared/types.ts";
+import { record } from "../../shared/types.ts";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";

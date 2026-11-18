@@ -1,5 +1,5 @@
-import { isRecord } from "../../../shared/types.ts";
-import type { SavedTree } from "../../model.ts";
+import { isRecord } from "../../shared/types.ts";
+import type { SavedTree } from "../model.ts";
 
 export function decodeSavedTree(value: unknown): SavedTree | null {
 	if (!isRecord(value) || !isRecord(value.nodes) || !Array.isArray(value.order))

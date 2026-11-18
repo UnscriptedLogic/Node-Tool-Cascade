@@ -1,16 +1,16 @@
 import { type RefObject, useEffect, useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { version } from "../../../package.json";
+import { MODE } from "../../core/constants.ts";
+import { UI } from "../../core/state.ts";
 import { useFocus } from "../../hooks/useFocus.ts";
 import { useFocusTrap } from "../../hooks/useFocusTrap.ts";
-import { MODE } from "../../legacy/core/constants.ts";
-import { UI } from "../../legacy/core/state.ts";
 import {
 	closeSettings,
 	onSettingsKeyDown,
 	SETTINGS,
 	showTab,
-} from "../../legacy/shell/settings.ts";
+} from "../../shell/settings.ts";
 import Mindsets from "../Mindsets.tsx";
 import Project from "../Project.tsx";
 import AiTab from "./AiTab.tsx";

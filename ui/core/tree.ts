@@ -1,5 +1,5 @@
-import type { MindsetMetadata } from "../../../shared/mindsets.ts";
-import type { Point, TreeMap, TreeNode } from "../../model.ts";
+import type { MindsetMetadata } from "../../shared/mindsets.ts";
+import type { Point, TreeMap, TreeNode } from "../model.ts";
 import { state as coreStateState, S, spawnAt } from "./state.ts";
 export const state = {
 	hasLoop: undefined,

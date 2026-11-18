@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { LOCAL } from "../legacy/core/constants.ts";
-import { onServerPageHide, onServerPageShow } from "../legacy/core/server.ts";
+import { LOCAL } from "../core/constants.ts";
+import { onServerPageHide, onServerPageShow } from "../core/server.ts";
 export function useServerLifecycle() {
 	useEffect(() => {
 		if (!LOCAL) return;

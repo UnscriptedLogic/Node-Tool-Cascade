@@ -1,6 +1,5 @@
 import { proxy, ref } from "valtio/vanilla";
-import { isRecord } from "../../../shared/types.ts";
-import type { GrillCard, TreeMap } from "../../model.ts";
+import { isRecord } from "../../shared/types.ts";
 import {
 	aiAvailable,
 	aiNeed,
@@ -22,6 +21,7 @@ import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
 import { addNode, blockCycle, computeMap, expandChain } from "../core/tree.ts";
+import type { GrillCard, TreeMap } from "../model.ts";
 import { commit, requestFocus, select, showNote } from "../shell/hud.ts";
 import { setPreference } from "../shell/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";

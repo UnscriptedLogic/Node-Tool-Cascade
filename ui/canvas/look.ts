@@ -2,7 +2,7 @@ import type {
 	EffectiveLook,
 	LookSettings,
 	NodeAppearance,
-} from "../../../shared/look-types.ts";
+} from "../../shared/look-types.ts";
 
 type LookValue = Record<
 	string,

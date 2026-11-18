@@ -1,4 +1,4 @@
-import Mindsets from "../../../shared/mindsets.ts";
+import Mindsets from "../../shared/mindsets.ts";
 import { hasBridgeGround } from "../ai/prompts.ts";
 import { ACT, ICONS, reduce, TICKET_LABEL } from "../core/constants.ts";
 import { world } from "../core/dom.ts";

@@ -7,10 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
 import type { Mindset } from "../../shared/mindsets.ts";
 import MindsetCollection from "../../shared/mindsets.ts";
-import { PREFS } from "../legacy/core/constants.ts";
-import type { Preferences } from "../legacy/core/prefs.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
-import { S } from "../legacy/core/state.ts";
+import { PREFS } from "../core/constants.ts";
+import type { Preferences } from "../core/prefs.ts";
+import { DOMAINS } from "../core/profiles.ts";
+import { S } from "../core/state.ts";
 import {
 	applyMindset,
 	changeMindsetIcon,
@@ -23,9 +23,9 @@ import {
 	importMindsetJson,
 	MSUI,
 	removeMindset,
-} from "../legacy/features/mindsets.ts";
-import { closeSettings } from "../legacy/shell/settings.ts";
+} from "../features/mindsets.ts";
 import type { CascadeTree } from "../model.ts";
+import { closeSettings } from "../shell/settings.ts";
 import MindsetConverter from "./MindsetConverter.tsx";
 
 interface MindsetIconProps {

@@ -7,14 +7,14 @@ import {
 	PopoverContent,
 } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { UI } from "../legacy/core/state.ts";
+import { UI } from "../core/state.ts";
+import type { MenuSpec } from "../model.ts";
 import {
 	backMenu,
 	chooseMenuItem,
 	closeMenu,
 	state as responsiveState,
-} from "../legacy/shell/responsive.ts";
-import type { MenuSpec } from "../model.ts";
+} from "../shell/responsive.ts";
 
 interface MenuItemsProps {
 	spec: Snapshot<MenuSpec>;

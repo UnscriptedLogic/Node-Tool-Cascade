@@ -1,14 +1,10 @@
 import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { PREFS } from "../../core/constants.ts";
+import { DOMAINS } from "../../core/profiles.ts";
 import { useFocus } from "../../hooks/useFocus.ts";
-import { PREFS } from "../../legacy/core/constants.ts";
-import { DOMAINS } from "../../legacy/core/profiles.ts";
-import {
-	SETTINGS,
-	STEER_HELP,
-	setPreference,
-} from "../../legacy/shell/settings.ts";
+import { SETTINGS, STEER_HELP, setPreference } from "../../shell/settings.ts";
 export default function GoalTab() {
 	const goal = useFocus<HTMLTextAreaElement>("goal");
 	const settings = useSnapshot(SETTINGS, { sync: true });

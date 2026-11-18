@@ -10,9 +10,9 @@ import {
 	NODE_TYPES,
 	SHAPES,
 	WIRE_KINDS,
-} from "../legacy/canvas/look.ts";
-import { ICONS, LABEL, MOOD_KEYS } from "../legacy/core/constants.ts";
-import { DOM } from "../legacy/core/profiles.ts";
+} from "../canvas/look.ts";
+import { ICONS, LABEL, MOOD_KEYS } from "../core/constants.ts";
+import { DOM } from "../core/profiles.ts";
 import {
 	LK,
 	lkApply,
@@ -37,7 +37,7 @@ import {
 	PRESETS,
 	toHex,
 	wirePreview,
-} from "../legacy/shell/look-editor.ts";
+} from "../shell/look-editor.ts";
 
 const checkpoint = () => lkCheckpoint();
 

@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
-import { useFocus } from "../hooks/useFocus.ts";
 import {
 	closeSrcView,
 	copySource,
 	onSourceKeyDown,
 	SV,
 	stepSource,
-} from "../legacy/features/project.ts";
+} from "../features/project.ts";
+import { useFocus } from "../hooks/useFocus.ts";
 
 export default function SourceViewer() {
 	useEffect(() => {

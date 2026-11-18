@@ -1,6 +1,6 @@
 import { proxy } from "valtio/vanilla";
-import { record } from "../../../shared/types.ts";
-import type { ServerSettings } from "../../model.ts";
+import { record } from "../../shared/types.ts";
+import type { ServerSettings } from "../model.ts";
 import type { Preferences } from "./prefs.ts";
 import { UI } from "./state.ts";
 export function loadPrefs(): Partial<Preferences> {
@@ -168,7 +168,7 @@ export const PREFS = proxy(Object.assign({}, DEFAULT_PREFS, loadPrefs()));
 export const CONNECTION: {
 	cloud: boolean;
 	server: ServerSettings | null;
-	project: import("../../../shared/project-types.ts").ProjectInfo | null;
+	project: import("../../shared/project-types.ts").ProjectInfo | null;
 	web: { provider: string; key: string; model: string };
 } = proxy({
 	cloud: false,

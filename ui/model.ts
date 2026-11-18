@@ -127,8 +127,8 @@ export interface UiState {
 	small: boolean;
 	minimal: boolean;
 	panel: { open: boolean; tab: string } | null;
-	ask: typeof import("./legacy/features/ask.ts").AN | null;
-	library: typeof import("./legacy/features/library.ts").LIB | null;
+	ask: typeof import("./features/ask.ts").AN | null;
+	library: typeof import("./features/library.ts").LIB | null;
 	seed: boolean;
 	providerLabels: Record<string, string>;
 	settingsTitle: string;

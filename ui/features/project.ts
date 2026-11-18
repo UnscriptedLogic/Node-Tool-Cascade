@@ -1,5 +1,5 @@
-import { isRecord } from "../../../shared/types.ts";
-import type { SourceLocation } from "../../model.ts";
+import { isRecord } from "../../shared/types.ts";
+import type { SourceLocation } from "../model.ts";
 
 let projDepth: string = "standard";
 let PGROUPS = null;
@@ -12,7 +12,7 @@ let briefTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import type { ApiReply } from "../../../shared/settings-types.ts";
+import type { ApiReply } from "../../shared/settings-types.ts";
 import {
 	activeProvider,
 	aiAvailable,

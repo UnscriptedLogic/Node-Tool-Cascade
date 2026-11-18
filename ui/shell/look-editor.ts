@@ -1,6 +1,6 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
-import { isRecord } from "../../../shared/types.ts";
+import { isRecord } from "../../shared/types.ts";
 import {
 	activeProvider,
 	aiAvailable,

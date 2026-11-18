@@ -3,7 +3,7 @@ import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { CascadeMeta, Folder } from "../../shared/types.ts";
-import { DOMAINS } from "../legacy/core/profiles.ts";
+import { DOMAINS } from "../core/profiles.ts";
 import {
 	LIB,
 	libDelete,
@@ -16,7 +16,7 @@ import {
 	libRename,
 	libSaveCurrent,
 	libSignOut,
-} from "../legacy/features/library.ts";
+} from "../features/library.ts";
 
 const when = (time: string | number | Date) => {
 	const date = new Date(time);

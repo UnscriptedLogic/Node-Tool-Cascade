@@ -1,8 +1,8 @@
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 
 import { proxy, ref } from "valtio/vanilla";
-import Mindsets from "../../../shared/mindsets.ts";
-import { record, type View } from "../../../shared/types.ts";
+import Mindsets from "../../shared/mindsets.ts";
+import { record, type View } from "../../shared/types.ts";
 import type {
 	AiState,
 	CascadeTree,
@@ -10,7 +10,7 @@ import type {
 	RenderedNode,
 	SavedTree,
 	UiState,
-} from "../../model.ts";
+} from "../model.ts";
 import { KEY, LOCAL } from "./constants.ts";
 import { DOM } from "./profiles.ts";
 import { decodeSavedTree } from "./saved-tree.ts";

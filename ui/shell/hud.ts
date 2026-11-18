@@ -1,4 +1,4 @@
-import { type FocusTarget, focusRequest } from "../../stores/focus.ts";
+import { type FocusTarget, focusRequest } from "../stores/focus.ts";
 
 let noteTimer: ReturnType<typeof setTimeout> | undefined;
 
