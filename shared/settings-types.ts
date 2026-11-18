@@ -1,3 +1,4 @@
+import type { LookSettings } from "./look-types.ts";
 import type {
 	ProjectFinding,
 	ProjectGroup,
@@ -31,13 +32,13 @@ export interface PublicSettings {
 	providers: Record<string, ProviderStatus>;
 	ready?: boolean;
 	prefs?: Record<string, string | number | boolean>;
-	look?: object;
+	look?: LookSettings;
 	server?: { port: number; preferred: number; pid: number };
 }
 export interface SettingsPatch {
 	active?: string;
 	prefs?: unknown;
-	look?: unknown;
+	look?: LookSettings;
 	clearAllKeys?: boolean;
 	providers?: Record<string, ProviderPatch>;
 }

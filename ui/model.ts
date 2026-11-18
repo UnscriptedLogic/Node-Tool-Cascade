@@ -1,5 +1,6 @@
 import type { EnabledMindset, MindsetMetadata } from "../shared/mindsets.ts";
 import type { ProjectInfo } from "../shared/project-types.ts";
+import type { PublicSettings } from "../shared/settings-types.ts";
 import type { View } from "../shared/types.ts";
 export interface TreeNode {
 	id: string;
@@ -72,32 +73,10 @@ export interface RenderedNode {
 	sh?: number;
 	settle?: boolean;
 }
-export interface ProviderView {
-	label?: string;
-	ready?: boolean;
-	hasKey?: boolean;
-	hint?: string;
-	source?: string;
-	model?: string;
-	defaultModel?: string;
-	effectiveModel?: string;
-	baseUrl?: string;
-	account?: { email?: string; name?: string };
-	status?: string;
-	problem?: string;
-	error?: string;
-}
-export interface ServerSettings {
-	prefs?: Record<string, string | number | boolean>;
-	look?: object;
-	providers?: Record<string, ProviderView>;
+// Bootstrap may include project data before the settings endpoint is available.
+export type ServerSettings = Partial<PublicSettings> & {
 	project?: ProjectInfo;
-	active?: string;
-	ready?: boolean;
-	server?: { port?: number; preferred?: number; pid?: number };
-	local?: boolean;
-	cloud?: boolean;
-}
+};
 
 export interface TreeMap {
 	frontier: string[];
