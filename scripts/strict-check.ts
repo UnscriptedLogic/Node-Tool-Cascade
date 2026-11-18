@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
-const folders = ["ui/islands/", "ui/components/", "ui/app/", "shared/"];
+const folders = ["shared/", "ui/components/", "ui/app/"];
 const result = spawnSync(
 	process.execPath,
 	[
