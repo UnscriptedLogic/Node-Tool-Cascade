@@ -10,6 +10,7 @@ export { flushSync as sync } from "react-dom";
 export { proxy, ref, snapshot, subscribe } from "valtio/vanilla";
 export { legacy } from "./bootstrap.ts";
 export { connect } from "./bridge.ts";
+export { testApi } from "./test-api.ts";
 
 import "./ui.css";
 
