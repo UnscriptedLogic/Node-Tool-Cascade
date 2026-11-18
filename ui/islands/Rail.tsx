@@ -18,11 +18,12 @@ import { openSettings } from "../legacy/ui/settings.ts";
 export default function Rail() {
 	const ui = useSnapshot(UI, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true });
+	const moods: Record<string, { bg: string; fg: string }> = MOODS;
 	const library = ui.library,
 		signedIn = library && (library.kind === "local" || library.user),
 		current = library?.cascades.find((c) => c.id === library.currentId),
 		folder = current?.folderId
-			? library.folders.find((f) => f.id === current.folderId)
+			? library?.folders.find((f) => f.id === current.folderId)
 			: null;
 	return (
 		<aside id="rail">
@@ -93,7 +94,7 @@ export default function Rail() {
 				<ul id="legend">
 					{MOOD_KEYS.map((key) => (
 						<li key={key}>
-							<i style={{ "--c": ui.moodColors[key] || MOODS[key].bg }} />
+							<i style={{ "--c": ui.moodColors[key] || moods[key].bg }} />
 							{key[0].toUpperCase() + key.slice(1)}
 						</li>
 					))}

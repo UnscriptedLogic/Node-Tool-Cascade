@@ -16,6 +16,7 @@ const folders = [
 	"ui/islands/MindsetConverter.tsx",
 	"ui/islands/Mindsets.tsx",
 	"ui/islands/Providers.tsx",
+	"ui/islands/Rail.tsx",
 ];
 const result = spawnSync(
 	process.execPath,
