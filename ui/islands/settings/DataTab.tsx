@@ -50,7 +50,7 @@ export default function DataTab() {
 						className="btn"
 						id="dImport"
 						type="button"
-						onClick={() => fileInput.current.click()}
+						onClick={() => fileInput.current?.click()}
 					>
 						{"Import tree"}
 					</button>
@@ -62,7 +62,7 @@ export default function DataTab() {
 						ref={fileInput}
 						onChange={async (event) => {
 							const input = event.currentTarget;
-							await onDataAction("import", input.files[0]);
+							await onDataAction("import", input.files?.[0]);
 							input.value = "";
 						}}
 					/>

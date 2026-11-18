@@ -18,6 +18,7 @@ const folders = [
 	"ui/islands/Providers.tsx",
 	"ui/islands/Rail.tsx",
 	"ui/islands/SourceViewer.tsx",
+	"ui/islands/settings/DataTab.tsx",
 ];
 const result = spawnSync(
 	process.execPath,
