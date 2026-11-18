@@ -1,3 +1,9 @@
+import type {
+	EffectiveLook,
+	LookSettings,
+	NodeAppearance,
+} from "../../../shared/look-types.ts";
+
 type LookValue = Record<
 	string,
 	string | number | boolean | number[] | null | object
@@ -16,7 +22,13 @@ import { R, UI } from "../core/state.ts";
 import { kick } from "./edges.ts";
 import { layout } from "./layout.ts";
 import { applyView } from "./view.ts";
-export const state = {
+// startLook populates these declarations before canvas consumers run.
+export const state: {
+	LOOK: LookSettings;
+	LOOKVER: number;
+	EFF: EffectiveLook | null;
+	lookTimer: ReturnType<typeof setTimeout> | number | undefined;
+} = {
 	LOOK: undefined,
 	LOOKVER: undefined,
 	EFF: undefined,
@@ -25,23 +37,24 @@ export const state = {
 export let LOOK_KEY: string,
 	SVGNS: "http://www.w3.org/2000/svg",
 	NODE_TYPES: string[],
-	SHAPES = null,
-	POLY = null,
-	SHAPE_PAD = null,
-	WIRE_STYLES = null,
-	WIRE_KINDS = null,
-	KIND_LABEL = null,
-	DASH = null,
-	SAFE_TOKENS = null,
-	NAMED = null,
-	DEF_NODE = null,
-	DEF_LOOK = null,
-	isObj = null,
-	nodeW = null,
-	lum = null,
-	moodColor = null,
-	moodFg = null,
-	MK = null;
+	SHAPES: string[],
+	POLY: Record<string, string>,
+	SHAPE_PAD: Record<string, number[]>,
+	WIRE_STYLES: string[],
+	WIRE_KINDS: string[],
+	KIND_LABEL: Record<string, string>,
+	DASH: Record<string, string>,
+	SAFE_TOKENS: string[],
+	NAMED: Record<string, string>,
+	DEF_NODE: NodeAppearance,
+	DEF_LOOK: Required<Pick<LookSettings, "nodes">> &
+		Omit<EffectiveLook, "v" | "moods" | "nodes">,
+	isObj: (value: unknown) => boolean,
+	nodeW: (type: string) => number,
+	lum: (rgb: number[]) => number,
+	moodColor: (mood: string) => string,
+	moodFg: (mood: string) => string,
+	MK: Map<string, string>;
 export function deepMerge(a, b) {
 	const out = Array.isArray(a) ? a.slice() : Object.assign({}, a);
 	for (const k in b) {
