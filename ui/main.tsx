@@ -32,7 +32,6 @@ export function mount(name: string, el: Element | null) {
 	}
 	const root = createRoot(el);
 	roots.set(name, { root, el });
-	// Legacy startup code queries island elements immediately after the first mount.
 	flushSync(() => root.render(createElement(Component)));
 }
 

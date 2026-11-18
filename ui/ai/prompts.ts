@@ -925,7 +925,7 @@ export function isRevealStopped() {
 	return stopReveal;
 }
 
-// The legacy test harness awaits the current queue until plan 007.
+// ui/test-api.ts reads the current queue to wait for AI work.
 export const state = {
 	get chain() {
 		return chain;
