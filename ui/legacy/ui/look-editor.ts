@@ -27,12 +27,11 @@ import {
 } from "../canvas/look.ts";
 import { LABEL, MOOD_KEYS } from "../core/constants.ts";
 export let lookSheet: string;
-export let LK = null;
-LK = proxy({
+export const LK = proxy({
 	tab: "presets",
 	type: "base",
-	pend: null,
-	hist: [],
+	pend: null as { before: string } | null,
+	hist: [] as string[],
 	built: false,
 	busy: false,
 	revision: 0,
@@ -41,7 +40,7 @@ LK = proxy({
 	textFocused: false,
 	status: "",
 	note: "",
-	changes: [],
+	changes: [] as string[],
 	resultOpen: false,
 	textError: "",
 	textOk: false,

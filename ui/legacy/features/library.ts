@@ -1,5 +1,6 @@
 import { proxy } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
+import type { CascadeMeta, Folder } from "../../../shared/types.ts";
 import { record } from "../../../shared/types.ts";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
@@ -26,19 +27,18 @@ import {
 	updatePreview,
 	updateProviders,
 } from "../ui/settings.ts";
-export let LIB = null;
-LIB = proxy({
-	kind: null,
-	user: null,
-	folders: [],
-	cascades: [],
-	currentId: null,
+export const LIB = proxy({
+	kind: null as string | null,
+	user: null as { name?: string; email: string } | null,
+	folders: [] as Folder[],
+	cascades: [] as CascadeMeta[],
+	currentId: null as string | null,
 	googleClientId: "",
 	status: "",
-	editing: null,
-	armed: null,
+	editing: null as { kind: "cascade" | "folder"; id: string } | null,
+	armed: null as string | null,
 	suspend: false,
-	timer: 0,
+	timer: 0 as ReturnType<typeof setTimeout> | 0,
 	gsi: false,
 });
 onTreeSaved(libAfterSave);

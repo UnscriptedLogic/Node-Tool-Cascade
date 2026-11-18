@@ -20,7 +20,12 @@ export interface ProviderStatus {
 	baseUrl?: string;
 	effectiveBase?: string;
 	defaultModel?: string;
-	account?: { email?: string; name?: string; plan?: string };
+	account?: {
+		email?: string;
+		name?: string;
+		plan?: string;
+		planUsage?: boolean;
+	};
 	pending?: boolean;
 	lastError?: string;
 	installed?: boolean;

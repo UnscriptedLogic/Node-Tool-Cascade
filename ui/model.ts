@@ -90,3 +90,11 @@ export interface TreeMap {
 
 export type SavedTree = Pick<CascadeTree, "nodes" | "order"> &
 	Partial<CascadeTree>;
+
+export interface SourceLocation {
+	f: string;
+	l: number;
+	e?: number;
+	t?: string;
+	note?: string;
+}

@@ -1,5 +1,7 @@
 import { proxy, ref } from "valtio/vanilla";
+import type { TextUnit } from "../../../shared/mindset-conversion.ts";
 import MindsetConversion from "../../../shared/mindset-conversion.ts";
+import type { Mindset } from "../../../shared/mindsets.ts";
 import Mindsets from "../../../shared/mindsets.ts";
 import {
 	activeProvider,
@@ -14,13 +16,12 @@ import {
 import { LOCAL, WEB } from "../core/constants.ts";
 import { setBusy } from "../ui/hud.ts";
 import { downloadMindset, importMindsets } from "./mindsets.ts";
-export let MSCONVERT = null;
-MSCONVERT = proxy({
-	ctl: null,
-	units: null,
-	warnings: [],
-	draft: null,
-	task: null,
+export const MSCONVERT = proxy({
+	ctl: null as AbortController | null,
+	units: null as TextUnit[] | null,
+	warnings: [] as string[],
+	draft: null as Mindset | null,
+	task: null as Promise<unknown> | null,
 	busy: false,
 	status: "",
 	info: "",
@@ -32,7 +33,7 @@ MSCONVERT = proxy({
 	limit: "100",
 	text: "",
 	json: "",
-	domains: [],
+	domains: [] as string[],
 });
 export function conversionBusy(on: boolean) {
 	MSCONVERT.busy = on;

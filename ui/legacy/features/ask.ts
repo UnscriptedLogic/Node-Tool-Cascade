@@ -1,3 +1,32 @@
+export interface AskThread {
+	label: string;
+	why: string;
+	ids: string[];
+	on: boolean;
+}
+export interface AskGap {
+	text: string;
+	parent: string | null;
+}
+export interface AskSource {
+	id: string;
+	f: string;
+	l: number;
+	e?: number;
+	note: string;
+}
+type AskHistory = Pick<
+	typeof AN,
+	| "q"
+	| "verdict"
+	| "answer"
+	| "threads"
+	| "gaps"
+	| "sources"
+	| "basis"
+	| "local"
+>;
+
 import { proxy, ref } from "valtio/vanilla";
 import {
 	aiAvailable,
@@ -21,9 +50,7 @@ import { addNode, expandChain, rebuildKM } from "../core/tree.ts";
 import { commit, setBusy, showNote } from "../ui/hud.ts";
 import { setPreference } from "../ui/settings.ts";
 import { openSrcView, projectEvidence } from "./project.ts";
-export let AN = null,
-	AHIST = null;
-AN = proxy({
+export const AN = proxy({
 	input: "",
 	next: false,
 	copyText: "Copy",
@@ -32,17 +59,17 @@ AN = proxy({
 	q: "",
 	verdict: "",
 	answer: "",
-	threads: [],
-	gaps: [],
-	sources: [],
+	threads: [] as AskThread[],
+	gaps: [] as AskGap[],
+	sources: [] as AskSource[],
 	basis: "",
 	summary: "",
 	summaryKind: "",
 	local: false,
-	ctl: null,
+	ctl: null as AbortController | null,
 	busy: false,
 });
-AHIST = proxy([]);
+export const AHIST = proxy([] as AskHistory[]);
 export function linksText() {
 	return S.links
 		.filter((l) => S.nodes[l.a] && S.nodes[l.b])

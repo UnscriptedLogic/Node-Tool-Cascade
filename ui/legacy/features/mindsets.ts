@@ -23,8 +23,7 @@ import { pushHist, S, save } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
 import { setBusy, showNote } from "../ui/hud.ts";
 import { libData } from "./library.ts";
-export let MSUI = null;
-MSUI = proxy({
+export const MSUI = proxy({
 	json: "",
 	message: "",
 });

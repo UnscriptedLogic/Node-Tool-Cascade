@@ -1,4 +1,5 @@
 import { isRecord } from "../../../shared/types.ts";
+import type { SourceLocation } from "../../model.ts";
 
 let projDepth: string = "standard";
 let PGROUPS = null;
@@ -35,9 +36,7 @@ import { requestFocus, setBusy, showNote } from "../ui/hud.ts";
 import { openSettings, postJSON, updatePreview } from "../ui/settings.ts";
 import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
-export let PROJECTUI = null,
-	SV = null;
-PROJECTUI = proxy({
+export const PROJECTUI = proxy({
 	project: CONNECTION.project || {
 		has: false,
 	},
@@ -57,12 +56,12 @@ PROJECTUI = proxy({
 	buildLabel: "Build brief",
 	canRestore: false,
 });
-SV = proxy({
-	list: [],
+export const SV = proxy({
+	list: [] as SourceLocation[],
 	i: 0,
 	open: false,
 	loading: false,
-	lines: [],
+	lines: [] as { number: number; text: string; hit: boolean }[],
 	error: "",
 	copyText: "Copy path",
 	request: 0,

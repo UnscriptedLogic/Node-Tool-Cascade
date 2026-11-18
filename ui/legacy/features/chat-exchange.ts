@@ -8,15 +8,14 @@ import { pushHist, S } from "../core/state.ts";
 import { addNode, descendants, rebuildKM } from "../core/tree.ts";
 import { commit, requestFocus, showNote } from "../ui/hud.ts";
 import { closeSettings } from "../ui/settings.ts";
-export let CHATUI = null,
-	CHAT_EXCHANGE = null;
-CHATUI = proxy({
+export let CHAT_EXCHANGE = null;
+export const CHATUI = proxy({
 	task: "",
 	reply: "",
 	prompt: "",
 	status: "",
 	steps: false,
-	draft: [],
+	draft: [] as { type: string; text: string; parent: string }[],
 });
 export function chatAction(name, ...args) {
 	// The next chat action reads the rendered review controls (test/chat-exchange.test.ts:29).

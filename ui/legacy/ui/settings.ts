@@ -38,29 +38,29 @@ import { clearGraph, initialView } from "./actions.ts";
 import { requestFocus, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
-export let SETTINGS = null;
-SETTINGS = proxy({
+export const SETTINGS = proxy({
 	open: false,
 	tab: "ai",
 	preview: "",
 	server: CONNECTION.server,
-	drafts: {},
-	results: {},
-	models: {},
-	busy: {},
+	drafts: {} as Record<string, { key?: string; model?: string; base?: string }>,
+	results: {} as Record<string, { text?: string; cls?: string }>,
+	models: {} as Record<string, string[]>,
+	busy: {} as Record<string, boolean>,
 	signingIn: false,
 	web: {
 		...CONNECTION.web,
 	},
 	webKeyDraft: "",
 	webModelDraft: CONNECTION.web.model,
-	webModels: [],
+	webModels: [] as string[],
 	webBusy: false,
 	cloud: CONNECTION.cloud,
 	googleClientId: "",
 	analytics: false,
 	dataMessage: "",
 	statsOn: true,
+	library: undefined as boolean | undefined,
 });
 export function setPreference<K extends keyof Preferences>(
 	key: K,
