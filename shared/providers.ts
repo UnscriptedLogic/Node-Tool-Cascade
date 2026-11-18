@@ -1,4 +1,5 @@
 import type { Delta, ProviderConfig, SampleOptions } from "./types.ts";
+import { isRecord, record } from "./types.ts";
 // Provider adapters for Claude, OpenAI, OpenRouter and OpenAI-compatible endpoints. Each turns a prompt into a stream of text deltas.
 // Portable: runs in Node (the local app) and in the Cloudflare Worker.
 import {
@@ -53,16 +54,18 @@ async function streamAnthropic(
 		}
 		let got = 0;
 		for await (const d of sseData(up.body)) {
-			let ev: ReturnType<typeof JSON.parse>;
+			let ev: unknown;
 			try {
 				ev = JSON.parse(d);
 			} catch {
 				continue;
 			}
+			if (!isRecord(ev)) continue;
 			if (
 				ev.type === "content_block_delta" &&
-				ev.delta &&
+				isRecord(ev.delta) &&
 				ev.delta.type === "text_delta" &&
+				typeof ev.delta.text === "string" &&
 				ev.delta.text
 			) {
 				got++;
@@ -70,7 +73,9 @@ async function streamAnthropic(
 			} else if (ev.type === "error")
 				throw new ProviderError(
 					502,
-					ev.error?.message || "The provider reported a stream error.",
+					String(
+						record(ev.error).message || "The provider reported a stream error.",
+					),
 				);
 		}
 		if (!got) throw new ProviderError(502, NO_TEXT);
@@ -148,18 +153,20 @@ async function streamOpenAI(
 		let got = 0;
 		for await (const d of sseData(up.body)) {
 			if (d === "[DONE]") break;
-			let ev: ReturnType<typeof JSON.parse>;
+			let ev: unknown;
 			try {
 				ev = JSON.parse(d);
 			} catch {
 				continue;
 			}
+			if (!isRecord(ev)) continue;
 			if (ev.error)
 				throw new ProviderError(
 					502,
-					(ev.error.message || String(ev.error)).slice(0, 300),
+					String(record(ev.error).message || ev.error).slice(0, 300),
 				);
-			const c = ev.choices?.[0]?.delta?.content;
+			const choice = Array.isArray(ev.choices) ? record(ev.choices[0]) : {};
+			const c = record(choice.delta).content;
 			if (typeof c === "string" && c) {
 				got++;
 				onDelta(c);

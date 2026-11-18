@@ -33,13 +33,17 @@ async function doFetch(url: string, opts?: RequestInit) {
 	}
 }
 async function providerError(up: Response) {
-	let msg = "";
+	let msg: unknown = "";
 	try {
 		const t = await up.text();
 		try {
-			const j = JSON.parse(t);
+			const value: unknown = JSON.parse(t);
+			const j = record(value);
 			msg =
-				(j.error && (j.error.message || j.error)) || j.message || j.detail || t;
+				(j.error && (record(j.error).message || j.error)) ||
+				j.message ||
+				j.detail ||
+				t;
 		} catch {
 			msg = t;
 		}
@@ -47,7 +51,7 @@ async function providerError(up: Response) {
 	if (typeof msg !== "string") msg = JSON.stringify(msg);
 	return new ProviderError(
 		up.status,
-		(msg || `HTTP ${up.status}`).slice(0, 400),
+		String(msg || `HTTP ${up.status}`).slice(0, 400),
 	);
 }
 // Yields the payload of each `data:` line in a server-sent-event stream.

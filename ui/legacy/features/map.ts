@@ -1,4 +1,5 @@
 import { proxy, ref } from "valtio/vanilla";
+import { isRecord } from "../../../shared/types.ts";
 import {
 	aiAvailable,
 	aiNeed,
@@ -576,12 +577,13 @@ export async function nextRound() {
 				.replace(/,$/, "")
 				.trim();
 			if (!ln.startsWith("{")) continue;
-			let o: ReturnType<typeof JSON.parse>;
+			let o: unknown;
 			try {
 				o = JSON.parse(ln);
 			} catch {
 				continue;
 			}
+			if (!isRecord(o)) continue;
 			if (o.done) {
 				G.done = true;
 				G.summary =
@@ -589,18 +591,22 @@ export async function nextRound() {
 				continue;
 			}
 			if (typeof o.text !== "string" || !o.text.trim() || got >= 6) continue;
-			const parent = S.nodes[o.parent]
-				? o.parent
-				: G.scope && S.nodes[G.scope]
-					? G.scope
-					: null;
+			const parent =
+				typeof o.parent === "string" && S.nodes[o.parent]
+					? o.parent
+					: G.scope && S.nodes[G.scope]
+						? G.scope
+						: null;
 			const m = mindsetResult(o, candidates, parent);
 			if (!m.ok || (m.value && mindsetCount >= 2)) continue;
 			if (m.value) mindsetCount++;
 			addCard({
 				text: o.text.trim().slice(0, 200),
 				why: typeof o.why === "string" ? o.why.slice(0, 160) : "",
-				ticket: TICKETS.includes(o.ticket) ? o.ticket : "talk",
+				ticket:
+					typeof o.ticket === "string" && TICKETS.includes(o.ticket)
+						? o.ticket
+						: "talk",
 				parent,
 				grillable: o.grillable !== false,
 				mindset: m.value,

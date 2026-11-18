@@ -60,7 +60,8 @@ export function loadPrefs(): Partial<Preferences> {
 // trees saved before domains existed were all game design
 export function loadWebAI() {
 	try {
-		const o = JSON.parse(localStorage.getItem(WEBAI_KEY) || "{}");
+		const value: unknown = JSON.parse(localStorage.getItem(WEBAI_KEY) || "{}");
+		const o = record(value);
 		return {
 			provider: o.provider === "openrouter" ? "openrouter" : "demo",
 			key: typeof o.key === "string" ? o.key : "",

@@ -1,3 +1,5 @@
+import { isRecord, record } from "../../../shared/types.ts";
+
 interface ProviderReply {
 	detail?: string;
 	error?: { message?: string };
@@ -92,12 +94,13 @@ export async function serverSample(prompt, o) {
 	let text = "";
 	try {
 		await readSSE(r, (d: string) => {
-			let ev: ReturnType<typeof JSON.parse>;
+			let ev: unknown;
 			try {
 				ev = JSON.parse(d);
 			} catch {
 				return;
 			}
+			if (!isRecord(ev)) return;
 			if (typeof ev.t === "string") {
 				text += ev.t;
 				if (o.onText)
@@ -206,19 +209,21 @@ export async function webSample(prompt, o) {
 	try {
 		await readSSE(r, (d: string) => {
 			if (d === "[DONE]") return;
-			let ev: ReturnType<typeof JSON.parse>;
+			let ev: unknown;
 			try {
 				ev = JSON.parse(d);
 			} catch {
 				return;
 			}
+			if (!isRecord(ev)) return;
 			if (ev.error)
 				throw {
 					code: "upstream_error",
-					message: String(ev.error.message || ev.error).slice(0, 200),
+					message: String(record(ev.error).message || ev.error).slice(0, 200),
 					text,
 				};
-			const c = ev.choices?.[0]?.delta?.content;
+			const choice = Array.isArray(ev.choices) ? record(ev.choices[0]) : {};
+			const c = record(choice.delta).content;
 			if (typeof c === "string" && c) {
 				text += c;
 				if (o.onText)
@@ -283,14 +288,17 @@ export async function startOpenRouterLogin() {
 export async function finishOpenRouterLogin() {
 	const code = new URLSearchParams(location.search).get("code");
 	if (!code) return;
-	let saved = null;
+	let saved: Record<string, unknown> = {};
 	try {
-		saved = JSON.parse(sessionStorage.getItem("cascade-or-pkce") || "null");
+		const value: unknown = JSON.parse(
+			sessionStorage.getItem("cascade-or-pkce") || "null",
+		);
+		saved = record(value);
 		sessionStorage.removeItem("cascade-or-pkce");
 	} catch {
 		/* An unavailable or invalid session cannot complete sign-in. */
 	}
-	if (!saved?.verifier) return;
+	if (typeof saved.verifier !== "string" || !saved.verifier) return;
 	history.replaceState(null, "", location.pathname + location.hash);
 	try {
 		if (LOCAL || CONNECTION.cloud) {

@@ -1,5 +1,6 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
+import { record } from "../../../shared/types.ts";
 import { guidance } from "../ai/prompts.ts";
 import { PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
@@ -110,9 +111,10 @@ export function startChatExchange() {
 				const raw = CHATUI.reply.trim();
 				if (raw.length > 100000)
 					throw new Error("Reply too large. Paste only the JSON response.");
-				const parsed = JSON.parse(
+				const value: unknown = JSON.parse(
 					raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, ""),
 				);
+				const parsed = record(value);
 				if (
 					!parsed ||
 					!Array.isArray(parsed.nodes) ||

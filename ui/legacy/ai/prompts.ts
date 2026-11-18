@@ -1,3 +1,5 @@
+import { record } from "../../../shared/types.ts";
+
 let ctl: AbortController | null = null;
 let chain: Promise<unknown> = Promise.resolve();
 let queued: number = 0;
@@ -150,7 +152,8 @@ export function parseObj(text: string) {
 			message: "no JSON",
 		};
 	try {
-		return JSON.parse(text.slice(a, b + 1));
+		const value: unknown = JSON.parse(text.slice(a, b + 1));
+		return record(value);
 	} catch {
 		throw {
 			code: "invalid_json",
@@ -308,12 +311,14 @@ export async function placeBlock(type, text, wpos, pend, signal) {
 		}
 	}
 	if (!res) res = fallbackPlace(type, text);
-	const parent = S.nodes[res.parent]
-		? res.parent
-		: S.order.length
-			? fallbackPlace(type, text).parent || null
-			: null;
-	const ntype = BLOCKS.includes(res.type) ? res.type : type;
+	const parent =
+		typeof res.parent === "string" && S.nodes[res.parent]
+			? res.parent
+			: S.order.length
+				? fallbackPlace(type, text).parent || null
+				: null;
+	const ntype =
+		typeof res.type === "string" && BLOCKS.includes(res.type) ? res.type : type;
 	if (S.mode === "outer") setMode("detail");
 	pushHist();
 	pend.remove();
@@ -324,12 +329,13 @@ export async function placeBlock(type, text, wpos, pend, signal) {
 		type: ntype,
 		text,
 		parent,
-		rel: cleanRel(res.relation),
-		mood: MOODS[res.mood]
-			? res.mood
-			: ntype === "emotion"
-				? moodGuess(text)
-				: undefined,
+		rel: cleanRel(typeof res.relation === "string" ? res.relation : ""),
+		mood:
+			typeof res.mood === "string" && MOODS[res.mood]
+				? res.mood
+				: ntype === "emotion"
+					? moodGuess(text)
+					: undefined,
 		spawn: wpos,
 	});
 	(Array.isArray(res.related) ? res.related : [])
@@ -352,7 +358,7 @@ export async function placeBlock(type, text, wpos, pend, signal) {
 	}, 7000);
 	commit();
 	const r = R[id],
-		pr = R[parent];
+		pr = parent ? R[parent] : undefined;
 	if (r) {
 		r.hot = true;
 		setTimeout(() => {
@@ -513,7 +519,8 @@ Rules:
 				.trim();
 			if (!ln.startsWith("{")) continue;
 			try {
-				queue.push(JSON.parse(ln));
+				const value: unknown = JSON.parse(ln);
+				queue.push(record(value));
 			} catch {
 				/* Ignore incomplete or malformed streamed JSON lines. */
 			}

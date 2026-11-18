@@ -1,3 +1,4 @@
+import { record } from "../../../shared/types.ts";
 import type { Preferences } from "../core/prefs.ts";
 
 let prefsTimer: ReturnType<typeof setTimeout> | undefined;
@@ -611,7 +612,8 @@ export async function onDataAction(action, file?) {
 		const f = file;
 		if (!f) return;
 		try {
-			const j = JSON.parse(await f.text()),
+			const value: unknown = JSON.parse(await f.text());
+			const j = record(value),
 				t = sanitizeTree(j.tree || j);
 			if (!t.order.length)
 				throw new Error("That file doesn’t look like a Cascade tree.");

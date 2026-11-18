@@ -1,3 +1,5 @@
+import { isRecord } from "../../../shared/types.ts";
+
 let projDepth: string = "standard";
 let PGROUPS = null;
 let PFIND = null;
@@ -209,12 +211,13 @@ export async function streamLines(prompt, o) {
 				.replace(/,$/, "")
 				.trim();
 			if (!ln.startsWith("{")) continue;
-			let v: ReturnType<typeof JSON.parse>;
+			let v: unknown;
 			try {
 				v = JSON.parse(ln);
 			} catch {
 				continue;
 			}
+			if (!isRecord(v)) continue;
 			o.onObj(v);
 		}
 	};
@@ -810,7 +813,10 @@ export async function runSeed(findings, signal) {
 		const n = S.nodes[id];
 		n.src = refs;
 		if (o.type === "question")
-			n.ticket = TICKETS.includes(o.ticket) ? o.ticket : "talk";
+			n.ticket =
+				typeof o.ticket === "string" && TICKETS.includes(o.ticket)
+					? o.ticket
+					: "talk";
 		gmap[String(o.id)] = id;
 		count++;
 		layout(false);

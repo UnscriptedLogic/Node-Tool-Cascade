@@ -1,6 +1,7 @@
 import { proxy } from "valtio/vanilla";
 import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
 import Mindsets from "../../../shared/mindsets.ts";
+import { isRecord } from "../../../shared/types.ts";
 import {
 	activeProvider,
 	aiAvailable,
@@ -255,12 +256,13 @@ export function applyMindset(id, only) {
 			let count = 0;
 			const texts = new Set(S.order.map((i) => S.nodes[i].text.toLowerCase()));
 			for (const line of out.text.split("\n")) {
-				let o: ReturnType<typeof JSON.parse>;
+				let o: unknown;
 				try {
 					o = JSON.parse(line);
 				} catch {
 					continue;
 				}
+				if (!isRecord(o)) continue;
 				if (
 					count >= 3 ||
 					!o ||

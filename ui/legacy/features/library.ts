@@ -1,5 +1,6 @@
 import { proxy } from "valtio/vanilla";
 import Mindsets from "../../../shared/mindsets.ts";
+import { record } from "../../../shared/types.ts";
 import { cancelAI } from "../ai/prompts.ts";
 import { layout } from "../canvas/layout.ts";
 import { applyView } from "../canvas/view.ts";
@@ -455,8 +456,12 @@ export async function libInit() {
 	}
 	if (!LIB.kind) return;
 	try {
-		const saved = JSON.parse(localStorage.getItem(LIB_CURRENT) || "null");
-		if (saved && saved.kind === LIB.kind) LIB.currentId = saved.id;
+		const value: unknown = JSON.parse(
+			localStorage.getItem(LIB_CURRENT) || "null",
+		);
+		const saved = record(value);
+		if (saved.kind === LIB.kind && typeof saved.id === "string")
+			LIB.currentId = saved.id;
 	} catch {}
 	SETTINGS.library = true;
 	await libRefresh();

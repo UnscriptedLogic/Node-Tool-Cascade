@@ -1,5 +1,6 @@
 import { flushSync } from "react-dom";
 import { proxy } from "valtio/vanilla";
+import { isRecord } from "../../../shared/types.ts";
 import {
 	activeProvider,
 	aiAvailable,
@@ -590,7 +591,7 @@ export function lkRevert() {
 	lkRefresh();
 }
 export function lkApply(text) {
-	let obj: ReturnType<typeof JSON.parse>;
+	let obj: unknown;
 	try {
 		obj = JSON.parse(text || "{}");
 	} catch (e) {
@@ -598,7 +599,7 @@ export function lkApply(text) {
 		LK.textError = `That isn’t valid JSON: ${e.message}`;
 		return;
 	}
-	if (!isObj(obj)) {
+	if (!isRecord(obj)) {
 		LK.textOk = false;
 		LK.textError =
 			'The look must be a JSON object, like { "wires": { "style": "straight" } }.';
