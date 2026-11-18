@@ -10,7 +10,7 @@ import {
 	onSettingsKeyDown,
 	SETTINGS,
 	showTab,
-} from "../../legacy/ui/settings.ts";
+} from "../../legacy/shell/settings.ts";
 import Mindsets from "../Mindsets.tsx";
 import Project from "../Project.tsx";
 import AiTab from "./AiTab.tsx";

@@ -10,10 +10,10 @@ import {
 import { stage } from "../legacy/core/dom.ts";
 import { DOMAINS } from "../legacy/core/profiles.ts";
 import { UI } from "../legacy/core/state.ts";
-import { clearGraph, resetTree } from "../legacy/ui/actions.ts";
-import { openCompose, startTileDrag } from "../legacy/ui/compose.ts";
-import { openMoreMenu } from "../legacy/ui/responsive.ts";
-import { openSettings } from "../legacy/ui/settings.ts";
+import { clearGraph, resetTree } from "../legacy/shell/actions.ts";
+import { openCompose, startTileDrag } from "../legacy/shell/compose.ts";
+import { openMoreMenu } from "../legacy/shell/responsive.ts";
+import { openSettings } from "../legacy/shell/settings.ts";
 
 export default function Rail() {
 	const ui = useSnapshot(UI, { sync: true }),

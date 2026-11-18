@@ -17,10 +17,14 @@ import { isOuter } from "../legacy/core/tree.ts";
 import { clearAskHighlight } from "../legacy/features/ask.ts";
 import { toggleAsk, toggleMap } from "../legacy/features/map.ts";
 import { seedFromProject } from "../legacy/features/project.ts";
-import { dismissAll, keepAll, undo } from "../legacy/ui/actions.ts";
-import { fitCanvas, stopCanvasAI, zoomCanvas } from "../legacy/ui/controls.ts";
-import { runNodeAction, SHORT } from "../legacy/ui/responsive.ts";
-import { openSettings } from "../legacy/ui/settings.ts";
+import { dismissAll, keepAll, undo } from "../legacy/shell/actions.ts";
+import {
+	fitCanvas,
+	stopCanvasAI,
+	zoomCanvas,
+} from "../legacy/shell/controls.ts";
+import { runNodeAction, SHORT } from "../legacy/shell/responsive.ts";
+import { openSettings } from "../legacy/shell/settings.ts";
 
 export default function Hud() {
 	const settingsButton = useFocus<HTMLButtonElement>("settingsButton");

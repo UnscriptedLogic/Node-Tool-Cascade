@@ -9,7 +9,7 @@ import {
 	PROV,
 	PROV_ORDER,
 	SETTINGS,
-} from "../legacy/ui/settings.ts";
+} from "../legacy/shell/settings.ts";
 
 export default function Providers() {
 	const state = useSnapshot(SETTINGS, { sync: true }),

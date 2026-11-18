@@ -44,11 +44,11 @@ import {
 	initialView,
 	resetTree,
 	undo,
-} from "./legacy/ui/actions.ts";
-import { openCompose } from "./legacy/ui/compose.ts";
-import { select } from "./legacy/ui/hud.ts";
-import { applyResponsive } from "./legacy/ui/responsive.ts";
-import { closeSettings, sanitizeTree } from "./legacy/ui/settings.ts";
+} from "./legacy/shell/actions.ts";
+import { openCompose } from "./legacy/shell/compose.ts";
+import { select } from "./legacy/shell/hud.ts";
+import { applyResponsive } from "./legacy/shell/responsive.ts";
+import { closeSettings, sanitizeTree } from "./legacy/shell/settings.ts";
 
 export const testApi = {
 	get tree() {

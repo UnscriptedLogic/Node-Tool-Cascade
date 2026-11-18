@@ -22,8 +22,8 @@ import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
 import { addNode, blockCycle, computeMap, expandChain } from "../core/tree.ts";
-import { commit, requestFocus, select, showNote } from "../ui/hud.ts";
-import { setPreference } from "../ui/settings.ts";
+import { commit, requestFocus, select, showNote } from "../shell/hud.ts";
+import { setPreference } from "../shell/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
 export const PANEL = proxy({

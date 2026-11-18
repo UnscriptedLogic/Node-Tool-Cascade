@@ -14,7 +14,7 @@ import {
 	setController,
 } from "../ai/prompts.ts";
 import { LOCAL, WEB } from "../core/constants.ts";
-import { setBusy } from "../ui/hud.ts";
+import { setBusy } from "../shell/hud.ts";
 import { downloadMindset, importMindsets } from "./mindsets.ts";
 export const MSCONVERT = proxy({
 	ctl: null as AbortController | null,

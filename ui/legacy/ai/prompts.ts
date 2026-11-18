@@ -41,7 +41,7 @@ import {
 	mindsetResult,
 } from "../features/mindsets.ts";
 import { briefText, projectBriefOn } from "../features/project.ts";
-import { commit, setBusy, showNote } from "../ui/hud.ts";
+import { commit, setBusy, showNote } from "../shell/hud.ts";
 import { demoSample, serverSample, webSample } from "./transport.ts";
 export function cancelAI() {
 	stopReveal = true;

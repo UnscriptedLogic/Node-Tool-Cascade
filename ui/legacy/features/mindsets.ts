@@ -21,7 +21,7 @@ import { LOCAL, PREFS, WEB } from "../core/constants.ts";
 import { DEFAULT_DOMAIN, DOM } from "../core/profiles.ts";
 import { pushHist, S, save } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
-import { setBusy, showNote } from "../ui/hud.ts";
+import { setBusy, showNote } from "../shell/hud.ts";
 import { libData } from "./library.ts";
 export const MSUI = proxy({
 	json: "",

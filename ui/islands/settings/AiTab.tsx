@@ -1,7 +1,7 @@
 import { useSnapshot } from "valtio";
 import { Label } from "@/components/ui/label";
 import { MODE } from "../../legacy/core/constants.ts";
-import { onWebAction, SETTINGS } from "../../legacy/ui/settings.ts";
+import { onWebAction, SETTINGS } from "../../legacy/shell/settings.ts";
 import ChatExchange from "../ChatExchange.tsx";
 import Providers from "../Providers.tsx";
 export default function AiTab() {

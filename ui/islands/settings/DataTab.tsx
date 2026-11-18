@@ -7,7 +7,7 @@ import {
 	onDataAction,
 	SETTINGS,
 	setPreference,
-} from "../../legacy/ui/settings.ts";
+} from "../../legacy/shell/settings.ts";
 export default function DataTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });

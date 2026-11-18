@@ -37,7 +37,7 @@ import {
 	PRESETS,
 	toHex,
 	wirePreview,
-} from "../legacy/ui/look-editor.ts";
+} from "../legacy/shell/look-editor.ts";
 
 const checkpoint = () => lkCheckpoint();
 

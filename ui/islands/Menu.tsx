@@ -13,7 +13,7 @@ import {
 	chooseMenuItem,
 	closeMenu,
 	state as responsiveState,
-} from "../legacy/ui/responsive.ts";
+} from "../legacy/shell/responsive.ts";
 import type { MenuSpec } from "../model.ts";
 
 interface MenuItemsProps {

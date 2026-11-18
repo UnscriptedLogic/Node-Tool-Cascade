@@ -19,14 +19,14 @@ import {
 	snap,
 	UI,
 } from "../core/state.ts";
-import { initialView } from "../ui/actions.ts";
+import { initialView } from "../shell/actions.ts";
 import {
 	closeSettings,
 	SETTINGS,
 	savePrefs,
 	updatePreview,
 	updateProviders,
-} from "../ui/settings.ts";
+} from "../shell/settings.ts";
 export const LIB = proxy({
 	kind: null as string | null,
 	user: null as { name?: string; email: string } | null,

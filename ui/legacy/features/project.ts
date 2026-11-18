@@ -32,8 +32,8 @@ import { CONNECTION, LOCAL, PREFS, sleep, TICKETS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { AI, pushHist, S, save, UI } from "../core/state.ts";
 import { addNode } from "../core/tree.ts";
-import { requestFocus, setBusy, showNote } from "../ui/hud.ts";
-import { openSettings, postJSON, updatePreview } from "../ui/settings.ts";
+import { requestFocus, setBusy, showNote } from "../shell/hud.ts";
+import { openSettings, postJSON, updatePreview } from "../shell/settings.ts";
 import { AN } from "./ask.ts";
 import { PANEL } from "./map.ts";
 export const PROJECTUI = proxy({

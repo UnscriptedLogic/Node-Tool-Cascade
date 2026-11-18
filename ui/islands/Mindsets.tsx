@@ -24,7 +24,7 @@ import {
 	MSUI,
 	removeMindset,
 } from "../legacy/features/mindsets.ts";
-import { closeSettings } from "../legacy/ui/settings.ts";
+import { closeSettings } from "../legacy/shell/settings.ts";
 import type { CascadeTree } from "../model.ts";
 import MindsetConverter from "./MindsetConverter.tsx";
 

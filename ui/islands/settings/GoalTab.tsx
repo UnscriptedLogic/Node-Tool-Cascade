@@ -8,7 +8,7 @@ import {
 	SETTINGS,
 	STEER_HELP,
 	setPreference,
-} from "../../legacy/ui/settings.ts";
+} from "../../legacy/shell/settings.ts";
 export default function GoalTab() {
 	const goal = useFocus<HTMLTextAreaElement>("goal");
 	const settings = useSnapshot(SETTINGS, { sync: true });

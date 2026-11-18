@@ -1,7 +1,7 @@
 import { useSnapshot } from "valtio";
 import { PREFS } from "../../legacy/core/constants.ts";
-import { LK } from "../../legacy/ui/look-editor.ts";
-import { SETTINGS, setPreference } from "../../legacy/ui/settings.ts";
+import { LK } from "../../legacy/shell/look-editor.ts";
+import { SETTINGS, setPreference } from "../../legacy/shell/settings.ts";
 import LookEditor from "../LookEditor.tsx";
 export default function LookTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });

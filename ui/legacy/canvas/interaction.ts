@@ -16,17 +16,17 @@ import {
 } from "../core/tree.ts";
 import { finishBlock } from "../features/map.ts";
 import { openNodeSrc } from "../features/project.ts";
-import { deleteNode, undo } from "../ui/actions.ts";
-import { closeCompose } from "../ui/compose.ts";
-import { commit, select, showNote } from "../ui/hud.ts";
+import { deleteNode, undo } from "../shell/actions.ts";
+import { closeCompose } from "../shell/compose.ts";
+import { commit, select, showNote } from "../shell/hud.ts";
 import {
 	isMinimal,
 	openCanvasMenu,
 	openNodeMenu,
 	runNodeAction,
 	state as uiResponsiveState,
-} from "../ui/responsive.ts";
-import { SETTINGS } from "../ui/settings.ts";
+} from "../shell/responsive.ts";
+import { SETTINGS } from "../shell/settings.ts";
 import { kick } from "./edges.ts";
 import { restyle } from "./layout.ts";
 import { flushView, scheduleView, zoomAt } from "./view.ts";

@@ -4,7 +4,7 @@ import {
 	cancelViewportUpdate,
 	onResize,
 	updateKeyboard,
-} from "../legacy/ui/responsive.ts";
+} from "../legacy/shell/responsive.ts";
 export function useViewport() {
 	useEffect(() => {
 		const viewport = window.visualViewport;

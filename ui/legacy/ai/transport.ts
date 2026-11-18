@@ -20,13 +20,13 @@ interface DemoNode {
 import { CONNECTION, LOCAL, sleep, WEBAI_KEY } from "../core/constants.ts";
 import { DOM, isGameDomain } from "../core/profiles.ts";
 import { AI } from "../core/state.ts";
-import { showNote } from "../ui/hud.ts";
+import { showNote } from "../shell/hud.ts";
 import {
 	fetchModels,
 	fetchOpenRouterModels,
 	openSettings,
 	postJSON,
-} from "../ui/settings.ts";
+} from "../shell/settings.ts";
 import { moodGuess, toks } from "./prompts.ts";
 export function saveWebAI() {
 	try {

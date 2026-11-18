@@ -1,4 +1,4 @@
-import { postJSON, SETTINGS } from "../ui/settings.ts";
+import { postJSON, SETTINGS } from "../shell/settings.ts";
 import { UI } from "./state.ts";
 /* ================= server lifecycle (local version) ================= */
 export function showBye() {

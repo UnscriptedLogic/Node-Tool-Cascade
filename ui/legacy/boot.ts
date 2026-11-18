@@ -8,9 +8,9 @@ import { loaded, S } from "./core/state.ts";
 import { pruneThreads } from "./features/ask.ts";
 import { libInit } from "./features/library.ts";
 import { PANEL, renderMap } from "./features/map.ts";
-import { initialView } from "./ui/actions.ts";
-import { setBusy } from "./ui/hud.ts";
-import { openSettings } from "./ui/settings.ts";
+import { initialView } from "./shell/actions.ts";
+import { setBusy } from "./shell/hud.ts";
+import { openSettings } from "./shell/settings.ts";
 export let libReady = null;
 export function startBoot() {
 	/* ================= boot ================= */

@@ -19,7 +19,7 @@ import {
 	setProjectField,
 	stopProject,
 } from "../legacy/features/project.ts";
-import { closeSettings, setPreference } from "../legacy/ui/settings.ts";
+import { closeSettings, setPreference } from "../legacy/shell/settings.ts";
 
 const formatNumber = (n: number) =>
 	n >= 10000

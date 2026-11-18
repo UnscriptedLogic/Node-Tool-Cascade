@@ -16,9 +16,9 @@ import { startMap } from "./legacy/features/map.ts";
 import { startConverter } from "./legacy/features/mindset-converter.ts";
 import { startMindsets } from "./legacy/features/mindsets.ts";
 import { startProject } from "./legacy/features/project.ts";
-import { startLookEditor } from "./legacy/ui/look-editor.ts";
-import { startResponsive } from "./legacy/ui/responsive.ts";
-import { startSettings } from "./legacy/ui/settings.ts";
+import { startLookEditor } from "./legacy/shell/look-editor.ts";
+import { startResponsive } from "./legacy/shell/responsive.ts";
+import { startSettings } from "./legacy/shell/settings.ts";
 
 export function start() {
 	// Apply browser preferences before startup wiring.

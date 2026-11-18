@@ -6,8 +6,8 @@ import { PREFS } from "../core/constants.ts";
 import { DOM } from "../core/profiles.ts";
 import { pushHist, S } from "../core/state.ts";
 import { addNode, descendants, rebuildKM } from "../core/tree.ts";
-import { commit, requestFocus, showNote } from "../ui/hud.ts";
-import { closeSettings } from "../ui/settings.ts";
+import { commit, requestFocus, showNote } from "../shell/hud.ts";
+import { closeSettings } from "../shell/settings.ts";
 export let CHAT_EXCHANGE = null;
 export const CHATUI = proxy({
 	task: "",

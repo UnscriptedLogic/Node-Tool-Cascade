@@ -47,8 +47,8 @@ import { world } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
 import { addNode, expandChain, rebuildKM } from "../core/tree.ts";
-import { commit, setBusy, showNote } from "../ui/hud.ts";
-import { setPreference } from "../ui/settings.ts";
+import { commit, setBusy, showNote } from "../shell/hud.ts";
+import { setPreference } from "../shell/settings.ts";
 import { openSrcView, projectEvidence } from "./project.ts";
 export const AN = proxy({
 	input: "",
