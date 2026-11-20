@@ -81,6 +81,35 @@ test('dragging never selects text: pan, node drag and palette drag block selecti
   assert.match(css,/#stage \[contenteditable="true"\],#side,#compose,#note\{user-select:text/);
   assert.deepEqual(a.errs,[]);
 });
+test('canvas actions reparent and review ghosts through Cascade undo',async t=>{
+  const a = open({ claude:scriptedClaude() }); t.after(()=>a.w.close());
+  const [parent,child,target] = a.w.eval(`(() => {
+    const root = S.order.find(id=>!S.nodes[id].parent);
+    const target = addNode({type:'question',text:'New parent',parent:root});
+    const parent = addNode({type:'question',text:'Ghost parent',parent:root,ghost:true});
+    const child = addNode({type:'answer',text:'Ghost child',parent,ghost:true});
+    layout(false);
+    return [parent,child,target];
+  })()`);
+  a.click(a.byId(child).querySelector('[data-act=accept]'));
+  assert.ok(!a.byId(parent).classList.contains('ghost'),'keeping a suggestion accepts its ancestors');
+  a.w.eval('undo()');
+  assert.ok(a.byId(parent).classList.contains('ghost'));
+
+  a.d.elementsFromPoint = () => [a.byId(target)];
+  const pointer = (el,type,x) => el.dispatchEvent(new a.w.MouseEvent(type,{bubbles:true,clientX:x,clientY:100}));
+  pointer(a.byId(child),'pointerdown',100);
+  pointer(a.$('#stage'),'pointermove',125);
+  pointer(a.$('#stage'),'pointerup',125);
+  const childParent = () => a.w.eval(`S.nodes[${J(child)}].parent`);
+  assert.equal(childParent(),target);
+  a.w.eval('undo()');
+  assert.equal(childParent(),parent);
+
+  a.click(a.byId(parent).querySelector('[data-act=dismiss]'));
+  assert.equal(a.byId(child),null,'dismissing a suggestion removes its subtree');
+  assert.deepEqual(a.errs,[]);
+});
 test('hosted: placing a block puts it under the best parent and grows ghost branches',async()=>{
   const a = open({ claude:scriptedClaude() }); await sleep(400);
   await a.drop('question','Would a bigger map help?',1500);
@@ -316,9 +345,14 @@ test('local: server info, quit button and the stopped screen',async(t)=>{
 });
 test('local: saved tree comes back after a reload',async(t)=>{
   const s = await bootServer(t); const a = await page(s); await sleep(500);
-  a.escape(); await a.drop('question','A brand new question about traversal speed',500); await sleep(600);
-  const html = await (await fetch(s.base+'/')).text();
-  assert.ok(html.includes('A brand new question about traversal speed'),'the server injected the saved tree');
+  const text = 'A brand new question about traversal speed';
+  a.escape(); await a.drop('question',text,500);
+  for(let attempt=0; attempt<30; attempt++){
+    const html = await (await fetch(s.base+'/')).text();
+    if(html.includes(text)) return;
+    await sleep(100);
+  }
+  assert.fail('the server did not inject the saved tree');
 });
 
 /* =============================== build script =============================== */

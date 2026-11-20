@@ -35,7 +35,10 @@ test('scan, browse classes/variables, select edge, inspect impact, prepare and a
   assert.ok(a.$('#world .node .in.blk'),'code uses the normal node renderer');
   assert.equal(a.$('#codeDiagram svg'),null,'no second graph renderer');
   await until(()=>a.$('#eg path[data-code-edge]'));
-  assert.ok(a.$('#world .node.sel .code-caption').textContent.includes('class'));
+  const classTile=a.$('#world .skill-node.sel');
+  assert.equal(classTile.dataset.skillCategory,'type');
+  assert.ok(classTile.querySelector('.skill-icon svg'));
+  assert.ok(classTile.title.includes('class'));
   a.click(a.$('#world .node.sel [data-act="collapse"]'));
   assert.ok(a.$('#world .node.sel').classList.contains('collapsed'),'shared node action collapses code members');
   a.click(a.$('#world .node.sel [data-act="collapse"]'));
@@ -69,7 +72,7 @@ test('scan, browse classes/variables, select edge, inspect impact, prepare and a
   a.click(a.$('#codeClose'));assert.equal(a.$('#codeExplorer').hidden,true);assert.equal(a.$('#settings').hidden,true);
   assert.equal(a.$('#viewClass').getAttribute('aria-pressed'),'true','closing inspector keeps the class canvas');
   a.click(a.$('#viewDefault'));assert.equal(a.$('#viewDefault').getAttribute('aria-pressed'),'true');
-  assert.equal(a.$('#world .node .code-caption:not([hidden])'),null,'default graph restored');
+  assert.equal(a.$('#world .skill-node'),null,'default graph restored');
   assert.equal(a.w.eval('JSON.stringify({tree:snap(),view:S.view,history:hist})'),defaultState);
   assert.equal(a.w.localStorage.getItem('cascade-tree-v1'),before,'code exploration never edits decision tree');
   a.click(a.$('#viewClass'));await until(()=>!a.$('#codePrepare').disabled);
@@ -123,12 +126,12 @@ test('Unity project graphs C# definitions and serialized instances on the shared
   assert.equal(graph.coverage.csharpAvailable,true,JSON.stringify(graph.coverage.errors));
   const a=await page(s,{local:{'cascade-seen-settings':'1'}});t.after(()=>a.w.close());await sleep(300);
   a.click(a.$('#viewClass'));await until(()=>a.$$('#codeList .code-node').length>0);a.type(a.$('#codeMode'),'class');a.click(a.$('#codeList .code-node'));await until(()=>a.$('#codeMembers').textContent.includes('Serialized instances'));
-  assert.ok(a.$('#codeMembers').textContent.includes('2'));assert.ok(a.$('#world .node .code-caption').textContent);
+  assert.ok(a.$('#codeMembers').textContent.includes('2'));assert.ok(a.$('#world .skill-node').title);
   a.type(a.$('#codeMode'),'unity');assert.ok(a.$('#codeList').textContent.includes('Hero.prefab'));
   a.click(a.$$('#codeList .code-node').find(x=>x.textContent.includes('Hero.prefab')));
   await until(()=>!a.$('#codePrepare').disabled);
   assert.ok(a.$('#codeEdges').textContent.includes('instance-of'));
-  assert.ok(a.$$('#world .node').some(x=>x.querySelector('.code-caption').textContent.includes('gameobject')));
+  assert.ok(a.$$('#world .skill-node[data-skill-category="asset"]').some(x=>x.title.includes('gameobject')));
   a.type(a.$('#codeMode'),'instance');a.type(a.$('#codeSearch'),'Health');a.click(a.$('#codeList .code-node'));
   assert.ok(a.$('#codeMembers').textContent.includes('Class definition'));
   a.click(a.$('#codeSource'));await until(()=>a.$('#svCode').textContent.includes('m_Script'));a.click(a.$('#svClose'));

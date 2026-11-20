@@ -189,24 +189,26 @@ async function projectPick(){
   try{ const r = await postJSON('/api/project/pick',{}); if(r.path){ $('#pPath').value = r.path; pMsg('Folder chosen. Press Scan.'); } }
   catch(e){ pMsg(e.message,'bad'); }
 }
-async function projectScan(){
+async function projectScan({folder=$('#pPath').value.trim(),onStatus=()=>{}}={}){
   if(scanBusy) return;
-  const folder = $('#pPath').value.trim();
   if(!folder){ pMsg('Choose or paste a folder first.','bad'); return; }
-  scanBusy = true; $('#pScan').disabled = true; $('#pCancel').hidden = false; pMsg('Scanning…');
+  const report=(message,kind)=>{pMsg(message,kind);onStatus(message,kind);};
+  scanBusy = true; $('#pScan').disabled = true; $('#pCancel').hidden = false; report('Scanning…');
+  let result;
   try{
     await postJSON('/api/project/scan',{path:folder,ignore:$('#pIgnore').value,include:$('#pInclude').value});
     for(;;){
       await sleep(window.__POLL_MS || 400);
       const st = await fetchJSON('/api/project/status');
-      if(st.running){ pMsg(st.phase==='relationships'?`Analyzing code and asset relationships… ${st.files} files`:`Scanning… ${st.files} files in ${st.dirs} folders`); continue; }
-      if(st.error){ pMsg(st.error,'bad'); }
-      else { PROJ = st.info; pMsg('Scan finished.','ok'); }
+      if(st.running){ report(st.phase==='relationships'?`Analyzing code and asset relationships… ${st.files} files`:`Scanning… ${st.files} files in ${st.dirs} folders`); continue; }
+      if(st.error){ report(st.error,'bad'); }
+      else { PROJ = result = st.info; report('Scan finished.','ok'); }
       break;
     }
     await loadProjectData(); syncProjectButtons(); updatePreview();
-  }catch(e){ pMsg(e.message,'bad'); }
+  }catch(e){ report(e.message,'bad'); }
   finally{ scanBusy = false; $('#pScan').disabled = false; $('#pCancel').hidden = true; }
+  return result;
 }
 function renderProject(){
   if(!LOCAL) return;
@@ -307,7 +309,7 @@ let briefTimer = 0;
 function initProject(){
   syncers.push(()=>{ renderProject(); updateAskFiles(); });
   $('#pPick').addEventListener('click',projectPick);
-  $('#pScan').addEventListener('click',projectScan);
+  $('#pScan').addEventListener('click',()=>projectScan());
   $('#pPath').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); projectScan(); } });
   $('#pCancel').addEventListener('click',()=>{ postJSON('/api/project/cancel',{}).catch(()=>{}); });
   $('#pBuild').addEventListener('click',buildBrief);

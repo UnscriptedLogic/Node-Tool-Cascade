@@ -46,6 +46,19 @@
       </svg>
     </div>
 
+    <details id="codeLegend" aria-label="Class graph legend" open>
+      <summary>Graph legend</summary>
+      <div class="code-legend-content">
+        <ul id="codeLegendNodes" aria-label="Node icons"></ul>
+        <ul aria-label="Wire meanings">
+          <li><i class="code-legend-wire" aria-hidden="true"></i>Contains</li>
+          <li><i class="code-legend-wire dependency" aria-hidden="true"></i>Depends on</li>
+          <li><i class="code-legend-wire traced" aria-hidden="true"></i>Hover trace</li>
+        </ul>
+        <p>Dependency arrows point to what a node uses. Script tints blend dependency categories.</p>
+      </div>
+    </details>
+
     <div id="empty" hidden><p><b>An empty tree</b><span class="dh">Drag a block onto the canvas to plant the first node.</span><span class="msh">Tap a block below to plant the first node.</span><span class="mmh">Tap anywhere, then Add a block.</span><button class="btn" id="eSeed" type="button" hidden style="pointer-events:auto;margin-top:14px">Seed from your project</button></p></div>
 
     <div id="status" class="hud pill"><span class="dot"></span><span id="stxt"></span><button class="linkbtn" id="setLink" type="button" hidden>Open settings</button><button class="linkbtn" id="stopBtn" type="button" hidden>Stop</button></div>
@@ -434,6 +447,11 @@
     <header><div><h2 id="codeTitle">Class map</h2><small>Inspect connections on the canvas.</small></div><button class="btn" id="codeReload" type="button">Reload snapshot</button><button class="btn" id="codeClose" type="button" aria-label="Close class inspector">Close</button></header>
     <p id="codeStatus" role="status" aria-live="polite"></p>
     <div class="code-project"><button class="linkbtn" id="codeProject" type="button">Choose or rescan project</button></div>
+    <div class="code-project frow" role="group" aria-label="Graph visualization">
+      <label for="codeVisualization">View</label><select id="codeVisualization"><option value="radial">Project branches</option><option value="tree">Hierarchy</option><option value="network">Force network</option><option value="circle">Circular connections</option><option value="circuit">Circuit branches</option></select>
+      <button class="btn" id="codeExpandSystems" type="button">Expand systems</button>
+      <p id="codeViewHint" class="small" aria-live="polite">Project at center; systems branch outward.</p>
+    </div>
     <div class="code-project frow"><button class="btn" id="codeOverview" type="button">Project overview</button><button class="btn" id="codeDetails" type="button" disabled>Inspect code</button></div>
     <details class="code-coverage"><summary>Coverage and limits</summary><p id="codeCoverage"></p><ul id="codeLimitations"></ul><div id="codeUnresolved"></div></details>
     <details class="code-coverage"><summary>Changes since previous scan</summary><div id="codeChanges"></div></details>

@@ -1,14 +1,13 @@
 'use strict';
 /* ================= AI ================= */
 let aiChecked = false, sampleFn = null, aiOff = false, ctl = null, chain = Promise.resolve(), queued = 0, stopReveal = false;
-(async()=>{
-  await null;   // let the rest of the script finish initialising before touching it
+async function initAI(){
   try{
     if(LOCAL) sampleFn = serverSample;
     else if(!WEB && window.claude && claude.use) sampleFn = await claude.use('sample');
   }catch(e){}
   aiChecked = true; updateHud();
-})();
+}
 function cancelAI(){ stopReveal = true; if(ctl) ctl.abort(); try{ if(G.ctl) G.ctl.abort(); }catch(e){} try{ if(AN.ctl) AN.ctl.abort(); }catch(e){} try{ if(MSCONVERT.ctl) MSCONVERT.ctl.abort(); }catch(e){} }
 function enqueue(job){
   queued++;
@@ -138,7 +137,7 @@ async function placeBlock(type,text,wpos,pend,signal){
   (Array.isArray(res.related)?res.related:[]).slice(0,3).forEach(rid=>{ if(S.nodes[rid] && rid!==parent && rid!==id) S.links.push({a:id,b:rid,kind:'rel'}); });
   S.sel = null; flashId = id; setTimeout(()=>{ if(flashId===id){ flashId=null; kick(); } },7000);
   commit();
-  const r = R[id], pr = R[parent];
+  const r = graphCanvas.getNode(id), pr = graphCanvas.getNode(parent);
   if(r){ r.hot = true; setTimeout(()=>{ r.hot=false; restyle(); },1700); }
   if(pr){ pr.hot = true; setTimeout(()=>{ pr.hot=false; restyle(); },1700); }
   restyle(); ensureVisible(id);
@@ -155,7 +154,7 @@ async function expandFrom(fid,signal,mode){
   if(!aiAvailable()){ showNote([aiNeed(chart ? 'Charting' : 'Growing branches')],false); setBusy(null); return; }
   const f = S.nodes[fid]; if(!f){ setBusy(null); return; }
   f.collapsed = false; stopReveal = false;
-  const fr = R[fid]; if(fr){ fr.growing = true; restyle(); }
+  const fr = graphCanvas.getNode(fid); if(fr){ fr.growing = true; restyle(); }
   setBusy(chart ? 'Charting the map…' : bridge ? 'Bridging the gap…' : back ? 'Tracing back…' : 'Growing branches…',true);
   const fwdPrompt = `You grow a ${DOM().treeName} outward from one node, in waves, like dominoes falling.
 

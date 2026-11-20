@@ -3,7 +3,7 @@
 const stageCenter = () => ({x:stage.clientWidth/2,y:stage.clientHeight/2});
 $('#zIn').addEventListener('click',()=>{ const c=stageCenter(); zoomAt(1.25,c.x,c.y); });
 $('#zOut').addEventListener('click',()=>{ const c=stageCenter(); zoomAt(.8,c.x,c.y); });
-$('#zFit').addEventListener('click',()=>fitTo(visibleIds(),{maxZ:1,minZ:isMobile() ? .6 : .3,pad:isMobile() ? 24 : 56}));
+$('#zFit').addEventListener('click',()=>fitTo(visibleIds(),{maxZ:1,minZ:isClassCanvas() ? .08 : isMobile() ? .6 : .3,pad:isMobile() ? 24 : 56}));
 $('#mDetail').addEventListener('click',()=>setMode('detail'));
 $('#mOuter').addEventListener('click',()=>setMode('outer'));
 $('#undoBtn').addEventListener('click',undo);

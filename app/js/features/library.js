@@ -66,7 +66,7 @@ function libApply(data){
     Object.assign(PREFS,{ goal:'', context:'', pillars:'', avoid:'' },data.prefs || {}); savePrefs();
     syncers.forEach(f=>f()); updatePreview(); updateGoalChip();
     layout(false);
-    if(data.view){ vAnim = null; Object.assign(S.view,data.view); applyView(); } else initialView();
+    if(data.view){ cancelViewAnimation(); Object.assign(S.view,data.view); applyView(); } else initialView();
     save(); updateHud();
   }finally{ LIB.suspend = false; }
 }

@@ -101,7 +101,9 @@ test('mobile minimal: suggestions are handled from the menu, and the hint appear
   const web = { html:webHtml(), url:'https://someone.github.io/cascade/?layout=minimal' };   // the demo AI grows suggestions
   const a = phone(web); await sleep(1100);
   assert.match(a.$('#ntxt').textContent,/Tap empty space for a menu/);
-  await a.drop('question','Would a bigger map help?',2300);
+  await a.drop('question','Would a bigger map help?',0);
+  for(let attempt=0; attempt<50 && !a.$('#stopBtn').hidden; attempt++) await sleep(100);
+  assert.ok(a.$('#stopBtn').hidden,'suggestions finished arriving');
   assert.ok(a.nodes().some(n=>n.classList.contains('ghost')));
   tapStage(a); await sleep(50);
   const labels = menuLabels(a); assert.ok(labels.some(l=>/^Keep all \d+ suggestions?$/.test(l)),labels.join()); assert.ok(labels.includes('Dismiss all suggestions'));
@@ -124,21 +126,27 @@ test('performance: the grid layer carries the pan and zoom variables, so no bloc
 
 test('performance: a camera-only animation does not redraw the edges, but changing the tree does',async()=>{
   const a = open({ local:GAME }); await sleep(500);
-  let n = 0; const real = a.w.drawEdges; a.w.drawEdges = () => { n++; return real(); };
-  await sleep(300); n = 0;
+  let n = 0;
+  const observer = new a.w.MutationObserver(records=>{ n += records.length; });
+  observer.observe(a.$('#eg'),{subtree:true,attributes:true,attributeFilter:['d']});
   a.w.eval("fitTo(visibleIds(),{maxZ:1,minZ:.3,pad:56})"); await sleep(700);
   assert.equal(n,0,'panning and zooming leave the edges as they are');
   a.w.eval("S.nodes[S.order.find(i=>S.nodes[i].type==='question')].text = 'Changed'; layout(false)"); await sleep(400);
+  observer.disconnect();
   assert.ok(n>0,'a change to the tree redraws them');
 });
 
 test('performance: a burst of pointer moves is applied once per frame',async()=>{
   const a = phone(); await sleep(500);
-  let n = 0; const real = a.w.applyView; a.w.applyView = () => { n++; return real(); };
+  const observer = new a.w.MutationObserver(()=>{});
+  observer.observe(a.$('#world'),{attributes:true,attributeFilter:['style']});
   ptr(a,'pointerdown',a.$('#stage'),100,300);
   for(let i=1;i<=40;i++) ptr(a,'pointermove',a.$('#stage'),100+i*2,300);
-  const x = a.w.eval('S.view.x'); ptr(a,'pointerup',a.$('#stage'),180,300); await sleep(80);
-  assert.ok(n<=4,`40 moves caused ${n} camera updates`); assert.ok(a.w.eval('S.view.x')===x,'and the view still ended where the finger did');
+  const x = a.w.eval('S.view.x'); ptr(a,'pointerup',a.$('#stage'),180,300);
+  const n = observer.takeRecords().length;
+  observer.disconnect();
+  await sleep(80);
+  assert.ok(n>=1 && n<=4,`40 moves caused ${n} camera updates`); assert.ok(a.w.eval('S.view.x')===x,'and the view still ended where the finger did');
 });
 
 test('performance: restyle leaves blocks whose classes did not change alone',async()=>{

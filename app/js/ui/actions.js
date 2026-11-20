@@ -1,6 +1,6 @@
 'use strict';
 /* ================= actions ================= */
-function acceptGhost(id){ pushHist(); { const chain = []; let n = S.nodes[id]; while(n){ chain.push(n.id); n = n.parent && S.nodes[n.parent]; } trackGhosts('block_approved',chain); } acceptChain(id); const r=R[id]; if(r){ r.settle=true; setTimeout(()=>{ r.settle=false; restyle(); },600); } commit(); }
+function acceptGhost(id){ pushHist(); { const chain = []; let n = S.nodes[id]; while(n){ chain.push(n.id); n = n.parent && S.nodes[n.parent]; } trackGhosts('block_approved',chain); } acceptChain(id); const r=graphCanvas.getNode(id); if(r){ r.settle=true; setTimeout(()=>{ r.settle=false; restyle(); },600); } commit(); }
 function dismissGhost(id){ pushHist(); trackGhosts('block_dismissed',[id,...descendants(id)]); removeSubtree(id); commit(); }
 function keepAll(){ pushHist(); trackGhosts('block_approved',Object.keys(S.nodes)); for(const id in S.nodes) S.nodes[id].ghost = false; commit(); }
 function dismissAll(){ pushHist(); trackGhosts('block_dismissed',Object.keys(S.nodes)); Object.values(S.nodes).filter(n=>n.ghost).forEach(n=>removeSubtree(n.id)); commit(); }
@@ -27,7 +27,7 @@ function clearGraph(){
   if(!S.order.length) return;
   cancelAI(); pushHist(true);
   S.nodes = {}; S.order = []; S.links = []; S.sel = null; flashId = null; S.mode = 'detail';
-  vAnim = null; S.view = {x:140,y:200,z:1};
+  cancelViewAnimation(); S.view = {x:140,y:200,z:1};
   layout(false); applyView(); save(); updateHud();
   showNote(['Graph cleared.'],true);
 }
@@ -37,7 +37,7 @@ function undo(){
   if(isClassCanvas()) return;
   cancelAI();
   const h = hist.pop(); if(!h) return;
-  applySnap(h.s); if(h.v){ vAnim = null; Object.assign(S.view,h.v); applyView(); }
+  applySnap(h.s); if(h.v){ cancelViewAnimation(); Object.assign(S.view,h.v); applyView(); }
   layout(false); save(); updateHud(); note.hidden = true;
 }
 function resetTree(){ if(isClassCanvas()) return; cancelAI(); pushHist(); const t = seed(); S.nodes=t.nodes; S.order=t.order; S.links=t.links; S.seq=t.seq; S.sel=null; S.mode='detail'; layout(false); initialView(); save(); updateHud(); }

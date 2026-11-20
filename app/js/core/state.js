@@ -15,15 +15,13 @@ const S = Object.assign({view:{x:0,y:0,z:1},mode:'detail',layer:false,sel:null,n
 S.mode = 'detail'; S.sel = null;
 try{ S.mindsets = Mindsets.collection(S.mindsets); }catch(e){ S.mindsets = []; }
 if(!S.view || !isFinite(S.view.z)) S.view = {x:0,y:0,z:1};
-const R = {};            // runtime per node: el, cur, tgt, w, h ...
 // Both workspaces use the same renderer. Only S is saved as the decision tree.
 const CLASS_CANVAS = {active:false,state:null,select:null,edge:null,action:null,open:null,close:null,inspect:null};
 const isClassCanvas = () => CLASS_CANVAS.active;
 const canvasState = () => isClassCanvas() && CLASS_CANVAS.state ? CLASS_CANVAS.state : S;
 let KM = {};             // parent -> [child ids]
-const spawnAt = {};
 const hist = [];
-let flashId = null, vAnim = null, linkFrom = null, MAP = {frontier:[],blocked:[],settled:[],fog:[],out:[],flag:{}}, THMAP = {}, THR = [];
+let flashId = null, linkFrom = null, MAP = {frontier:[],blocked:[],settled:[],fog:[],out:[],flag:{}}, THMAP = {}, THR = [];
 
 const snap = () => JSON.stringify({nodes:S.nodes,order:S.order,links:S.links,seq:S.seq,mindsets:S.mindsets});
 let saveTimer = 0;

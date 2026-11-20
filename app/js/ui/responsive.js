@@ -116,7 +116,18 @@ const TYPE_ORDER = ['question','answer','emotion','consequence','decision','loop
 function addBlockSpec(x,y){ return { title:'Add a block', items:TYPE_ORDER.map(t=>({ label:LABEL[t], icon:ICONS[t], run:()=>openCompose(t,x,y) })) }; }
 // everything the desktop screen offers as buttons, as one menu
 function canvasMenuSpec(x,y){
-  if(isClassCanvas()) return {title:'Class map',items:[{label:'Inspect code',icon:MI.map,run:()=>CLASS_CANVAS.inspect?.()},{label:'Fit to screen',icon:MI.fit,run:()=>$('#zFit').click()},{label:'Default workspace',icon:MI.map,run:()=>CLASS_CANVAS.close?.()},{label:'Project folder',icon:MI.settings,run:()=>openSettings('project')}]};
+  if(isClassCanvas()){
+    const disabled=!CLASS_CANVAS.canPreviewProject?.();
+    return {title:'Class map',items:[
+      {label:'Propose new system',icon:ACT.grow,disabled,run:()=>CLASS_CANVAS.previewProject?.('add',{x,y})},
+      {label:'Ask for a refactor',icon:ACT.grill,disabled,run:()=>CLASS_CANVAS.previewProject?.('refactor',{x,y})},
+      {sep:true},
+      {label:'Inspect code',icon:MI.map,run:()=>CLASS_CANVAS.inspect?.()},
+      {label:'Fit to screen',icon:MI.fit,run:()=>$('#zFit').click()},
+      {label:'Default workspace',icon:MI.map,run:()=>CLASS_CANVAS.close?.()},
+      {label:'Project folder',icon:MI.settings,run:()=>openSettings('project')}
+    ]};
+  }
   const ghosts = Object.values(S.nodes).filter(n=>n.ghost).length, items = [];
   items.push({ label:'Add a block', icon:ICONS.question, sub:addBlockSpec(x,y) });
   if(ghosts && S.mode==='detail') items.push({ label:`Keep all ${ghosts} suggestion${ghosts===1 ? '' : 's'}`, icon:ACT.accept, run:keepAll }, { label:'Dismiss all suggestions', icon:ACT.dismiss, run:dismissAll });
@@ -134,17 +145,24 @@ function canvasMenuSpec(x,y){
   items.push({ label:isMinimal() ? 'Switch to standard layout' : 'Switch to minimal layout', icon:MI.layout, run:()=>setMobileLayout(isMinimal() ? 'standard' : 'minimal') });
   return { title:'', items };
 }
-function nodeMenuSpec(id){
+function nodeMenuSpec(id,point){
   const n = canvasState().nodes[id], hasKids = !!(KM[id] && KM[id].length), items = [];
+  if(isClassCanvas()&&n.codeId&&!n.codeProposal){
+    for(const [mode,label,icon] of [['add','Propose new system',ACT.grow],['remove','Preview removal',ACT.del],['refactor','Ask for a refactor',ACT.grill]]){
+      items.push({label,icon,disabled:mode==='remove'&&n.codeKind==='project',run:()=>CLASS_CANVAS.startPreview?.(mode,id,point)});
+    }
+    items.push({sep:true});
+  }
   if(!n.ghost && !n.codeId) items.push({ label:'Edit text', icon:ICONS[n.type] || ICONS.question, run:()=>beginEdit(id) });
   const WORDS = { del:hasKids ? 'Delete (its children move up)' : 'Delete', delb:'Delete with everything below', bridge:'Bridge to this feeling', collapse:n.collapsed ? 'Expand' : 'Collapse' };
-  nodeActions(n,hasKids).forEach(([act,title])=>items.push({ label:WORDS[act] || title.replace(/\. Click to change$/,''), icon:ACT[act], danger:act==='del' || act==='delb', run:()=>runNodeAction(act,id) }));
+  nodeActions(n,hasKids).forEach(([act,title])=>items.push({ label:WORDS[act] || title.replace(/\. Click to change$/,''), icon:ACT[act], danger:act==='del' || act==='delb',
+    run:()=>isClassCanvas()&&act==='grill'?CLASS_CANVAS.askAt?.(id,point):runNodeAction(act,id) }));
   const ghosts = Object.values(S.nodes).filter(x=>x.ghost).length;
   if(ghosts>1 && n.ghost) items.push({ sep:true }, { label:`Keep all ${ghosts} suggestions`, icon:ACT.accept, run:keepAll }, { label:'Dismiss all suggestions', icon:ACT.dismiss, run:dismissAll });
   return { title:n.text.length>46 ? n.text.slice(0,45)+'…' : n.text, items };
 }
 function openCanvasMenu(x,y){ openMenu(canvasMenuSpec(x,y),{ x,y }); }
-function openNodeMenu(id,x,y){ if(canvasState().nodes[id]) openMenu(nodeMenuSpec(id),{ x,y }); }
+function openNodeMenu(id,x,y){ if(canvasState().nodes[id]) openMenu(nodeMenuSpec(id,{x,y}),{ x,y }); }
 function setMobileLayout(v){ PREFS.mobileLayout = v==='minimal' ? 'minimal' : 'standard'; savePrefs(); applyResponsive(true); syncers.forEach(f=>f()); }
 
 // the dock's "more" button, the standard layout's way to the same menu

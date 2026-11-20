@@ -9,101 +9,52 @@ document.addEventListener('dragstart',e=>{
   const t = e.target && e.target.nodeType===3 ? e.target.parentElement : e.target;
   if(t && t.closest && t.closest('#stage,#rail') && !t.closest('textarea,input')) e.preventDefault();
 });
-const ptrs = new Map(); let pan = null, pinch = null, nd = null, lastTap = {id:null,t:0};
-stage.addEventListener('pointerdown',e=>{
-  if(e.target.closest('#compose,.hud,.pending,.bar,#side,#codeExplorer,.srcmark,.mindset-label,[data-code-edge]')) return;
-  if(e.target.closest('[contenteditable="true"]')) return;
-  dragUi(true);
-  stage.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  vAnim = null;
-  if(ptrs.size===2){
-    const [a,b] = [...ptrs.values()];
-    pinch = {d:Math.hypot(a.x-b.x,a.y-b.y)||1}; pan = null; nd = null; stage.classList.remove('panning'); return;
-  }
-  const nodeEl = e.target.closest('.node');
-  if(nodeEl){ nd = {id:nodeEl.dataset.id,sx:e.clientX,sy:e.clientY,drag:false,pid:e.pointerId,set:null,drop:null}; }
-  else{
-    pan = {sx:e.clientX,sy:e.clientY,vx:canvasState().view.x,vy:canvasState().view.y,moved:false}; stage.classList.add('panning');
-    if(compose.hidden===false) closeCompose();
+let lastTap = {id:null,t:0};
+function reparentNode(id,parent){
+  if(isClassCanvas()) return false;
+  const node = S.nodes[id], target = S.nodes[parent];
+  if(!node || !target || node.parent===parent) return false;
+  pushHist();
+  node.parent = parent;
+  node.rel = '';
+  S.order = S.order.filter(x=>x!==id);
+  S.order.push(id);
+  if(!node.ghost) acceptChain(parent);
+  expandChain(parent);
+  commit();
+  showNote(['Moved under ',{b:`“${target.text}”`},'.'],true);
+  return true;
+}
+
+CascadeGraphInput.bindCanvasInput(stage,world,graphCanvas,{
+  getGraph:canvasState,
+  editable:()=>!isClassCanvas(),
+  ignorePointer:target=>target.closest('#compose,.hud,.pending,.bar,#side,#codeExplorer,#codeLegend,.srcmark,.mindset-label,[data-code-edge],[contenteditable="true"]'),
+  ignoreWheel:target=>target.closest?.('#side,#codeExplorer,#codeLegend'),
+  onDragUi:dragUi,
+  onBackgroundPointerDown(){
+    if(!compose.hidden) closeCompose();
     if(canvasState().sel) select(null);
     if(linkFrom){ linkFrom = null; restyle(); }
-  }
+  },
+  onSelect:select,
+  onReparent:reparentNode,
+  onNodeTap(id,e){
+    const now = Date.now();
+    if(linkFrom){ finishBlock(id); lastTap = {id:null,t:0}; }
+    else if(isMinimal()){ select(id); lastTap = {id:null,t:0}; if(!tapSuppressed) openNodeMenu(id,e.clientX,e.clientY); }
+    else if(lastTap.id===id && now-lastTap.t<380){ beginEdit(id); lastTap = {id:null,t:0}; }
+    else { select(id); lastTap = {id,t:now}; }
+  },
+  onViewChange(){ if(!isClassCanvas()) save(); },
+  onBackgroundTap(e){ if(isMinimal() && !tapSuppressed) openCanvasMenu(e.clientX,e.clientY); },
+  onPointerSequenceEnd(){ tapSuppressed = false; },
+  onNodeAction:(action,id)=>runNodeAction(action,id)
 });
-stage.addEventListener('pointermove',e=>{
-  if(ptrs.has(e.pointerId)) ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pinch && ptrs.size>=2){
-    const [a,b] = [...ptrs.values()], d = Math.hypot(a.x-b.x,a.y-b.y)||1, r = stage.getBoundingClientRect();
-    zoomAt(d/pinch.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top,true); pinch.d = d; return;
-  }
-  if(nd && isClassCanvas() && Math.hypot(e.clientX-nd.sx,e.clientY-nd.sy)>6){ pan={sx:nd.sx,sy:nd.sy,vx:canvasState().view.x,vy:canvasState().view.y,moved:true}; nd=null; }
-  if(nd && e.pointerId===nd.pid){
-    if(!nd.drag && Math.hypot(e.clientX-nd.sx,e.clientY-nd.sy)>6){
-      const n = canvasState().nodes[nd.id];
-      if(n && n.parent && canvasState().mode==='detail'){
-        rebuildKM(); nd.set = new Set([nd.id,...descendants(nd.id)]);
-        nd.set.forEach(x=>{ if(R[x]) R[x].dragging = true; });
-        R[nd.id].drag = true; nd.drag = true; nd.lx = e.clientX; nd.ly = e.clientY; select(nd.id);
-      } else { nd = null; }
-    }
-    if(nd && nd.drag){
-      const dx = (e.clientX-nd.lx)/canvasState().view.z, dy = (e.clientY-nd.ly)/canvasState().view.z; nd.lx = e.clientX; nd.ly = e.clientY;
-      nd.set.forEach(x=>{ const r = R[x]; if(r && r.shown){ r.cur.x += dx; r.cur.y += dy; } });
-      let t = null;
-      for(const el of document.elementsFromPoint(e.clientX,e.clientY)){
-        const ne = el.closest && el.closest('.node');
-        if(ne && !nd.set.has(ne.dataset.id)){ t = ne.dataset.id; break; }
-      }
-      if(t!==nd.drop){ if(nd.drop && R[nd.drop]) R[nd.drop].drop = false; nd.drop = t; if(t) R[t].drop = true; restyle(); }
-      kick();
-    }
-  } else if(pan){
-    if(!pan.moved && Math.hypot(e.clientX-pan.sx,e.clientY-pan.sy)>8) pan.moved = true;
-    canvasState().view.x = pan.vx + (e.clientX-pan.sx); canvasState().view.y = pan.vy + (e.clientY-pan.sy); scheduleView();
-  }
-});
-function endPointer(e){
-  ptrs.delete(e.pointerId);
-  if(!ptrs.size) dragUi(false);
-  if(pinch && ptrs.size<2) pinch = null;
-  if(nd && e.pointerId===nd.pid){
-    const id = nd.id;
-    if(nd.drag){
-      nd.set.forEach(x=>{ if(R[x]) R[x].dragging = false; });
-      if(R[id]) R[id].drag = false;
-      const t = nd.drop; if(t && R[t]) R[t].drop = false;
-      if(t && canvasState().nodes[t] && canvasState().nodes[id] && t!==canvasState().nodes[id].parent){
-        pushHist(); const n = canvasState().nodes[id]; n.parent = t; n.rel = '';
-        canvasState().order = canvasState().order.filter(x=>x!==id); canvasState().order.push(id);
-        if(!n.ghost) acceptChain(t); expandChain(t);
-        commit(); showNote(['Moved under ',{b:`“${canvasState().nodes[t].text}”`},'.'],true);
-      } else { restyle(); kick(); }
-    } else if(canvasState().nodes[id]){
-      const now = Date.now();
-      if(linkFrom){ finishBlock(id); lastTap = {id:null,t:0}; }
-      else if(isMinimal()){ select(id); lastTap = {id:null,t:0}; if(!tapSuppressed) openNodeMenu(id,e.clientX,e.clientY); }   // minimal layout: a tap opens the block's menu
-      else if(lastTap.id===id && now-lastTap.t<380){ beginEdit(id); lastTap = {id:null,t:0}; }
-      else { select(id); lastTap = {id,t:now}; }
-    }
-    nd = null;
-  }
-  if(pan){
-    const tapped = !pan.moved && e.type==='pointerup' && !ptrs.size;
-    pan = null; stage.classList.remove('panning'); flushView(); if(!isClassCanvas()) save();
-    if(tapped && isMinimal() && !tapSuppressed) openCanvasMenu(e.clientX,e.clientY);   // minimal layout: a tap on empty space opens the menu
-  } else if(!ptrs.size) flushView();
-  if(!ptrs.size) tapSuppressed = false;
-}
-stage.addEventListener('pointerup',endPointer);
-stage.addEventListener('pointercancel',endPointer);
-stage.addEventListener('wheel',e=>{
-  if(e.target.closest && e.target.closest('#side,#codeExplorer')) return;
-  e.preventDefault();
-  const r = stage.getBoundingClientRect();
-  zoomAt(Math.exp(-e.deltaY*(e.ctrlKey?.01:.0016)),e.clientX-r.left,e.clientY-r.top,true);
-},{passive:false});
+
 function beginEdit(id,opts){
   if(isClassCanvas()) return;
-  const r = R[id], n = canvasState().nodes[id]; if(!r || !n) return;
+  const r = graphCanvas.getNode(id), n = canvasState().nodes[id]; if(!r || !n) return;
   const txt = r.el.querySelector('.txt'); r.editing = true; txt.contentEditable = 'true'; txt.focus();
   if(opts && opts.graduate) showNote(['Rewrite it as a precise question, then press Enter.'],false);
   const range = document.createRange(); range.selectNodeContents(txt); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
@@ -117,19 +68,43 @@ function beginEdit(id,opts){
   const onKey = (e) => { if(e.key==='Enter'){ e.preventDefault(); txt.blur(); } else if(e.key==='Escape'){ e.preventDefault(); txt.removeEventListener('blur',onBlur); finish(false); } };
   txt.addEventListener('blur',onBlur); txt.addEventListener('keydown',onKey);
 }
+stage.addEventListener('contextmenu',event=>{
+  if(!isClassCanvas())return;
+  const tile=event.target.closest('.skill-node');
+  const blank=event.target===stage||event.target===world||event.target===$('#grid');
+  if(!blank&&(!tile||tile.classList.contains('proposal-tile')))return;
+  event.preventDefault();
+  graphCanvas.hoverDependencyNode(null);
+  if(tile)openNodeMenu(tile.dataset.id,event.clientX,event.clientY);
+  else openCanvasMenu(event.clientX,event.clientY);
+});
+world.addEventListener('pointerover',event=>{
+  if(!isClassCanvas()||event.pointerType==='touch')return;
+  if(canvasState().previewActive||menuEl)return;
+  const tile=event.target.closest('.skill-node');
+  if(tile)graphCanvas.hoverDependencyNode(tile.dataset.id);
+});
+world.addEventListener('pointerout',event=>{
+  if(!isClassCanvas()||event.pointerType==='touch')return;
+  const tile=event.target.closest('.skill-node');
+  if(tile&&!tile.contains(event.relatedTarget))graphCanvas.hoverDependencyNode(null);
+});
 world.addEventListener('click',e=>{
   const edge=e.target.closest('[data-code-edge]'); if(edge && isClassCanvas()){ e.stopPropagation(); CLASS_CANVAS.edge?.(edge.dataset.codeEdge); return; }
-    const ml = e.target.closest('.mindset-label'); if(ml){ e.stopPropagation(); showNote([ml.title.replace(/\n/g,'. ')],false); return; }
+  const ml = e.target.closest('.mindset-label'); if(ml){ e.stopPropagation(); showNote([ml.title.replace(/\n/g,'. ')],false); return; }
   const sm = e.target.closest('.srcmark'); if(sm){ e.stopPropagation(); openNodeSrc(sm.closest('.node').dataset.id); return; }
-  const b = e.target.closest('button[data-act]'); if(!b) return;
-  const id = b.closest('.node').dataset.id; e.stopPropagation();
-  runNodeAction(b.dataset.act,id);
 });
 addEventListener('keydown',e=>{
   if(e.target.matches && e.target.matches('input,select,textarea,[contenteditable="true"]')) return;
   if(!document.getElementById('settings').hidden) return;
   if(isClassCanvas()){
-    if(e.key==='Enter' && e.target.matches('.node')) select(e.target.dataset.id);
+    if((e.key==='ContextMenu'||e.shiftKey&&e.key==='F10')&&e.target.matches('.skill-node:not(.proposal-tile)')){
+      e.preventDefault();
+      const rect=e.target.getBoundingClientRect();
+      graphCanvas.hoverDependencyNode(null);
+      openNodeMenu(e.target.dataset.id,rect.left+rect.width/2,rect.bottom);
+    }
+    else if(e.key==='Enter' && e.target.matches('.node')) select(e.target.dataset.id);
     else if(['Enter',' '].includes(e.key) && e.target.matches('[data-code-edge]')){ e.preventDefault(); CLASS_CANVAS.edge?.(e.target.dataset.codeEdge); }
     else if(e.key==='Escape') select(null);
     else if(['Delete','Backspace'].includes(e.key)||(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z') e.preventDefault();

@@ -179,50 +179,11 @@ function applyLook(opts){
   opts = opts || {};
   LOOKVER++; EFF = null; effLook();
   applyCanvasLook(); applyTiles(); renderLegend();
-  if(Object.keys(R).length){ layout(false); }
+  if(graphCanvas.hasNodes()){ layout(false); }
   applyView(); kick();
   if(!opts.noSave) saveLook();
 }
 
-/* wires: default, bezier, straight and manhattan (right angles) */
-function roundedPath(pts,r){
-  const q = pts.filter((p,i)=>i===0 || p[0]!==pts[i-1][0] || p[1]!==pts[i-1][1]);
-  if(q.length<2) return `M${pts[0][0]} ${pts[0][1]}`;
-  if(r<=.5) return 'M'+q.map(p=>p[0]+' '+p[1]).join('L');
-  let d = `M${q[0][0]} ${q[0][1]}`;
-  for(let i=1; i<q.length-1; i++){
-    const p0 = q[i-1], p1 = q[i], p2 = q[i+1];
-    const l1 = Math.hypot(p1[0]-p0[0],p1[1]-p0[1]), l2 = Math.hypot(p2[0]-p1[0],p2[1]-p1[1]), rr = Math.min(r,l1/2,l2/2);
-    if(rr<.5){ d += `L${p1[0]} ${p1[1]}`; continue; }
-    const a = [p1[0]+(p0[0]-p1[0])/l1*rr,p1[1]+(p0[1]-p1[1])/l1*rr], b = [p1[0]+(p2[0]-p1[0])/l2*rr,p1[1]+(p2[1]-p1[1])/l2*rr];
-    d += `L${a[0]} ${a[1]}Q${p1[0]} ${p1[1]} ${b[0]} ${b[1]}`;
-  }
-  const e = q[q.length-1]; return d+`L${e[0]} ${e[1]}`;
-}
-function manhattan(x1,y1,x2,y2,d1,d2,elbow,r){
-  const stub = 18; let pts;
-  if(d1===d2){
-    const dist = (x2-x1)*d1;
-    if(dist>=2*stub){ const xm = x1+d1*dist*elbow; pts = [[x1,y1],[xm,y1],[xm,y2],[x2,y2]]; }
-    else{ const xs = x1+d1*stub, xe = x2-d2*stub, ym = (y1+y2)/2; pts = [[x1,y1],[xs,y1],[xs,ym],[xe,ym],[xe,y2],[x2,y2]]; }
-  } else { const xs = d1>0 ? Math.max(x1,x2)+stub : Math.min(x1,x2)-stub; pts = [[x1,y1],[xs,y1],[xs,y2],[x2,y2]]; }
-  return roundedPath(pts,r);
-}
-// d1 is the direction the wire leaves the first node, d2 the direction it travels when it arrives at the second
-function wirePath(x1,y1,x2,y2,d1,d2,W,minK){
-  if(W.style==='straight') return `M${x1} ${y1}L${x2} ${y2}`;
-  if(W.style==='manhattan') return manhattan(x1,y1,x2,y2,d1,d2,W.elbow,W.radius);
-  const dist = Math.abs(x2-x1), bez = W.style==='bezier'; let k;
-  if(d1===d2) k = bez ? Math.max(minK*.4,dist*(.15+W.curvature*.7)) : Math.max(minK,dist*.5);
-  else { const base = Math.max(52,Math.abs(y2-y1)*.12+40); k = bez ? base*(.4+W.curvature*1.2) : base; }
-  return `M${x1} ${y1}C${x1+d1*k} ${y1} ${x2-d2*k} ${y2} ${x2} ${y2}`;
-}
-function linkAnchors(a,b){
-  const y1 = a.cur.y+a.h/2, y2 = b.cur.y+b.h/2;
-  if(a.cur.x+a.w+16<=b.cur.x) return {x1:a.cur.x+a.w,y1,x2:b.cur.x,y2,d1:1,d2:1};
-  if(b.cur.x+b.w+16<=a.cur.x) return {x1:a.cur.x,y1,x2:b.cur.x+b.w,y2,d1:-1,d2:-1};
-  return {x1:a.cur.x+a.w,y1,x2:b.cur.x+b.w,y2,d1:1,d2:-1};
-}
 const MK = new Map();
 function markerFor(color){
   if(!MK.has(color)){

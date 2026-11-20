@@ -3,6 +3,37 @@
 const codeCanvasId = id => 'code:'+id;
 const codeCollapsed = new Set();
 const codeExpanded = new Set();
+function applyCodeInspection(model){
+  const id=CLASS_CANVAS.inspectedId;
+  if(!id || !model.nodes[id]) return;
+  model.sel=id;
+  const related=new Set([id]);
+  if(!model.nodes[id].collapsed){
+    for(const node of Object.values(model.nodes))if(node.parent===id)related.add(node.id);
+  }
+  const scope=new Set(related);
+  for(const link of model.links){
+    if(scope.has(link.a)||scope.has(link.b)){ related.add(link.a); related.add(link.b); }
+  }
+  const parent=model.nodes[id].parent;
+  if(parent&&model.nodes[parent])related.add(parent);
+  // Keep previously rendered branches available without including them in the focus layout.
+  const previous=CLASS_CANVAS.state;
+  for(const nodeId of previous?.order||[]){
+    if(model.nodes[nodeId])continue;
+    if(nodeId.startsWith('preview-'))continue;
+    const {codePreview,codePreviewNote,...node}=previous.nodes[nodeId];
+    model.nodes[nodeId]=node;
+    model.order.push(nodeId);
+  }
+  model.inspection={id,related};
+}
+
+function applyCodePresentation(model){
+  model.scriptTints=CLASS_CANVAS.scriptTints;
+  applyCodeInspection(model);
+  if(CLASS_CANVAS.preview)CodePreview.overlay(model,CLASS_CANVAS.preview);
+}
 function renderCodeCanvas(graph,selected,edges,selectedEdge,focus){
   if(!isClassCanvas()) return;
   const source=new Map(graph.nodes.map(n=>[n.id,n])), included=new Map(), limit=180;
@@ -29,12 +60,11 @@ function renderCodeCanvas(graph,selected,edges,selectedEdge,focus){
   for(const e of evidence) for(const id of [e.a,e.b]) if(['class','interface','struct'].includes(source.get(id)?.kind)){
     for(let n=source.get(source.get(id).parent);n;n=source.get(n.parent)) definitionAncestors.add(n.id);
   }
-  const model={nodes:{},order:[],links:[],seq:0,mindsets:[],mode:'detail',layer:false,sel:codeCanvasId(selected),view:old ? old.view : {x:0,y:0,z:1}};
-  const type={file:'loop',assembly:'loop',scene:'loop',prefab:'loop',asset:'loop',gameobject:'decision',component:'answer',class:'decision',struct:'decision',interface:'decision',method:'question',function:'question',variable:'answer',field:'answer',event:'consequence',property:'answer',parameter:'answer',type:'consequence',enum:'decision'};
+  const model={nodes:{},order:[],links:[],seq:0,mindsets:[],mode:'detail',layer:false,layout:codeVisualization==='radial'?'tree':codeVisualization,sel:codeCanvasId(selected),view:old ? old.view : {x:0,y:0,z:1}};
   for(const n of included.values()){
     const id=codeCanvasId(n.id), parent=n.parent && included.has(n.parent)?codeCanvasId(n.parent):null;
     const collapsed=codeCollapsed.has(n.id) || (!codeExpanded.has(n.id) && !definitionAncestors.has(n.id) && n.id!==selected && ['file','class','interface','struct','assembly','scene','prefab','asset','gameobject'].includes(n.kind) && !isAncestor(n.id,selected));
-    model.nodes[id]={id,type:type[n.kind]||'answer',text:n.name,parent,collapsed,codeId:n.id,codeKind:n.kind,codeImpact:!!CLASS_CANVAS.affected?.has(n.id),codeCaption:n.kind+' · '+(n.qualifiedName?n.qualifiedName+' · ':'')+n.file+':'+n.line,src:[{f:n.file,l:n.line},...(n.declarations||[]).filter(d=>d.file!==n.file||d.line!==n.line).map(d=>({f:d.file,l:d.line}))],rel:'contains'};
+    model.nodes[id]={id,type:'answer',text:n.name,parent,collapsed,codeId:n.id,codeKind:n.kind,codeImpact:!!CLASS_CANVAS.affected?.has(n.id),codeCaption:n.kind+' · '+(n.qualifiedName?n.qualifiedName+' · ':'')+n.file+':'+n.line,src:[{f:n.file,l:n.line},...(n.declarations||[]).filter(d=>d.file!==n.file||d.line!==n.line).map(d=>({f:d.file,l:d.line}))],rel:'contains'};
     model.order.push(id);
   }
   function isAncestor(id,child){ let n=source.get(child); while(n?.parent){ if(n.parent===id) return true; n=source.get(n.parent); } return false; }
@@ -50,7 +80,15 @@ function renderCodeCanvas(graph,selected,edges,selectedEdge,focus){
     if(!link){ link={id:'code-link:'+key,a,b,kind:'flow',codeEdge:e.id,codeKind:e.kind,codeCount:0,codeLabel:e.file+':'+e.line,codeSelected:false}; groups.set(key,link); }
     link.codeCount++; if(e.id===selectedEdge){ link.codeSelected=true; link.codeEdge=e.id; }
   }
-  model.links=[...groups.values()]; CLASS_CANVAS.state=model;
+  model.links=[...groups.values()];
+  model.visual={...CodeInspector.settings};
+  const depth=id=>model.nodes[id]?.parent?1+depth(model.nodes[id].parent):0;
+  const hidden=model.order.filter(id=>depth(id)>model.visual.layers);
+  for(const id of hidden)delete model.nodes[id];
+  model.order=model.order.filter(id=>model.nodes[id]);
+  model.links=model.links.filter(link=>model.nodes[link.a]&&model.nodes[link.b]);
+  applyCodePresentation(model);
+  CLASS_CANVAS.state=model;
   layout(false); applyView(); updateHud();
   if(focus) fitTo(visibleIds(),{maxZ:1,minZ:.18,pad:isMobile()?24:56,instant:true});
   $('#codeDiagram').textContent='Canvas: '+model.order.length+' nodes, '+model.links.length+' dependency links. Select a node or wire to inspect it.'+(included.size>=limit?' Focused view limited to 180 nodes.':'');

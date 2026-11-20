@@ -1,0 +1,6 @@
+{
+  "name": "@cascade/graph",
+  "private": true,
+  "main": "index.js",
+  "license": "MIT"
+}

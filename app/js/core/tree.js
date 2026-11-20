@@ -1,22 +1,25 @@
 'use strict';
-/* ================= tree helpers ================= */
+/* ================= Cascade tree rules ================= */
 let hasLoop = false;
-const isOuter = (n) => n.type==='loop' || (!hasLoop && !n.parent);
-function rebuildKM(){
-  KM = {};
-  for(const id of canvasState().order){ const n = canvasState().nodes[id]; if(n) (KM[n.parent||'']||(KM[n.parent||'']=[])).push(id); }
-  hasLoop = canvasState().order.some(id=>canvasState().nodes[id] && canvasState().nodes[id].type==='loop');
+const isOuter = n => n.type==='loop' || (!hasLoop && !n.parent);
+const overviewFilter = graph => graph.mode==='outer' ? isOuter : null;
+function rebuildKM(graph = canvasState(), children = CascadeGraphModel.indexChildren(graph)){
+  KM = children;
+  hasLoop = graph.order.some(id=>graph.nodes[id]?.type==='loop');
 }
-function computeMap(){
+function descendants(id){ return CascadeGraphModel.descendants(KM,id); }
+function visibleIds(){ const graph = canvasState(); return CascadeGraphModel.visibleIds(graph,overviewFilter(graph)); }
+
+function computeMap(graph = canvasState()){
   const m = {frontier:[],blocked:[],settled:[],fog:[],out:[],flag:{}}, blockers = {};
-  for(const L of canvasState().links) if(L.kind==='block' && canvasState().nodes[L.a] && canvasState().nodes[L.b]) (blockers[L.b]||(blockers[L.b]=[])).push(L.a);
-  for(const id of canvasState().order){
-    const n = canvasState().nodes[id]; if(!n || n.ghost) continue;
+  for(const L of graph.links) if(L.kind==='block' && graph.nodes[L.a] && graph.nodes[L.b]) (blockers[L.b]||(blockers[L.b]=[])).push(L.a);
+  for(const id of graph.order){
+    const n = graph.nodes[id]; if(!n || n.ghost) continue;
     if(n.type==='fog'){ if(n.state==='out'){ m.out.push(id); m.flag[id]='out'; } else { m.fog.push(id); m.flag[id]='fog'; } continue; }
     if(n.type!=='question') continue;
     if(n.state==='out'){ m.out.push(id); m.flag[id]='out'; continue; }
     if(n.state==='settled'){ m.settled.push(id); m.flag[id]='settled'; continue; }
-    const waiting = (blockers[id]||[]).filter(b=>{ const bn = canvasState().nodes[b]; return bn && bn.state!=='settled' && bn.state!=='out'; });
+    const waiting = (blockers[id]||[]).filter(b=>{ const bn = graph.nodes[b]; return bn && bn.state!=='settled' && bn.state!=='out'; });
     if(waiting.length){ m.blocked.push(id); m.flag[id]='blocked'; } else { m.frontier.push(id); m.flag[id]='frontier'; }
   }
   m.blockers = blockers;
@@ -26,19 +29,6 @@ function blockCycle(blocker,blocked){
   const seen = new Set(), st = [blocked];
   while(st.length){ const x = st.pop(); if(x===blocker) return true; if(seen.has(x)) continue; seen.add(x); for(const l of canvasState().links) if(l.kind==='block' && l.a===x) st.push(l.b); }
   return false;
-}
-function descendants(id){ const out=[], st=[id]; while(st.length){ const x=st.pop(); (KM[x]||[]).forEach(c=>{ out.push(c); st.push(c); }); } return out; }
-function effParent(id){ let p = canvasState().nodes[id].parent; if(canvasState().mode==='outer'){ while(p && !isOuter(canvasState().nodes[p])) p = canvasState().nodes[p].parent; } return p; }
-function visibleIds(){
-  const out = [];
-  for(const id of canvasState().order){
-    const n = canvasState().nodes[id]; if(!n) continue;
-    if(canvasState().mode==='outer'){ if(isOuter(n)) out.push(id); continue; }
-    let p = n.parent, ok = true;
-    while(p){ const pn = canvasState().nodes[p]; if(!pn || pn.collapsed){ ok = false; break; } p = pn.parent; }   // a missing parent (removed while suggestions were still arriving) hides the orphan
-    if(ok) out.push(id);
-  }
-  return out;
 }
 function removeSubtree(id){
   rebuildKM();
@@ -58,7 +48,7 @@ function addNode({type,text,parent,rel,mood,ghost,spawn,mindset}){
   S.nodes[id] = n; S.order.push(id);
   if(!ghost) acceptChain(parent);
   expandChain(parent);
-  if(spawn) spawnAt[id] = spawn;
+  if(spawn) graphCanvas.spawnNode(id,spawn);
   return id;
 }
 
