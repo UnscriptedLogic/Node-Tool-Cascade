@@ -1,0 +1,106 @@
+:root {
+	color-scheme: light;
+	--bg: #e4eaef;
+	--dot: #b4c0cc;
+	--ink: #16233a;
+	--ink2: #4b5b71;
+	--paper: #ffffff;
+	--paper2: #f2f5f8;
+	--edge: #7c8da3;
+	--line: #c5cfda;
+	--focus: #2f6bff;
+	--font:
+		"Bricolage Grotesque", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+		sans-serif;
+	--background: var(--paper);
+	--foreground: var(--ink);
+	--card: var(--paper);
+	--card-foreground: var(--ink);
+	--popover: var(--paper);
+	--popover-foreground: var(--ink);
+	--primary: var(--ink);
+	--primary-foreground: var(--bg);
+	--secondary: var(--paper2);
+	--secondary-foreground: var(--ink);
+	--muted: var(--paper2);
+	--muted-foreground: var(--ink2);
+	--accent: var(--paper2);
+	--accent-foreground: var(--ink);
+	--border: var(--line);
+	--input: var(--line);
+	--ring: var(--focus);
+	--destructive: #d94a2b;
+	--radius: 8px;
+	box-sizing: border-box;
+	padding-top: env(safe-area-inset-top, 0px);
+	padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		color-scheme: dark;
+		--bg: #0f1a2b;
+		--dot: #22334d;
+		--ink: #e8eef7;
+		--ink2: #9db0c8;
+		--paper: #18273d;
+		--paper2: #142136;
+		--edge: #566b88;
+		--line: #2b3e5a;
+		--focus: #7da2ff;
+	}
+}
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--bg: #0f1a2b;
+	--dot: #22334d;
+	--ink: #e8eef7;
+	--ink2: #9db0c8;
+	--paper: #18273d;
+	--paper2: #142136;
+	--edge: #566b88;
+	--line: #2b3e5a;
+	--focus: #7da2ff;
+}
+html {
+	scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+* {
+	box-sizing: border-box;
+}
+html,
+body {
+	height: 100%;
+	margin: 0;
+	background: var(--bg);
+	color: var(--ink);
+	font-family: var(--font);
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+}
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0 0 auto;
+	height: env(safe-area-inset-top, 0px);
+	background: var(--bg);
+	z-index: 60;
+}
+[hidden] {
+	/* biome-ignore lint/complexity/noImportantStyles: The hidden attribute must override component display rules. */
+	display: none !important;
+}
+button {
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+:focus-visible {
+	outline: 2px solid var(--focus);
+	outline-offset: 2px;
+}
+
+#app {
+	height: 100%;
+	display: grid;
+	grid-template-columns: 212px minmax(0, 1fr);
+}

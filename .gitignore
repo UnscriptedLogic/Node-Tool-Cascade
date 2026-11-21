@@ -1,4 +1,5 @@
 # Your data and secrets. Never commit these.
+library/
 settings.json
 tree.json
 chatgpt-auth.json
@@ -11,7 +12,11 @@ project-index.json
 
 # Build output and tooling
 dist/
+dist/ui/
 node_modules/
 .DS_Store
 npm-debug.log*
 scripts/analytics.local.env
+
+# Local planning notes
+.handoff/
