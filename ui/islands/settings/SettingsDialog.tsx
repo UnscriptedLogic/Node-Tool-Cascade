@@ -1,7 +1,9 @@
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { type RefObject, useLayoutEffect } from "react";
 import { useSnapshot } from "valtio";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { version } from "../../../package.json";
 import { MODE } from "../../core/constants.ts";
 import { UI } from "../../core/state.ts";
@@ -21,6 +23,7 @@ import DataTab from "./DataTab.tsx";
 import GoalTab from "./GoalTab.tsx";
 import LibraryTab from "./LibraryTab.tsx";
 import LookTab from "./LookTab.tsx";
+import SettingsPane, { tabId } from "./SettingsPane.tsx";
 
 const tabs: readonly { value: string; label: string; modes?: string }[] = [
 	{ value: "ai", label: "AI model" },
@@ -85,7 +88,7 @@ export default function SettingsDialog({
 									<small id="appVersion">{`v${version}`}</small>
 								</h2>
 							</DialogPrimitive.Title>
-							<button
+							<Button
 								className="btn primary"
 								id="sClose"
 								ref={close}
@@ -93,22 +96,22 @@ export default function SettingsDialog({
 								onClick={() => closeSettings()}
 							>
 								{"Done"}
-							</button>
+							</Button>
 						</header>
-						<div className="sbody">
-							<nav
-								className="stabs"
-								// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: Preserve the settings tab DOM contract until plan 005.
-								role="tablist"
-								aria-label="Settings sections"
-							>
+						<Tabs
+							className="sbody"
+							orientation="vertical"
+							value={settings.tab}
+							onValueChange={(value) => showTab(value)}
+						>
+							<TabsList className="stabs" aria-label="Settings sections">
 								{tabs.map((tab) => (
-									<button
+									<TabsTrigger
 										key={tab.value}
-										type="button"
-										role="tab"
+										value={tab.value}
 										data-tab={tab.value}
-										id={tab.value === "library" ? "libTab" : undefined}
+										id={tabId(tab.value)}
+										aria-controls={`p-${tab.value}`}
 										data-modes={tab.modes}
 										hidden={
 											tab.value === "library"
@@ -119,42 +122,32 @@ export default function SettingsDialog({
 														? !["local", "web"].includes(MODE)
 														: false
 										}
-										aria-selected={settings.tab === tab.value}
+										// Radix switches on pointer down; a plain click does too.
 										onClick={() => showTab(tab.value)}
 									>
 										{tab.label}
-									</button>
+									</TabsTrigger>
 								))}
-							</nav>
+							</TabsList>
 							<div className="spanes">
-								<section
-									className="spane"
-									id="p-mindsets"
-									role="tabpanel"
-									hidden={settings.tab !== "mindsets"}
-								>
+								<SettingsPane value="mindsets">
 									<div id="mindsetsRoot">
 										<Mindsets />
 									</div>
-								</section>
+								</SettingsPane>
 								<AiTab />
 								<GoalTab />
 								<LibraryTab />
 								<BehaviorTab />
 								<LookTab />
-								<section
-									className="spane"
-									id="p-project"
-									role="tabpanel"
-									hidden={settings.tab !== "project"}
-								>
+								<SettingsPane value="project">
 									<div id="projectRoot">
 										<Project />
 									</div>
-								</section>
+								</SettingsPane>
 								<DataTab />
 							</div>
-						</div>
+						</Tabs>
 					</div>
 				</DialogContent>
 			</Dialog>

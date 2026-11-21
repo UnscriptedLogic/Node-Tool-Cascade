@@ -27,6 +27,7 @@ import {
 } from "../features/mindsets.ts";
 import type { CascadeTree } from "../model.ts";
 import { closeSettings } from "../shell/settings.ts";
+import { CheckRow, Disclosure } from "./controls.tsx";
 import MindsetConverter from "./MindsetConverter.tsx";
 
 interface MindsetIconProps {
@@ -71,28 +72,30 @@ function context(state: Snapshot<CascadeTree>, prefs: Readonly<Preferences>) {
 function BuiltinCatalog({ pack }: { pack: Mindset }) {
 	const [opened, setOpened] = useState(false);
 	return (
-		<details
-			onToggle={(e) => {
-				if (e.currentTarget.open) setOpened(true);
+		<Disclosure
+			title={`Browse ${pack.entries.length} lenses`}
+			onOpenChange={(open) => {
+				if (open) setOpened(true);
 			}}
 		>
-			<summary>{`Browse ${pack.entries.length} lenses`}</summary>
 			{opened && (
 				<div className="mindset-catalog">
 					{pack.entries.map((entry) => (
-						<details key={entry.id}>
-							<summary>{`${entry.label} #${entry.number}: ${entry.name}`}</summary>
+						<Disclosure
+							key={entry.id}
+							title={`${entry.label} #${entry.number}: ${entry.name}`}
+						>
 							{entry.questions.map((question) => (
 								<p key={question}>{question}</p>
 							))}
 							<p className="small">
 								{entry.references.map((r) => r.location).join("; ")}
 							</p>
-						</details>
+						</Disclosure>
 					))}
 				</div>
 			)}
-		</details>
+		</Disclosure>
 	);
 }
 export default function Mindsets() {
@@ -171,7 +174,7 @@ export default function Mindsets() {
 					{"Download example"}
 				</Button>
 			</div>
-			<input
+			<Input
 				type="file"
 				id="msFile"
 				accept=".json,application/json"
@@ -183,8 +186,7 @@ export default function Mindsets() {
 					input.value = "";
 				}}
 			/>
-			<details>
-				<summary>{"Paste JSON pack"}</summary>
+			<Disclosure title="Paste JSON pack">
 				<Label className="field" htmlFor="msJson">
 					{"Mindset JSON"}
 				</Label>
@@ -206,7 +208,7 @@ export default function Mindsets() {
 				>
 					{"Import pasted JSON"}
 				</Button>
-			</details>
+			</Disclosure>
 			<p id="msMsg" className="small" role="status" aria-live="polite">
 				{ui.message}
 			</p>
@@ -229,17 +231,13 @@ export default function Mindsets() {
 							data-pack={pack.id}
 							key={pack.id}
 						>
-							<Label className="check">
-								<input
-									type="checkbox"
-									checked={pack.enabled}
-									aria-label={`Enable ${pack.name}`}
-									onChange={(e) =>
-										enableMindset(pack.id, e.currentTarget.checked)
-									}
-								/>
+							<CheckRow
+								checked={pack.enabled}
+								label={`Enable ${pack.name}`}
+								onChange={(checked) => enableMindset(pack.id, checked)}
+							>
 								<strong>{pack.name}</strong>
-							</Label>
+							</CheckRow>
 							<p className="small">{`${pack.entries.length} ${pack.entries.length === 1 ? "entry" : "entries"} · ${pack.domains.map((d) => domains[d].label).join(", ")}${pack.source.title ? ` · ${pack.source.title}${pack.source.edition ? ` (${pack.source.edition})` : ""}` : ""}`}</p>
 							{pack.source.coverage && (
 								<p className="small">{pack.source.coverage}</p>

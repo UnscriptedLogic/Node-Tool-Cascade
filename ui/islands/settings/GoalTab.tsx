@@ -1,30 +1,31 @@
 import { useSnapshot } from "valtio";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PREFS } from "../../core/constants.ts";
 import { DOMAINS } from "../../core/profiles.ts";
 import { useFocus } from "../../hooks/useFocus.ts";
 import { SETTINGS, STEER_HELP, setPreference } from "../../shell/settings.ts";
+import { Choice, Disclosure, SelectField } from "../controls.tsx";
+import SettingsPane from "./SettingsPane.tsx";
 export default function GoalTab() {
 	const goal = useFocus<HTMLTextAreaElement>("goal");
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });
 	const domain = DOMAINS[prefs.domain] || DOMAINS.general;
 	return (
-		<section
-			className="spane"
-			id="p-goal"
-			role="tabpanel"
-			hidden={settings.tab !== "goal"}
-		>
+		<SettingsPane value="goal">
 			<h3>{"Goal & steering"}</h3>
 			<div className="field">
 				<Label htmlFor="gDomain">{"What is this tree about?"}</Label>
-				<select
+				<SelectField
 					id="gDomain"
 					value={prefs.domain}
-					onChange={(e) => {
-						const value = e.currentTarget.value;
+					options={Object.entries(DOMAINS).map(([key, value]) => [
+						key,
+						value.label,
+					])}
+					onChange={(value) => {
 						if (
 							value === "general" ||
 							value === "game" ||
@@ -33,13 +34,7 @@ export default function GoalTab() {
 						)
 							setPreference("domain", value);
 					}}
-				>
-					{Object.entries(DOMAINS).map(([key, value]) => (
-						<option key={key} value={key}>
-							{value.label}
-						</option>
-					))}
-				</select>
+				/>
 				<small id="gDomainHelp">
 					{domain.blurb +
 						" This sets the words the AI uses and the example tree. Your blocks stay as they are."}
@@ -63,44 +58,33 @@ export default function GoalTab() {
 				/>
 				<div className="chips" id="gChips">
 					{domain.goalChips.map((goal) => (
-						<button
+						<Button
 							key={goal}
 							type="button"
+							variant="ghost"
 							className="chip"
 							onClick={() => setPreference("goal", goal)}
 						>
 							{goal}
-						</button>
+						</Button>
 					))}
 				</div>
 			</div>
 			<div className="field">
 				<span className="lbl">{"Steering"}</span>
-				{/* biome-ignore lint/a11y/useSemanticElements: Preserve the existing segmented control DOM contract. */}
-				<div
-					className="seg big"
+				<Choice
 					id="gSteer"
-					role="group"
-					aria-label="Steering strength"
-				>
-					{(
-						[
-							["light", "Light"],
-							["balanced", "Balanced"],
-							["strong", "Strong"],
-						] as const
-					).map(([value, label]) => (
-						<button
-							type="button"
-							key={value}
-							data-val={value}
-							aria-pressed={prefs.steer === value}
-							onClick={() => setPreference("steer", value)}
-						>
-							{label}
-						</button>
-					))}
-				</div>
+					label="Steering strength"
+					items={[
+						["light", "Light"],
+						["balanced", "Balanced"],
+						["strong", "Strong"],
+					]}
+					value={prefs.steer}
+					onChange={(value) =>
+						setPreference("steer", value as typeof prefs.steer)
+					}
+				/>
 				<small id="steerHelp">{STEER_HELP[prefs.steer] || ""}</small>
 			</div>
 			<div className="field">
@@ -138,10 +122,9 @@ export default function GoalTab() {
 					onChange={(e) => setPreference("avoid", e.currentTarget.value)}
 				/>
 			</div>
-			<details className="card">
-				<summary>{"What the AI is told"}</summary>
+			<Disclosure className="card" title="What the AI is told">
 				<pre id="gPreview">{settings.preview}</pre>
-			</details>
-		</section>
+			</Disclosure>
+		</SettingsPane>
 	);
 }

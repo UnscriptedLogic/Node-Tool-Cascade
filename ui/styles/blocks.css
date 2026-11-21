@@ -60,7 +60,7 @@
 .mindset-pack .field input {
 	max-width: 110px;
 }
-#p-mindsets details {
+#p-mindsets .disclosure {
 	margin-block: 14px;
 }
 .mindset-builtin {
@@ -71,14 +71,14 @@
 	overflow: auto;
 	padding-right: 8px;
 }
-.mindset-catalog > details {
+.mindset-catalog > .disclosure {
 	border-bottom: 1px solid var(--line);
 	padding-bottom: 8px;
 }
 #msConverter {
 	margin-top: 24px;
 }
-#msConverter > summary {
+#msConverter > .disclosure-trigger {
 	font-weight: 700;
 	cursor: pointer;
 }
@@ -99,7 +99,7 @@
 	overflow: auto;
 	margin-bottom: 18px;
 }
-#mcEntries > details {
+#mcEntries > .disclosure {
 	border-bottom: 1px solid var(--line);
 	padding-bottom: 8px;
 }

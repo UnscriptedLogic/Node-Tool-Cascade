@@ -2,6 +2,8 @@ import type { FormEvent } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LOCAL } from "../core/constants.ts";
 import {
 	onProviderAction,
@@ -15,7 +17,13 @@ export default function Providers() {
 	const state = useSnapshot(SETTINGS, { sync: true }),
 		server = state.server;
 	return (
-		<div id="provList">
+		<RadioGroup
+			id="provList"
+			className="provgroup"
+			aria-label="AI provider"
+			value={server?.active || ""}
+			onValueChange={(value) => onProviderChange(value, "active", value)}
+		>
 			{PROV_ORDER.map((provider) => {
 				const meta = PROV[provider],
 					saved = server?.providers?.[provider],
@@ -36,7 +44,7 @@ export default function Providers() {
 				const model =
 					provider === "demo" ? null : (
 						<div className="field">
-							<label htmlFor={`m-${provider}`}>Model</label>
+							<Label htmlFor={`m-${provider}`}>Model</Label>
 							<div className="frow">
 								<Input
 									id={`m-${provider}`}
@@ -106,26 +114,16 @@ export default function Providers() {
 						}}
 						onChange={(e) => {
 							const input = e.target;
-							onProviderChange(
-								provider,
-								(input as HTMLInputElement).type === "radio"
-									? "active"
-									: input.dataset.role,
-								(input as HTMLInputElement).value,
-							);
+							// The provider radios report through the group instead.
+							if (input instanceof HTMLInputElement && input.dataset.role)
+								onProviderChange(provider, input.dataset.role, input.value);
 						}}
 					>
 						<header>
-							<label className="radio">
-								<input
-									type="radio"
-									name="activeProv"
-									value={provider}
-									checked={!!active}
-									onChange={() => {}}
-								/>
+							<Label className="radio">
+								<RadioGroupItem value={provider} />
 								<span>{meta.label}</span>
-							</label>
+							</Label>
 							<span
 								className={`tag${active && saved?.ready ? " on" : ""}`}
 								data-role="status"
@@ -229,11 +227,11 @@ export default function Providers() {
 									</div>
 								)}
 								<div className="field">
-									<label htmlFor={`k-${provider}`}>
+									<Label htmlFor={`k-${provider}`}>
 										{provider === "openrouter"
 											? "Or paste an API key"
 											: "API key"}
-									</label>
+									</Label>
 									<div className="frow">
 										<Input
 											id={`k-${provider}`}
@@ -269,9 +267,9 @@ export default function Providers() {
 								</div>
 								{model}
 								<div className="field">
-									<label htmlFor={`b-${provider}`}>
+									<Label htmlFor={`b-${provider}`}>
 										Base URL{provider === "custom" ? "" : " (optional)"}
-									</label>
+									</Label>
 									<Input
 										id={`b-${provider}`}
 										type="text"
@@ -295,6 +293,6 @@ export default function Providers() {
 					</section>
 				);
 			})}
-		</div>
+		</RadioGroup>
 	);
 }

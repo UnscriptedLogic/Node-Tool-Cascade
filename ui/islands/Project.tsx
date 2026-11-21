@@ -20,6 +20,7 @@ import {
 	stopProject,
 } from "../features/project.ts";
 import { closeSettings, setPreference } from "../shell/settings.ts";
+import { CheckRow, Choice, Disclosure } from "./controls.tsx";
 
 const formatNumber = (n: number) =>
 	n >= 10000
@@ -105,8 +106,7 @@ export default function Project() {
 					{ui.message}
 				</small>
 			</div>
-			<details className="card pdetails">
-				<summary>{"Skip or add files"}</summary>
+			<Disclosure className="card pdetails" title="Skip or add files">
 				<div className="field">
 					<Label htmlFor="pIgnore">{"Also skip"}</Label>
 					<Textarea
@@ -141,7 +141,7 @@ export default function Project() {
 							project.engineIgnore.join(", ")
 						: ""}
 				</small>
-			</details>
+			</Disclosure>
 			<div id="pSummary" hidden={!project.has}>
 				<div className="pstat" id="pStats">
 					{[
@@ -167,25 +167,15 @@ export default function Project() {
 			<div id="pBriefWrap" hidden={!project.has}>
 				<div className="field">
 					<span className="lbl">{"Project brief"}</span>
-					{/* biome-ignore lint/a11y/useSemanticElements: Preserve the existing depth control DOM contract. */}
-					<div
-						className="seg big"
+					<Choice
 						id="pDepth"
-						role="group"
-						aria-label="How thoroughly to read"
-					>
-						{depths.map(([value, label]) => (
-							<button
-								key={value}
-								type="button"
-								data-val={value}
-								aria-pressed={ui.depth === value}
-								onClick={() => setProjectDepth(value)}
-							>
-								{label}
-							</button>
-						))}
-					</div>
+						label="How thoroughly to read"
+						items={depths}
+						value={ui.depth}
+						onChange={(value) =>
+							setProjectDepth(value as "quick" | "standard" | "thorough")
+						}
+					/>
 					<small id="pEstimate">{ui.estimate}</small>
 					<div className="frow">
 						<Button
@@ -235,32 +225,24 @@ export default function Project() {
 					</small>
 				</div>
 				<div className="field">
-					<Label className="check">
-						<input
-							type="checkbox"
-							id="pUse"
-							checked={prefs.useProject}
-							onChange={(e) =>
-								setPreference("useProject", e.currentTarget.checked)
-							}
-						/>
+					<CheckRow
+						id="pUse"
+						checked={prefs.useProject}
+						onChange={(checked) => setPreference("useProject", checked)}
+					>
 						<span>{"Use the brief in every AI call"}</span>
-					</Label>
-					<Label className="check">
-						<input
-							type="checkbox"
-							id="pAsk"
-							checked={prefs.askFiles}
-							onChange={(e) =>
-								setPreference("askFiles", e.currentTarget.checked)
-							}
-						/>
+					</CheckRow>
+					<CheckRow
+						id="pAsk"
+						checked={prefs.askFiles}
+						onChange={(checked) => setPreference("askFiles", checked)}
+					>
 						<span>
 							{
 								"Let Ask and Grill look things up in the project’s files and cite them"
 							}
 						</span>
-					</Label>
+					</CheckRow>
 				</div>
 				<div className="field">
 					<span className="lbl">{"Graph"}</span>

@@ -86,7 +86,15 @@
 	display: grid;
 	grid-template-columns: 208px minmax(0, 1fr);
 }
+.sbody {
+	gap: 0;
+}
 .stabs {
+	justify-content: flex-start;
+	align-items: stretch;
+	width: auto;
+	height: auto;
+	border-radius: 0;
 	padding: 16px 12px;
 	border-right: 1px solid var(--line);
 	display: flex;
@@ -95,6 +103,11 @@
 	background: var(--paper2);
 }
 .stabs button {
+	flex: none;
+	height: auto;
+	justify-content: flex-start;
+	box-shadow: none;
+	font-weight: inherit;
 	border: 0;
 	background: none;
 	text-align: left;
@@ -155,7 +168,6 @@
 	padding: 9px 11px;
 }
 .field textarea {
-	resize: vertical;
 	line-height: 1.4;
 }
 .field input:focus,
@@ -164,9 +176,8 @@
 	border-color: var(--focus);
 	box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent);
 }
-.field input[type="range"] {
-	width: 100%;
-	accent-color: var(--ink);
+.field [data-slot="slider"] {
+	margin: 6px 0;
 }
 .check {
 	display: flex;
@@ -175,12 +186,6 @@
 	font-weight: 600;
 	font-size: 14px;
 	cursor: pointer;
-}
-.check input {
-	width: 17px;
-	height: 17px;
-	accent-color: var(--ink);
-	margin: 0;
 }
 
 .frow {
@@ -219,11 +224,16 @@
 	font-size: 15.5px;
 	cursor: pointer;
 }
-.prov .radio input {
-	accent-color: var(--ink);
-	width: 17px;
-	height: 17px;
-	margin: 0;
+/* the global button reset would hide the tick: it is the inverse of the box */
+[data-slot="checkbox"] {
+	color: var(--primary-foreground);
+}
+[data-slot="radio-group-item"] {
+	color: var(--primary);
+}
+/* the provider cards share one radio group */
+.provgroup {
+	display: block;
 }
 .prov .sub {
 	margin: 6px 0 16px 27px;
@@ -264,6 +274,9 @@
 	flex-wrap: wrap;
 }
 .chip {
+	height: auto;
+	white-space: normal;
+	font-weight: inherit;
 	border: 1px dashed var(--edge);
 	background: none;
 	border-radius: 999px;
@@ -284,9 +297,32 @@
 	font-size: 14px;
 	line-height: 1.5;
 }
-.card summary {
-	cursor: pointer;
+/* a section that opens under its title */
+.disclosure-trigger {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	font: inherit;
 	font-weight: 600;
+	text-align: left;
+}
+.disclosure-trigger svg {
+	width: 15px;
+	height: 15px;
+	flex: none;
+	color: var(--ink2);
+	transition: rotate 0.15s;
+}
+.disclosure[data-state="open"] > .disclosure-trigger svg {
+	rotate: 90deg;
+}
+.disclosure-body {
+	padding-top: 8px;
 }
 #gPreview {
 	white-space: pre-wrap;

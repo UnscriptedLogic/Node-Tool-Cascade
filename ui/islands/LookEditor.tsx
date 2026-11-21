@@ -1,6 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	state as canvasLookState,
 	decorate,
@@ -38,6 +42,7 @@ import {
 	toHex,
 	wirePreview,
 } from "../shell/look-editor.ts";
+import { Choice, Disclosure, SelectField } from "./controls.tsx";
 
 const checkpoint = () => lkCheckpoint();
 
@@ -98,22 +103,21 @@ function Range({
 	show = true,
 }: RangeProps) {
 	return (
-		<label className="lk-row" hidden={!show}>
+		<div className="lk-row" hidden={!show}>
 			<span className="lk-l">{label}</span>
-			<input
-				type="range"
+			<Slider
 				data-f={field}
+				aria-label={label}
 				min={min}
 				max={max}
 				step={step}
-				value={value}
-				onChange={() => {}}
+				value={[value]}
 				onPointerDown={checkpoint}
 				onKeyDown={checkpoint}
-				onInput={(e) => set(+e.currentTarget.value)}
+				onValueChange={([next]) => set(next)}
 			/>
 			<output>{String(Math.round(value * 100) / 100) + unit}</output>
-		</label>
+		</div>
 	);
 }
 function Select({
@@ -127,18 +131,14 @@ function Select({
 	return (
 		<div className="lk-row" hidden={!show}>
 			<span className="lk-l">{label}</span>
-			<select
-				data-f={field}
+			<SelectField
+				label={label}
+				attrs={{ "data-f": field }}
 				value={String(value)}
-				onFocus={checkpoint}
-				onChange={(e) => set(e.currentTarget.value)}
-			>
-				{options.map((option) => (
-					<option key={option} value={String(option)}>
-						{String(option)}
-					</option>
-				))}
-			</select>
+				options={options.map((option) => [String(option), String(option)])}
+				onOpen={checkpoint}
+				onChange={set}
+			/>
 		</div>
 	);
 }
@@ -146,17 +146,16 @@ function Check({ label, field, value, set }: CheckProps) {
 	return (
 		<div className="lk-row">
 			<span className="lk-l">{label}</span>
-			<label className="lk-chk">
-				<input
-					type="checkbox"
-					data-f={field}
-					checked={!!value}
-					onChange={(e) => {
-						checkpoint();
-						set(e.currentTarget.checked);
-					}}
-				/>
-			</label>
+			<Checkbox
+				className="lk-chk"
+				data-f={field}
+				aria-label={label}
+				checked={!!value}
+				onCheckedChange={(next) => {
+					checkpoint();
+					set(next === true);
+				}}
+			/>
 		</div>
 	);
 }
@@ -186,21 +185,21 @@ function Color({
 					onInput={(e) => set(e.currentTarget.value)}
 				/>
 				{keyword && (
-					<label className="lk-sub">
-						<input
-							type="checkbox"
+					<Label className="lk-sub">
+						<Checkbox
 							data-f={`${field}-kw`}
 							checked={isKeyword}
-							onChange={(e) => {
+							onCheckedChange={(next) => {
 								checkpoint();
-								set(e.currentTarget.checked ? keyword : lastColor.current);
+								set(next === true ? keyword : lastColor.current);
 							}}
 						/>
 						{keywordLabel}
-					</label>
+					</Label>
 				)}
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					className="lk-mini"
 					title="Back to the default"
 					onClick={() => {
@@ -209,7 +208,7 @@ function Color({
 					}}
 				>
 					default
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
@@ -242,19 +241,15 @@ function Preview({ type, revision }: PreviewProps) {
 }
 function Segment({ id, label, items, value, set, attr = "v" }: SegmentProps) {
 	return (
-		<fieldset className="seg" id={id} aria-label={label}>
-			{items.map(([key, text]) => (
-				<button
-					type="button"
-					key={key}
-					{...{ [`data-${attr}`]: key }}
-					aria-pressed={Boolean(value === key)}
-					onClick={() => set(key)}
-				>
-					{text}
-				</button>
-			))}
-		</fieldset>
+		<Choice
+			id={id}
+			label={label}
+			big={false}
+			attr={attr}
+			items={items as readonly (readonly [string, string])[]}
+			value={String(value ?? "")}
+			onChange={set}
+		/>
 	);
 }
 
@@ -281,7 +276,7 @@ export default function LookEditor() {
 		["wires", "Wires"],
 		["canvas", "Canvas"],
 		["text", "Text"],
-	];
+	] as const;
 	return (
 		<>
 			<div className="lk-bar">
@@ -308,29 +303,21 @@ export default function LookEditor() {
 					</Button>
 				</div>
 			</div>
-			<fieldset
-				className="seg big"
+			<Choice
 				id="lkTabs"
-				aria-label="Look sections"
+				label="Look sections"
+				attr="lk"
 				style={{ flexWrap: "wrap" }}
-			>
-				{tabs.map(([key, label]) => (
-					<button
-						type="button"
-						key={key}
-						data-lk={key}
-						aria-pressed={Boolean(state.tab === key)}
-						onClick={() => lkShowTab(key)}
-					>
-						{label}
-					</button>
-				))}
-			</fieldset>
+				items={tabs}
+				value={state.tab}
+				onChange={(key) => lkShowTab(key)}
+			/>
 			<div className="lk-pane" id="lk-presets" hidden={state.tab !== "presets"}>
 				<div className="lk-presets">
 					{PRESETS.map((preset) => (
-						<button
+						<Button
 							type="button"
+							variant="ghost"
 							className="lk-preset"
 							data-id={preset.id}
 							key={preset.id}
@@ -343,7 +330,7 @@ export default function LookEditor() {
 									<i key={i} style={{ background: color }} />
 								))}
 							</div>
-						</button>
+						</Button>
 					))}
 				</div>
 				<p className="small" style={{ marginTop: 14 }}>
@@ -359,7 +346,7 @@ export default function LookEditor() {
 					Describe the look you want in your own words. You can try it, then
 					keep it or put it back.
 				</p>
-				<textarea
+				<Textarea
 					id="lkDesc"
 					className="area"
 					rows={3}
@@ -378,8 +365,9 @@ export default function LookEditor() {
 						"Big red decisions, small grey answers",
 						"Neon with arrows and glowing outlines",
 					].map((description) => (
-						<button
+						<Button
 							type="button"
+							variant="ghost"
 							className="chip"
 							key={description}
 							onClick={() => {
@@ -388,7 +376,7 @@ export default function LookEditor() {
 							}}
 						>
 							{description}
-						</button>
+						</Button>
 					))}
 				</div>
 				<div className="mrow">
@@ -657,8 +645,9 @@ export default function LookEditor() {
 									onPointerDown={checkpoint}
 									onInput={(e) => lkSetMood(mood, e.currentTarget.value)}
 								/>
-								<button
+								<Button
 									type="button"
+									variant="ghost"
 									className="lk-mini"
 									onClick={() => {
 										checkpoint();
@@ -666,7 +655,7 @@ export default function LookEditor() {
 									}}
 								>
 									default
-								</button>
+								</Button>
 							</div>
 						</div>
 					))}
@@ -885,7 +874,7 @@ export default function LookEditor() {
 					This is everything you have changed, as text. Edit it, paste one from
 					a friend, or copy yours. Unknown or out-of-range values are ignored.
 				</p>
-				<textarea
+				<Textarea
 					ref={text}
 					id="lkText"
 					spellCheck={false}
@@ -938,8 +927,11 @@ export default function LookEditor() {
 						Copy
 					</Button>
 				</div>
-				<details className="card" style={{ marginTop: 14 }}>
-					<summary>What you can set</summary>
+				<Disclosure
+					className="card"
+					style={{ marginTop: 14 }}
+					title="What you can set"
+				>
 					<pre
 						id="lkSheet"
 						style={{
@@ -951,7 +943,7 @@ export default function LookEditor() {
 					>
 						{lookSheet}
 					</pre>
-				</details>
+				</Disclosure>
 			</div>
 		</>
 	);

@@ -1,19 +1,15 @@
 import { useSnapshot } from "valtio";
 import { PREFS } from "../../core/constants.ts";
 import { LK } from "../../shell/look-editor.ts";
-import { SETTINGS, setPreference } from "../../shell/settings.ts";
+import { setPreference } from "../../shell/settings.ts";
+import { Choice } from "../controls.tsx";
 import LookEditor from "../LookEditor.tsx";
+import SettingsPane from "./SettingsPane.tsx";
 export default function LookTab() {
-	const settings = useSnapshot(SETTINGS, { sync: true });
 	const look = useSnapshot(LK, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });
 	return (
-		<section
-			className="spane"
-			id="p-look"
-			role="tabpanel"
-			hidden={settings.tab !== "look"}
-		>
+		<SettingsPane value="look">
 			<h3>{"Appearance"}</h3>
 			<p className="lead">
 				{
@@ -22,28 +18,21 @@ export default function LookTab() {
 			</p>
 			<div className="field">
 				<span className="lbl">{"Theme"}</span>
-				{/* biome-ignore lint/a11y/useSemanticElements: Preserve the existing segmented control DOM contract. */}
-				<div className="seg big" id="aTheme" role="group" aria-label="Theme">
-					{(
-						[
-							["system", "System"],
-							["light", "Light"],
-							["dark", "Dark"],
-						] as const
-					).map(([value, label]) => (
-						<button
-							type="button"
-							key={value}
-							data-val={value}
-							aria-pressed={prefs.theme === value}
-							onClick={() => setPreference("theme", value)}
-						>
-							{label}
-						</button>
-					))}
-				</div>
+				<Choice
+					id="aTheme"
+					label="Theme"
+					items={[
+						["system", "System"],
+						["light", "Light"],
+						["dark", "Dark"],
+					]}
+					value={prefs.theme}
+					onChange={(value) =>
+						setPreference("theme", value as typeof prefs.theme)
+					}
+				/>
 			</div>
 			<div id="lookRoot">{look.built && <LookEditor />}</div>
-		</section>
+		</SettingsPane>
 	);
 }

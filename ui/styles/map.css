@@ -130,7 +130,6 @@
 	border: 1px solid var(--line);
 	border-radius: 9px;
 	padding: 9px 11px;
-	resize: vertical;
 }
 .area:focus {
 	outline: none;

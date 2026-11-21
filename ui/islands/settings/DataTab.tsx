@@ -1,21 +1,19 @@
 import { useRef } from "react";
 import { useSnapshot } from "valtio";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MODE, PREFS } from "../../core/constants.ts";
 import { quitCascade } from "../../core/server.ts";
 import { onDataAction, SETTINGS, setPreference } from "../../shell/settings.ts";
+import { CheckRow } from "../controls.tsx";
+import SettingsPane from "./SettingsPane.tsx";
 export default function DataTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const prefs = useSnapshot(PREFS, { sync: true });
 	const fileInput = useRef<HTMLInputElement>(null),
 		server = settings.server?.server;
 	return (
-		<section
-			className="spane"
-			id="p-data"
-			role="tabpanel"
-			hidden={settings.tab !== "data"}
-		>
+		<SettingsPane value="data">
 			<h3>{"Data"}</h3>
 			<p className="lead" data-modes="local" hidden={!["local"].includes(MODE)}>
 				{"Your tree and settings live in the folder next to "}
@@ -34,23 +32,23 @@ export default function DataTab() {
 			<div className="field">
 				<span className="lbl">{"Tree"}</span>
 				<div className="frow">
-					<button
+					<Button
 						className="btn"
 						id="dExport"
 						type="button"
 						onClick={() => onDataAction("export")}
 					>
 						{"Export tree"}
-					</button>
-					<button
+					</Button>
+					<Button
 						className="btn"
 						id="dImport"
 						type="button"
 						onClick={() => fileInput.current?.click()}
 					>
 						{"Import tree"}
-					</button>
-					<input
+					</Button>
+					<Input
 						type="file"
 						id="dFile"
 						accept="application/json,.json"
@@ -67,15 +65,13 @@ export default function DataTab() {
 			</div>
 			<div className="field" id="dStats" hidden={!settings.analytics}>
 				<span className="lbl">{"Anonymous usage counts"}</span>
-				<Label className="check">
-					<input
-						type="checkbox"
-						id="dStatsOn"
-						checked={settings.statsOn}
-						onChange={(e) => onDataAction("stats", e.currentTarget.checked)}
-					/>
+				<CheckRow
+					id="dStatsOn"
+					checked={settings.statsOn}
+					onChange={(checked) => onDataAction("stats", checked)}
+				>
 					<span>{"Count how this site is used"}</span>
-				</Label>
+				</CheckRow>
 				<small>
 					{
 						"Counts only, such as visits, blocks placed or kept, and which AI provider was used. No tree text, prompts, keys or names, and no cookies. Do Not Track turns it off automatically. The local app sends nothing."
@@ -97,45 +93,41 @@ export default function DataTab() {
 							` · process ${server.pid}`
 						: ""}
 				</small>
-				<Label className="check">
-					<input
-						type="checkbox"
-						id="sQuitClose"
-						checked={!!prefs.quitOnClose}
-						onChange={(e) =>
-							setPreference("quitOnClose", e.currentTarget.checked)
-						}
-					/>
+				<CheckRow
+					id="sQuitClose"
+					checked={!!prefs.quitOnClose}
+					onChange={(checked) => setPreference("quitOnClose", checked)}
+				>
 					<span>{"Stop Cascade when I close this tab"}</span>
-				</Label>
+				</CheckRow>
 				<small>
 					{
 						"Off by default. When on, closing the last Cascade tab shuts the server down a few seconds later, so the port is freed without opening a terminal."
 					}
 				</small>
 				<div className="frow">
-					<button
+					<Button
 						className="btn"
 						id="sQuit"
 						type="button"
 						onClick={() => quitCascade()}
 					>
 						{"Quit Cascade now"}
-					</button>
+					</Button>
 				</div>
 			</div>
 			<div className="field">
 				<span className="lbl">{"Danger zone"}</span>
 				<div className="frow">
-					<button
+					<Button
 						className="btn"
 						id="dClear"
 						type="button"
 						onClick={() => onDataAction("clear")}
 					>
 						{"Clear graph"}
-					</button>
-					<button
+					</Button>
+					<Button
 						className="btn"
 						id="dWipeKeys"
 						type="button"
@@ -144,8 +136,8 @@ export default function DataTab() {
 						onClick={() => onDataAction("wipeKeys")}
 					>
 						{"Remove all saved keys and sign-ins"}
-					</button>
-					<button
+					</Button>
+					<Button
 						className="btn"
 						id="dForgetKey"
 						type="button"
@@ -154,12 +146,12 @@ export default function DataTab() {
 						onClick={() => onDataAction("forgetKey")}
 					>
 						{"Forget my OpenRouter key"}
-					</button>
+					</Button>
 				</div>
 				<small>
 					{"Clearing the graph can be undone. Forgetting keys can’t."}
 				</small>
 			</div>
-		</section>
+		</SettingsPane>
 	);
 }

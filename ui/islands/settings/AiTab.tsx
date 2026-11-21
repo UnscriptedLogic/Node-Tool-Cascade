@@ -1,9 +1,13 @@
 import { useSnapshot } from "valtio";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MODE } from "../../core/constants.ts";
 import { onWebAction, SETTINGS } from "../../shell/settings.ts";
 import ChatExchange from "../ChatExchange.tsx";
 import Providers from "../Providers.tsx";
+import SettingsPane from "./SettingsPane.tsx";
 export default function AiTab() {
 	const settings = useSnapshot(SETTINGS, { sync: true });
 	const web = settings.web,
@@ -11,12 +15,7 @@ export default function AiTab() {
 		hasKey = !!web.key,
 		result = settings.results.web || {};
 	return (
-		<section
-			className="spane"
-			id="p-ai"
-			role="tabpanel"
-			hidden={settings.tab !== "ai"}
-		>
+		<SettingsPane value="ai">
 			<h3>{"AI model"}</h3>
 			<div id="chatRoot">
 				<ChatExchange />
@@ -54,164 +53,157 @@ export default function AiTab() {
 						"Cascade runs entirely in your browser and has no server of its own. Choose how the AI part works. A key, if you add one, stays in this browser."
 					}
 				</p>
-				<section className={`prov${!useRouter ? " active" : ""}`} id="wDemo">
-					<header>
-						<Label className="radio">
-							<input
-								type="radio"
-								name="webProv"
-								id="wDemoRadio"
-								value="demo"
-								checked={!useRouter}
-								onChange={() => onWebAction("demo")}
-							/>
-							<span>{"Demo (no account)"}</span>
-						</Label>
-						<span className="tag on" id="wDemoTag" hidden={useRouter}>
-							{"In use"}
-						</span>
-					</header>
-					<p className="sub">
-						{
-							"Scripted responses on the example tree, so you can feel how it works. Nothing is sent anywhere."
-						}
-					</p>
-				</section>
-				<section className={`prov${useRouter ? " active" : ""}`} id="wOr">
-					<header>
-						<Label className="radio">
-							<input
-								type="radio"
-								name="webProv"
-								id="wOrRadio"
-								value="openrouter"
-								checked={useRouter}
-								onChange={() => onWebAction("openrouter")}
-							/>
-							<span>{"OpenRouter"}</span>
-						</Label>
-						<span
-							className={`tag${useRouter && web.model ? " on" : ""}`}
-							id="wOrTag"
-							hidden={!useRouter}
-						>
-							{useRouter && !web.model ? "Pick a model" : "In use"}
-						</span>
-					</header>
-					<p className="sub">
-						{
-							"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter hands this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
-						}
-					</p>
-					<div className="frow" style={{ margin: "0 0 16px 27px" }}>
-						<button
-							className="btn primary"
-							id="wOrSignIn"
-							type="button"
-							onClick={() => onWebAction("signin")}
-						>
-							{hasKey
-								? "Sign in again with OpenRouter"
-								: "Continue with OpenRouter"}
-						</button>
-					</div>
-					<div className="field">
-						<Label htmlFor="wOrKey">{"Or paste an OpenRouter key"}</Label>
-						<div className="frow">
-							<input
-								id="wOrKey"
-								type="password"
-								autoComplete="off"
-								spellCheck={false}
-								placeholder="sk-or-…"
-								value={settings.webKeyDraft}
-								onChange={(e) => {
-									SETTINGS.webKeyDraft = e.currentTarget.value;
-								}}
-							/>
-							<button
-								className="btn"
-								id="wOrSave"
-								type="button"
-								onClick={() => onWebAction("save")}
+				<RadioGroup
+					className="provgroup"
+					aria-label="How the AI works"
+					value={useRouter ? "openrouter" : "demo"}
+					onValueChange={(value) => onWebAction(value)}
+				>
+					<section className={`prov${!useRouter ? " active" : ""}`} id="wDemo">
+						<header>
+							<Label className="radio">
+								<RadioGroupItem id="wDemoRadio" value="demo" />
+								<span>{"Demo (no account)"}</span>
+							</Label>
+							<span className="tag on" id="wDemoTag" hidden={useRouter}>
+								{"In use"}
+							</span>
+						</header>
+						<p className="sub">
+							{
+								"Scripted responses on the example tree, so you can feel how it works. Nothing is sent anywhere."
+							}
+						</p>
+					</section>
+					<section className={`prov${useRouter ? " active" : ""}`} id="wOr">
+						<header>
+							<Label className="radio">
+								<RadioGroupItem id="wOrRadio" value="openrouter" />
+								<span>{"OpenRouter"}</span>
+							</Label>
+							<span
+								className={`tag${useRouter && web.model ? " on" : ""}`}
+								id="wOrTag"
+								hidden={!useRouter}
 							>
-								{"Save key"}
-							</button>
-							<button
-								className="btn"
-								id="wOrForget"
+								{useRouter && !web.model ? "Pick a model" : "In use"}
+							</span>
+						</header>
+						<p className="sub">
+							{
+								"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter hands this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
+							}
+						</p>
+						<div className="frow" style={{ margin: "0 0 16px 27px" }}>
+							<Button
+								className="btn primary"
+								id="wOrSignIn"
 								type="button"
-								hidden={!hasKey}
-								onClick={() => onWebAction("forget")}
+								onClick={() => onWebAction("signin")}
 							>
-								{"Forget key"}
-							</button>
+								{hasKey
+									? "Sign in again with OpenRouter"
+									: "Continue with OpenRouter"}
+							</Button>
 						</div>
-						<small id="wOrKeyHint">
-							{hasKey
-								? `Key saved in this browser (••••${web.key.slice(-4)}).`
-								: "No key yet."}
-						</small>
-					</div>
-					<div className="field">
-						<Label htmlFor="wOrModel">{"Model"}</Label>
-						<div className="frow">
-							<input
-								id="wOrModel"
-								type="text"
-								list="ml-wor"
-								autoComplete="off"
-								spellCheck={false}
-								placeholder="Choose one with Fetch models"
-								value={settings.webModelDraft}
-								onChange={(e) => {
-									SETTINGS.webModelDraft = e.currentTarget.value;
-									onWebAction("model", e.currentTarget.value);
-								}}
-							/>
-							<datalist id="ml-wor">
-								{settings.webModels.map((model) => (
-									<option key={model} value={model} />
-								))}
-							</datalist>
-							<button
-								className="btn"
-								id="wOrFetch"
-								type="button"
-								onClick={() => onWebAction("fetch")}
-							>
-								{"Fetch models"}
-							</button>
+						<div className="field">
+							<Label htmlFor="wOrKey">{"Or paste an OpenRouter key"}</Label>
+							<div className="frow">
+								<Input
+									id="wOrKey"
+									type="password"
+									autoComplete="off"
+									spellCheck={false}
+									placeholder="sk-or-…"
+									value={settings.webKeyDraft}
+									onChange={(e) => {
+										SETTINGS.webKeyDraft = e.currentTarget.value;
+									}}
+								/>
+								<Button
+									className="btn"
+									id="wOrSave"
+									type="button"
+									onClick={() => onWebAction("save")}
+								>
+									{"Save key"}
+								</Button>
+								<Button
+									className="btn"
+									id="wOrForget"
+									type="button"
+									hidden={!hasKey}
+									onClick={() => onWebAction("forget")}
+								>
+									{"Forget key"}
+								</Button>
+							</div>
+							<small id="wOrKeyHint">
+								{hasKey
+									? `Key saved in this browser (••••${web.key.slice(-4)}).`
+									: "No key yet."}
+							</small>
 						</div>
-						<small>{"Fast, recent models are suggested first."}</small>
-					</div>
-					<div className="frow">
-						<button
-							className="btn primary"
-							id="wOrTest"
-							type="button"
-							onClick={() => onWebAction("test")}
-							disabled={settings.webBusy}
+						<div className="field">
+							<Label htmlFor="wOrModel">{"Model"}</Label>
+							<div className="frow">
+								<Input
+									id="wOrModel"
+									type="text"
+									list="ml-wor"
+									autoComplete="off"
+									spellCheck={false}
+									placeholder="Choose one with Fetch models"
+									value={settings.webModelDraft}
+									onChange={(e) => {
+										SETTINGS.webModelDraft = e.currentTarget.value;
+										onWebAction("model", e.currentTarget.value);
+									}}
+								/>
+								<datalist id="ml-wor">
+									{settings.webModels.map((model) => (
+										<option key={model} value={model} />
+									))}
+								</datalist>
+								<Button
+									className="btn"
+									id="wOrFetch"
+									type="button"
+									onClick={() => onWebAction("fetch")}
+								>
+									{"Fetch models"}
+								</Button>
+							</div>
+							<small>{"Fast, recent models are suggested first."}</small>
+						</div>
+						<div className="frow">
+							<Button
+								className="btn primary"
+								id="wOrTest"
+								type="button"
+								onClick={() => onWebAction("test")}
+								disabled={settings.webBusy}
+							>
+								{"Test connection"}
+							</Button>
+							<span
+								className={`result ${result.cls || ""}`}
+								id="wOrResult"
+								aria-live="polite"
+							>
+								{result.text || ""}
+							</span>
+						</div>
+						<p
+							className="small"
+							style={{ margin: "12px 0 16px", lineHeight: "1.45" }}
 						>
-							{"Test connection"}
-						</button>
-						<span
-							className={`result ${result.cls || ""}`}
-							id="wOrResult"
-							aria-live="polite"
-						>
-							{result.text || ""}
-						</span>
-					</div>
-					<p
-						className="small"
-						style={{ margin: "12px 0 16px", lineHeight: "1.45" }}
-					>
-						{
-							"The key is stored in this browser only. Anyone who can use this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
-						}
-					</p>
-				</section>
+							{
+								"The key is stored in this browser only. Anyone who can use this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
+							}
+						</p>
+					</section>
+				</RadioGroup>
 				<div className="card">
 					{
 						"Want to use your own Claude or OpenAI key, sign in with ChatGPT, or run a local model such as Ollama? "
@@ -234,6 +226,6 @@ export default function AiTab() {
 				</p>
 				<Providers />
 			</div>
-		</section>
+		</SettingsPane>
 	);
 }

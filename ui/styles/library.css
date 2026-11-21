@@ -104,6 +104,30 @@ select option {
 	background: var(--paper);
 	color: var(--ink);
 }
+/* the shadcn dropdown, in the same box */
+.selectfield {
+	height: 34px;
+	max-width: 100%;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 13px;
+	border-color: var(--line);
+	border-radius: 8px;
+	cursor: pointer;
+}
+.selectfield:hover {
+	border-color: var(--ink2);
+}
+.selectfield.small {
+	height: 28px;
+	padding: 0 8px 0 10px;
+	font-size: 12.5px;
+}
+/* above the Settings dialog */
+.selectmenu {
+	z-index: 95;
+	max-height: min(320px, var(--radix-select-content-available-height));
+}
 .lib-actions select {
 	padding: 4px 26px 4px 10px;
 	font-size: 12.5px;

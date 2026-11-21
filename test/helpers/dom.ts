@@ -111,6 +111,12 @@ function open({
 				value: nodeCrypto.webcrypto,
 				configurable: true,
 			});
+			// Radix sliders measure themselves; jsdom has no layout to observe.
+			w.ResizeObserver ??= class {
+				observe() {}
+				unobserve() {}
+				disconnect() {}
+			};
 			w.TextEncoder = TextEncoder;
 			w.TextDecoder = TextDecoder;
 			w.Blob = Blob;

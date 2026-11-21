@@ -17,6 +17,7 @@ import {
 	libSaveCurrent,
 	libSignOut,
 } from "../features/library.ts";
+import { SelectField } from "./controls.tsx";
 
 const when = (time: string | number | Date) => {
 	const date = new Date(time);
@@ -134,18 +135,16 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 				>
 					Rename
 				</Button>
-				<select
-					aria-label={`Move ${item.name} to a folder`}
+				<SelectField
+					label={`Move ${item.name} to a folder`}
+					className="small"
 					value={item.folderId || ""}
-					onChange={(event) => libMove(item.id, event.target.value)}
-				>
-					<option value="">No folder</option>
-					{lib.folders.map((folder) => (
-						<option key={folder.id} value={folder.id}>
-							{folder.name}
-						</option>
-					))}
-				</select>
+					options={[
+						["", "No folder"],
+						...lib.folders.map((folder) => [folder.id, folder.name] as const),
+					]}
+					onChange={(value) => libMove(item.id, value)}
+				/>
 				<DeleteButton kind="cascade" item={item} armed={lib.armed} />
 			</span>
 		</li>

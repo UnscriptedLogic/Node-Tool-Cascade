@@ -14,6 +14,7 @@ import {
 	setConversionField,
 	stopMindsetConversion,
 } from "../features/mindset-converter.ts";
+import { CheckRow, Disclosure } from "./controls.tsx";
 
 const conversionDomains: readonly (readonly [string, string])[] = [
 	["general", "General / business"],
@@ -24,8 +25,11 @@ const conversionDomains: readonly (readonly [string, string])[] = [
 export default function MindsetConverter() {
 	const ui = useSnapshot(MSCONVERT, { sync: true });
 	return (
-		<details id="msConverter" className="card">
-			<summary>{"Create a mindset from source material"}</summary>
+		<Disclosure
+			id="msConverter"
+			className="card"
+			title="Create a mindset from source material"
+		>
 			<p className="small">
 				{
 					"Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Files are read on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
@@ -33,7 +37,7 @@ export default function MindsetConverter() {
 			</p>
 			<div className="field">
 				<Label htmlFor="mcFiles">{"Source files"}</Label>
-				<input
+				<Input
 					id="mcFiles"
 					type="file"
 					multiple={true}
@@ -106,18 +110,14 @@ export default function MindsetConverter() {
 			<fieldset id="mcDomains">
 				<legend>Where may these questions be used?</legend>
 				{conversionDomains.map(([value, label]) => (
-					<Label className="check" key={value}>
-						<input
-							type="checkbox"
-							value={value}
-							disabled={ui.busy}
-							checked={ui.domains.includes(value)}
-							onChange={(e) =>
-								setConversionDomain(value, e.currentTarget.checked)
-							}
-						/>
+					<CheckRow
+						key={value}
+						disabled={ui.busy}
+						checked={ui.domains.includes(value)}
+						onChange={(checked) => setConversionDomain(value, checked)}
+					>
 						{label}
-					</Label>
+					</CheckRow>
 				))}
 			</fieldset>
 			<div className="field">
@@ -168,8 +168,10 @@ export default function MindsetConverter() {
 				</p>
 				<div id="mcEntries">
 					{ui.draft?.entries.map((entry) => (
-						<details key={entry.id}>
-							<summary>{`${entry.label}${entry.number ? ` #${entry.number}` : ""}: ${entry.name}`}</summary>
+						<Disclosure
+							key={entry.id}
+							title={`${entry.label}${entry.number ? ` #${entry.number}` : ""}: ${entry.name}`}
+						>
 							<p className="small">{`Topics: ${entry.topics.join(", ")}`}</p>
 							{entry.questions.map((question, i) => (
 								<p key={i}>{question}</p>
@@ -179,7 +181,7 @@ export default function MindsetConverter() {
 									.map((ref) => `${ref.source} — ${ref.location}`)
 									.join("; ")}
 							</p>
-						</details>
+						</Disclosure>
 					))}
 				</div>
 				<div className="field">
@@ -214,6 +216,6 @@ export default function MindsetConverter() {
 					</Button>
 				</div>
 			</section>
-		</details>
+		</Disclosure>
 	);
 }
