@@ -29,7 +29,10 @@ export const ACT: Record<string, string> = {
 	),
 	collapse: svg('<path d="m4.5 6.5 3.5 3.5 3.5-3.5"/>'),
 	del: svg('<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8h5.8l.6-8"/>'),
-	open: svg('<path d="M9.5 2.5h4v4M13.5 2.5 8.5 7.5M12 9.5v3.5H3V4h3.5"/>'),
+	// expand: arrows out to two corners
+	open: svg(
+		'<path d="M10 2.5h3.5V6M13.5 2.5 9.3 6.7M6 13.5H2.5V10M2.5 13.5l4.2-4.2"/>',
+	),
 	resolve: svg(
 		'<circle cx="8" cy="8" r="6.3"/><path d="m5.3 8.3 1.9 1.9 3.5-4"/>',
 	),
