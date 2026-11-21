@@ -4,7 +4,9 @@ Open **Settings > Mindsets** to import a JSON pack or paste JSON. Download the e
 
 ## Included lenses
 
-**Enable starter mindset** adds eight selected Jesse Schell lenses to this Cascade. Names and numbers follow the linked **2008 edition**; questions use original wording. This is a starter selection, not the complete book or its question lists. It works only in **Game design**. Example node: “Why does traversal stop feeling like discovery?” Apply the starter to that node to explore it through a relevant lens.
+**Enable mindset** adds all 100 Jesse Schell lenses from the linked **2008 edition**. Every entry has its lens name, number, printed-page reference, topic triggers and an original practice question for Cascade to adapt. These questions are not transcriptions of the book's question lists. The pack works only in **Game design**; relevance checks still select a small matching set for each branch.
+
+Already using the eight-lens starter? Choose **Upgrade to 100 lenses**. This replaces that pack in the current Cascade, preserves its icon, and enables the complete catalog. Existing questions keep their original source details. Undo restores the previous pack. Each saved Cascade can be upgraded separately.
 
 ## Convert a book or other material
 

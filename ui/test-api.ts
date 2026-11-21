@@ -13,7 +13,7 @@ import {
 	snap,
 	UI,
 } from "./core/state.ts";
-import { visibleIds } from "./core/tree.ts";
+import { addNode, visibleIds } from "./core/tree.ts";
 import { AN } from "./features/ask.ts";
 import {
 	LIB,
@@ -88,6 +88,7 @@ export const testApi = {
 	undo,
 	resetTree,
 	sanitizeTree,
+	addNode,
 	acceptGhost,
 	applyMindset,
 	applyResponsive,

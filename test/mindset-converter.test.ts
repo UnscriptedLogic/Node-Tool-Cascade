@@ -23,12 +23,28 @@ const entry = (extra = {}) => ({
 const chunk = () =>
 	Conversion.chunks(Conversion.textUnits(SOURCE, "notes.md"))[0];
 
-test("mindset converter: included Schell starter validates, stays opt-in and excludes business domains", () => {
+test("mindset converter: complete Schell catalog validates, stays opt-in and excludes business domains", () => {
 	const p = Mindsets.pack(presets[0]);
-	assert.equal(p.entries.length, 8);
+	assert.equal(p.entries.length, 100);
 	assert.equal(p.source.edition, "2008");
-	assert.match(p.source.coverage, /not the complete/);
+	assert.match(p.source.coverage, /All 100/);
 	assert.equal(p.entries.find((e) => e.name === "Curiosity").number, "4");
+	assert.deepEqual(
+		p.entries.map((e) => Number(e.number)),
+		Array.from({ length: 100 }, (_, i) => i + 1),
+	);
+	assert.equal(new Set(p.entries.map((e) => e.id)).size, 100);
+	assert.equal(new Set(p.entries.map((e) => e.questions[0])).size, 100);
+	assert.ok(
+		p.entries.every(
+			(e) =>
+				e.topics.length >= 3 &&
+				e.questions.length &&
+				/^Printed p\. \d+$/.test(e.references[0].location),
+		),
+	);
+	assert.equal(p.entries.at(-1).name, "Your Secret Purpose");
+	assert.equal(p.entries.at(-1).references[0].location, "Printed p. 461");
 	assert.equal(
 		Mindsets.candidates(
 			[{ ...p, enabled: true }],
@@ -41,6 +57,25 @@ test("mindset converter: included Schell starter validates, stays opt-in and exc
 		Mindsets.candidates([{ ...p, enabled: true }], "game", "traversal").length >
 			0,
 	);
+});
+
+test("mindset converter: complete catalog covers distinct topics without leaking outside game design", () => {
+	const pack = { ...Mindsets.pack(presets[0]), enabled: true };
+	for (const [topic, number] of [
+		["ranking", "20"],
+		["confirmation", "57"],
+		["reunion", "84"],
+		["engine", "92"],
+	]) {
+		assert.ok(
+			Mindsets.candidates([pack], "game", topic).some(
+				(c) => c.entry.number === number,
+			),
+			topic,
+		);
+		for (const domain of ["general", "product", "research"])
+			assert.equal(Mindsets.candidates([pack], domain, topic).length, 0);
+	}
 });
 
 test("mindset converter: chunking keeps beginning, end, provenance and long-line content", () => {
@@ -199,11 +234,90 @@ test("mindset converter UI: built-in enables without a provider or file import a
 	assert.equal(a.api.tree.mindsets.length, 0);
 	a.click(a.$(".mindset-builtin button"));
 	await tick();
-	assert.equal(a.api.tree.mindsets[0].id, "schell-2008-starter");
+	assert.equal(a.api.tree.mindsets[0].id, "schell-2008-lenses");
 	assert.equal(a.api.tree.mindsets[0].enabled, true);
 	assert.match(a.$(".mindset-pack").textContent, /Inactive in this domain/);
 	a.api.applyLibraryData(a.api.blankLibraryData());
 	assert.equal(a.api.tree.mindsets.length, 0);
+	assert.deepEqual(a.errs, []);
+});
+
+test("mindset converter UI: complete catalog can be browsed without enabling or generating questions", async (t) => {
+	const { a, prompts } = setup(t);
+	await sleep(50);
+	a.click(a.$("#setBtn"));
+	a.click(a.$("[data-tab=mindsets]"));
+	const browse = a.$<HTMLDetailsElement>(".mindset-builtin details");
+	browse.open = true;
+	browse.dispatchEvent(new a.w.Event("toggle"));
+	await tick();
+	assert.equal(a.$$(".mindset-catalog>details").length, 100);
+	assert.match(
+		a.$(".mindset-catalog>details:last-child").textContent,
+		/Your Secret Purpose/,
+	);
+	assert.equal(a.api.tree.mindsets.length, 0);
+	assert.equal(prompts.length, 0);
+	assert.deepEqual(a.errs, []);
+});
+
+test("mindset converter UI: starter upgrades explicitly, preserves icon and history, and supports undo", async (t) => {
+	const { a } = setup(t);
+	await sleep(50);
+	const full = Mindsets.pack(presets[0]);
+	const old = {
+		...full,
+		id: "schell-2008-starter",
+		name: "Original starter",
+		icon: "🧠",
+		source: { ...full.source, coverage: "Eight selected lenses" },
+		entries: full.entries.filter((e) =>
+			[1, 2, 4, 14, 16, 31, 40, 49].includes(Number(e.number)),
+		),
+		enabled: true,
+	};
+	a.api.tree.mindsets = [old];
+	a.api.addNode({
+		type: "question",
+		text: "Preserve this existing question",
+		mindset: Mindsets.snapshot(old, old.entries[2], "Existing reasoning"),
+	});
+	a.api.layoutCanvas(false);
+	a.api.saveTree();
+	a.click(a.$("#setBtn"));
+	a.click(a.$("[data-tab=mindsets]"));
+	await tick();
+	const upgrade = a.$(".mindset-builtin button");
+	assert.equal(upgrade.textContent, "Upgrade to 100 lenses");
+	assert.equal(
+		a.api.tree.mindsets[0].entries.length,
+		8,
+		"opening settings never silently replaces a pack",
+	);
+	a.click(upgrade);
+	await tick();
+	const packs = a.api.tree.mindsets;
+	assert.equal(packs.length, 1);
+	assert.equal(packs[0].id, "schell-2008-lenses");
+	assert.equal(packs[0].entries.length, 100);
+	assert.equal(packs[0].icon, "🧠");
+	assert.equal(packs[0].enabled, true);
+	const question = Object.values(a.api.tree.nodes).find((n) => n.mindset);
+	assert.equal(question.mindset.packId, "schell-2008-starter");
+	assert.equal(question.mindset.source.coverage, "Eight selected lenses");
+	assert.equal(question.text, "Preserve this existing question");
+	const reopened = open({
+		example: false,
+		local: {
+			"cascade-tree-v1": a.w.localStorage.getItem("cascade-tree-v1"),
+		},
+	});
+	t.after(() => reopened.dom.window.close());
+	assert.equal(reopened.api.tree.mindsets[0].entries.length, 100);
+	a.api.closeSettings();
+	a.api.undo();
+	assert.equal(a.api.tree.mindsets[0].entries.length, 8);
+	assert.equal(a.api.tree.mindsets[0].id, "schell-2008-starter");
 	assert.deepEqual(a.errs, []);
 });
 

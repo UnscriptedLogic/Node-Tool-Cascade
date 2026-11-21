@@ -146,12 +146,39 @@ export function exportMindset(id) {
 	const pack = S.mindsets.find((p) => p.id === id);
 	if (pack) downloadMindset(Mindsets.pack(pack), `${pack.id}.mindset.json`);
 }
+export function installedBuiltin<T extends { id: string }>(
+	preset: (typeof MINDSET_PRESETS)[number],
+	mindsets: readonly T[],
+) {
+	return (
+		mindsets.find((p) => p.id === preset.id) ||
+		mindsets.find((p) => preset.replaces.includes(p.id))
+	);
+}
 export function enableBuiltinMindset(id: string) {
 	try {
-		const installed = S.mindsets.find((p) => p.id === id);
-		if (installed) enableMindset(id, true);
-		else
-			importMindsets(Mindsets.pack(MINDSET_PRESETS.find((p) => p.id === id)));
+		const preset = MINDSET_PRESETS.find((p) => p.id === id),
+			pack = Mindsets.pack(preset),
+			installed = installedBuiltin(preset, S.mindsets);
+		if (installed && installed.id !== pack.id) {
+			const next = Mindsets.collection(
+				S.mindsets.map((old) =>
+					old.id === installed.id
+						? { ...pack, icon: old.icon, enabled: true }
+						: old,
+				),
+			);
+			checkTreeSize(
+				next,
+				"This Cascade is too large to upgrade the mindset. Remove unused material first.",
+			);
+			cancelAI();
+			pushHist();
+			S.mindsets = next;
+			mindsetChanged();
+			MSUI.message = `Upgraded to ${pack.entries.length} lenses. Existing questions keep their original sources.`;
+		} else if (installed) enableMindset(id, true);
+		else importMindsets(pack);
 	} catch (e) {
 		MSUI.message = e.message;
 	}
@@ -183,6 +210,11 @@ export function importMindsetJson() {
 export function downloadMindsetExample() {
 	downloadMindset(MINDSET_EXAMPLE, "example.mindset.json");
 }
+function checkTreeSize(mindsets: unknown[], message: string) {
+	const data = libData();
+	data.tree = JSON.stringify({ ...JSON.parse(data.tree), mindsets });
+	if (JSON.stringify(data).length > 1500000) throw new Error(message);
+}
 export function importMindsets(value) {
 	if (new TextEncoder().encode(JSON.stringify(value)).length > 500000)
 		throw new Error("Mindset import must be smaller than 500 KB.");
@@ -194,15 +226,10 @@ export function importMindsets(value) {
 			"That mindset id is already imported. Remove the existing pack before importing its replacement.",
 		);
 	const next = Mindsets.collection([...S.mindsets, ...packs]);
-	const data = libData();
-	data.tree = JSON.stringify({
-		...JSON.parse(data.tree),
-		mindsets: next,
-	});
-	if (JSON.stringify(data).length > 1500000)
-		throw new Error(
-			"This Cascade is too large for more mindsets. Remove a pack or use a smaller tree.",
-		);
+	checkTreeSize(
+		next,
+		"This Cascade is too large for more mindsets. Remove a pack or use a smaller tree.",
+	);
 	cancelAI();
 	pushHist();
 	S.mindsets = next;

@@ -21,6 +21,7 @@ import {
 	exportMindset,
 	importMindsetFile,
 	importMindsetJson,
+	installedBuiltin,
 	MSUI,
 	removeMindset,
 } from "../features/mindsets.ts";
@@ -67,6 +68,33 @@ function context(state: Snapshot<CascadeTree>, prefs: Readonly<Preferences>) {
 					.map((id) => state.nodes[id].text),
 			].join("\n");
 }
+function BuiltinCatalog({ pack }: { pack: Mindset }) {
+	const [opened, setOpened] = useState(false);
+	return (
+		<details
+			onToggle={(e) => {
+				if (e.currentTarget.open) setOpened(true);
+			}}
+		>
+			<summary>{`Browse ${pack.entries.length} lenses`}</summary>
+			{opened && (
+				<div className="mindset-catalog">
+					{pack.entries.map((entry) => (
+						<details key={entry.id}>
+							<summary>{`${entry.label} #${entry.number}: ${entry.name}`}</summary>
+							{entry.questions.map((question) => (
+								<p key={question}>{question}</p>
+							))}
+							<p className="small">
+								{entry.references.map((r) => r.location).join("; ")}
+							</p>
+						</details>
+					))}
+				</div>
+			)}
+		</details>
+	);
+}
 export default function Mindsets() {
 	const domains: Record<string, { label: string }> = DOMAINS;
 	const state = useSnapshot(S, { sync: true }),
@@ -90,7 +118,8 @@ export default function Mindsets() {
 			<div id="msBuiltins">
 				{MINDSET_PRESETS.map((preset) => {
 					const pack = MindsetCollection.pack(preset),
-						installed = state.mindsets.find((p) => p.id === pack.id);
+						installed = installedBuiltin(preset, state.mindsets),
+						upgrade = !!installed && installed.id !== pack.id;
 					return (
 						<section className="card mindset-builtin" key={pack.id}>
 							<strong>{`${pack.icon} ${pack.name}`}</strong>
@@ -99,24 +128,27 @@ export default function Mindsets() {
 								<Button
 									type="button"
 									className="btn primary"
-									disabled={!!installed?.enabled}
+									disabled={!!installed?.enabled && !upgrade}
 									onClick={() => enableBuiltinMindset(pack.id)}
 								>
-									{installed?.enabled
-										? "Enabled in this Cascade"
-										: "Enable starter mindset"}
+									{upgrade
+										? `Upgrade to ${pack.entries.length} lenses`
+										: installed?.enabled
+											? "Enabled in this Cascade"
+											: "Enable mindset"}
 								</Button>
 								<Button
 									type="button"
 									className="btn"
 									onClick={() => downloadBuiltinMindset(pack.id)}
 								>
-									Download starter JSON
+									Download JSON
 								</Button>
 								<a href={pack.source.url} target="_blank" rel="noopener">
 									Source reference
 								</a>
 							</div>
+							<BuiltinCatalog pack={pack} />
 						</section>
 					);
 				})}
