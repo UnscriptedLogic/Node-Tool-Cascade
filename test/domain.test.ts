@@ -20,7 +20,7 @@ const legend = (a) => a.$("#legend").previousElementSibling.textContent;
 test("domain: a new browser starts with the general profile and no game wording on screen", async () => {
 	const a = open({ local: NO_PREFS, claude: recorder([]), example: false });
 	await sleep(400);
-	assert.equal(legend(a), "How people feel");
+	assert.equal(legend(a), "Emotions");
 	const text = a
 		.nodes()
 		.map((n) => n.querySelector(".txt").textContent)

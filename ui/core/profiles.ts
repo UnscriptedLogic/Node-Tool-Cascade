@@ -146,7 +146,7 @@ export const DOMAINS = {
 		subjectAn: "a project",
 		audience: "the people affected",
 		audienceOne: "person affected",
-		feeling: "How people feel",
+		feeling: "Emotions",
 		loopDesc: "stages or phases of the work",
 		causeHints:
 			"priorities, timing, ownership, information, incentives and constraints",
