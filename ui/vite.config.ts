@@ -29,7 +29,7 @@ export default defineConfig({
 	resolve: { alias: { "@": fileURLToPath(new URL(".", import.meta.url)) } },
 	define: { "process.env.NODE_ENV": '"production"' },
 	build: {
-		outDir: fileURLToPath(new URL("../app/gen", import.meta.url)),
+		outDir: fileURLToPath(new URL("../dist/ui", import.meta.url)),
 		emptyOutDir: true,
 		minify: true,
 		cssMinify: false,

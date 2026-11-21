@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { JSDOM } from "jsdom";
-import { assemble, manifest } from "../scripts/assemble.ts";
+import { assemble, BUNDLE, BUNDLE_DIR } from "../scripts/assemble.ts";
 import { open, sleep } from "./helpers/dom.ts";
 
 for (const mode of ["artifact", "web", "local"]) {
@@ -44,10 +44,7 @@ test("UI bundle mounts once per name and releases its root", async (t) => {
 	});
 	t.after(() => dom.window.close());
 	const script = dom.window.document.createElement("script");
-	script.textContent = fs.readFileSync(
-		path.join(import.meta.dirname, "../app/gen/ui.js"),
-		"utf8",
-	);
+	script.textContent = fs.readFileSync(path.join(BUNDLE_DIR, "ui.js"), "utf8");
 	dom.window.document.head.append(script);
 	const ui = dom.window.CascadeUI,
 		el = dom.window.document.getElementById("island");
@@ -71,13 +68,10 @@ test("UI bundle mounts once per name and releases its root", async (t) => {
 	ui.unmount("example");
 });
 
-test("manifest uses one script bundle and emits only the expected files", () => {
-	assert.deepEqual(manifest().js, ["gen/ui.js"]);
-	assert.deepEqual(manifest().css, ["gen/ui.css"]);
-	assert.deepEqual(
-		fs.readdirSync(path.join(import.meta.dirname, "../app/gen")).sort(),
-		["ui.css", "ui.js"],
-	);
+test("bundle uses one script and emits only the expected files", () => {
+	assert.deepEqual(BUNDLE.js, ["ui.js"]);
+	assert.deepEqual(BUNDLE.css, ["ui.css"]);
+	assert.deepEqual(fs.readdirSync(BUNDLE_DIR).sort(), ["ui.css", "ui.js"]);
 	assert.ok(
 		assemble().includes("Copyright (c) 2023 shadcn"),
 		"self-contained distribution retains the component license",

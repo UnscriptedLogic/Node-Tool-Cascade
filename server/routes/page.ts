@@ -1,7 +1,7 @@
-// The page itself: assembled from app/, with this machine's saved tree and settings injected, plus its css/js parts.
+// The page itself: assembled from ui/index.html, with this machine's saved tree and settings injected, plus its css/js parts.
 import fs from "node:fs";
 import path from "node:path";
-import { APP_DIR, assemble } from "../../scripts/assemble.ts";
+import { assemble, BUNDLE_DIR, UI_DIR } from "../../scripts/assemble.ts";
 import { pdfAsset } from "../../scripts/pdf-assets.ts";
 import ctx from "../context.ts";
 import type { Router } from "../http.ts";
@@ -51,13 +51,13 @@ export default (r: Router) => {
 			"content-type": "image/png",
 			"cache-control": "public, max-age=86400",
 		});
-		res.end(fs.readFileSync(path.join(APP_DIR, "favicon.png")));
+		res.end(fs.readFileSync(path.join(UI_DIR, "favicon.png")));
 	});
 
-	// the page's css and js parts, and nothing else under app/
+	// the page's css and js parts, and nothing else under dist/ui/
 	r.getPrefix("/app/", ({ res, url }) => {
 		const rel = path.normalize(decodeURIComponent(url.pathname.slice(5)));
-		const file = path.join(APP_DIR, rel);
+		const file = path.join(BUNDLE_DIR, rel);
 		if (
 			rel.startsWith("..") ||
 			!/\.(css|js)$/.test(rel) ||

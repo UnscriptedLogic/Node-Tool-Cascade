@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Cascade local server. Run `npm start`.
-//  - serves the app (app/) with this machine's saved tree and settings injected
+//  - serves the app (ui/index.html) with this machine's saved tree and settings injected
 //  - keeps API keys and sign-ins on this computer; the page can never read one back
 //  - streams model output from Claude, OpenAI, OpenRouter, ChatGPT plan usage or any OpenAI-compatible endpoint
 //  - finds a free port, and frees it again on exit

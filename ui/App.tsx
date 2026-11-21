@@ -1,10 +1,10 @@
 import { useRef } from "react";
-import { useServerLifecycle } from "../hooks/useServerLifecycle.ts";
-import Menu from "../islands/Menu.tsx";
-import Rail from "../islands/Rail.tsx";
-import Settings from "../islands/Settings.tsx";
-import SourceViewer from "../islands/SourceViewer.tsx";
 import { CanvasHost } from "./CanvasHost.tsx";
+import { useServerLifecycle } from "./hooks/useServerLifecycle.ts";
+import Menu from "./islands/Menu.tsx";
+import Rail from "./islands/Rail.tsx";
+import Settings from "./islands/Settings.tsx";
+import SourceViewer from "./islands/SourceViewer.tsx";
 export function App() {
 	useServerLifecycle();
 	const appElement = useRef<HTMLDivElement>(null);

@@ -1,9 +1,9 @@
 import { memo, useLayoutEffect, useRef } from "react";
-import { setCanvasElements } from "../core/dom.ts";
-import { useViewport } from "../hooks/useViewport.ts";
-import Compose from "../islands/Compose.tsx";
-import Hud from "../islands/Hud.tsx";
-import SidePanel from "../islands/SidePanel.tsx";
+import { setCanvasElements } from "./core/dom.ts";
+import { useViewport } from "./hooks/useViewport.ts";
+import Compose from "./islands/Compose.tsx";
+import Hud from "./islands/Hud.tsx";
+import SidePanel from "./islands/SidePanel.tsx";
 
 export const CanvasHost = memo(function CanvasHost() {
 	useViewport();

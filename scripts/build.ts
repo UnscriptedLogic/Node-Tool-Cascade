@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // Builds the static, no-install web version (for GitHub Pages): dist/web/index.html
-// The page is the same app/ (assembled by scripts/assemble.ts), flagged to run in "web" mode (no server, demo + OpenRouter).
+// The page is the same ui/index.html (assembled by scripts/assemble.ts), flagged to run in "web" mode (no server, demo + OpenRouter).
 import fs from "node:fs";
 import path from "node:path";
 import { adminPage } from "./admin/page.ts";
@@ -22,7 +22,7 @@ const out = path.join(root, "dist", "web");
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, "index.html"), html);
 fs.copyFileSync(
-	path.join(root, "app", "favicon.png"),
+	path.join(root, "ui", "favicon.png"),
 	path.join(out, "favicon.png"),
 );
 imported0.copyPdfAssets(path.join(out, "vendor", "pdfjs"));

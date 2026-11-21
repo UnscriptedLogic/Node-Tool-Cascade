@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { flushSync } from "react-dom";
 import type { Root } from "react-dom/client";
 import { createRoot } from "react-dom/client";
-import { App } from "./app/App.tsx";
+import { App } from "./App.tsx";
 import { start } from "./start.ts";
 
 export { flushSync as sync } from "react-dom";
@@ -49,16 +49,16 @@ if (container) {
 	start();
 }
 
-import "../app/css/base.css";
-import "../app/css/rail.css";
-import "../app/css/blocks.css";
-import "../app/css/stage.css";
-import "../app/css/hud.css";
-import "../app/css/goal-settings.css";
-import "../app/css/map.css";
-import "../app/css/ask.css";
-import "../app/css/interaction.css";
-import "../app/css/look-editor.css";
-import "../app/css/project.css";
-import "../app/css/library.css";
-import "../app/css/mobile.css";
+import "./styles/base.css";
+import "./styles/rail.css";
+import "./styles/blocks.css";
+import "./styles/stage.css";
+import "./styles/hud.css";
+import "./styles/goal-settings.css";
+import "./styles/map.css";
+import "./styles/ask.css";
+import "./styles/interaction.css";
+import "./styles/look-editor.css";
+import "./styles/project.css";
+import "./styles/library.css";
+import "./styles/mobile.css";
