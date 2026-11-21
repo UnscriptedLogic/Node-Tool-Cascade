@@ -628,8 +628,8 @@ export default function LookEditor() {
 				>
 					<span className="lbl">Mood colours</span>
 					<small>
-						Colour is reserved for how people feel. Change what each feeling
-						looks like.
+						Colour only marks how people feel. Change what each feeling looks
+						like.
 					</small>
 					{MOOD_KEYS.map((mood) => (
 						<div className="lk-row" key={mood}>
@@ -781,8 +781,8 @@ export default function LookEditor() {
 				<div className="field">
 					<span className="lbl">Other kinds of link</span>
 					<small>
-						Related links, loop flow, blocking and trace-back wires keep their
-						own look. Override them here.
+						Related links, loop flow, blocking and trace-back wires have their
+						own look. Change them here.
 					</small>
 					{WIRE_KINDS.filter((kind: string) => kind !== "tree").map((kind) => (
 						<div key={kind}>

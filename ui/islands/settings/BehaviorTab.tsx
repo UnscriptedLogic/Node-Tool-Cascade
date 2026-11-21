@@ -9,7 +9,7 @@ export default function BehaviorTab() {
 	return (
 		<SettingsPane value="behavior">
 			<h3>{"Behavior"}</h3>
-			<p className="lead">{"How eagerly the tree grows on its own."}</p>
+			<p className="lead">{"How much the AI adds to the tree on its own."}</p>
 			<div className="field">
 				<span className="lbl">{"Layout on small screens"}</span>
 				<Choice
@@ -26,7 +26,7 @@ export default function BehaviorTab() {
 				/>
 				<small id="bLayoutHelp">
 					{
-						"Standard has a top bar, a block dock and an action strip. Minimal is only the canvas: tap empty space for a menu, or tap a block for its actions. Applies when the screen is narrow."
+						"Standard has a top bar, a block dock and an action strip. Minimal shows only the canvas. Tap empty space for a menu, or tap a block for its actions. This applies when the screen is narrow."
 					}
 				</small>
 			</div>
@@ -54,7 +54,7 @@ export default function BehaviorTab() {
 				</CheckRow>
 				<small>
 					{
-						"Works from the existing tree toward the feeling and back from the feeling to its causes, and starts a grill if the two cannot meet. With little in the tree yet, it only traces back."
+						"The AI works from the tree toward the feeling, and from the feeling back to its causes. If the two can’t meet, it starts a grill. While the tree is small, it only traces back."
 					}
 				</small>
 			</div>
@@ -85,7 +85,7 @@ export default function BehaviorTab() {
 				</CheckRow>
 				<small>
 					{
-						"The AI challenges weak or risky answers instead of nodding along. It never writes an answer for you."
+						"The AI challenges weak or risky answers instead of accepting them. It never writes an answer for you."
 					}
 				</small>
 			</div>
@@ -129,7 +129,7 @@ export default function BehaviorTab() {
 				/>
 				<small>
 					{
-						"Lower is more predictable, higher is more varied. Placement always runs cool so it stays consistent. Some newer models ignore this."
+						"Lower is more predictable, higher is more varied. Placement always uses a low setting, so it stays consistent. Some newer models ignore this."
 					}
 				</small>
 			</div>

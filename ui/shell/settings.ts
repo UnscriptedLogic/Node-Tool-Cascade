@@ -362,7 +362,7 @@ export async function onProviderAction(p, act: string) {
 			const r = await postJSON("/api/test", draftOf(p));
 			if (r.ok) {
 				AI.off = false;
-				say(`Connected in ${r.ms} ms. The model replied “${r.reply}”.`, "ok");
+				say(`Connected in ${r.ms} ms. The model replied "${r.reply}".`, "ok");
 			} else say(r.error || "The test failed.", "bad");
 			SETTINGS.busy[p] = false;
 		}
@@ -521,7 +521,7 @@ export async function onWebAction(action: string, value?: string) {
 			const result = await webSample("Reply with the single word OK.", {});
 			AI.off = false;
 			say(
-				`Connected in ${Date.now() - started} ms. The model replied “${result.text.trim().slice(0, 40)}”.`,
+				`Connected in ${Date.now() - started} ms. The model replied "${result.text.trim().slice(0, 40)}".`,
 				"ok",
 			);
 		} catch (e) {
@@ -696,7 +696,7 @@ export const PROV: Record<
 > = {
 	chatgpt: {
 		label: "ChatGPT plan",
-		sub: "Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s “Sign in with ChatGPT” for open-source apps, which is still a preview.",
+		sub: 'Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s "Sign in with ChatGPT" for open-source apps, which is still in preview.',
 	},
 	claudecode: {
 		label: "Claude plan (Claude Code)",
@@ -737,10 +737,11 @@ export const PROV: Record<
 	},
 };
 export const STEER_HELP = {
-	light: "The goal is a gentle lean. Questions still wander.",
+	light: "Questions lean toward the goal but often go elsewhere.",
 	balanced:
 		"Most questions help you move toward the goal, with room for tangents.",
-	strong: "Everything is framed as a step toward the goal. Few tangents.",
+	strong:
+		"The AI frames every question as a step toward the goal, with few tangents.",
 };
 
 export function startSettings() {

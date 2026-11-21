@@ -118,7 +118,7 @@ export default function Project() {
 					/>
 					<small>
 						{
-							"One pattern per line, written like a .gitignore. The project’s own .gitignore and each engine’s generated folders are skipped already."
+							"One pattern per line, written like a .gitignore. Cascade already skips what the project’s own .gitignore lists and each engine’s generated folders."
 						}
 					</small>
 				</div>
@@ -131,7 +131,9 @@ export default function Project() {
 						value={ui.include}
 						onChange={(e) => setProjectField("include", e.currentTarget.value)}
 					/>
-					<small>{"Comma separated. Binary files are never read."}</small>
+					<small>
+						{"Separate them with commas. Cascade never reads binary files."}
+					</small>
 				</div>
 				<small id="pDefaults">
 					{project.has && project.engineIgnore?.length

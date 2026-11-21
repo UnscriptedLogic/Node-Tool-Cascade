@@ -71,7 +71,7 @@ export default function AiTab() {
 						</header>
 						<p className="sub">
 							{
-								"Scripted responses on the example tree, so you can feel how it works. Nothing is sent anywhere."
+								"Scripted responses on the example tree, so you can try Cascade without an account. Nothing leaves this browser."
 							}
 						</p>
 					</section>
@@ -91,7 +91,7 @@ export default function AiTab() {
 						</header>
 						<p className="sub">
 							{
-								"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter hands this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
+								"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter gives this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
 							}
 						</p>
 						<div className="frow" style={{ margin: "0 0 16px 27px" }}>
@@ -174,7 +174,7 @@ export default function AiTab() {
 									{"Fetch models"}
 								</Button>
 							</div>
-							<small>{"Fast, recent models are suggested first."}</small>
+							<small>{"The list puts fast, recent models first."}</small>
 						</div>
 						<div className="frow">
 							<Button
@@ -199,7 +199,7 @@ export default function AiTab() {
 							style={{ margin: "12px 0 16px", lineHeight: "1.45" }}
 						>
 							{
-								"The key is stored in this browser only. Anyone who can use this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
+								"Only this browser keeps the key. Anyone who uses this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
 							}
 						</p>
 					</section>
@@ -221,8 +221,8 @@ export default function AiTab() {
 			>
 				<p className="lead" id="aiLocalLead">
 					{settings.cloud
-						? "Pick who does the thinking. Your keys are saved to your account, encrypted, and used from our server only to call the provider you choose. The page can’t read them back."
-						: "Pick who does the thinking. Keys and sign-ins are kept on this computer, and the page can’t read them back. They only go to the provider you choose."}
+						? "Choose the AI provider. Your account stores your keys encrypted, and our server uses them only to call the provider you choose. The page can’t read them back."
+						: "Choose the AI provider. Keys and sign-ins stay on this computer, and the page can’t read them back. They only go to the provider you choose."}
 				</p>
 				<Providers />
 			</div>

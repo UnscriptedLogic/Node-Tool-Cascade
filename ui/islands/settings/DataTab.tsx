@@ -74,7 +74,7 @@ export default function DataTab() {
 				</CheckRow>
 				<small>
 					{
-						"Counts only, such as visits, blocks placed or kept, and which AI provider was used. No tree text, prompts, keys or names, and no cookies. Do Not Track turns it off automatically. The local app sends nothing."
+						"This sends counts only, such as visits, blocks placed or kept, and which AI provider ran. It never sends tree text, prompts, keys or names, and sets no cookies. Do Not Track turns it off. The local app sends nothing."
 					}
 				</small>
 			</div>
@@ -102,7 +102,7 @@ export default function DataTab() {
 				</CheckRow>
 				<small>
 					{
-						"Off by default. When on, closing the last Cascade tab shuts the server down a few seconds later, so the port is freed without opening a terminal."
+						"Off by default. When on, closing the last Cascade tab stops the server a few seconds later and frees the port, with no terminal needed."
 					}
 				</small>
 				<div className="frow">

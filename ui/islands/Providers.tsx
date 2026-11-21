@@ -210,7 +210,7 @@ export default function Providers() {
 									Run <code>claude</code> once in a terminal. Usage counts
 									against your plan’s limits. Each request starts Claude Code,
 									so replies begin a second or two later than with an API key.
-									Only for your own computer and account.
+									Use it only on your own computer and account.
 								</p>
 							</>
 						) : provider !== "demo" ? (

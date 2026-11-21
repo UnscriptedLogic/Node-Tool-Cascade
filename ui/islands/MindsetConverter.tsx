@@ -32,7 +32,7 @@ export default function MindsetConverter() {
 		>
 			<p className="small">
 				{
-					"Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Files are read on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
+					"Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Cascade reads the files on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
 				}
 			</p>
 			<div className="field">
@@ -133,7 +133,7 @@ export default function MindsetConverter() {
 				/>
 				<small>
 					{
-						"Large sources can require many provider calls. Progress reports how much was processed; stopping or hitting this limit produces a partial draft."
+						"Large sources can take many provider calls. The progress line shows how much is done. Stopping, or reaching this limit, gives a partial draft."
 					}
 				</small>
 			</div>
@@ -178,7 +178,7 @@ export default function MindsetConverter() {
 							))}
 							<p className="small">
 								{entry.references
-									.map((ref) => `${ref.source} — ${ref.location}`)
+									.map((ref) => `${ref.source}, ${ref.location}`)
 									.join("; ")}
 							</p>
 						</Disclosure>

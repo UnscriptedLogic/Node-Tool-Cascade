@@ -42,7 +42,7 @@ export default function GoalTab() {
 			</div>
 			<p className="lead">
 				{
-					"Say what this tree is for. Every placement, branch and trace-back is written with it in mind, so the questions lean toward your goal instead of wandering."
+					"Say what this tree is for. The AI writes every placement, branch and trace-back with this goal in mind, so its questions stay on topic."
 				}
 			</p>
 			<div className="field">

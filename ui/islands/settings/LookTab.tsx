@@ -13,7 +13,7 @@ export default function LookTab() {
 			<h3>{"Appearance"}</h3>
 			<p className="lead">
 				{
-					"The theme, and the look of your blocks and wires. Changes show on the canvas as you make them."
+					"Set the theme and the look of your blocks and wires. The canvas updates as you change them."
 				}
 			</p>
 			<div className="field">

@@ -16,7 +16,7 @@ export default function ChatExchange() {
 			<p className="sub">
 				Try real suggestions without an API key. Copy a prompt into ChatGPT or
 				Claude, then paste its reply here. Free accounts work within their chat
-				limits. This is a manual exchange; no account linking required.
+				limits. You copy and paste by hand, so there is no account to link.
 			</p>
 			<p className="small">
 				Select a node before opening Settings to focus on that branch. The
@@ -105,9 +105,9 @@ export default function ChatExchange() {
 								{row.type +
 									": " +
 									row.text +
-									" — under “" +
+									', under "' +
 									(state.nodes[row.parent]?.text || "") +
-									"”"}
+									'"'}
 							</li>
 						))}
 					</ul>

@@ -115,7 +115,7 @@ export default function Mindsets() {
 			</p>
 			<p className="small">
 				{
-					"Only enabled packs for the current domain and matching branch topics are considered. A matching word is a starting point: questions must still fit the topic and goal. Existing questions keep their source when a pack is removed."
+					"The AI uses only enabled packs that fit the current domain and the branch topics. A matching word is only a starting point, and questions must still fit the topic and goal. Questions already on the canvas keep their source when you remove a pack."
 				}
 			</p>
 			<div id="msBuiltins">
