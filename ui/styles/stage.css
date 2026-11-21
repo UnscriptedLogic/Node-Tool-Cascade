@@ -7,6 +7,12 @@
 	min-width: 0;
 	background-color: var(--bg);
 }
+/* the hand is for the canvas only: the toolbar, panel and composer on top of it get the normal cursor */
+#hudRoot,
+#sideRoot,
+#composeRoot {
+	cursor: default;
+}
 /* its own layer: the grid moves with the view, and its variables are not inherited by any node */
 /* a block far off screen: hidden, but it keeps its size so layout is unchanged */
 .node.culled {

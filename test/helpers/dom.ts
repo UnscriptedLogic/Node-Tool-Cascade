@@ -184,9 +184,27 @@ function open({
 		click($("#cOk"));
 		await sleep(ms);
 	};
+	// Settings mounts its content only while it is open.
+	const openSettings = (tab?: string) => {
+		if (!$("#settings")) click($("#setBtn"));
+		if (tab) click($(`.stabs [data-tab=${tab}]`));
+	};
+	// Load example and Clear graph ask first; answer the confirmation.
+	const confirm = (accept = true) =>
+		click($(accept ? "#confirmAction" : "#confirmCancel"));
+	// The idle instruction sits in the help tooltip; a busy status shows in the pill.
+	const statusText = () => {
+		const help = $("#helpBtn");
+		if (!help) return $("#stxt")?.textContent || "";
+		help.focus();
+		return d.getElementById("helpTip")?.textContent || "";
+	};
 	return {
 		dom,
 		api,
+		openSettings,
+		confirm,
+		statusText,
 		w,
 		d,
 		$,

@@ -18,9 +18,11 @@ import { LIB, libCurrent, libSignedIn } from "../features/library.ts";
 import {
 	cycleTicket,
 	reopenQ,
+	restoreSide,
 	startBlock,
 	startGrill,
 	startResolve,
+	syncSideInset,
 	toggleAsk,
 	toggleMap,
 	toggleOut,
@@ -39,6 +41,7 @@ import {
 import { openCompose } from "./compose.ts";
 import { fitCanvas } from "./controls.ts";
 import { select, showNote } from "./hud.ts";
+import { setRailOpen } from "./rail.ts";
 import { openSettings, setPreference } from "./settings.ts";
 export const state = {
 	tapSuppressed: undefined as boolean | undefined,
@@ -54,7 +57,8 @@ export function layoutChoice() {
 export function applyResponsive(force: boolean) {
 	const small = isSmall(),
 		choice = layoutChoice(),
-		first = lastSmall === null;
+		first = lastSmall === null,
+		wasSmall = lastSmall;
 	if (!force && small === lastSmall && choice === lastChoice) return;
 	lastSmall = small;
 	lastChoice = choice;
@@ -65,6 +69,8 @@ export function applyResponsive(force: boolean) {
 	closeMenu();
 	UI.small = small;
 	UI.minimal = small && choice === "minimal";
+	syncSideInset();
+	if (!first && small !== wasSmall) restoreSide();
 	if (small && choice === "minimal") hintMinimal();
 	if (!first)
 		try {
@@ -269,6 +275,11 @@ export function canvasMenuSpec(x: number, y: number) {
 	);
 	items.push({
 		sep: true,
+	});
+	items.push({
+		label: "Sidebar",
+		icon: MI.layout,
+		run: () => setRailOpen(true),
 	});
 	items.push({
 		label: "Goal and steering",

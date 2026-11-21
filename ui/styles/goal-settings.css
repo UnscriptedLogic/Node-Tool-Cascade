@@ -5,30 +5,9 @@
 	display: grid;
 	place-items: center;
 }
-#goalchip {
-	left: 14px;
-	top: 54px;
-	max-width: min(440px, calc(100% - 260px));
-	font: inherit;
-	font-size: 13px;
-	color: var(--ink);
-	cursor: pointer;
-	text-align: left;
-}
-#goalchip .gl {
-	font-weight: 700;
-	color: var(--ink2);
-	flex: none;
-}
-#goalchip .gt {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
 #provchip {
-	left: 14px;
-	top: 94px;
-	max-width: min(440px, calc(100% - 260px));
+	max-width: 100%;
+	min-width: 0;
 	font-size: 13px;
 	white-space: nowrap;
 }
@@ -46,28 +25,45 @@
 #provchip button:hover {
 	border-color: var(--ink2);
 }
-#goalchip.unset {
-	border-style: dashed;
-	color: var(--ink2);
-}
-#goalchip:hover,
 #status button:hover {
 	border-color: var(--ink2);
 }
 
-#settings {
+/* settings: a centred dialog that scrolls inside */
+#settingsBack {
 	position: fixed;
 	inset: 0;
+	z-index: 79;
+	background: rgba(8, 14, 26, 0.35);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+}
+#settings {
+	position: fixed;
 	z-index: 80;
-	background: var(--bg);
+	left: 50%;
+	top: 50%;
+	translate: -50% -50%;
+	transform: none;
+	width: min(1040px, calc(100vw - 32px));
+	max-width: none;
+	height: min(780px, calc(100dvh - 32px));
 	display: flex;
-	justify-content: center;
-	padding-top: env(safe-area-inset-top, 0px);
-	padding-bottom: env(safe-area-inset-bottom, 0px);
+	flex-direction: column;
+	gap: 0;
+	padding: 0;
+	background: var(--bg);
+	color: var(--ink);
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+	overflow: hidden;
+	outline: none;
 }
 .sshell {
-	width: min(1040px, 100%);
+	width: 100%;
 	height: 100%;
+	min-height: 0;
 	display: flex;
 	flex-direction: column;
 }
@@ -186,6 +182,7 @@
 	accent-color: var(--ink);
 	margin: 0;
 }
+
 .frow {
 	display: flex;
 	gap: 8px;

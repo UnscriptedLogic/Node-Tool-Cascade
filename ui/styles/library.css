@@ -110,25 +110,16 @@ select option {
 	background-position: right 9px center;
 }
 
-/* which Cascade is open, under the logo */
+/* which Cascade is open, under the logo: a title, not a control */
 .openname {
-	display: block;
-	max-width: 100%;
-	margin: -8px 0 0;
-	padding: 7px 10px;
-	border: 1px solid var(--line);
-	border-radius: 8px;
-	background: var(--paper);
-	font: inherit;
+	flex: 1;
+	min-width: 0;
 	font-size: 13px;
 	line-height: 1.35;
-	text-align: left;
-	cursor: pointer;
 	color: var(--ink);
-	overflow-wrap: anywhere;
-}
-.openname:hover {
-	border-color: var(--ink2);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .openname .cf {
 	color: var(--ink2);

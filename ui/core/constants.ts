@@ -96,8 +96,17 @@ export const TICKET_ASK: Record<string, string> = {
 	research: "What did you find, and what do you decide?",
 	task: "What happened, and what do you decide?",
 };
-export const drawerW: () => number = () => {
-	return UI.panel?.open && innerWidth > 760 ? 380 : 0;
+export const SIDE_WIDTH = 380;
+// How much of the canvas the Ask/Map drawer covers, in the layout in use: the right edge on desktop, the bottom on small screens.
+export const drawerInsets = (): { right: number; bottom: number } => {
+	if (!UI.panel?.open) return { right: 0, bottom: 0 };
+	if (!UI.small) return { right: SIDE_WIDTH, bottom: 0 };
+	const stage = document.getElementById("stage"),
+		side = document.getElementById("side");
+	if (!stage) return { right: 0, bottom: 0 };
+	const bottom = stage.getBoundingClientRect().bottom,
+		top = side ? side.getBoundingClientRect().top : innerHeight * 0.28;
+	return { right: 0, bottom: Math.max(0, Math.round(bottom - top)) };
 };
 export const LABEL: Record<string, string> = {
 	question: "Question",

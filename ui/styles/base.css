@@ -102,5 +102,15 @@ button {
 #app {
 	height: 100%;
 	display: grid;
-	grid-template-columns: 212px minmax(0, 1fr);
+	/* the sidebar column takes the sidebar's own width, and none when it is closed */
+	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
+}
+#rail {
+	grid-column: 1;
+	grid-row: 1;
+}
+#stage {
+	grid-column: 2;
+	grid-row: 1;
 }

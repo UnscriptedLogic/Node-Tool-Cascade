@@ -24,7 +24,7 @@ const Y = (n) =>
 const lookKey = (a) =>
 	JSON.parse(a.w.localStorage.getItem("cascade-look-v1") || "{}");
 async function openLook(a, tab?) {
-	if (a.$("#settings").hidden) a.click(a.$("#setBtn"));
+	if (!a.$("#settings")) a.click(a.$("#setBtn"));
 	a.click(a.$(".stabs [data-tab=look]"));
 	if (tab) a.click(a.$(`#lkTabs [data-lk=${tab}]`));
 	await sleep(60);
@@ -91,19 +91,31 @@ test("the default look is exactly the original design", async () => {
 		"nothing is stored until you change something",
 	);
 });
-test("appearance opens as a side sheet that leaves the canvas visible and live", async () => {
+test("appearance opens inside the Settings dialog, which takes focus and blocks the canvas", async () => {
 	const a = web();
 	await sleep(300);
 	await openLook(a);
-	assert.ok(a.$("#settings").classList.contains("sheet"));
-	assert.equal(a.$("#app").inert, false);
+	const dialog = a.$("#settings");
+	assert.equal(dialog.getAttribute("role"), "dialog");
+	assert.ok(dialog.contains(a.d.activeElement), "focus moves into Settings");
+	assert.equal(
+		!!a.$("#app").closest("[aria-hidden=true]"),
+		true,
+		"the canvas is outside the modal",
+	);
+	assert.ok(a.$("#lookRoot").children.length, "the appearance editor is shown");
 	a.click(a.$(".stabs [data-tab=goal]"));
-	assert.ok(!a.$("#settings").classList.contains("sheet"));
-	assert.equal(a.$("#app").inert, true);
+	assert.equal(a.$("#p-look").hidden, true);
 	a.click(a.$(".stabs [data-tab=look]"));
-	assert.ok(a.$("#settings").classList.contains("sheet"));
+	assert.equal(a.$("#p-look").hidden, false);
 	a.click(a.$("#sClose"));
-	assert.equal(a.$("#app").inert, false);
+	assert.equal(a.$("#settings") === null, true, "Settings closed");
+	assert.equal(
+		a.$("#app").closest("[aria-hidden=true]") === null,
+		true,
+		"the canvas is usable again",
+	);
+	assert.deepEqual(a.errs, []);
 });
 
 test("presets restyle everything: shapes, wires, arrows and canvas", async () => {
@@ -596,7 +608,7 @@ test("the look survives a reload (browser storage) and works hosted inside Claud
 	assert.equal(b.$("#stage").style.backgroundColor, rgb("#0b2545"));
 	assert.ok(treePaths(b).every((p) => !/C/.test(p.getAttribute("d"))));
 	assert.equal(
-		b.$("#settings").hidden,
+		b.$("#settings") === null,
 		true,
 		"applied at start without opening settings",
 	);
