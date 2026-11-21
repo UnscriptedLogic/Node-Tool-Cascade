@@ -39,6 +39,9 @@
 }
 .seg {
 	display: flex;
+	margin: 0;
+	padding: 0;
+	min-width: 0;
 	border: 1px solid var(--line);
 	border-radius: 10px;
 	background: var(--paper);

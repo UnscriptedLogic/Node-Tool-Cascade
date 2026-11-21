@@ -182,7 +182,7 @@ export default function Hud() {
 				<span className="linkbtn">Clear</span>
 			</button>
 			<div id="ctrl" className="hud">
-				<div className="seg" role="group" aria-label="View">
+				<fieldset className="seg" aria-label="View">
 					<button
 						type="button"
 						id="mDetail"
@@ -199,8 +199,8 @@ export default function Hud() {
 					>
 						Loops
 					</button>
-				</div>
-				<div className="seg" role="group" aria-label="Zoom">
+				</fieldset>
+				<fieldset className="seg" aria-label="Zoom">
 					<button
 						type="button"
 						id="zOut"
@@ -225,7 +225,7 @@ export default function Hud() {
 					>
 						+
 					</button>
-				</div>
+				</fieldset>
 				<Button
 					className="btn"
 					id="askBtn"

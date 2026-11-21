@@ -177,6 +177,16 @@
 	margin-bottom: 6px;
 	font-size: 13px;
 	line-height: 1.38;
+}
+.mitem-main {
+	display: block;
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	color: inherit;
+	text-align: left;
 	cursor: pointer;
 }
 .mitem:hover {

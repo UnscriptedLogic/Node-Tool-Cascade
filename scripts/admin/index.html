@@ -36,7 +36,7 @@ h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em}
 
 /* filters: one row, above everything they scope */
 .filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
-.seg{display:inline-flex;border:1px solid var(--ring);border-radius:9px;background:var(--surface);padding:2px}
+.seg{display:inline-flex;margin:0;min-width:0;border:1px solid var(--ring);border-radius:9px;background:var(--surface);padding:2px}
 .seg button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;color:var(--ink2)}
 .seg button:hover{background:var(--wash)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface);font-weight:600}
@@ -142,8 +142,8 @@ footer{color:var(--muted);font-size:12.5px;margin-top:20px;line-height:1.6}
   </section>
 
   <div class="filters" id="filters">
-    <div class="seg" role="group" aria-label="Environment" id="envSeg"><button type="button" data-v="prod" aria-pressed="true">Production</button><button type="button" data-v="dev" aria-pressed="false">Dev</button></div>
-    <div class="seg" role="group" aria-label="Date range" id="daySeg"><button type="button" data-v="7" aria-pressed="true">Last 7 days</button><button type="button" data-v="30" aria-pressed="false">30 days</button><button type="button" data-v="90" aria-pressed="false">90 days</button></div>
+    <fieldset class="seg" aria-label="Environment" id="envSeg"><button type="button" data-v="prod" aria-pressed="true">Production</button><button type="button" data-v="dev" aria-pressed="false">Dev</button></fieldset>
+    <fieldset class="seg" aria-label="Date range" id="daySeg"><button type="button" data-v="7" aria-pressed="true">Last 7 days</button><button type="button" data-v="30" aria-pressed="false">30 days</button><button type="button" data-v="90" aria-pressed="false">90 days</button></fieldset>
     <button class="btn" id="refresh" type="button">Refresh</button>
     <span class="spacer"></span><span class="muted" id="updated" role="status"></span>
   </div>

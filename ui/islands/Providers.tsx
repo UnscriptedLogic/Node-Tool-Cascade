@@ -91,6 +91,8 @@ export default function Providers() {
 						</div>
 					);
 				return (
+					// biome-ignore lint/a11y/noStaticElementInteractions: delegates clicks from the card's own buttons
+					// biome-ignore lint/a11y/useKeyWithClickEvents: those buttons already handle keyboard activation
 					<section
 						className={`prov${active ? " active" : ""}`}
 						data-prov={provider}

@@ -200,9 +200,11 @@ export default function Ask() {
 								{thread.ids.map((id) => {
 									const node = state.nodes[id];
 									return node ? (
-										<li key={id} data-id={id} onClick={() => focusNode(id)}>
-											<i>{LABEL[node.type] || node.type}</i>
-											{node.text}
+										<li key={id} data-id={id}>
+											<button type="button" onClick={() => focusNode(id)}>
+												<i>{LABEL[node.type] || node.type}</i>
+												{node.text}
+											</button>
 										</li>
 									) : null;
 								})}

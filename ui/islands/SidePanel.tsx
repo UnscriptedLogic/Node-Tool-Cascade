@@ -194,20 +194,15 @@ export default function SidePanel() {
 					};
 					const action = actions[kind];
 					return (
-						<div
-							className="mitem"
-							data-id={id}
-							tabIndex={0}
-							key={id}
-							onClick={(event) => {
-								const button = (event.target as HTMLElement).closest(
-									"button[data-act]",
-								);
-								mapAction(id, (button as HTMLElement)?.dataset.act);
-							}}
-						>
-							<div>{node.text}</div>
-							{decision && <div className="dec">{`→ ${decision}`}</div>}
+						<div className="mitem" data-id={id} key={id}>
+							<button
+								type="button"
+								className="mitem-main"
+								onClick={() => mapAction(id, undefined)}
+							>
+								<div>{node.text}</div>
+								{decision && <div className="dec">{`→ ${decision}`}</div>}
+							</button>
 							<div className="mrow2">
 								{["frontier", "blocked"].includes(kind) && (
 									<span className="chip2">
@@ -222,7 +217,12 @@ export default function SidePanel() {
 									</span>
 								)}
 								{action && (
-									<Button type="button" className="btn" data-act={action[0]}>
+									<Button
+										type="button"
+										className="btn"
+										data-act={action[0]}
+										onClick={() => mapAction(id, action[0])}
+									>
 										{action[1]}
 									</Button>
 								)}
@@ -239,7 +239,7 @@ export default function SidePanel() {
 	return (
 		<aside id="side" hidden={!panel.open} aria-label="Map and grill">
 			<header className="sidehead">
-				<div className="seg" role="group" aria-label="Panel">
+				<fieldset className="seg" aria-label="Panel">
 					{[
 						["map", "Map"],
 						["grill", "Grill"],
@@ -255,7 +255,7 @@ export default function SidePanel() {
 							{label}
 						</button>
 					))}
-				</div>
+				</fieldset>
 				<Button
 					className="btn"
 					id="sideClose"

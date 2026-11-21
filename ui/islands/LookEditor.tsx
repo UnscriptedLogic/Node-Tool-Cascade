@@ -242,7 +242,7 @@ function Preview({ type, revision }: PreviewProps) {
 }
 function Segment({ id, label, items, value, set, attr = "v" }: SegmentProps) {
 	return (
-		<div className="seg" id={id} role="group" aria-label={label}>
+		<fieldset className="seg" id={id} aria-label={label}>
 			{items.map(([key, text]) => (
 				<button
 					type="button"
@@ -254,7 +254,7 @@ function Segment({ id, label, items, value, set, attr = "v" }: SegmentProps) {
 					{text}
 				</button>
 			))}
-		</div>
+		</fieldset>
 	);
 }
 
@@ -308,10 +308,9 @@ export default function LookEditor() {
 					</Button>
 				</div>
 			</div>
-			<div
+			<fieldset
 				className="seg big"
 				id="lkTabs"
-				role="group"
 				aria-label="Look sections"
 				style={{ flexWrap: "wrap" }}
 			>
@@ -326,7 +325,7 @@ export default function LookEditor() {
 						{label}
 					</button>
 				))}
-			</div>
+			</fieldset>
 			<div className="lk-pane" id="lk-presets" hidden={state.tab !== "presets"}>
 				<div className="lk-presets">
 					{PRESETS.map((preset) => (

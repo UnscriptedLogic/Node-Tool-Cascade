@@ -143,9 +143,17 @@
 }
 .ath-steps li {
 	margin: 4px 0;
+}
+.ath-steps button {
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	color: inherit;
+	text-align: left;
 	cursor: pointer;
 }
-.ath-steps li:hover {
+.ath-steps button:hover {
 	color: var(--focus);
 }
 .ath-steps i {
