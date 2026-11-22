@@ -44,6 +44,11 @@ import {
 } from "../shell/look-editor.ts";
 import { Choice, Disclosure, SelectField } from "./controls.tsx";
 
+const lookRow =
+	"mb-3 grid grid-cols-[128px_minmax(0,1fr)_52px] items-center gap-2.5 text-[13.5px] [@media(max-width:760px)]:grid-cols-[104px_minmax(0,1fr)_44px]";
+const colorInput =
+	"h-(--control-h) w-11 rounded-[7px] border border-line bg-paper p-0 disabled:opacity-[0.35]";
+
 const checkpoint = () => lkCheckpoint();
 
 interface RangeProps {
@@ -103,8 +108,8 @@ function Range({
 	show = true,
 }: RangeProps) {
 	return (
-		<div className="lk-row" hidden={!show}>
-			<span className="lk-l">{label}</span>
+		<div className={lookRow} hidden={!show}>
+			<span className="font-semibold">{label}</span>
 			<Slider
 				data-f={field}
 				aria-label={label}
@@ -116,7 +121,7 @@ function Range({
 				onKeyDown={checkpoint}
 				onValueChange={([next]) => set(next)}
 			/>
-			<output>{String(Math.round(value * 100) / 100) + unit}</output>
+			<output className="text-right text-[12.5px] text-ink2">{String(Math.round(value * 100) / 100) + unit}</output>
 		</div>
 	);
 }
@@ -129,11 +134,12 @@ function Select({
 	show = true,
 }: SelectProps) {
 	return (
-		<div className="lk-row" hidden={!show}>
-			<span className="lk-l">{label}</span>
+		<div className={lookRow} hidden={!show}>
+			<span className="font-semibold">{label}</span>
 			<SelectField
 				label={label}
 				attrs={{ "data-f": field }}
+				className="col-[2/span_2] w-full"
 				value={String(value)}
 				options={options.map((option) => [String(option), String(option)])}
 				onOpen={checkpoint}
@@ -144,10 +150,10 @@ function Select({
 }
 function Check({ label, field, value, set }: CheckProps) {
 	return (
-		<div className="lk-row">
-			<span className="lk-l">{label}</span>
+		<div className={lookRow}>
+			<span className="font-semibold">{label}</span>
 			<Checkbox
-				className="lk-chk"
+				className="col-start-2 justify-self-start"
 				data-f={field}
 				aria-label={label}
 				checked={!!value}
@@ -171,11 +177,12 @@ function Color({
 	const lastColor = useRef("#000000");
 	if (!isKeyword) lastColor.current = toHex(value || "#808080");
 	return (
-		<div className="lk-row">
-			<span className="lk-l">{label}</span>
-			<div className="lk-col">
+		<div className={lookRow}>
+			<span className="font-semibold">{label}</span>
+			<div className="col-[2/span_2] flex flex-wrap items-center gap-2.5">
 				<input
 					type="color"
+					className={colorInput}
 					data-f={field}
 					value={lastColor.current}
 					disabled={isKeyword}
@@ -185,7 +192,7 @@ function Color({
 					onInput={(e) => set(e.currentTarget.value)}
 				/>
 				{keyword && (
-					<Label className="lk-sub">
+					<Label className="flex items-center gap-1.5 text-[12.5px] text-ink2">
 						<Checkbox
 							data-f={`${field}-kw`}
 							checked={isKeyword}
@@ -279,8 +286,10 @@ export default function LookEditor() {
 	] as const;
 	return (
 		<>
-			<div className="lk-bar">
-				<h4>Look</h4>
+			<div className="mt-7 mb-3 flex items-center justify-between gap-2">
+				<h4 className="m-0 text-[17px] font-extrabold tracking-[-0.02em]">
+					Look
+				</h4>
 				<div className="frow">
 					<Button
 						type="button"
@@ -312,8 +321,8 @@ export default function LookEditor() {
 				value={state.tab}
 				onChange={(key) => lkShowTab(key)}
 			/>
-			<div className="lk-pane" id="lk-presets" hidden={state.tab !== "presets"}>
-				<div className="lk-presets">
+			<div className="mt-4" id="lk-presets" hidden={state.tab !== "presets"}>
+				<div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2.5">
 					{PRESETS.map((preset) => (
 						<Button
 							type="button"
@@ -323,11 +332,17 @@ export default function LookEditor() {
 							key={preset.id}
 							onClick={() => lkPreset(preset.id)}
 						>
-							<b>{preset.name}</b>
-							<small>{preset.desc}</small>
-							<div className="lk-sw">
+							<b className="mb-[3px] block text-[13.5px]">{preset.name}</b>
+							<small className="mb-2 block text-[12px]/[1.35] text-ink2">
+								{preset.desc}
+							</small>
+							<div className="flex gap-[3px]">
 								{preset.sw.map((color, i) => (
-									<i key={i} style={{ background: color }} />
+									<i
+										key={i}
+										className="h-2.5 flex-1 rounded-[3px] border border-[color-mix(in_srgb,var(--ink)_15%,transparent)]"
+										style={{ background: color }}
+									/>
 								))}
 							</div>
 						</Button>
@@ -337,11 +352,7 @@ export default function LookEditor() {
 					Presets replace your current look. Undo brings it back.
 				</p>
 			</div>
-			<div
-				className="lk-pane"
-				id="lk-describe"
-				hidden={state.tab !== "describe"}
-			>
+			<div className="mt-4" id="lk-describe" hidden={state.tab !== "describe"}>
 				<p className="small">
 					Describe the look you want in your own words. You can try it, then
 					keep it or put it back.
@@ -393,9 +404,13 @@ export default function LookEditor() {
 						{state.status}
 					</span>
 				</div>
-				<div className="lk-chg" id="lkResult" hidden={!state.resultOpen}>
+				<div
+					className="my-3 rounded-[10px] border border-line bg-paper px-3 py-2.5 text-[13px]/[1.5]"
+					id="lkResult"
+					hidden={!state.resultOpen}
+				>
 					<b>What changed</b>
-					<ul id="lkChanges">
+					<ul id="lkChanges" className="mt-1.5 mb-2.5 pl-[18px]">
 						{state.changes.map((change, i) => (
 							<li key={i}>{change}</li>
 						))}
@@ -423,7 +438,7 @@ export default function LookEditor() {
 					</div>
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-nodes" hidden={state.tab !== "nodes"}>
+			<div className="mt-4" id="lk-nodes" hidden={state.tab !== "nodes"}>
 				<div className="field">
 					<span className="lbl">Which blocks</span>
 					<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -632,13 +647,14 @@ export default function LookEditor() {
 						like.
 					</small>
 					{MOOD_KEYS.map((mood) => (
-						<div className="lk-row" key={mood}>
-							<span className="lk-l">
+						<div className={lookRow} key={mood}>
+							<span className="font-semibold">
 								{mood[0].toUpperCase() + mood.slice(1)}
 							</span>
-							<div className="lk-col">
+							<div className="col-[2/span_2] flex flex-wrap items-center gap-2.5">
 								<input
 									type="color"
+									className={colorInput}
 									data-mood={mood}
 									value={toHex(moodColor(mood))}
 									onChange={() => {}}
@@ -672,7 +688,7 @@ export default function LookEditor() {
 					</Button>
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-wires" hidden={state.tab !== "wires"}>
+			<div className="mt-4" id="lk-wires" hidden={state.tab !== "wires"}>
 				<div className="field">
 					<span className="lbl">Wire style</span>
 					<Segment
@@ -809,7 +825,7 @@ export default function LookEditor() {
 					))}
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-canvas" hidden={state.tab !== "canvas"}>
+			<div className="mt-4" id="lk-canvas" hidden={state.tab !== "canvas"}>
 				<Color
 					label="Background"
 					field="cbg"
@@ -869,7 +885,7 @@ export default function LookEditor() {
 					unit="px"
 				/>
 			</div>
-			<div className="lk-pane" id="lk-text" hidden={state.tab !== "text"}>
+			<div className="mt-4" id="lk-text" hidden={state.tab !== "text"}>
 				<p className="small">
 					This is everything you have changed, as text. Edit it, paste one from
 					a friend, or copy yours. Unknown or out-of-range values are ignored.
@@ -891,7 +907,7 @@ export default function LookEditor() {
 					}}
 				/>
 				<div
-					className={`lk-err${state.textOk ? " ok" : ""}`}
+					className={`mt-1.5 min-h-[18px] text-[13px] ${state.textOk ? "text-[#19877a]" : "text-[#d94a2b]"}`}
 					id="lkTextErr"
 					aria-live="polite"
 				>

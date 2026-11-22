@@ -114,17 +114,17 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 	const domains: Record<string, { label: string }> = DOMAINS;
 	return (
 		<li
-			className={`lib-row${item.id === lib.currentId ? " current" : ""}`}
+			className={`lib-row flex flex-wrap items-center gap-2.5 rounded-[9px] border-b border-line px-2.5 py-[9px]${item.id === lib.currentId ? " current bg-(--paper2)" : ""}`}
 			data-id={item.id}
 		>
 			<NameCell kind="cascade" item={item} editing={lib.editing} />
-			<span className="lib-meta">
+			<span className="flex-auto text-[12.5px] text-ink2">
 				{(domains[item.domain]?.label || "") +
 					" · " +
 					when(item.updatedAt) +
 					(item.id === lib.currentId ? " · open now" : "")}
 			</span>
-			<span className="lib-actions">
+			<span className="lib-actions flex flex-wrap items-center gap-1.5">
 				<Button
 					type="button"
 					className="btn small"
@@ -226,7 +226,7 @@ export default function Library() {
 					{lib.status}
 				</small>
 			</div>
-			<div id="libList">
+			<div id="libList" className="max-w-[760px]">
 				{signed && !lib.folders.length && !lib.cascades.length && (
 					<p className="small">
 						Nothing saved yet. Start a new Cascade, or save the one you have
@@ -240,17 +240,17 @@ export default function Library() {
 						);
 						return (
 							<section
-								className="lib-folder"
+								className="lib-folder mb-5"
 								data-folder={folder.id}
 								key={folder.id}
 							>
-								<header className="lib-fhead">
+								<header className="flex flex-wrap items-center gap-2.5 border-b border-line py-2">
 									<NameCell kind="folder" item={folder} editing={lib.editing} />
-									<span className="lib-meta">
+									<span className="flex-auto text-[12.5px] text-ink2">
 										{inside.length +
 											(inside.length === 1 ? " Cascade" : " Cascades")}
 									</span>
-									<span className="lib-actions">
+									<span className="lib-actions flex flex-wrap items-center gap-1.5">
 										<Button
 											type="button"
 											className="btn small"
@@ -275,7 +275,7 @@ export default function Library() {
 										/>
 									</span>
 								</header>
-								<ul className="lib-list">
+								<ul className="m-0 list-none p-0">
 									{inside.map((item) => (
 										<CascadeRow key={item.id} item={item} lib={lib} />
 									))}
@@ -284,13 +284,13 @@ export default function Library() {
 						);
 					})}
 				{signed && !!loose.length && (
-					<section className="lib-folder">
+					<section className="lib-folder mb-5">
 						{!!lib.folders.length && (
-							<header className="lib-fhead">
+							<header className="flex flex-wrap items-center gap-2.5 border-b border-line py-2">
 								<strong>Not in a folder</strong>
 							</header>
 						)}
-						<ul className="lib-list">
+						<ul className="m-0 list-none p-0">
 							{loose.map((item) => (
 								<CascadeRow key={item.id} item={item} lib={lib} />
 							))}
