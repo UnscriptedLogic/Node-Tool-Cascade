@@ -8,10 +8,10 @@ export default function BehaviorTab() {
 	const prefs = useSnapshot(PREFS, { sync: true });
 	return (
 		<SettingsPane value="behavior">
-			<h3>{"Behavior"}</h3>
-			<p className="lead">{"How much the AI adds to the tree on its own."}</p>
+			<h3>Behavior</h3>
+			<p className="lead">How much the AI adds to the tree on its own.</p>
 			<div className="field">
-				<span className="lbl">{"Layout on small screens"}</span>
+				<span className="lbl">Layout on small screens</span>
 				<Choice
 					id="bLayout"
 					label="Layout on small screens"
@@ -25,9 +25,9 @@ export default function BehaviorTab() {
 					}
 				/>
 				<small id="bLayoutHelp">
-					{
-						"Standard has a top bar, a block dock and an action strip. Minimal shows only the canvas. Tap empty space for a menu, or tap a block for its actions. This applies when the screen is narrow."
-					}
+					Standard has a top bar, a block dock and an action strip. Minimal
+					shows only the canvas. In Minimal, tap empty space for a menu, or tap
+					a block for its actions.
 				</small>
 			</div>
 			<div className="field">
@@ -36,12 +36,11 @@ export default function BehaviorTab() {
 					checked={!!prefs.autoGrow}
 					onChange={(checked) => setPreference("autoGrow", checked)}
 				>
-					<span>{"Grow branches after I place a block"}</span>
+					<span>Grow branches after I place a block</span>
 				</CheckRow>
 				<small>
-					{
-						"Off means blocks are only placed. The sparkle button on any node grows it on demand."
-					}
+					When off, the AI only places blocks. Use the sparkle button on a node
+					to grow it.
 				</small>
 			</div>
 			<div className="field">
@@ -50,16 +49,15 @@ export default function BehaviorTab() {
 					checked={!!prefs.autoTrace}
 					onChange={(checked) => setPreference("autoTrace", checked)}
 				>
-					<span>{"Bridge or trace back when I drop an emotion block"}</span>
+					<span>Bridge or trace back when I drop an emotion block</span>
 				</CheckRow>
 				<small>
-					{
-						"The AI works from the tree toward the feeling, and from the feeling back to its causes. If the two can’t meet, it starts a grill. While the tree is small, it only traces back."
-					}
+					The AI links the feeling to the tree and traces its causes. If they
+					don't connect, it starts a grill.
 				</small>
 			</div>
 			<div className="field">
-				<span className="lbl">{"Growth size"}</span>
+				<span className="lbl">Growth size</span>
 				<Choice
 					id="bSize"
 					label="Growth size"
@@ -73,7 +71,7 @@ export default function BehaviorTab() {
 						setPreference("growSize", value as typeof prefs.growSize)
 					}
 				/>
-				<small>{"Roughly 6, 9 or 13 suggested nodes each time."}</small>
+				<small>Roughly 6, 9 or 13 suggested nodes each time.</small>
 			</div>
 			<div className="field">
 				<CheckRow
@@ -81,16 +79,15 @@ export default function BehaviorTab() {
 					checked={!!prefs.pushback}
 					onChange={(checked) => setPreference("pushback", checked)}
 				>
-					<span>{"Push back on my answers in a grill"}</span>
+					<span>Push back on my answers in a grill</span>
 				</CheckRow>
 				<small>
-					{
-						"The AI challenges weak or risky answers instead of accepting them. It never writes an answer for you."
-					}
+					The AI challenges weak or risky answers instead of accepting them. It
+					never writes an answer for you.
 				</small>
 			</div>
 			<div className="field">
-				<span className="lbl">{"Grill pace"}</span>
+				<span className="lbl">Grill pace</span>
 				<Choice
 					id="bGrill"
 					label="Grill pace"
@@ -104,9 +101,8 @@ export default function BehaviorTab() {
 					}
 				/>
 				<small>
-					{
-						"A round shows every question that is ready at once. One at a time shows a single card."
-					}
+					Full round shows all ready questions together. One at a time shows one
+					question card.
 				</small>
 			</div>
 			<div
@@ -115,7 +111,7 @@ export default function BehaviorTab() {
 				hidden={!["local", "web"].includes(MODE)}
 			>
 				<span className="lbl">
-					{"Creativity "}
+					Creativity&#32;
 					<output id="bCreativeVal">{(+prefs.creativity).toFixed(2)}</output>
 				</span>
 				<Slider
@@ -128,9 +124,8 @@ export default function BehaviorTab() {
 					onValueChange={([value]) => setPreference("creativity", value)}
 				/>
 				<small>
-					{
-						"Lower is more predictable, higher is more varied. Placement always uses a low setting, so it stays consistent. Some newer models ignore this."
-					}
+					Lower is more predictable, higher is more varied. Placing blocks
+					always uses a low setting. Some newer models ignore this.
 				</small>
 			</div>
 		</SettingsPane>
