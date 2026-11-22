@@ -264,6 +264,8 @@ export default function SidePanel() {
 						? "Only fog is left. Sharpen it into questions once you can phrase them."
 						: "");
 	const title = TITLES[panel.tab] || "Map";
+	const selected =
+		state.sel && state.nodes[String(state.sel)] ? String(state.sel) : null;
 	const thinking = grill.busy || grill.cards.some((card) => card.busy);
 	const scope = grill.scope && state.nodes[grill.scope],
 		firstOpen = grill.cards.find((card) => card.status === "open");
@@ -481,9 +483,10 @@ export default function SidePanel() {
 								className="btn"
 								id="gStartSel"
 								type="button"
-								onClick={() =>
-									startGrill(state.nodes[String(state.sel)] ? state.sel : null)
-								}
+								disabled={!selected}
+								onClick={() => {
+									if (selected) startGrill(selected);
+								}}
 							>
 								Grill the selected node
 							</Button>
