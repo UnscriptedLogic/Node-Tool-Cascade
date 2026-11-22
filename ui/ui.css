@@ -5,6 +5,8 @@
 @source "./components";
 @source "./canvas";
 
+@custom-variant settings-narrow (@media (max-width: 760px));
+
 @custom-variant dark {
 	&:where([data-theme="dark"], [data-theme="dark"] *) {
 		@slot;
