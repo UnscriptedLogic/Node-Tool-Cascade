@@ -13,8 +13,10 @@ export default function ChatExchange() {
 		state = useSnapshot(S, { sync: true });
 	return (
 		<ProvCard id="chatExchange">
-			<h4>Use your chat account</h4>
-			<ProvSub>
+			<h4 className="m-0 text-[15.5px] leading-normal font-bold">
+				Use your chat account
+			</h4>
+			<ProvSub className="ml-0">
 				Try real suggestions without an API key. Copy a prompt into ChatGPT or
 				Claude, then paste its reply here. Free accounts work within their chat
 				limits. You copy and paste by hand, so there is no account to link.
