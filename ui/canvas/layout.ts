@@ -273,6 +273,8 @@ export function layout(initial: boolean) {
 	coreStateState.MAP = computeMap();
 	const vis = new Set(visibleIds());
 	syncDom(vis);
+	// The map layer shows ticket and state chips, so turn it on before measuring heights.
+	world.classList.toggle("maplayer", !!S.layer);
 	const ids = [...vis];
 	for (const id of ids) {
 		const r = R[id];
