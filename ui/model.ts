@@ -2,6 +2,12 @@ import type { EnabledMindset, MindsetMetadata } from "../shared/mindsets.ts";
 import type { ProjectInfo } from "../shared/project-types.ts";
 import type { PublicSettings } from "../shared/settings-types.ts";
 import type { View } from "../shared/types.ts";
+export interface TileLook {
+	vars: Record<string, string>;
+	poly: boolean;
+	icon: boolean;
+	points: string;
+}
 export interface TreeNode {
 	id: string;
 	type: string;
@@ -133,6 +139,8 @@ export interface UiState {
 	providerLabels: Record<string, string>;
 	settingsTitle: string;
 	moodColors: Record<string, string>;
+	// How each block tile looks under the current look settings.
+	tileLooks: Record<string, TileLook>;
 	compose: {
 		open: boolean;
 		type: string;

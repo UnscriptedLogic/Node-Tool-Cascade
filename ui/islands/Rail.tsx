@@ -8,7 +8,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { type ReactNode, useRef, useState } from "react";
+import { type CSSProperties, type ReactNode, useRef, useState } from "react";
 import { useSnapshot } from "valtio";
 import {
 	AlertDialog,
@@ -38,6 +38,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { ICONS, LABEL, MOOD_KEYS, MOODS, PREFS } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
 import { DOMAINS } from "../core/profiles.ts";
@@ -65,12 +66,20 @@ const TILE_TYPES = [
 	"fog",
 ];
 
+// Each tile wears the current look for its block type.
 function Tiles() {
+	const { tileLooks } = useSnapshot(UI, { sync: true });
 	return (
 		<div className="tiles" id="tiles" data-vaul-no-drag="">
 			{TILE_TYPES.map((type) => (
 				<button
-					className={`tile blk t-${type}`}
+					className={cn(
+						"tile blk",
+						`t-${type}`,
+						tileLooks[type]?.poly && "sh-poly",
+						tileLooks[type]?.icon === false && "no-ico",
+					)}
+					style={tileLooks[type]?.vars as CSSProperties}
 					data-type={type}
 					type="button"
 					key={type}
@@ -82,6 +91,14 @@ function Tiles() {
 					}}
 					onPointerDown={(e) => startTileDrag(e, type)}
 				>
+					<svg
+						className="shp"
+						viewBox="0 0 100 100"
+						preserveAspectRatio="none"
+						aria-hidden="true"
+					>
+						<polygon points={tileLooks[type]?.points || ""} />
+					</svg>
 					<span
 						className="ico"
 						dangerouslySetInnerHTML={{ __html: ICONS[type] }}
@@ -115,7 +132,7 @@ function LibraryTitle() {
 			<span
 				id="openName"
 				className={`openname${current ? "" : " unsaved"}`}
-				title={prefix + name}
+				title={`${prefix}${name}`}
 			>
 				<span className="cf">{prefix}</span>
 				<span className="cn">{name}</span>
@@ -263,7 +280,7 @@ function RailBody({ tiles }: { tiles: boolean }) {
 					{MOOD_KEYS.map((key) => (
 						<li key={key}>
 							<i style={{ "--c": ui.moodColors[key] || moods[key].bg }} />
-							{key[0].toUpperCase() + key.slice(1)}
+							{`${key[0].toUpperCase()}${key.slice(1)}`}
 						</li>
 					))}
 				</ul>
