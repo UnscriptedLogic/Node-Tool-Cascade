@@ -426,12 +426,12 @@
 	[data-slot="dialog-overlay"],
 	[data-slot="alert-dialog-overlay"],
 	#srcview {
-		animation: fade-in 0.16s ease-out;
+		animation: fade-in 0.26s ease-out;
 	}
 	[data-slot="dialog-overlay"][data-state="closed"],
 	[data-slot="alert-dialog-overlay"][data-state="closed"],
 	#srcview[data-state="closed"] {
-		animation: fade-out 0.12s ease-in forwards;
+		animation: fade-out 0.18s ease-in forwards;
 	}
 	/* menus only fade, quickly */
 	[data-slot="dropdown-menu-content"],
@@ -445,12 +445,12 @@
 	[data-slot="dialog-content"],
 	[data-slot="alert-dialog-content"],
 	#srcview .svcard {
-		animation: pop-in 0.18s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+		animation: pop-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2);
 	}
 	[data-slot="dialog-content"][data-state="closed"],
 	[data-slot="alert-dialog-content"][data-state="closed"],
 	#srcview[data-state="closed"] .svcard {
-		animation: pop-out 0.12s ease-in forwards;
+		animation: pop-out 0.18s ease-in forwards;
 	}
 }
 @keyframes fade-in {
