@@ -104,7 +104,7 @@
 }
 .stabs button {
 	flex: none;
-	height: auto;
+	height: var(--control-h);
 	justify-content: flex-start;
 	box-shadow: none;
 	font-weight: inherit;
@@ -198,6 +198,7 @@
 	flex: 1 1 200px;
 	min-width: 0;
 }
+/* the global button reset would hide the tick: it is the inverse of the box */
 .prov {
 	border: 1px solid var(--line);
 	border-radius: 14px;
@@ -224,7 +225,6 @@
 	font-size: 15.5px;
 	cursor: pointer;
 }
-/* the global button reset would hide the tick: it is the inverse of the box */
 [data-slot="checkbox"] {
 	color: var(--primary-foreground);
 }
@@ -329,10 +329,6 @@
 	font: 12.5px / 1.5 var(--font);
 	margin: 10px 0 0;
 	color: var(--ink2);
-}
-.seg.big button {
-	padding: 8px 15px;
-	font-size: 13.5px;
 }
 code {
 	font:

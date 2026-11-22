@@ -47,8 +47,8 @@
 	justify-self: start;
 }
 .lk-row input[type="color"] {
-	width: 40px;
-	height: 30px;
+	width: 44px;
+	height: var(--control-h);
 	padding: 0;
 	border: 1px solid var(--line);
 	border-radius: 7px;

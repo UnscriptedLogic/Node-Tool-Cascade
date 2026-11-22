@@ -6,6 +6,7 @@
 .pill {
 	display: flex;
 	align-items: center;
+	height: 34px;
 	gap: 9px;
 	padding: 7px 13px;
 	border-radius: 999px;
@@ -40,8 +41,8 @@
 	padding-right: 10px;
 }
 .helpbtn {
-	width: 28px;
-	height: 28px;
+	width: 26px;
+	height: 26px;
 	flex: none;
 	display: grid;
 	place-items: center;
@@ -94,32 +95,50 @@
 	gap: 8px;
 	align-items: center;
 }
+/* a toggle group: its options look like a row of grouped buttons */
 .seg {
 	display: flex;
+	align-items: stretch;
 	margin: 0;
 	padding: 0;
 	min-width: 0;
-	border: 1px solid var(--line);
-	border-radius: 10px;
-	background: var(--paper);
-	overflow: hidden;
 }
-.seg button {
-	border: 0;
-	background: none;
-	padding: 7px 11px;
-	font-size: 13px;
-	color: var(--ink2);
-	min-width: 34px;
-}
-/* each option is as wide as its label */
 .seg > button {
 	flex: none;
+	min-width: 34px;
+	margin-left: -1px;
+	padding: 0 12px;
+	border: 1px solid var(--line);
+	border-radius: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 13px;
+	transition:
+		background-color 0.12s,
+		color 0.12s,
+		border-color 0.12s;
 }
-.seg button[aria-pressed="true"],
-.seg button[data-state="on"] {
+.seg > button:first-child {
+	margin-left: 0;
+	border-radius: 8px 0 0 8px;
+}
+.seg > button:last-child {
+	border-radius: 0 8px 8px 0;
+}
+.seg > button:hover {
+	border-color: var(--ink2);
+}
+.seg > button:hover,
+.seg > button:focus-visible,
+.seg > button[data-state="on"] {
+	position: relative;
+	z-index: 1;
+}
+.seg > button[aria-pressed="true"],
+.seg > button[data-state="on"] {
 	background: var(--ink);
 	color: var(--bg);
+	border-color: var(--ink);
 }
 .btn {
 	border: 1px solid var(--line);
@@ -131,6 +150,15 @@
 }
 .btn:hover {
 	border-color: var(--ink2);
+}
+/* every button, toggle group, dropdown and text field shares one height */
+.btn,
+.selectfield,
+[data-slot="input"]:not([type="file"]) {
+	height: var(--control-h);
+}
+.seg > button {
+	height: var(--control-h);
 }
 .btn.primary {
 	background: var(--ink);
@@ -329,20 +357,6 @@
 }
 
 /* the canvas toolbar */
-#ctrl .seg,
-:is(#ctrl, .sidehead) .btn {
-	height: 34px;
-}
-#ctrl .seg button {
-	height: 100%;
-	transition:
-		background-color 0.12s,
-		color 0.12s;
-}
-#viewToggle button:not([data-state="on"]):hover {
-	background: color-mix(in srgb, var(--ink) 12%, var(--paper));
-	color: var(--ink);
-}
 /* buttons that belong together share one outline */
 .bgroup {
 	display: flex;

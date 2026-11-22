@@ -31,6 +31,9 @@
 	--ring: var(--focus);
 	--destructive: #d94a2b;
 	--radius: 8px;
+	/* buttons, toggle groups, dropdowns and text fields */
+	--control-h: 34px;
+	--control-sm: 28px;
 	box-sizing: border-box;
 	padding-top: env(safe-area-inset-top, 0px);
 	padding-bottom: env(safe-area-inset-bottom, 0px);

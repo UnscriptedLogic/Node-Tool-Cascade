@@ -11,9 +11,9 @@
 body.m button {
 	touch-action: manipulation;
 }
-body.m .btn,
-body.m .seg button {
-	min-height: 40px;
+body.m {
+	--control-h: 40px;
+	--control-sm: 34px;
 }
 #ctx {
 	position: fixed;
