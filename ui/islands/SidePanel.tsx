@@ -52,7 +52,7 @@ function Card({ card, hidden }: CardProps) {
 			hidden={hidden}
 		>
 			<div className="gq">
-				{(card.mindset ? `${Mindsets.label(card.mindset)} — ` : "") + card.text}
+				{`${card.mindset ? `${Mindsets.label(card.mindset)} — ` : ""}${card.text}`}
 			</div>
 			<div className="gwhy" hidden={!card.why}>
 				{card.why}

@@ -285,7 +285,7 @@ export async function libRename(kind, id, name) {
 	try {
 		await libApi(
 			kind === "folder" ? "PATCH" : "PUT",
-			(kind === "folder" ? "folders/" : "cascades/") + id,
+			`${kind === "folder" ? "folders/" : "cascades/"}${id}`,
 			{
 				name,
 			},
@@ -310,7 +310,10 @@ export async function libMove(id, folderId) {
 }
 export async function libDelete(kind: string, id) {
 	try {
-		await libApi("DELETE", (kind === "folder" ? "folders/" : "cascades/") + id);
+		await libApi(
+			"DELETE",
+			`${kind === "folder" ? "folders/" : "cascades/"}${id}`,
+		);
 		if (kind === "folder") {
 			const gone = LIB.cascades
 				.filter((c) => c.folderId === id)

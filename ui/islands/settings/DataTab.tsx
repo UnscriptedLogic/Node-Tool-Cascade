@@ -86,11 +86,11 @@ export default function DataTab() {
 				<span className="lbl">{"Server"}</span>
 				<small id="sInfo">
 					{server
-						? `Listening on http://localhost:${server.port}` +
-							(server.port !== server.preferred
-								? ` (port ${server.preferred} was busy, so this one was chosen)`
-								: "") +
-							` · process ${server.pid}`
+						? `Listening on http://localhost:${server.port}${
+								server.port !== server.preferred
+									? ` (port ${server.preferred} was busy, so this one was chosen)`
+									: ""
+							} · process ${server.pid}`
 						: ""}
 				</small>
 				<CheckRow

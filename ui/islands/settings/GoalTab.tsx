@@ -36,8 +36,7 @@ export default function GoalTab() {
 					}}
 				/>
 				<small id="gDomainHelp">
-					{domain.blurb +
-						" This sets the words the AI uses and the example tree. Your blocks stay as they are."}
+					{`${domain.blurb} This sets the words the AI uses and the example tree. Your blocks stay as they are.`}
 				</small>
 			</div>
 			<div className="field">

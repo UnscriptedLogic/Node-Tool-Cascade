@@ -30,8 +30,7 @@ export function applyView() {
 	}
 	gridEl.style.transform = `translate3d(${v.x % gs}px,${v.y % gs}px,0)`;
 	const far = S.mode === "detail" && v.z < 0.55,
-		flags =
-			(far ? "f" : "") + (S.mode === "outer" ? "o" : "") + (S.layer ? "m" : "");
+		flags = `${far ? "f" : ""}${S.mode === "outer" ? "o" : ""}${S.layer ? "m" : ""}`;
 	if (flags !== state.vflags) {
 		state.vflags = flags;
 		world.classList.toggle("far", far);

@@ -115,9 +115,7 @@ test("mindset converter: exact grounding required and unsupported lens numbers a
 	assert.equal(wrong.entries[0].number, "");
 	const mismatch = {
 		...chunk(),
-		text:
-			"Lens #3: Confidence. Lens #4: Evidence. " +
-			SOURCE.split("Evidence. ")[1],
+		text: `Lens #3: Confidence. Lens #4: Evidence. ${SOURCE.split("Evidence. ")[1]}`,
 	};
 	assert.equal(
 		Conversion.groundedEntries({ entries: [entry()] }, mismatch, ["general"])

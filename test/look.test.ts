@@ -246,11 +246,10 @@ test('colours: per type, "all blocks" leaves emotions on their mood, and mood co
 		"white text on dark magenta",
 	);
 	assert.match(
-		a.$("#legend li i").getAttribute("style") +
-			a
-				.$$("#legend li i")
-				.map((i) => i.getAttribute("style"))
-				.join(""),
+		`${a.$("#legend li i").getAttribute("style")}${a
+			.$$("#legend li i")
+			.map((i) => i.getAttribute("style"))
+			.join("")}`,
 		/#ff00ff/,
 	);
 	color(a, "input[data-mood=boredom]", "#ffff00");

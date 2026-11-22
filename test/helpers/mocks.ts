@@ -55,9 +55,7 @@ function start() {
 		sse(res, [
 			...parts.map(
 				(t) =>
-					"data: " +
-					JSON.stringify({ choices: [{ delta: { content: t } }] }) +
-					"\n\n",
+					`data: ${JSON.stringify({ choices: [{ delta: { content: t } }] })}\n\n`,
 			),
 			"data: [DONE]\n\n",
 		]);
@@ -117,12 +115,10 @@ function start() {
 				// starts streaming and never finishes
 				res.writeHead(200, { "content-type": "text/event-stream" });
 				return res.write(
-					"event: content_block_delta\ndata: " +
-						JSON.stringify({
-							type: "content_block_delta",
-							delta: { type: "text_delta", text: "hi" },
-						}) +
-						"\n\n",
+					`event: content_block_delta\ndata: ${JSON.stringify({
+						type: "content_block_delta",
+						delta: { type: "text_delta", text: "hi" },
+					})}\n\n`,
 				);
 			}
 			// ---- OpenAI Chat Completions ----
@@ -198,9 +194,7 @@ function start() {
 					": OPENROUTER PROCESSING\n\n",
 					...['{"id":"g1",', '"type":"answer"}'].map(
 						(t) =>
-							"data: " +
-							JSON.stringify({ choices: [{ delta: { content: t } }] }) +
-							"\n\n",
+							`data: ${JSON.stringify({ choices: [{ delta: { content: t } }] })}\n\n`,
 					),
 					"data: [DONE]\n\n",
 				]);
@@ -261,9 +255,7 @@ function start() {
 							error: "invalid_grant",
 							error_description: "bad code or verifier",
 						});
-					const scope =
-						"openid profile email offline_access" +
-						(state.noPlan ? "" : " resource.invoke chatgpt.tokens.use.direct");
+					const scope = `openid profile email offline_access${state.noPlan ? "" : " resource.invoke chatgpt.tokens.use.direct"}`;
 					const id_token = sign({
 						iss: "https://auth.openai.com",
 						aud: c.clientId,
@@ -373,11 +365,7 @@ function start() {
 						error: { code: "invalid_request", message: "bad shape" },
 					});
 				const ev = (t: string, o) =>
-					"event: " +
-					t +
-					"\ndata: " +
-					JSON.stringify(Object.assign({ type: t }, o)) +
-					"\n\n";
+					`event: ${t}\ndata: ${JSON.stringify(Object.assign({ type: t }, o))}\n\n`;
 				return sse(res, [
 					ev("response.created", {}),
 					ev("response.output_text.delta", { delta: '{"id":"g1",' }),

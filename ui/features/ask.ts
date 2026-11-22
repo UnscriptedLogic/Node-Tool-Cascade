@@ -430,11 +430,10 @@ export function threadSummaryPrompt() {
 		.filter((t) => t.on)
 		.map(
 			(t, i) =>
-				`Thread ${i + 1}, ${t.label}${t.why ? ` (${t.why})` : ""}:\n` +
-				t.ids
+				`Thread ${i + 1}, ${t.label}${t.why ? ` (${t.why})` : ""}:\n${t.ids
 					.filter((id) => S.nodes[id])
 					.map((id, k) => `  ${k + 1}. ${nodeLine(id)}`)
-					.join("\n"),
+					.join("\n")}`,
 		)
 		.join("\n\n");
 	return `Summarise what a ${DOM().treeName} says in answer to a question, using only the highlighted threads below.

@@ -97,7 +97,7 @@ export default function Hud() {
 		stage?.classList.toggle("nb", showBar);
 	}, [showBar]);
 	const barSignature = showBar
-		? `${state.sel}|${actions.map((action) => action[0] + action[1]).join()}`
+		? `${state.sel}|${actions.map((action) => `${action[0]}${action[1]}`).join()}`
 		: "";
 	return (
 		<>
@@ -195,8 +195,7 @@ export default function Hud() {
 					hidden={!((LOCAL || connection.cloud) && providerLabel)}
 				>
 					<span className="pt" title="Current AI provider">
-						{providerLabel?.replace(/\s*\(.*\)$/, "") +
-							(effectiveModel ? ` · ${effectiveModel}` : "")}
+						{`${providerLabel?.replace(/\s*\(.*\)$/, "")}${effectiveModel ? ` · ${effectiveModel}` : ""}`}
 					</span>
 					<button
 						className="linkbtn"

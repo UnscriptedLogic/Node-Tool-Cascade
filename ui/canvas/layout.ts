@@ -237,9 +237,7 @@ export function nodeActions(n, hasKids) {
 			btns.push(
 				[
 					"ticket",
-					"Ticket type: " +
-						TICKET_LABEL[n.ticket || "talk"] +
-						". Click to change",
+					`Ticket type: ${TICKET_LABEL[n.ticket || "talk"]}. Click to change`,
 				],
 				["block", "Blocked by…"],
 				[

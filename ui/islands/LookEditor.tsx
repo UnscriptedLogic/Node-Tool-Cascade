@@ -121,7 +121,7 @@ function Range({
 				onKeyDown={checkpoint}
 				onValueChange={([next]) => set(next)}
 			/>
-			<output className="text-right text-[12.5px] text-ink2">{String(Math.round(value * 100) / 100) + unit}</output>
+			<output className="text-right text-[12.5px] text-ink2">{`${Math.round(value * 100) / 100}${unit}`}</output>
 		</div>
 	);
 }
@@ -649,7 +649,7 @@ export default function LookEditor() {
 					{MOOD_KEYS.map((mood) => (
 						<div className={lookRow} key={mood}>
 							<span className="font-semibold">
-								{mood[0].toUpperCase() + mood.slice(1)}
+								{`${mood[0].toUpperCase()}${mood.slice(1)}`}
 							</span>
 							<div className="col-[2/span_2] flex flex-wrap items-center gap-2.5">
 								<input
@@ -696,7 +696,7 @@ export default function LookEditor() {
 						label="Wire style"
 						items={["default", "bezier", "straight", "manhattan"].map((v) => [
 							v,
-							v[0].toUpperCase() + v.slice(1),
+							`${v[0].toUpperCase()}${v.slice(1)}`,
 						])}
 						value={wires.style}
 						set={(v) => {
@@ -840,7 +840,7 @@ export default function LookEditor() {
 						value={canvas.grid}
 						items={["dots", "lines", "none"].map((v) => [
 							v,
-							v[0].toUpperCase() + v.slice(1),
+							`${v[0].toUpperCase()}${v.slice(1)}`,
 						])}
 						set={(v) => {
 							checkpoint();

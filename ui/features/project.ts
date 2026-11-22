@@ -413,12 +413,10 @@ export function renderProject() {
 	const bits = [];
 	if ((P.topDirs || []).length)
 		bits.push(
-			"Biggest folders: " +
-				P.topDirs
-					.slice(0, 4)
-					.map((x) => `${x.dir} (${x.kb} KB)`)
-					.join(", ") +
-				".",
+			`Biggest folders: ${P.topDirs
+				.slice(0, 4)
+				.map((x) => `${x.dir} (${x.kb} KB)`)
+				.join(", ")}.`,
 		);
 	const why: string[] = [];
 	["ignored", "binary", "tooBig", "generated", "secret"].forEach((k) => {

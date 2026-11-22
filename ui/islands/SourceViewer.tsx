@@ -41,12 +41,11 @@ export default function SourceViewer() {
 							<DialogPrimitive.Title asChild>
 								<b id="svTitle">
 									{current
-										? current.f +
-											":" +
-											current.l +
-											(current.e !== undefined && current.e > current.l
-												? `-${current.e}`
-												: "")
+										? `${current.f}:${current.l}${
+												current.e !== undefined && current.e > current.l
+													? `-${current.e}`
+													: ""
+											}`
 										: ""}
 								</b>
 							</DialogPrimitive.Title>

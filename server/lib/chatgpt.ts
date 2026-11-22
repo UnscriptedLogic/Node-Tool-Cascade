@@ -408,10 +408,11 @@ async function responsesError(up: Response) {
 		const [status, msg] = FRIENDLY[code];
 		return new ProviderError(
 			up.status || status,
-			msg +
-				(code === "subscription_sharing_unsupported_capability" && er.param
+			`${msg}${
+				code === "subscription_sharing_unsupported_capability" && er.param
 					? ` (${er.param})`
-					: ""),
+					: ""
+			}`,
 			{ code },
 		);
 	}

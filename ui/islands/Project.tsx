@@ -137,10 +137,7 @@ export default function Project() {
 				</div>
 				<small id="pDefaults">
 					{project.has && project.engineIgnore?.length
-						? "Skipped automatically for " +
-							project.engineLabel +
-							": " +
-							project.engineIgnore.join(", ")
+						? `Skipped automatically for ${project.engineLabel}: ${project.engineIgnore.join(", ")}`
 						: ""}
 				</small>
 			</Disclosure>
@@ -151,10 +148,7 @@ export default function Project() {
 						["Files read", String(counts.files)],
 						[
 							"Text",
-							counts.textKB +
-								" KB · about " +
-								formatNumber(counts.tokensEst || 0) +
-								" tokens",
+							`${counts.textKB} KB · about ${formatNumber(counts.tokensEst || 0)} tokens`,
 						],
 						["Skipped", String(skipped)],
 					].map(([label, value]) => (

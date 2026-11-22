@@ -112,7 +112,7 @@ export default function Ask() {
 			<div id="aRes" hidden={!ask.q || !ask.verdict}>
 				<span id="aVerdict" className={`averdict ${ask.verdict}`}>
 					{ask.verdict
-						? verdictLabels[ask.verdict] + (ask.local ? " (keyword match)" : "")
+						? `${verdictLabels[ask.verdict]}${ask.local ? " (keyword match)" : ""}`
 						: ""}
 				</span>{" "}
 				<span
@@ -164,12 +164,11 @@ export default function Ask() {
 										data-cite={source.id}
 										onClick={() => openAskSource(source.id)}
 									>
-										{source.f +
-											":" +
-											source.l +
-											(source.e !== undefined && source.e > source.l
+										{`${source.f}:${source.l}${
+											source.e !== undefined && source.e > source.l
 												? `-${source.e}`
-												: "")}
+												: ""
+										}`}
 									</button>
 								</div>
 							</div>

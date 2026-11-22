@@ -90,7 +90,7 @@ function NameCell({ kind, item, editing }: NameCellProps) {
 }
 
 function DeleteButton({ kind, item, armed }: DeleteButtonProps) {
-	const key = kind + item.id;
+	const key = `${kind}${item.id}`;
 	return (
 		<Button
 			type="button"
@@ -119,10 +119,7 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 		>
 			<NameCell kind="cascade" item={item} editing={lib.editing} />
 			<span className="flex-auto text-[12.5px] text-ink2">
-				{(domains[item.domain]?.label || "") +
-					" · " +
-					when(item.updatedAt) +
-					(item.id === lib.currentId ? " · open now" : "")}
+				{`${domains[item.domain]?.label || ""} · ${when(item.updatedAt)}${item.id === lib.currentId ? " · open now" : ""}`}
 			</span>
 			<span className="lib-actions flex flex-wrap items-center gap-1.5">
 				<Button
@@ -247,8 +244,7 @@ export default function Library() {
 								<header className="flex flex-wrap items-center gap-2.5 border-b border-line py-2">
 									<NameCell kind="folder" item={folder} editing={lib.editing} />
 									<span className="flex-auto text-[12.5px] text-ink2">
-										{inside.length +
-											(inside.length === 1 ? " Cascade" : " Cascades")}
+										{`${inside.length}${inside.length === 1 ? " Cascade" : " Cascades"}`}
 									</span>
 									<span className="lib-actions flex flex-wrap items-center gap-1.5">
 										<Button

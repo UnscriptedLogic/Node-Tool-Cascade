@@ -280,7 +280,7 @@ export async function startOpenRouterLogin() {
 			"This browser blocked session storage, which sign-in needs.",
 		);
 	}
-	const cb = location.origin + location.pathname;
+	const cb = `${location.origin}${location.pathname}`;
 	goTo(
 		`${OR_SITE}/auth?callback_url=${encodeURIComponent(cb)}&code_challenge=${challenge}&code_challenge_method=S256`,
 	);
@@ -299,7 +299,7 @@ export async function finishOpenRouterLogin() {
 		/* An unavailable or invalid session cannot complete sign-in. */
 	}
 	if (typeof saved.verifier !== "string" || !saved.verifier) return;
-	history.replaceState(null, "", location.pathname + location.hash);
+	history.replaceState(null, "", `${location.pathname}${location.hash}`);
 	try {
 		if (LOCAL || CONNECTION.cloud) {
 			CONNECTION.server = await postJSON("/api/oauth/openrouter", {
@@ -981,7 +981,7 @@ export function demoAsk(prompt, rows) {
 			.filter(
 				(r) =>
 					r.type === "emotion" &&
-					/boredom|frustration|confusion/.test(r.mood || r.flags + r.text),
+					/boredom|frustration|confusion/.test(r.mood || `${r.flags}${r.text}`),
 			)
 			.slice(0, 3);
 		neg.forEach((e) => {
@@ -1199,12 +1199,7 @@ export function demoBridge(prompt, rows) {
 					}
 				: {
 						verdict: "gap",
-						gap:
-							"Nothing in the tree yet says how people get from “" +
-							start.text.slice(0, 50) +
-							"” to “" +
-							text.slice(0, 50) +
-							"”.",
+						gap: `Nothing in the tree yet says how people get from “${start.text.slice(0, 50)}” to “${text.slice(0, 50)}”.`,
 					},
 		);
 	} else

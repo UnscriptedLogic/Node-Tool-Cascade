@@ -740,7 +740,7 @@ function render(d) {
 			types.length
 				? rankedBars(box, {
 						items: types.map((t) => ({
-							label: t.type[0].toUpperCase() + t.type.slice(1),
+							label: `${t.type[0].toUpperCase()}${t.type.slice(1)}`,
 							...t,
 						})),
 						segments: [

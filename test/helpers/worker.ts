@@ -110,7 +110,7 @@ async function setup() {
 			headers?: Record<string, string>;
 		} = {},
 	) => {
-		const req = new Request(ORIGIN + path, {
+		const req = new Request(`${ORIGIN}${path}`, {
 			method,
 			headers: {
 				"content-type": "application/json",

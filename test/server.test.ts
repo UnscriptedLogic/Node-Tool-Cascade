@@ -526,8 +526,8 @@ function fakeClaude(dir: string, mode = "ok") {
 		f,
 		`#!${process.execPath}
 let input = ''; process.stdin.on('data',d=>input += d); process.stdin.on('end',()=>{
-  require('fs').appendFileSync(${JSON.stringify(log)},JSON.stringify({ args:process.argv.slice(2), cwd:process.cwd(), key:process.env.ANTHROPIC_API_KEY || null, input })+'\\n');
-  const out = (o) => process.stdout.write(JSON.stringify(o)+'\\n');
+  require('fs').appendFileSync(${JSON.stringify(log)},\`\${JSON.stringify({ args:process.argv.slice(2), cwd:process.cwd(), key:process.env.ANTHROPIC_API_KEY || null, input })}\\n\`);
+  const out = (o) => process.stdout.write(\`\${JSON.stringify(o)}\\n\`);
   out({ type:'system', subtype:'init', apiKeySource:'none' });
   if(${JSON.stringify(mode)}==='logout'){ out({ type:'result', subtype:'success', is_error:true, result:'Not logged in · Please run /login' }); process.exit(1); }
   for(const t of ['{"id":"g1",','"type":"answer"}']) out({ type:'stream_event', event:{ type:'content_block_delta', index:0, delta:{ type:'text_delta', text:t } } });
@@ -634,7 +634,7 @@ async function signIn(b, { consent }: { consent?: boolean } = {}) {
 	});
 	const authz = await fetch(start.json.url, { redirect: "manual" });
 	const cb = new URL(authz.headers.get("location"));
-	const res = await b.req("GET", cb.pathname + cb.search, {
+	const res = await b.req("GET", `${cb.pathname}${cb.search}`, {
 		host: `127.0.0.1:${b.port}`,
 	});
 	return { url: new URL(start.json.url), callback: res };
@@ -644,7 +644,7 @@ test("ChatGPT: builds the documented authorization request", async (t) => {
 	const { url } = await signIn(b);
 	const q = url.searchParams;
 	assert.equal(
-		url.origin + url.pathname,
+		`${url.origin}${url.pathname}`,
 		`${mock.base}/chatgpt-auth/api/accounts/authorize`,
 	);
 	assert.equal(q.get("client_id"), "dynamic_agent_client");
@@ -748,7 +748,7 @@ test("ChatGPT: rejects a wrong state, a declined sign-in and a callback with not
 		),
 	);
 	cb.searchParams.set("state", "tampered");
-	const bad = await b.req("GET", cb.pathname + cb.search, {
+	const bad = await b.req("GET", `${cb.pathname}${cb.search}`, {
 		host: `127.0.0.1:${b.port}`,
 	});
 	assert.equal(bad.status, 400);

@@ -581,12 +581,8 @@ export async function nextRound() {
 	gNoteShow("");
 	const sc0 = G.scope && S.nodes[G.scope];
 	const ev = await projectEvidence(
-		(
-			(sc0 ? `${sc0.text} ` : "") +
-			(PREFS.goal || "") +
-			" " +
-			(PREFS.context || "")
-		).trim() || `${DOM().subject} ${DOM().treeName}`,
+		`${sc0 ? `${sc0.text} ` : ""}${PREFS.goal || ""} ${PREFS.context || ""}`.trim() ||
+			`${DOM().subject} ${DOM().treeName}`,
 		5,
 	);
 	const c = new AbortController();
@@ -665,9 +661,7 @@ export async function nextRound() {
 	if (G.failed) gNoteShow("That round didn’t come back. Try again.");
 	if (G.done && !got) {
 		const n = G.history.filter((h) => h.s === "settled").length;
-		PANEL.doneMessage =
-			(G.summary ? `${G.summary} ` : "") +
-			`Nothing is left unspoken for now. ${n} ${n === 1 ? "decision is" : "decisions are"} settled this session.`;
+		PANEL.doneMessage = `${G.summary ? `${G.summary} ` : ""}Nothing is left unspoken for now. ${n} ${n === 1 ? "decision is" : "decisions are"} settled this session.`;
 	}
 	checkRoundEnd();
 }
