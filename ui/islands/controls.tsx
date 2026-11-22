@@ -171,7 +171,13 @@ export function SelectField({
 			>
 				<SelectValue />
 			</SelectTrigger>
-			<SelectContent className="cui selectmenu" position="popper">
+			<SelectContent
+				// Placed like the dropdown menus: left edges aligned, 4px gap from Radix rather than a CSS shift.
+				className="cui selectmenu data-[side=bottom]:translate-y-0 data-[side=left]:translate-x-0 data-[side=right]:translate-x-0 data-[side=top]:translate-y-0"
+				position="popper"
+				align="start"
+				sideOffset={4}
+			>
 				<SelectGroup>
 					{options.map(([key, text]) => (
 						<SelectItem key={key || EMPTY} value={key || EMPTY}>
