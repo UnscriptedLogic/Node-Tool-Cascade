@@ -85,6 +85,26 @@ select option {
 .selectmenu {
 	z-index: 95;
 	max-height: min(320px, var(--radix-select-content-available-height));
+	background: var(--paper);
+	color: var(--ink);
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+/* items match the sidebar's Actions menu */
+.selectmenu [role="option"] {
+	gap: 10px;
+	padding: 8px 30px 8px 10px;
+	border-radius: 7px;
+	font-size: 13.5px;
+	cursor: pointer;
+}
+.selectmenu [role="option"]:focus {
+	background: var(--paper2);
+	color: var(--ink);
+}
+.selectmenu [data-slot="select-item-indicator"] {
+	right: 10px;
 }
 .lib-actions select {
 	padding: 4px 26px 4px 10px;
