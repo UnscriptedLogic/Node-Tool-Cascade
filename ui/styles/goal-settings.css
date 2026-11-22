@@ -44,6 +44,10 @@
 	margin-bottom: 22px;
 	max-width: 660px;
 }
+/* no lead line under the heading: keep the usual gap before the first field */
+.spane h3 + .field {
+	margin-top: 16px;
+}
 .field > label,
 .field > .lbl {
 	font-weight: 600;
