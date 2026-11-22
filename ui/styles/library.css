@@ -1,9 +1,4 @@
 /* ---------- library: Cascades in folders ---------- */
-.btn.small {
-	height: var(--control-sm);
-	padding: 4px 10px;
-	font-size: 12.5px;
-}
 .btn.danger {
 	border-color: #d94a2b;
 	color: #d94a2b;
@@ -34,8 +29,7 @@
 
 /* one look for every dropdown: same box as .btn, with our own chevron */
 select,
-.field select,
-.lib-actions select {
+.field select {
 	-webkit-appearance: none;
 	appearance: none;
 	font: inherit;
@@ -76,11 +70,6 @@ select option {
 .selectfield:hover {
 	border-color: var(--ink2);
 }
-.selectfield.small {
-	height: var(--control-sm);
-	padding: 0 8px 0 10px;
-	font-size: 12.5px;
-}
 /* above the Settings dialog */
 .selectmenu {
 	z-index: 95;
@@ -105,11 +94,6 @@ select option {
 }
 .selectmenu [data-slot="select-item-indicator"] {
 	right: 10px;
-}
-.lib-actions select {
-	padding: 4px 26px 4px 10px;
-	font-size: 12.5px;
-	background-position: right 9px center;
 }
 
 /* which Cascade is open, under the logo: a title, not a control */
