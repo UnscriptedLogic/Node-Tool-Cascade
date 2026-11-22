@@ -2,6 +2,7 @@ import { PanelRightClose, PanelRightOpen, XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { type Snapshot, useSnapshot } from "valtio";
+import MatrixOrb from "@/components/matrix-orb";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
@@ -140,6 +141,22 @@ const TITLES: Record<string, string> = {
 
 const dismiss = () => closeSide();
 
+function GrillThinking({ thinking }: { thinking: boolean }) {
+	if (!thinking) return null;
+	return (
+		<span className="gthink">
+			<MatrixOrb
+				state="thinking"
+				size={64}
+				dots={11}
+				color="#ffffff"
+				className="[&>span]:sr-only"
+				labels={{ thinking: "Thinking" }}
+			/>
+		</span>
+	);
+}
+
 // Brings the panel back after it was closed, like the sidebar launcher.
 export function SideLauncher() {
 	return (
@@ -247,6 +264,7 @@ export default function SidePanel() {
 						? "Only fog is left. Sharpen it into questions once you can phrase them."
 						: "");
 	const title = TITLES[panel.tab] || "Map";
+	const thinking = grill.busy || grill.cards.some((card) => card.busy);
 	const scope = grill.scope && state.nodes[grill.scope],
 		firstOpen = grill.cards.find((card) => card.status === "open");
 	function section(
@@ -476,16 +494,19 @@ export default function SidePanel() {
 					</div>
 					<div id="gSession" hidden={!grill.active}>
 						<div className="ghead">
-							<span id="gScope">
-								{grill.resolve
-									? "Resolving one question"
-									: scope
-										? `Grilling: ${scope.text.slice(0, 44)}`
-										: "Grilling the whole tree"}
-							</span>
-							<span id="gRound">
-								{grill.resolve ? "" : `Round ${grill.round}`}
-							</span>
+							<GrillThinking thinking={thinking} />
+							<div className="gtitle">
+								<span id="gScope">
+									{grill.resolve
+										? "Resolving one question"
+										: scope
+											? scope.text.slice(0, 44)
+											: "Whole tree"}
+								</span>
+								<span id="gRound" hidden={grill.resolve}>
+									{`Round ${grill.round}`}
+								</span>
+							</div>
 						</div>
 						<div id="gCards">
 							{grill.cards.map((card) => (
