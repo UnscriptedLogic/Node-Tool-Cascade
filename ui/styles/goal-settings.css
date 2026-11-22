@@ -213,7 +213,43 @@
 	rotate: 90deg;
 }
 .disclosure-body {
-	padding-top: 8px;
+	/* room for focus rings, since the body clips while it animates */
+	padding: 8px 4px 4px;
+	margin: 0 -4px -4px;
+	overflow: hidden;
+}
+.disclosure-body[data-state="open"] {
+	animation: disclosure-open 0.2s ease-out;
+}
+.disclosure-body[data-state="closed"] {
+	animation: disclosure-close 0.15s ease-in;
+}
+@keyframes disclosure-open {
+	from {
+		height: 0;
+		padding-top: 0;
+		opacity: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+}
+@keyframes disclosure-close {
+	from {
+		height: var(--radix-collapsible-content-height);
+		opacity: 1;
+	}
+	to {
+		height: 0;
+		padding-top: 0;
+		opacity: 0;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.disclosure-body[data-state] {
+		animation: none;
+	}
 }
 #gPreview {
 	white-space: pre-wrap;
