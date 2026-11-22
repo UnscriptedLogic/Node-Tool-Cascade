@@ -566,7 +566,7 @@ test("web OpenRouter: sign-in sends the user to OpenRouter with a PKCE challenge
 	await sleep(200);
 	assert.equal(a.navigated.length, 1);
 	const u = new URL(a.navigated[0]);
-	assert.equal(u.origin + u.pathname, "https://openrouter.ai/auth");
+	assert.equal(`${u.origin}${u.pathname}`, "https://openrouter.ai/auth");
 	assert.equal(u.searchParams.get("callback_url"), WEB_URL);
 	assert.equal(u.searchParams.get("code_challenge_method"), "S256");
 	const verifier = JSON.parse(
@@ -761,7 +761,7 @@ test("local: first run offers every way to connect, with the demo already workin
 		"Settings opens itself on first run",
 	);
 	assert.deepEqual(
-		a.$$(".prov[data-prov]").map((e) => e.dataset.prov),
+		a.$$("[data-prov]").map((e) => e.dataset.prov),
 		[
 			"chatgpt",
 			"claudecode",
@@ -772,7 +772,7 @@ test("local: first run offers every way to connect, with the demo already workin
 			"demo",
 		],
 	);
-	assert.ok(a.$(".prov[data-prov=demo]").classList.contains("active"));
+	assert.ok(a.$("[data-prov=demo]").hasAttribute("data-active"));
 	assert.match(a.$("#stxt").textContent, /Demo mode/);
 	assert.ok(
 		a.$("[data-act=cgSignIn]").textContent.includes("Continue with ChatGPT"),
@@ -887,10 +887,7 @@ test("local: Continue with OpenRouter stores the key on the server and fetches m
 	assert.equal(settings.providers.openrouter.hasKey, true);
 	assert.ok(!JSON.stringify(settings).includes("sk-or-test-key"));
 	assert.equal(b.w.location.search, "");
-	assert.equal(
-		b.$(".prov[data-prov=openrouter]").classList.contains("active"),
-		true,
-	);
+	assert.equal(b.$("[data-prov=openrouter]").hasAttribute("data-active"), true);
 	assert.equal(b.$("#m-openrouter").value, "anthropic/claude-new-haiku");
 	assert.deepEqual(b.errs, []);
 });

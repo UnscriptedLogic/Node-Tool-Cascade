@@ -12,6 +12,7 @@ import {
 	PROV_ORDER,
 	SETTINGS,
 } from "../shell/settings.ts";
+import { ProvCard, ProvHeader, ProvSub, ProvTitle } from "./ProvCard.tsx";
 
 export default function Providers() {
 	const state = useSnapshot(SETTINGS, { sync: true }),
@@ -99,10 +100,8 @@ export default function Providers() {
 						</div>
 					);
 				return (
-					// biome-ignore lint/a11y/noStaticElementInteractions: delegates clicks from the card's own buttons
-					// biome-ignore lint/a11y/useKeyWithClickEvents: those buttons already handle keyboard activation
-					<section
-						className={`prov${active ? " active" : ""}`}
+					<ProvCard
+						active={active}
 						data-prov={provider}
 						key={provider}
 						hidden={!saved}
@@ -119,11 +118,11 @@ export default function Providers() {
 								onProviderChange(provider, input.dataset.role, input.value);
 						}}
 					>
-						<header>
-							<Label className="radio">
+						<ProvHeader>
+							<ProvTitle>
 								<RadioGroupItem value={provider} />
 								<span>{meta.label}</span>
-							</Label>
+							</ProvTitle>
 							<span
 								className={`tag${active && saved?.ready ? " on" : ""}`}
 								data-role="status"
@@ -131,8 +130,8 @@ export default function Providers() {
 							>
 								{saved?.ready ? "In use" : "Needs setup"}
 							</span>
-						</header>
-						<p className="sub">{meta.sub}</p>
+						</ProvHeader>
+						<ProvSub>{meta.sub}</ProvSub>
 						{provider === "chatgpt" ? (
 							<>
 								<div className="field">
@@ -290,7 +289,7 @@ export default function Providers() {
 								{test}
 							</>
 						) : null}
-					</section>
+					</ProvCard>
 				);
 			})}
 		</RadioGroup>

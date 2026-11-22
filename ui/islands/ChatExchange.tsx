@@ -5,19 +5,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { S } from "../core/state.ts";
 import { CHATUI, chatAction } from "../features/chat-exchange.ts";
 import { useFocus } from "../hooks/useFocus.ts";
+import { ProvCard, ProvSub } from "./ProvCard.tsx";
 
 export default function ChatExchange() {
 	const prompt = useFocus<HTMLTextAreaElement>("chatPrompt");
 	const chat = useSnapshot(CHATUI, { sync: true }),
 		state = useSnapshot(S, { sync: true });
 	return (
-		<section className="prov" id="chatExchange">
+		<ProvCard id="chatExchange">
 			<h4>Use your chat account</h4>
-			<p className="sub">
+			<ProvSub>
 				Try real suggestions without an API key. Copy a prompt into ChatGPT or
 				Claude, then paste its reply here. Free accounts work within their chat
 				limits. You copy and paste by hand, so there is no account to link.
-			</p>
+			</ProvSub>
 			<p className="small">
 				Select a node before opening Settings to focus on that branch. The
 				prompt includes its accepted descendants and your goal, context,
@@ -102,12 +103,7 @@ export default function ChatExchange() {
 					<ul id="chatSuggestions">
 						{chat.draft.map((row, i) => (
 							<li key={i}>
-								{row.type +
-									": " +
-									row.text +
-									', under "' +
-									(state.nodes[row.parent]?.text || "") +
-									'"'}
+								{`${row.type}: ${row.text}, under "${state.nodes[row.parent]?.text || ""}"`}
 							</li>
 						))}
 					</ul>
@@ -128,6 +124,6 @@ export default function ChatExchange() {
 			<p id="chatStatus" className="small" role="status" aria-live="polite">
 				{chat.status}
 			</p>
-		</section>
+		</ProvCard>
 	);
 }

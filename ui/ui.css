@@ -37,6 +37,11 @@
 	--color-input: var(--input);
 	--color-ring: var(--ring);
 	--radius-md: var(--radius);
+	--color-ink: var(--ink);
+	--color-ink2: var(--ink2);
+	--color-paper: var(--paper);
+	--color-line: var(--line);
+	--color-focus: var(--focus);
 }
 
 .cui {

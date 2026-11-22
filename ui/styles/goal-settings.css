@@ -199,32 +199,6 @@
 	min-width: 0;
 }
 /* the global button reset would hide the tick: it is the inverse of the box */
-.prov {
-	border: 1px solid var(--line);
-	border-radius: 14px;
-	background: var(--paper);
-	padding: 16px 18px 6px;
-	margin-bottom: 16px;
-	max-width: 700px;
-}
-.prov.active {
-	border: 2px solid var(--ink);
-	padding: 15px 17px 5px;
-}
-.prov > header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-}
-.prov .radio {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	font-weight: 700;
-	font-size: 15.5px;
-	cursor: pointer;
-}
 [data-slot="checkbox"] {
 	color: var(--primary-foreground);
 }
@@ -234,15 +208,6 @@
 /* the provider cards share one radio group */
 .provgroup {
 	display: block;
-}
-.prov .sub {
-	margin: 6px 0 16px 27px;
-	color: var(--ink2);
-	font-size: 13px;
-	line-height: 1.45;
-}
-.prov .frow:last-child {
-	margin-bottom: 16px;
 }
 .tag {
 	font-size: 12px;

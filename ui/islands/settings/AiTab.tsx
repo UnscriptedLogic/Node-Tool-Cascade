@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MODE } from "../../core/constants.ts";
 import { onWebAction, SETTINGS } from "../../shell/settings.ts";
 import ChatExchange from "../ChatExchange.tsx";
+import { ProvCard, ProvHeader, ProvSub, ProvTitle } from "../ProvCard.tsx";
 import Providers from "../Providers.tsx";
 import SettingsPane from "./SettingsPane.tsx";
 export default function AiTab() {
@@ -59,28 +60,28 @@ export default function AiTab() {
 					value={useRouter ? "openrouter" : "demo"}
 					onValueChange={(value) => onWebAction(value)}
 				>
-					<section className={`prov${!useRouter ? " active" : ""}`} id="wDemo">
-						<header>
-							<Label className="radio">
+					<ProvCard active={!useRouter} id="wDemo">
+						<ProvHeader>
+							<ProvTitle>
 								<RadioGroupItem id="wDemoRadio" value="demo" />
 								<span>{"Demo (no account)"}</span>
-							</Label>
+							</ProvTitle>
 							<span className="tag on" id="wDemoTag" hidden={useRouter}>
 								{"In use"}
 							</span>
-						</header>
-						<p className="sub">
+						</ProvHeader>
+						<ProvSub>
 							{
 								"Scripted responses on the example tree, so you can try Cascade without an account. Nothing leaves this browser."
 							}
-						</p>
-					</section>
-					<section className={`prov${useRouter ? " active" : ""}`} id="wOr">
-						<header>
-							<Label className="radio">
+						</ProvSub>
+					</ProvCard>
+					<ProvCard active={useRouter} id="wOr">
+						<ProvHeader>
+							<ProvTitle>
 								<RadioGroupItem id="wOrRadio" value="openrouter" />
 								<span>{"OpenRouter"}</span>
-							</Label>
+							</ProvTitle>
 							<span
 								className={`tag${useRouter && web.model ? " on" : ""}`}
 								id="wOrTag"
@@ -88,12 +89,12 @@ export default function AiTab() {
 							>
 								{useRouter && !web.model ? "Pick a model" : "In use"}
 							</span>
-						</header>
-						<p className="sub">
+						</ProvHeader>
+						<ProvSub>
 							{
 								"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter gives this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
 							}
-						</p>
+						</ProvSub>
 						<div className="frow" style={{ margin: "0 0 16px 27px" }}>
 							<Button
 								className="btn primary"
@@ -202,7 +203,7 @@ export default function AiTab() {
 								"Only this browser keeps the key. Anyone who uses this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
 							}
 						</p>
-					</section>
+					</ProvCard>
 				</RadioGroup>
 				<div className="card">
 					{
