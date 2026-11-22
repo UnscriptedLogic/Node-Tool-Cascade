@@ -40,11 +40,6 @@ export default function GoalTab() {
 						" This sets the words the AI uses and the example tree. Your blocks stay as they are."}
 				</small>
 			</div>
-			<p className="lead">
-				{
-					"Say what this tree is for. The AI writes every placement, branch and trace-back with this goal in mind, so its questions stay on topic."
-				}
-			</p>
 			<div className="field">
 				<Label htmlFor="gGoal">{"Overarching goal"}</Label>
 				<Textarea
