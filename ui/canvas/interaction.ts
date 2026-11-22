@@ -348,10 +348,10 @@ export function startInteraction() {
 		},
 	);
 	world.addEventListener("click", (e) => {
-		const ml = (e.target as HTMLElement).closest(".mindset-label");
+		const ml = (e.target as HTMLElement).closest<HTMLElement>(".mindset-label");
 		if (ml) {
 			e.stopPropagation();
-			showNote([(ml as HTMLElement).title.replace(/\n/g, ". ")], false);
+			showNote([ml.dataset.mindsetDetails.replace(/\n/g, ". ")], false);
 			return;
 		}
 		const sm = (e.target as HTMLElement).closest(".srcmark");

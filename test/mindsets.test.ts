@@ -300,15 +300,9 @@ test("mindsets UI: explicit generation creates labelled question suggestions and
 	assert.equal(q.type, "question");
 	assert.equal(q.ghost, true);
 	assert.equal(q.parent, "n6");
-	assert.equal(
-		a.byId(q.id).querySelector(".mindset-label").textContent,
-		"Lens #CUSTOM-1: Meaningful Return",
-	);
-	assert.match(
-		(a.byId(q.id).querySelector(".mindset-label") as HTMLElement).title,
-		/Traversal repeats/,
-	);
-	a.click(a.byId(q.id).querySelector(".mindset-label"));
+	const label = a.byId(q.id).querySelector<HTMLButtonElement>(".mindset-label");
+	assert.equal(label.textContent, "Lens #CUSTOM-1: Meaningful Return");
+	a.click(label);
 	assert.match(a.$("#ntxt").textContent, /Workshop notes/);
 	assert.match(prompts[0], /ONLY when they directly help/);
 	assert.doesNotMatch(prompts[0], /Readable Combat/);
