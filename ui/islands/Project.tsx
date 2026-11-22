@@ -48,15 +48,16 @@ export default function Project() {
 	];
 	return (
 		<>
-			<h3>{"Project folder"}</h3>
+			<h3>Project folder</h3>
 			<p className="lead">
 				<span data-dom-text="projectLead">{domain.projectLead}</span>
-				{
-					" Reading and searching happen on this computer. When you build a brief, short digests and code excerpts go to the AI you connected, never your keys, and anything that looks like a secret is skipped or redacted first."
-				}
+				&#32;Reading and searching happen on this computer. When you build a
+				brief, short digests and code excerpts go to the AI you connected, never
+				your keys, and anything that looks like a secret is skipped or redacted
+				first.
 			</p>
 			<div className="field">
-				<Label htmlFor="pPath">{"Folder"}</Label>
+				<Label htmlFor="pPath">Folder</Label>
 				<div className="frow">
 					<Input
 						id="pPath"
@@ -81,7 +82,7 @@ export default function Project() {
 						disabled={ui.busy}
 						onClick={() => projectPick()}
 					>
-						{"Choose…"}
+						Choose…
 					</Button>
 					<Button
 						className="btn primary"
@@ -90,7 +91,7 @@ export default function Project() {
 						disabled={ui.busy || ui.scanBusy}
 						onClick={() => projectScan()}
 					>
-						{"Scan"}
+						Scan
 					</Button>
 					<Button
 						className="btn"
@@ -99,7 +100,7 @@ export default function Project() {
 						hidden={!ui.scanBusy}
 						onClick={() => cancelProjectScan()}
 					>
-						{"Stop"}
+						Stop
 					</Button>
 				</div>
 				<small id="pMsg" aria-live="polite" className={ui.messageClass}>
@@ -108,7 +109,7 @@ export default function Project() {
 			</div>
 			<Disclosure className="card pdetails" title="Skip or add files">
 				<div className="field">
-					<Label htmlFor="pIgnore">{"Also skip"}</Label>
+					<Label htmlFor="pIgnore">Also skip</Label>
 					<Textarea
 						id="pIgnore"
 						rows={3}
@@ -117,13 +118,13 @@ export default function Project() {
 						onChange={(e) => setProjectField("ignore", e.currentTarget.value)}
 					/>
 					<small>
-						{
-							"One pattern per line, written like a .gitignore. Cascade already skips what the project’s own .gitignore lists and each engine’s generated folders."
-						}
+						One pattern per line, written like a .gitignore. Cascade already
+						skips what the project’s own .gitignore lists and each engine’s
+						generated folders.
 					</small>
 				</div>
 				<div className="field">
-					<Label htmlFor="pInclude">{"Also read these extensions"}</Label>
+					<Label htmlFor="pInclude">Also read these extensions</Label>
 					<Input
 						id="pInclude"
 						type="text"
@@ -132,7 +133,7 @@ export default function Project() {
 						onChange={(e) => setProjectField("include", e.currentTarget.value)}
 					/>
 					<small>
-						{"Separate them with commas. Cascade never reads binary files."}
+						Separate them with commas. Cascade never reads binary files.
 					</small>
 				</div>
 				<small id="pDefaults">
@@ -162,7 +163,7 @@ export default function Project() {
 			</div>
 			<div id="pBriefWrap" hidden={!project.has}>
 				<div className="field">
-					<span className="lbl">{"Project brief"}</span>
+					<span className="lbl">Project brief</span>
 					<Choice
 						id="pDepth"
 						label="How thoroughly to read"
@@ -190,7 +191,7 @@ export default function Project() {
 							hidden={!ui.busy}
 							onClick={() => stopProject()}
 						>
-							{"Stop"}
+							Stop
 						</Button>
 						<Button
 							className="linkbtn"
@@ -199,7 +200,7 @@ export default function Project() {
 							hidden={!ui.canRestore}
 							onClick={() => restoreProjectBrief()}
 						>
-							{"Restore previous brief"}
+							Restore previous brief
 						</Button>
 					</div>
 					<small id="pProg" aria-live="polite" className={ui.progressClass}>
@@ -215,9 +216,8 @@ export default function Project() {
 						onChange={(e) => editProjectBrief(e.currentTarget.value)}
 					/>
 					<small>
-						{
-							"This is exactly what the AI is told about your project. Fix anything that’s wrong. Your goal and pillars always take precedence."
-						}
+						This is exactly what the AI is told about your project. Fix anything
+						that’s wrong. Your goal and pillars always take precedence.
 					</small>
 				</div>
 				<div className="field">
@@ -226,7 +226,7 @@ export default function Project() {
 						checked={prefs.useProject}
 						onChange={(checked) => setPreference("useProject", checked)}
 					>
-						<span>{"Use the brief in every AI call"}</span>
+						<span>Use the brief in every AI call</span>
 					</CheckRow>
 					<CheckRow
 						id="pAsk"
@@ -234,14 +234,13 @@ export default function Project() {
 						onChange={(checked) => setPreference("askFiles", checked)}
 					>
 						<span>
-							{
-								"Let Ask and Grill look things up in the project’s files and cite them"
-							}
+							Let Ask and Grill look things up in the project’s files and cite
+							them
 						</span>
 					</CheckRow>
 				</div>
 				<div className="field">
-					<span className="lbl">{"Graph"}</span>
+					<span className="lbl">Graph</span>
 					<div className="frow">
 						<Button
 							className="btn primary"
@@ -253,7 +252,7 @@ export default function Project() {
 								seedFromProject();
 							}}
 						>
-							{"Seed the graph from the project"}
+							Seed the graph from the project
 						</Button>
 						<Button
 							className="btn"
@@ -262,16 +261,17 @@ export default function Project() {
 							disabled={ui.busy}
 							onClick={() => forgetProject()}
 						>
-							{"Forget this project"}
+							Forget this project
 						</Button>
 					</div>
 					<small>
-						{
-							"Seeding drafts suggested nodes (decisions already made, open questions, fog) as ghosts you keep or dismiss. Each one remembers the file it came from."
-						}
+						Seeding drafts suggested nodes (decisions already made, open
+						questions, fog) as ghosts you keep or dismiss. Each one remembers
+						the file it came from.
 					</small>
 				</div>
-			</div>{" "}
+			</div>
+			&#32;
 		</>
 	);
 }

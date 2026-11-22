@@ -91,7 +91,8 @@ export default function SourceViewer() {
 									onClick={() => stepSource(-1)}
 								>
 									Previous
-								</Button>{" "}
+								</Button>
+								&#32;
 								<Button
 									className="btn"
 									id="svNext"
@@ -100,7 +101,8 @@ export default function SourceViewer() {
 									onClick={() => stepSource(1)}
 								>
 									Next
-								</Button>{" "}
+								</Button>
+								&#32;
 								<Button
 									className="btn"
 									id="svCopy"

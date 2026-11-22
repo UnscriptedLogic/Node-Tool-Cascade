@@ -10,14 +10,13 @@ export default function LookTab() {
 	const prefs = useSnapshot(PREFS, { sync: true });
 	return (
 		<SettingsPane value="look">
-			<h3>{"Appearance"}</h3>
+			<h3>Appearance</h3>
 			<p className="lead">
-				{
-					"Set the theme and the look of your blocks and wires. The canvas updates as you change them."
-				}
+				Set the theme and the look of your blocks and wires. The canvas updates
+				as you change them.
 			</p>
 			<div className="field">
-				<span className="lbl">{"Theme"}</span>
+				<span className="lbl">Theme</span>
 				<Choice
 					id="aTheme"
 					label="Theme"

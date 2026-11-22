@@ -15,9 +15,9 @@ export default function GoalTab() {
 	const domain = DOMAINS[prefs.domain] || DOMAINS.general;
 	return (
 		<SettingsPane value="goal">
-			<h3>{"Goal & steering"}</h3>
+			<h3>Goal &amp; steering</h3>
 			<div className="field">
-				<Label htmlFor="gDomain">{"What is this tree about?"}</Label>
+				<Label htmlFor="gDomain">What is this tree about?</Label>
 				<SelectField
 					id="gDomain"
 					value={prefs.domain}
@@ -40,7 +40,7 @@ export default function GoalTab() {
 				</small>
 			</div>
 			<div className="field">
-				<Label htmlFor="gGoal">{"Overarching goal"}</Label>
+				<Label htmlFor="gGoal">Overarching goal</Label>
 				<Textarea
 					id="gGoal"
 					ref={goal}
@@ -65,7 +65,7 @@ export default function GoalTab() {
 				</div>
 			</div>
 			<div className="field">
-				<span className="lbl">{"Steering"}</span>
+				<span className="lbl">Steering</span>
 				<Choice
 					id="gSteer"
 					label="Steering strength"
@@ -106,7 +106,7 @@ export default function GoalTab() {
 				<small>{domain.pillarsHint || ""}</small>
 			</div>
 			<div className="field">
-				<Label htmlFor="gAvoid">{"Avoid"}</Label>
+				<Label htmlFor="gAvoid">Avoid</Label>
 				<Textarea
 					id="gAvoid"
 					rows={2}

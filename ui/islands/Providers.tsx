@@ -179,7 +179,7 @@ export default function Providers() {
 									style={{ margin: "10px 0 16px", lineHeight: 1.45 }}
 								>
 									Needs ChatGPT Plus or Pro. Usage counts against your plan and
-									any limit you set for this app.{" "}
+									any limit you set for this app.&#32;
 									<a
 										href="https://chatgpt.com/settings/usage"
 										target="_blank"

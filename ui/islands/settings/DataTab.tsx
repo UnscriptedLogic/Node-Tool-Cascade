@@ -14,23 +14,21 @@ export default function DataTab() {
 		server = settings.server?.server;
 	return (
 		<SettingsPane value="data">
-			<h3>{"Data"}</h3>
+			<h3>Data</h3>
 			<p className="lead" data-modes="local" hidden={!["local"].includes(MODE)}>
-				{"Your tree and settings live in the folder next to "}
-				<code>{"server.ts"}</code>
-				{" as "}
-				<code>{"tree.json"}</code>
-				{" and "}
-				<code>{"settings.json"}</code>
-				{"."}
+				Your tree and settings live in the folder next to&#32;
+				<code>server.ts</code>
+				&#32;as&#32;
+				<code>tree.json</code>
+				&#32;and&#32;
+				<code>settings.json</code>.
 			</p>
 			<p className="lead" data-modes="web" hidden={!["web"].includes(MODE)}>
-				{
-					"Your tree and settings are saved in this browser. Export the tree to keep a copy or move it somewhere else."
-				}
+				Your tree and settings are saved in this browser. Export the tree to
+				keep a copy or move it somewhere else.
 			</p>
 			<div className="field">
-				<span className="lbl">{"Tree"}</span>
+				<span className="lbl">Tree</span>
 				<div className="frow">
 					<Button
 						className="btn"
@@ -38,7 +36,7 @@ export default function DataTab() {
 						type="button"
 						onClick={() => onDataAction("export")}
 					>
-						{"Export tree"}
+						Export tree
 					</Button>
 					<Button
 						className="btn"
@@ -46,7 +44,7 @@ export default function DataTab() {
 						type="button"
 						onClick={() => fileInput.current?.click()}
 					>
-						{"Import tree"}
+						Import tree
 					</Button>
 					<Input
 						type="file"
@@ -64,18 +62,19 @@ export default function DataTab() {
 				<small id="dMsg">{settings.dataMessage}</small>
 			</div>
 			<div className="field" id="dStats" hidden={!settings.analytics}>
-				<span className="lbl">{"Anonymous usage counts"}</span>
+				<span className="lbl">Anonymous usage counts</span>
 				<CheckRow
 					id="dStatsOn"
 					checked={settings.statsOn}
 					onChange={(checked) => onDataAction("stats", checked)}
 				>
-					<span>{"Count how this site is used"}</span>
+					<span>Count how this site is used</span>
 				</CheckRow>
 				<small>
-					{
-						"This sends counts only, such as visits, blocks placed or kept, and which AI provider ran. It never sends tree text, prompts, keys or names, and sets no cookies. Do Not Track turns it off. The local app sends nothing."
-					}
+					This sends counts only, such as visits, blocks placed or kept, and
+					which AI provider ran. It never sends tree text, prompts, keys or
+					names, and sets no cookies. Do Not Track turns it off. The local app
+					sends nothing.
 				</small>
 			</div>
 			<div
@@ -83,7 +82,7 @@ export default function DataTab() {
 				data-modes="local"
 				hidden={!["local"].includes(MODE)}
 			>
-				<span className="lbl">{"Server"}</span>
+				<span className="lbl">Server</span>
 				<small id="sInfo">
 					{server
 						? `Listening on http://localhost:${server.port}${
@@ -98,12 +97,11 @@ export default function DataTab() {
 					checked={!!prefs.quitOnClose}
 					onChange={(checked) => setPreference("quitOnClose", checked)}
 				>
-					<span>{"Stop Cascade when I close this tab"}</span>
+					<span>Stop Cascade when I close this tab</span>
 				</CheckRow>
 				<small>
-					{
-						"Off by default. When on, closing the last Cascade tab stops the server a few seconds later and frees the port, with no terminal needed."
-					}
+					Off by default. When on, closing the last Cascade tab stops the server
+					a few seconds later and frees the port, with no terminal needed.
 				</small>
 				<div className="frow">
 					<Button
@@ -112,12 +110,12 @@ export default function DataTab() {
 						type="button"
 						onClick={() => quitCascade()}
 					>
-						{"Quit Cascade now"}
+						Quit Cascade now
 					</Button>
 				</div>
 			</div>
 			<div className="field">
-				<span className="lbl">{"Danger zone"}</span>
+				<span className="lbl">Danger zone</span>
 				<div className="frow">
 					<Button
 						className="btn"
@@ -125,7 +123,7 @@ export default function DataTab() {
 						type="button"
 						onClick={() => onDataAction("clear")}
 					>
-						{"Clear graph"}
+						Clear graph
 					</Button>
 					<Button
 						className="btn"
@@ -135,7 +133,7 @@ export default function DataTab() {
 						hidden={!["local"].includes(MODE)}
 						onClick={() => onDataAction("wipeKeys")}
 					>
-						{"Remove all saved keys and sign-ins"}
+						Remove all saved keys and sign-ins
 					</Button>
 					<Button
 						className="btn"
@@ -145,12 +143,10 @@ export default function DataTab() {
 						hidden={!["web"].includes(MODE)}
 						onClick={() => onDataAction("forgetKey")}
 					>
-						{"Forget my OpenRouter key"}
+						Forget my OpenRouter key
 					</Button>
 				</div>
-				<small>
-					{"Clearing the graph can be undone. Forgetting keys can’t."}
-				</small>
+				<small>Clearing the graph can be undone. Forgetting keys can’t.</small>
 			</div>
 		</SettingsPane>
 	);

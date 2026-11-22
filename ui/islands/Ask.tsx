@@ -114,7 +114,8 @@ export default function Ask() {
 					{ask.verdict
 						? `${verdictLabels[ask.verdict]}${ask.local ? " (keyword match)" : ""}`
 						: ""}
-				</span>{" "}
+				</span>
+				&#32;
 				<span
 					id="aBasis"
 					className="averdict"

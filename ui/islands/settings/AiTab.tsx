@@ -17,20 +17,20 @@ export default function AiTab() {
 		result = settings.results.web || {};
 	return (
 		<SettingsPane value="ai">
-			<h3>{"AI model"}</h3>
+			<h3>AI model</h3>
 			<div id="chatRoot">
 				<ChatExchange />
 			</div>
 			<div data-modes="artifact" hidden={!["artifact"].includes(MODE)}>
 				<p className="lead">
-					{
-						"This page runs on your Claude account, so there are no keys to enter here."
-					}
+					This page runs on your Claude account, so there are no keys to enter
+					here.
 				</p>
 				<div className="card">
-					{
-						"To use ChatGPT, OpenRouter, a local model, or Claude with your own API key, run the downloadable version. It adds sign-in with ChatGPT and OpenRouter, provider and model pickers, key storage and a connection test. The goal and behavior settings here work everywhere."
-					}
+					To use ChatGPT, OpenRouter, a local model, or Claude with your own API
+					key, run the downloadable version. It adds sign-in with ChatGPT and
+					OpenRouter, provider and model pickers, key storage and a connection
+					test. The goal and behavior settings here work everywhere.
 				</div>
 			</div>
 			<div
@@ -43,16 +43,15 @@ export default function AiTab() {
 					id="aiCloudHint"
 					hidden={settings.cloud || !settings.googleClientId}
 				>
-					{
-						"Signed-in accounts can save their own Claude, OpenAI, OpenRouter or custom keys and use them from any device. Sign in under "
-					}
-					<b>{"Library"}</b>
-					{" to set that up."}
+					Signed-in accounts can save their own Claude, OpenAI, OpenRouter or
+					custom keys and use them from any device. Sign in under&#32;
+					<b>Library</b>
+					&#32;to set that up.
 				</p>
 				<p className="lead">
-					{
-						"Cascade runs entirely in your browser and has no server of its own. Choose how the AI part works. A key, if you add one, stays in this browser."
-					}
+					Cascade runs entirely in your browser and has no server of its own.
+					Choose how the AI part works. A key, if you add one, stays in this
+					browser.
 				</p>
 				<RadioGroup
 					className="provgroup"
@@ -64,23 +63,22 @@ export default function AiTab() {
 						<ProvHeader>
 							<ProvTitle>
 								<RadioGroupItem id="wDemoRadio" value="demo" />
-								<span>{"Demo (no account)"}</span>
+								<span>Demo (no account)</span>
 							</ProvTitle>
 							<span className="tag on" id="wDemoTag" hidden={useRouter}>
-								{"In use"}
+								In use
 							</span>
 						</ProvHeader>
 						<ProvSub>
-							{
-								"Scripted responses on the example tree, so you can try Cascade without an account. Nothing leaves this browser."
-							}
+							Scripted responses on the example tree, so you can try Cascade
+							without an account. Nothing leaves this browser.
 						</ProvSub>
 					</ProvCard>
 					<ProvCard active={useRouter} id="wOr">
 						<ProvHeader>
 							<ProvTitle>
 								<RadioGroupItem id="wOrRadio" value="openrouter" />
-								<span>{"OpenRouter"}</span>
+								<span>OpenRouter</span>
 							</ProvTitle>
 							<span
 								className={`tag${useRouter && web.model ? " on" : ""}`}
@@ -91,9 +89,9 @@ export default function AiTab() {
 							</span>
 						</ProvHeader>
 						<ProvSub>
-							{
-								"One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter gives this page a key and you pay OpenRouter directly for what you use. Cascade never sees your password."
-							}
+							One sign-in, many models: Claude, GPT, Gemini and more. OpenRouter
+							gives this page a key and you pay OpenRouter directly for what you
+							use. Cascade never sees your password.
 						</ProvSub>
 						<div className="frow" style={{ margin: "0 0 16px 27px" }}>
 							<Button
@@ -108,7 +106,7 @@ export default function AiTab() {
 							</Button>
 						</div>
 						<div className="field">
-							<Label htmlFor="wOrKey">{"Or paste an OpenRouter key"}</Label>
+							<Label htmlFor="wOrKey">Or paste an OpenRouter key</Label>
 							<div className="frow">
 								<Input
 									id="wOrKey"
@@ -127,7 +125,7 @@ export default function AiTab() {
 									type="button"
 									onClick={() => onWebAction("save")}
 								>
-									{"Save key"}
+									Save key
 								</Button>
 								<Button
 									className="btn"
@@ -136,7 +134,7 @@ export default function AiTab() {
 									hidden={!hasKey}
 									onClick={() => onWebAction("forget")}
 								>
-									{"Forget key"}
+									Forget key
 								</Button>
 							</div>
 							<small id="wOrKeyHint">
@@ -146,7 +144,7 @@ export default function AiTab() {
 							</small>
 						</div>
 						<div className="field">
-							<Label htmlFor="wOrModel">{"Model"}</Label>
+							<Label htmlFor="wOrModel">Model</Label>
 							<div className="frow">
 								<Input
 									id="wOrModel"
@@ -172,10 +170,10 @@ export default function AiTab() {
 									type="button"
 									onClick={() => onWebAction("fetch")}
 								>
-									{"Fetch models"}
+									Fetch models
 								</Button>
 							</div>
-							<small>{"The list puts fast, recent models first."}</small>
+							<small>The list puts fast, recent models first.</small>
 						</div>
 						<div className="frow">
 							<Button
@@ -185,7 +183,7 @@ export default function AiTab() {
 								onClick={() => onWebAction("test")}
 								disabled={settings.webBusy}
 							>
-								{"Test connection"}
+								Test connection
 							</Button>
 							<span
 								className={`result ${result.cls || ""}`}
@@ -199,20 +197,19 @@ export default function AiTab() {
 							className="small"
 							style={{ margin: "12px 0 16px", lineHeight: "1.45" }}
 						>
-							{
-								"Only this browser keeps the key. Anyone who uses this browser profile could read it, so give the key a low credit limit and forget it on shared computers."
-							}
+							Only this browser keeps the key. Anyone who uses this browser
+							profile could read it, so give the key a low credit limit and
+							forget it on shared computers.
 						</p>
 					</ProvCard>
 				</RadioGroup>
 				<div className="card">
-					{
-						"Want to use your own Claude or OpenAI key, sign in with ChatGPT, or run a local model such as Ollama? "
-					}
+					Want to use your own Claude or OpenAI key, sign in with ChatGPT, or
+					run a local model such as Ollama?&#32;
 					<a href="__REPO_URL__" target="_blank" rel="noopener">
-						{"Run Cascade on your computer"}
+						Run Cascade on your computer
 					</a>
-					{" and all of those are available."}
+					&#32;and all of those are available.
 				</div>
 			</div>
 			<div

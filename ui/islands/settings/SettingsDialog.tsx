@@ -89,7 +89,7 @@ export default function SettingsDialog({
 									id="sTitle"
 									className="m-0 text-[23px] font-extrabold tracking-[-0.03em]"
 								>
-									{"Settings "}
+									Settings&#32;
 									<small id="appVersion">{`v${version}`}</small>
 								</h2>
 							</DialogPrimitive.Title>
@@ -100,7 +100,7 @@ export default function SettingsDialog({
 								type="button"
 								onClick={() => closeSettings()}
 							>
-								{"Done"}
+								Done
 							</Button>
 						</header>
 						<Tabs.Root
