@@ -241,13 +241,17 @@ async function buildBrief(a) {
 test("the Project tab exists only in the local app", async () => {
 	const hosted = open({});
 	await sleep(300);
+	hosted.openSettings();
 	assert.equal(hosted.$(".stabs [data-tab=project]").hidden, true);
 	const web = open({
 		html: webHtml(),
 		url: "https://someone.github.io/cascade/",
 	});
 	await sleep(300);
+	web.openSettings();
 	assert.equal(web.$(".stabs [data-tab=project]").hidden, true);
+	web.click(web.$("#sClose"));
+	await web.openPanel("Ask");
 	assert.equal(
 		web.$("#aFilesRow").hidden,
 		true,
@@ -268,6 +272,7 @@ test("project: scan shows what was read, what was skipped and what was redacted"
 	assert.match(a.$("#pDetail").textContent, /binary/);
 	assert.match(a.$("#pDetail").textContent, /private/);
 	assert.match(a.$("#pDetail").textContent, /3 possible secrets were redacted/);
+	await a.expandDisclosure(".pdetails");
 	assert.match(a.$("#pDefaults").textContent, /Unity: .*Library\//);
 	assert.equal(a.$("#pBriefWrap").hidden, false);
 	assert.match(a.$("#pEstimate").textContent, /tokens across \d+ calls?/);
@@ -324,6 +329,7 @@ test("project: the brief rides along under the goal and can be switched off", as
 	a.type(a.$("#gGoal"), "Make travel feel like discovery");
 	a.click(a.$(".stabs [data-tab=goal]"));
 	await sleep(50);
+	await a.expandDisclosure("#p-goal .disclosure");
 	const pre = () => a.$("#gPreview").textContent;
 	a.click(a.$(".stabs [data-tab=project]"));
 	a.click(a.$(".stabs [data-tab=goal]"));
@@ -398,13 +404,13 @@ test("project: seeding drafts sourced ghosts, drops anything without a real sour
 	assert.match(a.$("#svCode .hit").textContent, /moveSpeed/);
 	assert.match(a.$("#svNote").textContent, /Walk speed is 6\.5/);
 	a.escape();
-	assert.equal(a.$("#srcview").hidden, true);
+	assert.equal(a.$("#srcview"), null);
 	// and through the bar button
 	a.click(dec.querySelector("[data-act=src]"));
 	await sleep(200);
 	assert.equal(a.$("#srcview").hidden, false);
 	a.click(a.$("#svClose"));
-	assert.equal(a.$("#srcview").hidden, true);
+	assert.equal(a.$("#srcview"), null);
 	assert.deepEqual(a.errs, []);
 });
 
@@ -413,7 +419,7 @@ test("project: seeding into an empty tree starts it from the project", async (t)
 	await scan(a, root);
 	await buildBrief(a);
 	a.click(a.$("#dClear"));
-	a.escape();
+	a.confirm();
 	await sleep(100);
 	assert.equal(a.$("#empty").hidden, false);
 	assert.equal(a.$("#eSeed").hidden, false, "the empty canvas offers to seed");
@@ -432,7 +438,7 @@ test("project: Ask cites the files it used, shows what it read, and can be told 
 	await scan(a, root);
 	await buildBrief(a);
 	a.escape();
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	await sleep(100);
 	assert.equal(a.$("#aFilesRow").hidden, false);
 	assert.equal(a.$("#aFiles").checked, true);
@@ -490,7 +496,7 @@ test("project: Grill grounds its questions in the code, and pushback can cite it
 	await scan(a, root);
 	await buildBrief(a);
 	a.escape();
-	a.click(a.$("#mapBtn"));
+	await a.openPanel("Map");
 	a.click(a.$("#mGrillAll"));
 	await sleep(500);
 	const round = withText("interviewing a game designer").pop();
@@ -583,7 +589,7 @@ test("project: reading code needs a real AI, and forgetting the project clears i
 	);
 	mock.log.length = 0;
 	a.escape();
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	a.type(a.$("#aQ"), "Why is travel slow?");
 	a.click(a.$("#aGo"));
 	await sleep(500);
@@ -640,9 +646,7 @@ test("project: sources are saved with the tree and come back after a reload", as
 		/TODO: should there be a double jump/,
 	);
 	assert.equal(
-		b.$("#pBrief").value ||
-			JSON.parse(await (await fetch(`${srv.base}/api/settings`)).text()).project
-				.brief,
+		(await (await fetch(`${srv.base}/api/project`)).json()).brief,
 		"What it is\nA slow exploration game about noticing things.\nHow it plays\nWalk speed is 6.5 and there is no fast travel in the first act.\nUnfinished or undecided\nA double jump and the enemy wind-up are undecided.",
 	);
 	assert.deepEqual(b.errs, []);

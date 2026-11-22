@@ -101,7 +101,10 @@ test("cloud AI: signed in, the provider screen replaces the browser-only one and
 		a.$("[data-prov=anthropic] [data-role=keyhint]").textContent,
 		/to your account, encrypted/,
 	);
-	assert.equal(a.$("[data-prov=anthropic] input[type=radio]").checked, true);
+	assert.equal(
+		a.$("[data-prov=anthropic] [role=radio]").getAttribute("aria-checked"),
+		"true",
+	);
 	// saving a key sends it to the account server
 	a.type(a.$("#k-openai"), "sk-openai-1234");
 	a.click(a.$("[data-prov=openai] [data-act=saveKey]"));

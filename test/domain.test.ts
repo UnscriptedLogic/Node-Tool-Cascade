@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { open, sleep } from "./helpers/dom.ts";
+import { open, sleep, tick } from "./helpers/dom.ts";
 
 const GAMEY = /\b(game|games|gameplay|player|players|designer|playtest)\b/i;
 const NO_PREFS = { "cascade-prefs-v1": JSON.stringify({}) }; // a brand new browser: no saved preferences
@@ -27,6 +27,7 @@ test("domain: a new browser starts with the general profile and no game wording 
 		.join(" | ");
 	assert.doesNotMatch(text, GAMEY);
 	assert.equal(a.nodes().length, 0);
+	a.openSettings("goal");
 	assert.doesNotMatch(
 		a
 			.$$("#gChips .chip")
@@ -34,8 +35,11 @@ test("domain: a new browser starts with the general profile and no game wording 
 			.join(" "),
 		GAMEY,
 	);
-	for (const id of ["#gContext", "#gPillars", "#gAvoid", "#aQ", "#pPath"])
+	for (const id of ["#gContext", "#gPillars", "#gAvoid", "#pPath"])
 		assert.doesNotMatch(a.$(id).placeholder, GAMEY, id);
+	a.click(a.$("#sClose"));
+	await a.openPanel("Ask");
+	assert.doesNotMatch(a.$("#aQ").placeholder, GAMEY);
 	assert.deepEqual(a.errs, []);
 });
 
@@ -59,14 +63,13 @@ test("domain: switching to game design changes the words and the starter tree, a
 	await sleep(400);
 	a.click(a.$("#setBtn"));
 	a.click(a.$(".stabs button[data-tab=goal]"));
-	assert.equal(
-		a
-			.$$("#gDomain option")
-			.map((o) => o.value)
-			.join(),
-		"general,product,research,game",
+	const domains = await a.openSelect("#gDomain");
+	assert.deepEqual(
+		domains.map((option) => option.textContent),
+		["General", "Product", "Research", "Game design"],
 	);
-	a.type(a.$("#gDomain"), "game");
+	a.click(domains.find((option) => option.textContent === "Game design"));
+	await tick();
 	assert.equal(legend(a), "Player feeling");
 	assert.match(a.$("#gChips .chip").textContent, /traversal/);
 	assert.equal(
@@ -74,7 +77,7 @@ test("domain: switching to game design changes the words and the starter tree, a
 		"game",
 	);
 	a.click(a.$("#sClose"));
-	a.click(a.$("#resetBtn"));
+	await a.runRailAction("resetBtn");
 	await sleep(300);
 	assert.ok(a.byText("Why does traversal feel slow"));
 	assert.deepEqual(a.errs, []);

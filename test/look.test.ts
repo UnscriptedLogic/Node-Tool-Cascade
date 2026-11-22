@@ -29,15 +29,25 @@ async function openLook(a, tab?) {
 	if (tab) a.click(a.$(`#lkTabs [data-lk=${tab}]`));
 	await sleep(60);
 }
-const range = (a, sel, v) => {
-	const el = a.$(sel);
-	el.value = v;
-	el.dispatchEvent(new a.w.Event("input", { bubbles: true }));
+const range = (a: ReturnType<typeof open>, field: string, value: string) => {
+	const thumb = a.$(`[data-f="${field}"] [role="slider"]`);
+	const target = Number(value);
+	const current = () => Number(thumb.getAttribute("aria-valuenow"));
+	for (let i = 0; i < 300 && current() !== target; i++) {
+		const before = current();
+		a.pressKey(thumb, before < target ? "ArrowRight" : "ArrowLeft");
+		if (current() === before) break;
+	}
+	assert.equal(current(), target, `slider ${field}`);
 };
-const select = (a, sel, v) => {
-	const el = a.$(sel);
-	el.value = v;
-	el.dispatchEvent(new a.w.Event("change", { bubbles: true }));
+const select = async (
+	a: ReturnType<typeof open>,
+	field: string,
+	value: string,
+) => {
+	const options = await a.openSelect(`[data-f="${field}"]`);
+	a.click(options.find((option) => option.textContent === value));
+	await tick();
 };
 const color = (a, sel, v) => {
 	const el = a.$(sel);
@@ -169,7 +179,7 @@ test("per-type size drives the layout, and shape adds room for the text", async 
 		before = X(ans());
 	await openLook(a, "nodes");
 	a.click(a.$("#lkType [data-t=question]"));
-	range(a, "input[data-f=width]", "400");
+	range(a, "width", "400");
 	await sleep(150);
 	const q = a.byText("Why does traversal feel slow");
 	assert.equal(q.style.width, "400px");
@@ -184,7 +194,7 @@ test("per-type size drives the layout, and shape adds room for the text", async 
 		"400px",
 		"the preview follows",
 	);
-	select(a, "select[data-f=shape]", "diamond");
+	await select(a, "shape", "diamond");
 	await sleep(100);
 	const inq = q.querySelector(".in");
 	assert.ok(inq.classList.contains("sh-poly"));
@@ -193,7 +203,7 @@ test("per-type size drives the layout, and shape adds room for the text", async 
 		"52px",
 		"12px + 40px extra so text stays in the diamond",
 	);
-	select(a, "select[data-f=shape]", "pill");
+	await select(a, "shape", "pill");
 	await sleep(60);
 	assert.equal(
 		(q.querySelector(".in") as HTMLElement).style.getPropertyValue("--nr"),
@@ -259,7 +269,7 @@ test('colours: per type, "all blocks" leaves emotions on their mood, and mood co
 		"#142033",
 		"dark text on yellow",
 	);
-	const kw = a.$("input[data-f=fill-kw]");
+	const kw = a.$("[role=checkbox][data-f=fill-kw]");
 	a.click(kw);
 	await sleep(60);
 	assert.ok(
@@ -286,7 +296,7 @@ test("wires: default, straight, manhattan and bezier, with their adjustments", a
 			.filter((d: string) => /C/.test(d))
 			.sort((x, y) => dist(y) - dist(x))[0];
 	assert.ok(
-		a.$("#lkWStyle [data-v=default]").getAttribute("aria-pressed") === "true",
+		a.$("#lkWStyle [data-v=default]").getAttribute("aria-checked") === "true",
 	);
 	assert.equal(a.$$("#lkWpv path").length, 3);
 	a.click(a.$("#lkWStyle [data-v=straight]"));
@@ -305,14 +315,14 @@ test("wires: default, straight, manhattan and bezier, with their adjustments", a
 		"rounded corners at radius 10",
 	);
 	assert.ok(tree().every((p) => !/C/.test(p.getAttribute("d"))));
-	range(a, "input[data-f=wradius]", "0");
+	range(a, "wradius", "0");
 	await sleep(60);
 	assert.ok(
 		tree().every((p) => !/Q/.test(p.getAttribute("d"))),
 		"square corners at radius 0",
 	);
 	const elbow = (e: string) => {
-		range(a, "input[data-f=elbow]", e);
+		range(a, "elbow", e);
 		return tree()
 			.map((p) => p.getAttribute("d"))
 			.find((d: string) => /L/.test(d));
@@ -323,10 +333,10 @@ test("wires: default, straight, manhattan and bezier, with their adjustments", a
 	assert.notEqual(e1, e2, "the elbow moves");
 	a.click(a.$("#lkWStyle [data-v=bezier]"));
 	await sleep(60);
-	range(a, "input[data-f=curvature]", "0");
+	range(a, "curvature", "0");
 	await sleep(40);
 	const flat = dist(wide());
-	range(a, "input[data-f=curvature]", "1");
+	range(a, "curvature", "1");
 	await sleep(40);
 	const swoop = dist(wide());
 	assert.ok(
@@ -342,8 +352,8 @@ test("wires: width, colour, dash, arrowheads, colour-by-block and per-link overr
 	const a = web();
 	await sleep(300);
 	await openLook(a, "wires");
-	range(a, "input[data-f=wwidth]", "4");
-	select(a, "select[data-f=wdash]", "dashed");
+	range(a, "wwidth", "4");
+	await select(a, "wdash", "dashed");
 	color(a, "input[data-f=wcolor]", "#00aa00");
 	await sleep(80);
 	const first = treePaths(a).find(
@@ -352,11 +362,11 @@ test("wires: width, colour, dash, arrowheads, colour-by-block and per-link overr
 	assert.equal(first.style.strokeWidth, "4");
 	assert.equal(first.style.strokeDasharray, "7 6");
 	assert.equal(first.style.stroke, rgb("#00aa00"));
-	select(a, "select[data-f=warrows]", "end");
+	await select(a, "warrows", "end");
 	await sleep(60);
 	assert.ok((first.getAttribute("marker-end") || "").includes("#ahc"));
 	assert.ok(a.$("#edges defs marker[id^=ahc]"));
-	select(a, "select[data-f=wcolorBy]", "child");
+	await select(a, "wcolorBy", "child");
 	await sleep(80);
 
 	const colours = new Set<string>(treePaths(a).map((p) => p.style.stroke));
@@ -373,7 +383,7 @@ test("wires: width, colour, dash, arrowheads, colour-by-block and per-link overr
 	const rel = a.$$("#eg path.rel")[0];
 	assert.ok(rel);
 	assert.equal(rel.style.stroke, rgb("#ff8800"));
-	select(a, "select[data-f=k-flow-dash]", "solid");
+	await select(a, "k-flow-dash", "solid");
 	await sleep(60);
 	assert.equal(a.$$("#eg path.flow")[0].style.strokeDasharray, "none");
 });
@@ -389,7 +399,7 @@ test("canvas: background, grid style and spacing", async () => {
 	assert.match(a.$("#stage").style.backgroundImage, /linear-gradient/);
 	color(a, "input[data-f=cbg]", "#223344");
 	assert.equal(a.$("#stage").style.backgroundColor, rgb("#223344"));
-	range(a, "input[data-f=colGap]", "120");
+	range(a, "colGap", "120");
 	await sleep(120);
 	assert.ok(X(ans()) > x0 + 60);
 	const sibs = () =>
@@ -405,7 +415,7 @@ test("canvas: background, grid style and spacing", async () => {
 			.map(Y)
 			.sort((p, q) => p - q);
 	const g0 = sibs();
-	range(a, "input[data-f=rowGap]", "60");
+	range(a, "rowGap", "60");
 	await sleep(120);
 	const g1 = sibs();
 	assert.ok(

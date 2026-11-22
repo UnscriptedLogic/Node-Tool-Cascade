@@ -2,7 +2,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { open, sleep, webHtml } from "./helpers/dom.ts";
+import { open, sleep, tick, webHtml } from "./helpers/dom.ts";
 
 const J = JSON.stringify;
 const GAME = { "cascade-prefs-v1": J({ domain: "game" }) };
@@ -114,7 +114,7 @@ test("analytics page: dismissing suggestions, asking, grilling and choosing a do
 	a.click(a.$("#dismissAll"));
 	await sleep(200);
 	assert.ok(c.events.some((e) => e.name === "block_dismissed" && e.count > 0));
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	a.type(a.$("#aQ"), "What is causing the boredom?");
 	a.click(a.$("#aGo"));
 	await sleep(1500);
@@ -129,7 +129,9 @@ test("analytics page: dismissing suggestions, asking, grilling and choosing a do
 	);
 	a.click(a.$("#setBtn"));
 	a.click(a.$(".stabs [data-tab=goal]"));
-	a.type(a.$("#gDomain"), "research");
+	const domains = await a.openSelect("#gDomain");
+	a.click(domains.find((option) => option.textContent === "Research"));
+	await tick();
 	assert.deepEqual(
 		c.events.filter((e) => e.name === "domain_set"),
 		[{ name: "domain_set", label: "research" }],
@@ -143,7 +145,7 @@ test("analytics page: the switch in Settings turns it off, and it is only offere
 	a.click(a.$("#setBtn"));
 	a.click(a.$(".stabs [data-tab=data]"));
 	assert.equal(a.$("#dStats").hidden, false);
-	assert.equal(a.$("#dStatsOn").checked, true);
+	assert.equal(a.$("#dStatsOn").getAttribute("aria-checked"), "true");
 	a.click(a.$("#dStatsOn"));
 	assert.equal(a.w.localStorage.getItem("cascade-analytics-off"), "1");
 	a.escape();

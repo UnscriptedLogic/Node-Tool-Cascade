@@ -210,14 +210,16 @@ function setup(
 	t.after(() => a.dom.window.close());
 	return { a, prompts };
 }
-function prepare(a, text = SOURCE) {
-	a.click(a.$("#setBtn"));
-	a.click(a.$("[data-tab=mindsets]"));
-	a.$("#msConverter").open = true;
+async function prepare(a: ReturnType<typeof open>, text = SOURCE) {
+	a.openSettings("mindsets");
+	await a.expandDisclosure("#msConverter");
 	a.type(a.$("#mcName"), "Budget assumptions");
 	a.type(a.$("#mcSourceTitle"), "Workshop notes");
 	a.type(a.$("#mcText"), text);
-	a.click(a.$("#mcDomains input[value=general]"));
+	const general = a
+		.$$("#mcDomains label")
+		.find((label) => label.textContent.trim() === "General / business");
+	a.click(general.querySelector('[role="checkbox"]'));
 }
 async function generate(a) {
 	a.click(a.$("#mcGenerate"));
@@ -245,15 +247,10 @@ test("mindset converter UI: complete catalog can be browsed without enabling or 
 	await sleep(50);
 	a.click(a.$("#setBtn"));
 	a.click(a.$("[data-tab=mindsets]"));
-	const browse = a.$<HTMLDetailsElement>(".mindset-builtin details");
-	browse.open = true;
-	browse.dispatchEvent(new a.w.Event("toggle"));
-	await tick();
-	assert.equal(a.$$(".mindset-catalog>details").length, 100);
-	assert.match(
-		a.$(".mindset-catalog>details:last-child").textContent,
-		/Your Secret Purpose/,
-	);
+	await a.expandDisclosure(".mindset-builtin .disclosure");
+	const lenses = a.$$(".mindset-catalog > .disclosure");
+	assert.equal(lenses.length, 100);
+	assert.match(lenses.at(-1).textContent, /Your Secret Purpose/);
 	assert.equal(a.api.tree.mindsets.length, 0);
 	assert.equal(prompts.length, 0);
 	assert.deepEqual(a.errs, []);
@@ -322,7 +319,7 @@ test("mindset converter UI: starter upgrades explicitly, preserves icon and hist
 test("mindset converter UI: generated pack is reviewable and not imported until user chooses", async (t) => {
 	const { a, prompts } = setup(t);
 	await sleep(50);
-	prepare(a);
+	await prepare(a);
 	await generate(a);
 	assert.equal(a.$("#mcReview").hidden, false);
 	assert.equal(a.api.tree.mindsets.length, 0);
@@ -350,7 +347,7 @@ test("mindset converter UI: generated pack is reviewable and not imported until 
 test("mindset converter UI: entry limit and provider failure preserve visibly partial drafts", async (t) => {
 	const { a } = setup(t);
 	await sleep(50);
-	prepare(a, `${SOURCE} ${"padding ".repeat(2000)}`);
+	await prepare(a, `${SOURCE} ${"padding ".repeat(2000)}`);
 	a.type(a.$("#mcLimit"), "1");
 	await generate(a);
 	assert.match(a.$("#mcReport").textContent, /Partial conversion: 1\/2/);
@@ -360,7 +357,7 @@ test("mindset converter UI: entry limit and provider failure preserve visibly pa
 		return JSON.stringify({ entries: [entry()] });
 	}).a;
 	await sleep(50);
-	prepare(b, `${SOURCE} ${"padding ".repeat(2000)}`);
+	await prepare(b, `${SOURCE} ${"padding ".repeat(2000)}`);
 	await generate(b);
 	assert.match(b.$("#mcReport").textContent, /Partial conversion: 1\/2/);
 	assert.match(b.$("#mcReport").textContent, /Provider unavailable/);
@@ -384,7 +381,7 @@ test("mindset converter UI: stop cancels provider work and fabricated evidence c
 			}),
 	);
 	await sleep(50);
-	prepare(a);
+	await prepare(a);
 	a.click(a.$("#mcGenerate"));
 	await started;
 	a.click(a.$("#mcStop"));
@@ -399,7 +396,7 @@ test("mindset converter UI: stop cancels provider work and fabricated evidence c
 		}),
 	).a;
 	await sleep(50);
-	prepare(b);
+	await prepare(b);
 	await generate(b);
 	assert.equal(b.$("#mcReview").hidden, true);
 	assert.match(b.$("#mcStatus").textContent, /ungrounded entries rejected/);
@@ -408,11 +405,11 @@ test("mindset converter UI: stop cancels provider work and fabricated evidence c
 test("mindset converter UI: demo cannot convert and allowed domains cannot be omitted", async (t) => {
 	const { a, prompts } = setup(t, "", { html: webHtml() });
 	await sleep(50);
-	prepare(a);
+	await prepare(a);
 	await generate(a);
 	assert.match(a.$("#mcStatus").textContent, /Demo mode cannot/);
 	assert.equal(prompts.length, 0);
-	a.click(a.$("#mcDomains input:checked"));
+	a.click(a.$("#mcDomains [role=checkbox][aria-checked=true]"));
 	await generate(a);
 	assert.match(a.$("#mcStatus").textContent, /at least one/);
 });

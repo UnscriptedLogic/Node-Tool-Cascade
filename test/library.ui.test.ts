@@ -29,10 +29,10 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	const a = await page(s);
 	await sleep(500);
 	a.escape();
-	assert.equal(a.$("#railLib").hidden, false);
-	assert.equal(a.$("#libTab").hidden, false);
-	a.click(a.$("#railLib"));
+	assert.equal(a.$("#libOpen").hidden, false);
+	a.click(a.$("#libOpen"));
 	await tick();
+	assert.equal(a.$("#libTab").hidden, false);
 	assert.equal(
 		a.$("#libSaveCur").hidden,
 		false,
@@ -74,7 +74,8 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	);
 
 	// work in it: the open Cascade autosaves
-	a.click(a.$("#resetBtn"));
+	a.click(a.$("#sClose"));
+	await a.runRailAction("resetBtn");
 	await sleep(300);
 	assert.ok(a.nodes().length > 5);
 	const second = (await j("GET", "library")).cascades.find(
@@ -92,7 +93,7 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	);
 
 	// folders and moving
-	a.click(a.$("#railLib"));
+	a.click(a.$("#libOpen"));
 	a.click(a.$("#libFolder"));
 	assert.ok(
 		await until(async () => (await j("GET", "library")).folders.length === 1),
@@ -103,8 +104,10 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	);
 	await sleep(200);
 	const folder = (await j("GET", "library")).folders[0];
-	const sel = a.$(`.lib-row[data-id="${first.id}"] select`);
-	a.type(sel, folder.id);
+	const folders = await a.openSelect(
+		`.lib-row[data-id="${first.id}"] [role=combobox]`,
+	);
+	a.click(folders.find((option) => option.textContent === "Q3"));
 	assert.ok(
 		await until(
 			async () =>
@@ -122,31 +125,33 @@ test("library UI: appears in the local app, makes Cascades and folders, autosave
 	a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`));
 	await sleep(400);
 	assert.equal(a.$("#openName").textContent, "Q3 / Roadmap", "folder and name");
-	a.click(a.$("#railLib"));
+	a.click(a.$("#libOpen"));
 	await tick();
 
-	// switch back to the first Cascade: its own (empty or saved) tree and name replace the canvas
-	a.click(a.$(`.lib-row[data-id="${first.id}"] .lib-open`));
+	// Switching back restores the example tree saved in the second Cascade.
+	a.click(a.$(`.lib-row[data-id="${second.id}"] .lib-open`));
 	await sleep(500);
 	assert.equal(
 		a.api.library.currentId,
-		first.id,
-		"the first Cascade is the open one",
+		second.id,
+		"the second Cascade is the open one",
 	);
 	assert.ok(a.nodes().length > 5, "its tree is on the canvas");
 	assert.deepEqual(a.errs, []);
 
 	// deleting takes two clicks
-	a.click(a.$("#railLib"));
+	a.click(a.$("#libOpen"));
 	await tick();
-	const del = a.$(`.lib-row[data-id="${second.id}"] .btn.small:last-of-type`);
+	const del = a.$(
+		`.lib-row[data-id="${first.id}"] button[aria-label^="Delete"]`,
+	);
 	a.click(del);
 	assert.equal(
 		(await j("GET", "library")).cascades.length,
 		2,
 		"one click only arms it",
 	);
-	a.click(a.$(`.lib-row[data-id="${second.id}"] .btn.danger`));
+	a.click(a.$(`.lib-row[data-id="${first.id}"] .btn.danger`));
 	assert.ok(
 		await until(async () => (await j("GET", "library")).cascades.length === 1),
 		"second click deletes",
@@ -160,7 +165,8 @@ test("library UI: the web build has no library unless a cloud backend answers", 
 		url: "https://someone.github.io/cascade/",
 	});
 	await sleep(400);
-	assert.equal(a.$("#railLib").hidden, true);
+	assert.equal(a.$("#libOpen"), null);
+	a.openSettings();
 	assert.equal(a.$("#libTab").hidden, true);
 	assert.deepEqual(a.errs, []);
 });
@@ -211,10 +217,10 @@ test("library UI: with a cloud backend the page shows Google sign-in, and the li
 		fetchImpl,
 	});
 	await sleep(500);
-	assert.equal(a.$("#libTab").hidden, false);
-	assert.equal(a.$("#railLib").hidden, false);
-	a.click(a.$("#railLib"));
+	assert.equal(a.$("#libOpen").hidden, false);
+	a.click(a.$("#libOpen"));
 	await tick();
+	assert.equal(a.$("#libTab").hidden, false);
 	assert.equal(a.$("#libAccount").hidden, false);
 	assert.match(a.$("#libWho").textContent, /Sign in/);
 	assert.equal(a.$("#libTools").hidden, true, "no tools until signed in");
