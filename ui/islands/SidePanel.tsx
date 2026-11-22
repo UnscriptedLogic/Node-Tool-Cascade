@@ -503,7 +503,7 @@ export default function SidePanel() {
 									{grill.resolve
 										? "Resolving one question"
 										: scope
-											? scope.text.slice(0, 44)
+											? scope.text
 											: "Whole tree"}
 								</span>
 								<span id="gRound" hidden={grill.resolve}>
