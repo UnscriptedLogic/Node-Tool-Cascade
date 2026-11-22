@@ -19,13 +19,14 @@ In **Settings > AI model > Use your chat account**, prepare a prompt, copy it in
 
 ## 🚀 Run locally
 
-Requires [Node.js](https://nodejs.org/) 18 or newer. No dependency installation needed to run the app.
+Requires [Node.js](https://nodejs.org/) 20.19+ or 22.12+. Install dependencies before the first run. `npm start` builds the UI and starts the app.
 
-For PDF imports in the mindset converter, run `npm install` first. Current Node.js 22.13+ is recommended for installing the PDF tooling.
+Node.js 22.13+ is recommended for PDF imports in the mindset converter.
 
 ```bash
 git clone https://github.com/UnscriptedLogic/Node-Tool-Cascade.git
 cd Node-Tool-Cascade
+npm install
 npm start
 ```
 
@@ -37,7 +38,7 @@ Project excerpts used for these features go to your selected provider. Use a loc
 
 ## 🛠️ Development
 
-Built with vanilla HTML, CSS, JavaScript, and Node.js. No runtime dependencies for the local app.
+Built with TypeScript and Node.js. The UI build bundles React and Valtio locally.
 
 ```bash
 npm install
@@ -50,3 +51,5 @@ The build creates `dist/web/index.html` for static hosting. Optional cloud hosti
 ## 📄 License
 
 [MIT](LICENSE)
+
+Run `npm run typecheck` to check all source files. Shared data modules use strict checks; legacy modules use standard checks. Media capture (`npm run capture:media`) requires Node.js 22.12+.

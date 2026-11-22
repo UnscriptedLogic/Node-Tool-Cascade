@@ -1,0 +1,26 @@
+/* ---------- no accidental text selection while dragging ---------- */
+#stage,
+#rail {
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+#stage input,
+#stage textarea,
+#stage [contenteditable="true"],
+#side,
+#compose,
+#note {
+	user-select: text;
+	-webkit-user-select: text;
+}
+body.dragging,
+body.dragging * {
+	/* biome-ignore lint/complexity/noImportantStyles: Dragging must override selectable canvas text and form controls. */
+	user-select: none !important;
+	/* biome-ignore lint/complexity/noImportantStyles: Dragging must override selectable canvas text and form controls. */
+	-webkit-user-select: none !important;
+}
+body.dragging {
+	cursor: grabbing;
+}

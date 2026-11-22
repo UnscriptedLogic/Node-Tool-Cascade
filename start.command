@@ -1,3 +1,6 @@
 #!/bin/bash
 cd "$(dirname "$0")"
-node server/server.js
+if [ ! -d node_modules ]; then
+  npm install || exit $?
+fi
+npm start

@@ -1,0 +1,75 @@
+// The page itself: assembled from ui/index.html, with this machine's saved tree and settings injected, plus its css/js parts.
+import fs from "node:fs";
+import path from "node:path";
+import { assemble, BUNDLE_DIR, UI_DIR } from "../../scripts/assemble.ts";
+import { pdfAsset } from "../../scripts/pdf-assets.ts";
+import ctx from "../context.ts";
+import type { Router } from "../http.ts";
+import { inject, json } from "../http.ts";
+
+export default (r: Router) => {
+	const page = ({ res }) => {
+		clearTimeout(ctx.byeTimer); // a reload, not a close
+		let saved = "null";
+		try {
+			const raw = fs.readFileSync(ctx.TREE_FILE, "utf8");
+			JSON.parse(raw);
+			saved = raw;
+		} catch {}
+		const runtime = `<script>window.__LOCAL__=true;window.__SETTINGS__=${inject(ctx.pub())};window.__CASCADE_SAVED__=${saved.replace(/</g, "\\u003c")};</script>`;
+		res.writeHead(200, {
+			"content-type": "text/html; charset=utf-8",
+			"cache-control": "no-store",
+		});
+		res.end(assemble({ inline: false, runtime }));
+	};
+	r.get("/", page);
+	r.get("/index.html", page);
+	r.getPrefix("/vendor/pdfjs/", ({ res, url }) => {
+		let file: string | null;
+		try {
+			file = pdfAsset(
+				decodeURIComponent(url.pathname.slice("/vendor/pdfjs/".length)),
+			);
+		} catch {
+			return json(res, 503, {
+				error: "pdf_unavailable",
+				detail: "Run npm install to enable PDF imports.",
+			});
+		}
+		if (!file) return json(res, 404, { error: "not found" });
+		res.writeHead(200, {
+			"content-type": file.endsWith(".mjs")
+				? "text/javascript; charset=utf-8"
+				: "application/octet-stream",
+			"cache-control": "public, max-age=3600",
+		});
+		res.end(fs.readFileSync(file));
+	});
+	r.get("/favicon.png", ({ res }) => {
+		res.writeHead(200, {
+			"content-type": "image/png",
+			"cache-control": "public, max-age=86400",
+		});
+		res.end(fs.readFileSync(path.join(UI_DIR, "favicon.png")));
+	});
+
+	// the page's css and js parts, and nothing else under dist/ui/
+	r.getPrefix("/app/", ({ res, url }) => {
+		const rel = path.normalize(decodeURIComponent(url.pathname.slice(5)));
+		const file = path.join(BUNDLE_DIR, rel);
+		if (
+			rel.startsWith("..") ||
+			!/\.(css|js)$/.test(rel) ||
+			!fs.existsSync(file)
+		)
+			return json(res, 404, { error: "not found" });
+		res.writeHead(200, {
+			"content-type": rel.endsWith(".css")
+				? "text/css; charset=utf-8"
+				: "text/javascript; charset=utf-8",
+			"cache-control": "no-store",
+		});
+		res.end(fs.readFileSync(file));
+	});
+};

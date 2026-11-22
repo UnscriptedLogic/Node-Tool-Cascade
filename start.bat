@@ -1,4 +1,8 @@
 @echo off
 cd /d "%~dp0"
-node server\server.js
+if not exist node_modules (
+  call npm install
+  if errorlevel 1 exit /b 1
+)
+call npm start
 pause

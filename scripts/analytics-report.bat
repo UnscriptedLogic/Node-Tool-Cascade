@@ -46,7 +46,7 @@ if errorlevel 1 (
 )
 
 echo.
-node scripts\analytics-report.js --env %TARGET% --days %DAYS%
+node --import tsx scripts\analytics-report.ts --env %TARGET% --days %DAYS%
 echo.
 
 if defined ASKED call :offer_save
