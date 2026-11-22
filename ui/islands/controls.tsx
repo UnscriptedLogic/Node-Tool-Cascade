@@ -1,12 +1,14 @@
 // Small compositions of shadcn components that the settings screens repeat.
 import { ChevronRight } from "lucide-react";
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -126,6 +128,60 @@ export function Disclosure({
 				{children}
 			</CollapsibleContent>
 		</Collapsible>
+	);
+}
+
+// A file picker that shows the chosen file names, with a Browse button on the right.
+export function FileField({
+	id,
+	label,
+	accept,
+	multiple = false,
+	disabled,
+	onFiles,
+}: {
+	id: string;
+	label: string;
+	accept?: string;
+	multiple?: boolean;
+	disabled?: boolean;
+	onFiles: (files: File[]) => void;
+}) {
+	const input = useRef<HTMLInputElement>(null);
+	const [names, setNames] = useState("");
+	return (
+		<div className="field">
+			<Label htmlFor={id}>{label}</Label>
+			<div className="frow file-field">
+				<span id={`${id}Name`} className="file-name" data-empty={!names}>
+					{names || (multiple ? "No files chosen" : "No file chosen")}
+				</span>
+				<Button
+					type="button"
+					className="btn primary"
+					disabled={disabled}
+					aria-label={`Browse ${label.toLowerCase()}`}
+					aria-describedby={`${id}Name`}
+					onClick={() => input.current?.click()}
+				>
+					Browse
+				</Button>
+			</div>
+			<Input
+				id={id}
+				type="file"
+				hidden={true}
+				ref={input}
+				accept={accept}
+				multiple={multiple}
+				disabled={disabled}
+				onChange={(e) => {
+					const files = [...(e.currentTarget.files || [])];
+					setNames(files.map((file) => file.name).join(", "));
+					onFiles(files);
+				}}
+			/>
+		</div>
 	);
 }
 
