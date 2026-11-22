@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import MINDSET_PRESETS from "../../shared/mindset-presets.ts";
-import type { Mindset } from "../../shared/mindsets.ts";
-import MindsetCollection from "../../shared/mindsets.ts";
-import { PREFS } from "../core/constants.ts";
-import type { Preferences } from "../core/prefs.ts";
-import { DOMAINS } from "../core/profiles.ts";
-import { S } from "../core/state.ts";
+import MINDSET_PRESETS from "../../../shared/mindset-presets.ts";
+import type { Mindset } from "../../../shared/mindsets.ts";
+import MindsetCollection from "../../../shared/mindsets.ts";
+import { PREFS } from "../../core/constants.ts";
+import type { Preferences } from "../../core/prefs.ts";
+import { DOMAINS } from "../../core/profiles.ts";
+import { S } from "../../core/state.ts";
 import {
 	applyMindset,
 	changeMindsetIcon,
@@ -24,11 +24,12 @@ import {
 	installedBuiltin,
 	MSUI,
 	removeMindset,
-} from "../features/mindsets.ts";
-import type { CascadeTree } from "../model.ts";
-import { closeSettings } from "../shell/settings.ts";
-import { CheckRow, Disclosure } from "./controls.tsx";
+} from "../../features/mindsets.ts";
+import type { CascadeTree } from "../../model.ts";
+import { closeSettings } from "../../shell/settings.ts";
+import { CheckRow, Disclosure } from "../controls.tsx";
 import MindsetConverter from "./MindsetConverter.tsx";
+import SettingsPane from "./SettingsPane.tsx";
 
 interface MindsetIconProps {
 	pack: Pick<Mindset, "id" | "name" | "icon">;
@@ -39,6 +40,7 @@ function MindsetIcon({ pack }: MindsetIconProps) {
 	return (
 		<Input
 			type="text"
+			className="max-w-[110px]"
 			maxLength={16}
 			value={value}
 			aria-label={`Icon for ${pack.name}`}
@@ -73,16 +75,18 @@ function BuiltinCatalog({ pack }: { pack: Mindset }) {
 	const [opened, setOpened] = useState(false);
 	return (
 		<Disclosure
+			className="my-[14px]"
 			title={`Browse ${pack.entries.length} lenses`}
 			onOpenChange={(open) => {
 				if (open) setOpened(true);
 			}}
 		>
 			{opened && (
-				<div className="mindset-catalog">
+				<div className="mindset-catalog max-h-[320px] overflow-auto pr-[8px]">
 					{pack.entries.map((entry) => (
 						<Disclosure
 							key={entry.id}
+							className="my-[14px] border-b border-line pb-[8px]"
 							title={`${entry.label} #${entry.number}: ${entry.name}`}
 						>
 							{entry.questions.map((question) => (
@@ -98,7 +102,7 @@ function BuiltinCatalog({ pack }: { pack: Mindset }) {
 		</Disclosure>
 	);
 }
-export default function Mindsets() {
+export default function MindsetsTab() {
 	const domains: Record<string, { label: string }> = DOMAINS;
 	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
@@ -106,17 +110,18 @@ export default function Mindsets() {
 		file = useRef<HTMLInputElement>(null);
 	const topic = context(state, prefs);
 	return (
-		<>
-			<h3>{"Mindsets"}</h3>
-			<p className="sub">
-				{
-					"Add ways of thinking to this Cascade. Matching lenses can add questions alongside ordinary branches and interviews. Select a node before opening Settings to apply a pack to that branch."
-				}
+		<SettingsPane value="mindsets">
+			<h3>Mindsets</h3>
+			<p className="lead">
+				Add ways of thinking to this Cascade. Matching lenses can add questions
+				alongside ordinary branches and interviews. Select a node before opening
+				Settings to apply a pack to that branch.
 			</p>
 			<p className="small">
-				{
-					"The AI uses only enabled packs that fit the current domain and the branch topics. A matching word is only a starting point, and questions must still fit the topic and goal. Questions already on the canvas keep their source when you remove a pack."
-				}
+				The AI uses only enabled packs that fit the current domain and the
+				branch topics. A matching word is only a starting point, and questions
+				must still fit the topic and goal. Questions already on the canvas keep
+				their source when you remove a pack.
 			</p>
 			<div id="msBuiltins">
 				{MINDSET_PRESETS.map((preset) => {
@@ -124,7 +129,7 @@ export default function Mindsets() {
 						installed = installedBuiltin(preset, state.mindsets),
 						upgrade = !!installed && installed.id !== pack.id;
 					return (
-						<section className="card mindset-builtin" key={pack.id}>
+						<section className="card mindset-builtin my-[16px]" key={pack.id}>
 							<strong>{`${pack.icon} ${pack.name}`}</strong>
 							<p className="small">{`Included · Game design only · ${pack.source.edition}. ${pack.source.coverage}`}</p>
 							<div className="frow">
@@ -163,7 +168,7 @@ export default function Mindsets() {
 					id="msImport"
 					onClick={() => file.current?.click()}
 				>
-					{"Import JSON pack"}
+					Import JSON pack
 				</Button>
 				<Button
 					type="button"
@@ -171,7 +176,7 @@ export default function Mindsets() {
 					id="msExample"
 					onClick={() => downloadMindsetExample()}
 				>
-					{"Download example"}
+					Download example
 				</Button>
 			</div>
 			<Input
@@ -186,36 +191,41 @@ export default function Mindsets() {
 					input.value = "";
 				}}
 			/>
-			<Disclosure title="Paste JSON pack">
-				<Label className="field" htmlFor="msJson">
-					{"Mindset JSON"}
-				</Label>
-				<Textarea
-					id="msJson"
-					className="area"
-					rows={7}
-					spellCheck={false}
-					value={ui.json}
-					onChange={(e) => {
-						MSUI.json = e.currentTarget.value;
-					}}
-				/>
-				<Button
-					type="button"
-					className="btn"
-					id="msPasteImport"
-					onClick={() => importMindsetJson()}
-				>
-					{"Import pasted JSON"}
-				</Button>
+			<Disclosure
+				id="msPaste"
+				className="card my-[14px] [&>.disclosure-trigger]:cursor-pointer [&>.disclosure-trigger]:font-bold!"
+				title="Paste JSON pack"
+			>
+				<div className="field my-[18px]!">
+					<Label htmlFor="msJson">Mindset JSON</Label>
+					<Textarea
+						id="msJson"
+						className="[font:12px/1.5_ui-monospace,monospace]!"
+						rows={7}
+						spellCheck={false}
+						value={ui.json}
+						onChange={(e) => {
+							MSUI.json = e.currentTarget.value;
+						}}
+					/>
+				</div>
+				<div className="frow">
+					<Button
+						type="button"
+						className="btn"
+						id="msPasteImport"
+						onClick={() => importMindsetJson()}
+					>
+						Import pasted JSON
+					</Button>
+				</div>
 			</Disclosure>
 			<p id="msMsg" className="small" role="status" aria-live="polite">
 				{ui.message}
 			</p>
 			<p id="msEmpty" className="sub" hidden={state.mindsets.length > 0}>
-				{
-					"No mindsets yet. Download the example to see the format. Import one pack or a JSON array of packs."
-				}
+				No mindsets yet. Download the example to see the format. Import one pack
+				or a JSON array of packs.
 			</p>
 			<div id="msList">
 				{state.mindsets.map((pack) => {
@@ -227,7 +237,7 @@ export default function Mindsets() {
 					);
 					return (
 						<section
-							className="card mindset-pack"
+							className="card mindset-pack my-[12px]"
 							data-pack={pack.id}
 							key={pack.id}
 						>
@@ -284,9 +294,7 @@ export default function Mindsets() {
 					);
 				})}
 			</div>
-			<div id="converterRoot">
-				<MindsetConverter />
-			</div>{" "}
-		</>
+			<MindsetConverter />
+		</SettingsPane>
 	);
 }

@@ -54,60 +54,6 @@
 	outline: 2px solid var(--focus);
 	outline-offset: 3px;
 }
-.mindset-pack {
-	margin-block: 12px;
-}
-.mindset-pack .field input {
-	max-width: 110px;
-}
-#p-mindsets .disclosure {
-	margin-block: 14px;
-}
-.mindset-builtin {
-	margin-block: 16px;
-}
-.mindset-catalog {
-	max-height: 320px;
-	overflow: auto;
-	padding-right: 8px;
-}
-.mindset-catalog > .disclosure {
-	border-bottom: 1px solid var(--line);
-	padding-bottom: 8px;
-}
-#msConverter {
-	margin-top: 24px;
-}
-#msConverter > .disclosure-trigger {
-	font-weight: 700;
-	cursor: pointer;
-}
-#msConverter .field {
-	margin-block: 18px;
-}
-#mcDomains {
-	border: 1px solid var(--line);
-	border-radius: 9px;
-	padding: 12px;
-	margin-block: 18px;
-}
-#mcDomains .check {
-	margin-block: 8px;
-}
-#mcEntries {
-	max-height: 320px;
-	overflow: auto;
-	margin-bottom: 18px;
-}
-#mcEntries > .disclosure {
-	border-bottom: 1px solid var(--line);
-	padding-bottom: 8px;
-}
-#mcJson {
-	font:
-		12px / 1.5 ui-monospace,
-		monospace;
-}
 /* polygon shapes (diamond, hexagon...) are drawn by an SVG behind the text */
 .blk > .shp {
 	position: absolute;

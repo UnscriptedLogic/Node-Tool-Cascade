@@ -14,7 +14,6 @@ import {
 	SETTINGS,
 	showTab,
 } from "../../shell/settings.ts";
-import Mindsets from "../Mindsets.tsx";
 import Project from "../Project.tsx";
 import AiTab from "./AiTab.tsx";
 import BehaviorTab from "./BehaviorTab.tsx";
@@ -22,6 +21,7 @@ import DataTab from "./DataTab.tsx";
 import GoalTab from "./GoalTab.tsx";
 import LibraryTab from "./LibraryTab.tsx";
 import LookTab from "./LookTab.tsx";
+import MindsetsTab from "./MindsetsTab.tsx";
 import SettingsPane, { tabId } from "./SettingsPane.tsx";
 
 const tabs: readonly { value: string; label: string; modes?: string }[] = [
@@ -139,11 +139,7 @@ export default function SettingsDialog({
 								))}
 							</Tabs.List>
 							<div className="overflow-y-auto px-7.5 pt-6.5 pb-17.5 settings-narrow:px-4 settings-narrow:pt-5 settings-narrow:pb-[calc(4.375rem+env(safe-area-inset-bottom))]">
-								<SettingsPane value="mindsets">
-									<div id="mindsetsRoot">
-										<Mindsets />
-									</div>
-								</SettingsPane>
+								<MindsetsTab />
 								<AiTab />
 								<GoalTab />
 								<LibraryTab />
