@@ -227,7 +227,8 @@ export function nodeActions(n, hasKids) {
 			["del", "Delete"],
 		);
 	} else {
-		if (hasKids) btns.push(["collapse", n.collapsed ? "Expand" : "Collapse"]);
+		if (hasKids)
+			btns.push(n.collapsed ? ["expand", "Expand"] : ["collapse", "Collapse"]);
 		if (S.layer && n.type === "question") {
 			btns.push(
 				n.state === "settled"

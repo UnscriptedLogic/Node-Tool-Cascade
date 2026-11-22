@@ -129,6 +129,7 @@ export function runNodeAction(act: string, id) {
 		back: traceBack,
 		bridge: bridgeTo,
 		collapse: toggleCollapse,
+		expand: toggleCollapse,
 		del: (i) => deleteNode(i, false),
 		delb: (i) => deleteNode(i, true),
 		open: openLoop,
@@ -326,7 +327,6 @@ export function nodeMenuSpec(id) {
 		del: hasKids ? "Delete (its children move up)" : "Delete",
 		delb: "Delete with everything below",
 		bridge: "Bridge to this feeling",
-		collapse: n.collapsed ? "Expand" : "Collapse",
 	};
 	nodeActions(n, hasKids).forEach(([act, title]) => {
 		items.push({
@@ -381,6 +381,7 @@ export const SHORT: Record<string, string> = {
 	back: "Trace",
 	bridge: "Bridge",
 	collapse: "Fold",
+	expand: "Unfold",
 	del: "Delete",
 	delb: "Delete all",
 	open: "Open",

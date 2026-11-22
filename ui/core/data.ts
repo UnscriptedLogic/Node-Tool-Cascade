@@ -31,6 +31,10 @@ export const ACT: Record<string, string> = {
 		'<path d="M9.3 3.2v3.5h3.5M13.5 2.5 9.3 6.7M3.2 9.3h3.5v3.5M2.5 13.5l4.2-4.2"/>',
 	),
 	del: svg('<path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8h5.8l.6-8"/>'),
+	// arrows out to two corners, like open
+	expand: svg(
+		'<path d="M10 2.5h3.5V6M13.5 2.5 9.3 6.7M6 13.5H2.5V10M2.5 13.5l4.2-4.2"/>',
+	),
 	// expand: arrows out to two corners
 	open: svg(
 		'<path d="M10 2.5h3.5V6M13.5 2.5 9.3 6.7M6 13.5H2.5V10M2.5 13.5l4.2-4.2"/>',
