@@ -263,7 +263,7 @@ export function rgbOf(c: string) {
 			h = h
 				.slice(0, 3)
 				.split("")
-				.map((x) => x + x)
+				.map((x) => `${x}${x}`)
 				.join("");
 		return [
 			parseInt(h.slice(0, 2), 16),
@@ -385,12 +385,22 @@ export function decorate(blk: HTMLElement, type, n, o?) {
 	(svg.firstChild as Element).setAttribute("points", POLY[d.shape] || "");
 	return d;
 }
+// The sidebar tiles render from this, like the legend renders from the mood colours.
 export function applyTiles() {
-	document.querySelectorAll<HTMLElement>(".tile").forEach((t) => {
-		decorate(t, (t as HTMLElement).dataset.type, null, {
-			tile: true,
-		});
-	});
+	UI.tileLooks = Object.fromEntries(
+		NODE_TYPES.map((type) => {
+			const d = nodeVars(type, null, { tile: true });
+			return [
+				type,
+				{
+					vars: d.vars,
+					poly: d.poly,
+					icon: d.icon,
+					points: POLY[d.shape] || "",
+				},
+			];
+		}),
+	);
 }
 export function renderLegend() {
 	UI.moodColors = Object.fromEntries(

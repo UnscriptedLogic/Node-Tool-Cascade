@@ -17,7 +17,7 @@ test("startup: fresh canvases are empty in every domain, including the static bu
 	}
 });
 
-test("startup: existing graphs restore while Load example still supplies the chosen domain sample", (t) => {
+test("startup: existing graphs restore while Load example still supplies the chosen domain sample", async (t) => {
 	const tree = {
 		nodes: {
 			n1: {
@@ -44,7 +44,7 @@ test("startup: existing graphs restore while Load example still supplies the cho
 	t.after(() => a.dom.window.close());
 	assert.equal(a.nodes().length, 1);
 	assert.ok(a.byText("Keep this saved question?"));
-	a.click(a.$("#resetBtn"));
+	await a.runRailAction("resetBtn");
 	assert.ok(a.nodes().length > 1);
 	assert.ok(a.byText("Why does traversal feel slow?"));
 	assert.deepEqual(a.errs, []);

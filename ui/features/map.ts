@@ -1,3 +1,4 @@
+import { flushSync } from "react-dom";
 import { proxy, ref } from "valtio/vanilla";
 import { isRecord } from "../../shared/types.ts";
 import {
@@ -16,7 +17,7 @@ import { beginEdit } from "../canvas/interaction.ts";
 import { layout, restyle } from "../canvas/layout.ts";
 import { applyView, ensureVisible, setMode } from "../canvas/view.ts";
 import { track } from "../core/analytics.ts";
-import { drawerW, PREFS, TICKETS } from "../core/constants.ts";
+import { drawerInsets, PREFS, TICKETS } from "../core/constants.ts";
 import { stage } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, pushHist, S, UI } from "../core/state.ts";
@@ -26,9 +27,26 @@ import { commit, requestFocus, select, showNote } from "../shell/hud.ts";
 import { setPreference } from "../shell/settings.ts";
 import { mindsetBlock, mindsetCandidates, mindsetResult } from "./mindsets.ts";
 import { citeText, projectEvidence } from "./project.ts";
+
+const SIDE_KEY = "cascade-side-v1";
+function savedSide() {
+	try {
+		return localStorage.getItem(SIDE_KEY) !== "closed";
+	} catch {
+		return true;
+	}
+}
+function saveSide(open: boolean) {
+	if (UI.small) return;
+	try {
+		localStorage.setItem(SIDE_KEY, open ? "open" : "closed");
+	} catch {}
+}
+
+// Like the sidebar, the panel stays open on desktop unless the viewer closed it.
 export const PANEL = proxy({
 	open: false,
-	tab: "map",
+	tab: "ask",
 	map: null as TreeMap | null,
 	hint: "",
 	grillNote: "",
@@ -59,16 +77,29 @@ export function showStab(t: string) {
 	applyView();
 	if (t === "map") renderMap();
 }
+// The HUD on the right moves aside for the desktop drawer.
+export function syncSideInset() {
+	stage?.style.setProperty("--drawer", `${drawerInsets().right}px`);
+}
 export function openSide(tab: string) {
-	PANEL.open = true;
-	(stage as HTMLElement).style.setProperty("--drawer", `${drawerW()}px`);
+	// Mount the drawer first, so the camera can measure what it covers.
+	if (!PANEL.open)
+		flushSync(() => {
+			PANEL.open = true;
+		});
+	syncSideInset();
+	saveSide(true);
 	showStab(tab || PANEL.tab);
 }
-export function closeSide() {
-	PANEL.open = false;
+export function closeSide(remember = true) {
+	if (!PANEL.open && !S.layer) return;
+	if (remember) saveSide(false);
+	flushSync(() => {
+		PANEL.open = false;
+	});
 	S.layer = false;
 	coreStateState.linkFrom = null;
-	(stage as HTMLElement).style.setProperty("--drawer", "0px");
+	syncSideInset();
 	layout(false);
 	applyView();
 }
@@ -550,12 +581,8 @@ export async function nextRound() {
 	gNoteShow("");
 	const sc0 = G.scope && S.nodes[G.scope];
 	const ev = await projectEvidence(
-		(
-			(sc0 ? `${sc0.text} ` : "") +
-			(PREFS.goal || "") +
-			" " +
-			(PREFS.context || "")
-		).trim() || `${DOM().subject} ${DOM().treeName}`,
+		`${sc0 ? `${sc0.text} ` : ""}${PREFS.goal || ""} ${PREFS.context || ""}`.trim() ||
+			`${DOM().subject} ${DOM().treeName}`,
 		5,
 	);
 	const c = new AbortController();
@@ -634,9 +661,7 @@ export async function nextRound() {
 	if (G.failed) gNoteShow("That round didn’t come back. Try again.");
 	if (G.done && !got) {
 		const n = G.history.filter((h) => h.s === "settled").length;
-		PANEL.doneMessage =
-			(G.summary ? `${G.summary} ` : "") +
-			`Nothing is left unspoken for now. ${n} ${n === 1 ? "decision is" : "decisions are"} settled this session.`;
+		PANEL.doneMessage = `${G.summary ? `${G.summary} ` : ""}Nothing is left unspoken for now. ${n} ${n === 1 ? "decision is" : "decisions are"} settled this session.`;
 	}
 	checkRoundEnd();
 }
@@ -649,6 +674,12 @@ export function toggleAsk() {
 	if (!PANEL.open || PANEL.tab !== "ask") openSide("ask");
 	else closeSide();
 }
+// Small screens start with the panel closed; desktop brings back the saved state.
+export function restoreSide() {
+	if (UI.small) closeSide(false);
+	else if (savedSide() && !PANEL.open) openSide(PANEL.tab);
+}
 export function startMap() {
 	UI.panel = PANEL;
+	restoreSide();
 }

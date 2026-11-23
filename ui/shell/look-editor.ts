@@ -46,13 +46,10 @@ export const LK = proxy({
 	textOk: false,
 });
 export function lookFromText(desc) {
-	const t =
-		" " +
-		String(desc || "")
-			.toLowerCase()
-			.replace(/[,.;:!?()]/g, " ")
-			.replace(/\s+/g, " ") +
-		" ";
+	const t = ` ${String(desc || "")
+		.toLowerCase()
+		.replace(/[,.;:!?()]/g, " ")
+		.replace(/\s+/g, " ")} `;
 	const patch = {};
 	let reset = false;
 	const put = (path: string, val: string | number | boolean) => {
@@ -421,13 +418,10 @@ export function toHex(c: string) {
 		pr.remove();
 		const m = cs.match(/\d+/g);
 		if (m)
-			return (
-				"#" +
-				m
-					.slice(0, 3)
-					.map((x) => (+x).toString(16).padStart(2, "0"))
-					.join("")
-			);
+			return `#${m
+				.slice(0, 3)
+				.map((x) => (+x).toString(16).padStart(2, "0"))
+				.join("")}`;
 	} catch {
 		/* Unsupported color syntax falls through to the existing fallback. */
 	}
@@ -1053,16 +1047,13 @@ export const mixHex = (a, b, t) => {
 	const x = rgbOf(a),
 		y = rgbOf(b);
 	if (!x || !y) return a;
-	return (
-		"#" +
-		x
-			.map((v, i) =>
-				Math.round(v + (y[i] - v) * t)
-					.toString(16)
-					.padStart(2, "0"),
-			)
-			.join("")
-	);
+	return `#${x
+		.map((v, i) =>
+			Math.round(v + (y[i] - v) * t)
+				.toString(16)
+				.padStart(2, "0"),
+		)
+		.join("")}`;
 };
 export const TYPE_PHRASE = {
 	question: "questions?",

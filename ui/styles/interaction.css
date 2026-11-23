@@ -5,6 +5,11 @@
 	-webkit-user-select: none;
 	-webkit-touch-callout: none;
 }
+#dock {
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
 #stage input,
 #stage textarea,
 #stage [contenteditable="true"],

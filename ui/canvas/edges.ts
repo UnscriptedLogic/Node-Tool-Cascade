@@ -54,7 +54,7 @@ export function drawEdges() {
 		seen.add(key);
 		const p = pathEl(
 			key,
-			(n.ghost ? "g" : "") + (n.back ? " back" : ""),
+			`${n.ghost ? "g" : ""}${n.back ? " back" : ""}`,
 			false,
 			!!n.back,
 		);
@@ -88,7 +88,7 @@ export function drawEdges() {
 			L.kind === "flow" ? "flow" : L.kind === "block" ? "block" : "rel";
 		const p = pathEl(
 			key,
-			kind + (ghost ? " g" : ""),
+			`${kind}${ghost ? " g" : ""}`,
 			kind === "flow" || kind === "block",
 		);
 		p._e = [L.a, L.b];

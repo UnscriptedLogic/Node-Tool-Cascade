@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import type { CascadeMeta, Folder } from "../../shared/types.ts";
 import { DOMAINS } from "../core/profiles.ts";
 import {
@@ -17,6 +18,7 @@ import {
 	libSaveCurrent,
 	libSignOut,
 } from "../features/library.ts";
+import { SelectField } from "./controls.tsx";
 
 const when = (time: string | number | Date) => {
 	const date = new Date(time);
@@ -89,11 +91,11 @@ function NameCell({ kind, item, editing }: NameCellProps) {
 }
 
 function DeleteButton({ kind, item, armed }: DeleteButtonProps) {
-	const key = kind + item.id;
+	const key = `${kind}${item.id}`;
 	return (
 		<Button
 			type="button"
-			className={`btn small${armed === key ? " danger" : ""}`}
+			className={`btn${armed === key ? " danger" : ""}`}
 			aria-label={`Delete ${item.name}`}
 			onClick={() => {
 				if (armed === key) return libDelete(kind, item.id);
@@ -113,20 +115,20 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 	const domains: Record<string, { label: string }> = DOMAINS;
 	return (
 		<li
-			className={`lib-row${item.id === lib.currentId ? " current" : ""}`}
+			className={cn(
+				"lib-row flex flex-wrap items-center gap-2.5 rounded-[9px] border-b border-line px-2.5 py-[9px]",
+				item.id === lib.currentId && "current bg-(--paper2)",
+			)}
 			data-id={item.id}
 		>
 			<NameCell kind="cascade" item={item} editing={lib.editing} />
-			<span className="lib-meta">
-				{(domains[item.domain]?.label || "") +
-					" · " +
-					when(item.updatedAt) +
-					(item.id === lib.currentId ? " · open now" : "")}
+			<span className="flex-auto text-[12.5px] text-ink2">
+				{`${domains[item.domain]?.label || ""} · ${when(item.updatedAt)}${item.id === lib.currentId ? " · open now" : ""}`}
 			</span>
-			<span className="lib-actions">
+			<span className="lib-actions flex flex-wrap items-center gap-1.5">
 				<Button
 					type="button"
-					className="btn small"
+					className="btn"
 					aria-label={`Rename ${item.name}`}
 					onClick={() => {
 						LIB.editing = { kind: "cascade", id: item.id };
@@ -134,18 +136,15 @@ function CascadeRow({ item, lib }: CascadeRowProps) {
 				>
 					Rename
 				</Button>
-				<select
-					aria-label={`Move ${item.name} to a folder`}
+				<SelectField
+					label={`Move ${item.name} to a folder`}
 					value={item.folderId || ""}
-					onChange={(event) => libMove(item.id, event.target.value)}
-				>
-					<option value="">No folder</option>
-					{lib.folders.map((folder) => (
-						<option key={folder.id} value={folder.id}>
-							{folder.name}
-						</option>
-					))}
-				</select>
+					options={[
+						["", "No folder"],
+						...lib.folders.map((folder) => [folder.id, folder.name] as const),
+					]}
+					onChange={(value) => libMove(item.id, value)}
+				/>
 				<DeleteButton kind="cascade" item={item} armed={lib.armed} />
 			</span>
 		</li>
@@ -183,7 +182,7 @@ export default function Library() {
 						Sign out
 					</Button>
 					<Button
-						className="btn small"
+						className="btn"
 						id="libDeleteAccount"
 						type="button"
 						hidden={!lib.user}
@@ -227,7 +226,7 @@ export default function Library() {
 					{lib.status}
 				</small>
 			</div>
-			<div id="libList">
+			<div id="libList" className="max-w-[760px]">
 				{signed && !lib.folders.length && !lib.cascades.length && (
 					<p className="small">
 						Nothing saved yet. Start a new Cascade, or save the one you have
@@ -241,27 +240,26 @@ export default function Library() {
 						);
 						return (
 							<section
-								className="lib-folder"
+								className="lib-folder mb-5"
 								data-folder={folder.id}
 								key={folder.id}
 							>
-								<header className="lib-fhead">
+								<header className="flex flex-wrap items-center gap-2.5 border-b border-line py-2">
 									<NameCell kind="folder" item={folder} editing={lib.editing} />
-									<span className="lib-meta">
-										{inside.length +
-											(inside.length === 1 ? " Cascade" : " Cascades")}
+									<span className="flex-auto text-[12.5px] text-ink2">
+										{`${inside.length}${inside.length === 1 ? " Cascade" : " Cascades"}`}
 									</span>
-									<span className="lib-actions">
+									<span className="lib-actions flex flex-wrap items-center gap-1.5">
 										<Button
 											type="button"
-											className="btn small"
+											className="btn"
 											onClick={() => libNewCascade(folder.id)}
 										>
 											New Cascade here
 										</Button>
 										<Button
 											type="button"
-											className="btn small"
+											className="btn"
 											aria-label={`Rename folder ${folder.name}`}
 											onClick={() => {
 												LIB.editing = { kind: "folder", id: folder.id };
@@ -276,7 +274,7 @@ export default function Library() {
 										/>
 									</span>
 								</header>
-								<ul className="lib-list">
+								<ul className="m-0 list-none p-0">
 									{inside.map((item) => (
 										<CascadeRow key={item.id} item={item} lib={lib} />
 									))}
@@ -285,13 +283,13 @@ export default function Library() {
 						);
 					})}
 				{signed && !!loose.length && (
-					<section className="lib-folder">
+					<section className="lib-folder mb-5">
 						{!!lib.folders.length && (
-							<header className="lib-fhead">
+							<header className="flex flex-wrap items-center gap-2.5 border-b border-line py-2">
 								<strong>Not in a folder</strong>
 							</header>
 						)}
-						<ul className="lib-list">
+						<ul className="m-0 list-none p-0">
 							{loose.map((item) => (
 								<CascadeRow key={item.id} item={item} lib={lib} />
 							))}

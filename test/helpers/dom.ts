@@ -107,10 +107,17 @@ function open({
 			});
 			w.document.elementsFromPoint = () => [];
 			w.Element.prototype.setPointerCapture = () => {};
+			w.HTMLElement.prototype.scrollIntoView = () => {};
 			Object.defineProperty(w, "crypto", {
 				value: nodeCrypto.webcrypto,
 				configurable: true,
 			});
+			// Radix sliders measure themselves; jsdom has no layout to observe.
+			w.ResizeObserver ??= class {
+				observe() {}
+				unobserve() {}
+				disconnect() {}
+			};
 			w.TextEncoder = TextEncoder;
 			w.TextDecoder = TextDecoder;
 			w.Blob = Blob;
@@ -184,9 +191,66 @@ function open({
 		click($("#cOk"));
 		await sleep(ms);
 	};
+	// Settings mounts its content only while it is open.
+	const openSettings = (tab?: string) => {
+		if (!$("#settings")) click($("#setBtn"));
+		if (tab) click($(`.stabs [data-tab=${tab}]`));
+	};
+	const openPanel = async (tab: "Map" | "Ask") => {
+		const launcher = $("#sideOpen");
+		if (launcher) {
+			click(launcher);
+			await tick();
+		}
+		click($(`#st${tab}`));
+		await tick();
+	};
+	const expandDisclosure = async (selector: string) => {
+		const trigger = $(`${selector} > button[aria-expanded]`);
+		if (trigger.getAttribute("aria-expanded") === "false") {
+			click(trigger);
+			await tick();
+		}
+	};
+	const pressKey = (el: Element, key: string) =>
+		el.dispatchEvent(
+			new w.KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+		);
+	const runRailAction = async (action: "resetBtn" | "clearBtn") => {
+		await tick();
+		pressKey($("#railActions"), "ArrowDown");
+		await tick();
+		click($(`#${action}`));
+		await tick();
+		confirm();
+	};
+	const openSelect = async (selector: string) => {
+		pressKey($(selector), "ArrowDown");
+		await tick();
+		return $$('[role="listbox"] [role="option"]');
+	};
+	// Load example and Clear graph ask first; answer the confirmation.
+	const confirm = (accept = true) =>
+		click($(accept ? "#confirmAction" : "#confirmCancel"));
+	// The idle instruction sits in the help tooltip; a busy status shows in the pill.
+	const statusText = async () => {
+		const help = $("#helpBtn");
+		if (!help) return $("#stxt")?.textContent || "";
+		click(help);
+		await tick();
+		return d.getElementById("helpTip")?.textContent || "";
+	};
 	return {
 		dom,
 		api,
+		openSettings,
+		openPanel,
+		expandDisclosure,
+		openSelect,
+		pressKey,
+		runRailAction,
+		confirm,
+		statusText,
 		w,
 		d,
 		$,

@@ -2,6 +2,8 @@ import type { FormEvent } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { LOCAL } from "../core/constants.ts";
 import {
 	onProviderAction,
@@ -10,12 +12,19 @@ import {
 	PROV_ORDER,
 	SETTINGS,
 } from "../shell/settings.ts";
+import { ProvCard, ProvHeader, ProvSub, ProvTitle } from "./ProvCard.tsx";
 
 export default function Providers() {
 	const state = useSnapshot(SETTINGS, { sync: true }),
 		server = state.server;
 	return (
-		<div id="provList">
+		<RadioGroup
+			id="provList"
+			className="provgroup"
+			aria-label="AI provider"
+			value={server?.active || ""}
+			onValueChange={(value) => onProviderChange(value, "active", value)}
+		>
 			{PROV_ORDER.map((provider) => {
 				const meta = PROV[provider],
 					saved = server?.providers?.[provider],
@@ -36,7 +45,7 @@ export default function Providers() {
 				const model =
 					provider === "demo" ? null : (
 						<div className="field">
-							<label htmlFor={`m-${provider}`}>Model</label>
+							<Label htmlFor={`m-${provider}`}>Model</Label>
 							<div className="frow">
 								<Input
 									id={`m-${provider}`}
@@ -91,10 +100,8 @@ export default function Providers() {
 						</div>
 					);
 				return (
-					// biome-ignore lint/a11y/noStaticElementInteractions: delegates clicks from the card's own buttons
-					// biome-ignore lint/a11y/useKeyWithClickEvents: those buttons already handle keyboard activation
-					<section
-						className={`prov${active ? " active" : ""}`}
+					<ProvCard
+						active={active}
 						data-prov={provider}
 						key={provider}
 						hidden={!saved}
@@ -106,26 +113,16 @@ export default function Providers() {
 						}}
 						onChange={(e) => {
 							const input = e.target;
-							onProviderChange(
-								provider,
-								(input as HTMLInputElement).type === "radio"
-									? "active"
-									: input.dataset.role,
-								(input as HTMLInputElement).value,
-							);
+							// The provider radios report through the group instead.
+							if (input instanceof HTMLInputElement && input.dataset.role)
+								onProviderChange(provider, input.dataset.role, input.value);
 						}}
 					>
-						<header>
-							<label className="radio">
-								<input
-									type="radio"
-									name="activeProv"
-									value={provider}
-									checked={!!active}
-									onChange={() => {}}
-								/>
+						<ProvHeader>
+							<ProvTitle>
+								<RadioGroupItem value={provider} />
 								<span>{meta.label}</span>
-							</label>
+							</ProvTitle>
 							<span
 								className={`tag${active && saved?.ready ? " on" : ""}`}
 								data-role="status"
@@ -133,8 +130,8 @@ export default function Providers() {
 							>
 								{saved?.ready ? "In use" : "Needs setup"}
 							</span>
-						</header>
-						<p className="sub">{meta.sub}</p>
+						</ProvHeader>
+						<ProvSub>{meta.sub}</ProvSub>
 						{provider === "chatgpt" ? (
 							<>
 								<div className="field">
@@ -182,7 +179,7 @@ export default function Providers() {
 									style={{ margin: "10px 0 16px", lineHeight: 1.45 }}
 								>
 									Needs ChatGPT Plus or Pro. Usage counts against your plan and
-									any limit you set for this app.{" "}
+									any limit you set for this app.&#32;
 									<a
 										href="https://chatgpt.com/settings/usage"
 										target="_blank"
@@ -212,7 +209,7 @@ export default function Providers() {
 									Run <code>claude</code> once in a terminal. Usage counts
 									against your plan’s limits. Each request starts Claude Code,
 									so replies begin a second or two later than with an API key.
-									Only for your own computer and account.
+									Use it only on your own computer and account.
 								</p>
 							</>
 						) : provider !== "demo" ? (
@@ -229,11 +226,11 @@ export default function Providers() {
 									</div>
 								)}
 								<div className="field">
-									<label htmlFor={`k-${provider}`}>
+									<Label htmlFor={`k-${provider}`}>
 										{provider === "openrouter"
 											? "Or paste an API key"
 											: "API key"}
-									</label>
+									</Label>
 									<div className="frow">
 										<Input
 											id={`k-${provider}`}
@@ -269,9 +266,9 @@ export default function Providers() {
 								</div>
 								{model}
 								<div className="field">
-									<label htmlFor={`b-${provider}`}>
+									<Label htmlFor={`b-${provider}`}>
 										Base URL{provider === "custom" ? "" : " (optional)"}
-									</label>
+									</Label>
 									<Input
 										id={`b-${provider}`}
 										type="text"
@@ -292,9 +289,9 @@ export default function Providers() {
 								{test}
 							</>
 						) : null}
-					</section>
+					</ProvCard>
 				);
 			})}
-		</div>
+		</RadioGroup>
 	);
 }

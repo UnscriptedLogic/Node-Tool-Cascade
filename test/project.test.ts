@@ -100,7 +100,8 @@ test("digests pull out symbols, tuning values, open questions and the header com
 });
 test("redaction covers keys, tokens, private keys and quoted passwords, and keeps the rest", () => {
 	const ant = ["sk", "ant", "abcdefghijklmnopqrstuvwxyz0123"].join("-"),
-		gh = "ghp" + "_" + "abcdefghijklmnopqrstuvwxyz0123456789";
+		tokenSuffix = "abcdefghijklmnopqrstuvwxyz0123456789",
+		gh = `ghp_${tokenSuffix}`;
 	const r = redactFull(
 		`const k = "${ant}"; token ${gh}; password = "hunter2hunter2"; speed = 5;`,
 	);
@@ -540,12 +541,12 @@ async function boot(t: test.TestContext) {
 		fs.rmSync(dir, { recursive: true, force: true });
 	});
 	const post = (u, b, h = {}) =>
-		fetch(base + u, {
+		fetch(`${base}${u}`, {
 			method: "POST",
 			headers: { "content-type": "application/json", ...h },
 			body: JSON.stringify(b || {}),
 		});
-	return { base, post, get: (u: string) => fetch(base + u), dir };
+	return { base, post, get: (u: string) => fetch(`${base}${u}`), dir };
 }
 test("routes: scan in the background, poll for progress, search, read lines, save a brief, forget", async (t) => {
 	const s = await boot(t),
@@ -586,9 +587,7 @@ test("routes: scan in the background, poll for progress, search, read lines, sav
 	assert.equal(found[0].file, "Assets/Scripts/Player/PlayerController.cs");
 	const file = await (
 		await s.get(
-			"/api/project/file?path=" +
-				encodeURIComponent("Assets/Scripts/Player/PlayerController.cs") +
-				"&start=5&end=6",
+			`/api/project/file?path=${encodeURIComponent("Assets/Scripts/Player/PlayerController.cs")}&start=5&end=6`,
 		)
 	).json();
 	assert.match(file.text, /moveSpeed/);

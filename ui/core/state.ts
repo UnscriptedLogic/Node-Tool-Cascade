@@ -189,6 +189,7 @@ UI = proxy({
 	providerLabels: {},
 	settingsTitle: "Settings",
 	moodColors: {},
+	tileLooks: {},
 	compose: {
 		open: false,
 		type: "question",

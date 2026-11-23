@@ -86,17 +86,11 @@ export function guidance() {
 		parts = [];
 	if ((P.context || "").trim())
 		parts.push(
-			"CONTEXT ABOUT THE " +
-				DOM().subject.toUpperCase() +
-				": " +
-				P.context.trim(),
+			`CONTEXT ABOUT THE ${DOM().subject.toUpperCase()}: ${P.context.trim()}`,
 		);
 	if ((P.goal || "").trim())
 		parts.push(
-			"OVERARCHING GOAL: " +
-				P.goal.trim() +
-				"\nSTEERING: " +
-				(STEER[P.steer] || STEER.balanced),
+			`OVERARCHING GOAL: ${P.goal.trim()}\nSTEERING: ${STEER[P.steer] || STEER.balanced}`,
 		);
 	if ((P.pillars || "").trim())
 		parts.push(
@@ -105,8 +99,7 @@ export function guidance() {
 	if ((P.avoid || "").trim()) parts.push(`AVOID: ${P.avoid.trim()}`);
 	if (projectBriefOn())
 		parts.push(
-			"PROJECT BRIEF (what the existing project already does, read from its notes and code. It is context only: the goal and the pillars above always take precedence):\n" +
-				briefText(),
+			`PROJECT BRIEF (what the existing project already does, read from its notes and code. It is context only: the goal and the pillars above always take precedence):\n${briefText()}`,
 		);
 	return parts.join("\n\n");
 }
@@ -491,14 +484,9 @@ Rules:
 - Write about ${GS.w1} to ${GS.max - 3} questions and 2 to 4 fog items. Do not repeat existing nodes. Never answer any question.`;
 	const bridgePrompt = bridge ? bridgePromptFor(f, GS) : "";
 	const candidates = mindsetCandidates(chart ? null : fid);
-	const prompt =
-		(chart
-			? chartPrompt
-			: bridge
-				? bridgePrompt
-				: back
-					? backPrompt
-					: fwdPrompt) + mindsetBlock(candidates, false);
+	const prompt = `${
+		chart ? chartPrompt : bridge ? bridgePrompt : back ? backPrompt : fwdPrompt
+	}${mindsetBlock(candidates, false)}`;
 	let verdict = null;
 	const gmap = Object.create(null),
 		queue = [];

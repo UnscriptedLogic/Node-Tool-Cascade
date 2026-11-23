@@ -31,6 +31,9 @@
 	--ring: var(--focus);
 	--destructive: #d94a2b;
 	--radius: 8px;
+	/* buttons, toggle groups, dropdowns and text fields */
+	--control-h: 34px;
+	--control-sm: 28px;
 	box-sizing: border-box;
 	padding-top: env(safe-area-inset-top, 0px);
 	padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -94,6 +97,10 @@ button {
 	color: inherit;
 	cursor: pointer;
 }
+/* text boxes keep the size they are given */
+textarea {
+	resize: none;
+}
 :focus-visible {
 	outline: 2px solid var(--focus);
 	outline-offset: 2px;
@@ -102,5 +109,15 @@ button {
 #app {
 	height: 100%;
 	display: grid;
-	grid-template-columns: 212px minmax(0, 1fr);
+	/* the sidebar column takes the sidebar's own width, and none when it is closed */
+	grid-template-columns: auto minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
+}
+#rail {
+	grid-column: 1;
+	grid-row: 1;
+}
+#stage {
+	grid-column: 2;
+	grid-row: 1;
 }

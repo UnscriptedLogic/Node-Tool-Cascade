@@ -1,9 +1,14 @@
-import { useLayoutEffect, useRef } from "react";
+import { PanelRightClose, PanelRightOpen, XIcon } from "lucide-react";
+import { Dialog as DialogPrimitive } from "radix-ui";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
 import { type Snapshot, useSnapshot } from "valtio";
+import MatrixOrb from "@/components/matrix-orb";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import Mindsets from "../../shared/mindsets.ts";
 import { PREFS, TICKET_ASK, TICKET_LABEL } from "../core/constants.ts";
-import { S } from "../core/state.ts";
+import { S, UI } from "../core/state.ts";
 import {
 	chartMap,
 	closeSide,
@@ -11,6 +16,7 @@ import {
 	grillAction,
 	mapAction,
 	nextRound,
+	openSide,
 	PANEL,
 	resetG,
 	setDestination,
@@ -46,7 +52,7 @@ function Card({ card, hidden }: CardProps) {
 			hidden={hidden}
 		>
 			<div className="gq">
-				{(card.mindset ? `${Mindsets.label(card.mindset)} — ` : "") + card.text}
+				{`${card.mindset ? `${Mindsets.label(card.mindset)} — ` : ""}${card.text}`}
 			</div>
 			<div className="gwhy" hidden={!card.why}>
 				{card.why}
@@ -127,8 +133,113 @@ function Card({ card, hidden }: CardProps) {
 	);
 }
 
+const TITLES: Record<string, string> = {
+	map: "Map",
+	grill: "Grill",
+	ask: "Ask",
+};
+
+const dismiss = () => closeSide();
+
+function GrillThinking({ thinking }: { thinking: boolean }) {
+	if (!thinking) return null;
+	return (
+		<span className="gthink">
+			<MatrixOrb
+				state="thinking"
+				size={64}
+				dots={11}
+				color="#ffffff"
+				className="[&>span]:sr-only"
+				labels={{ thinking: "Thinking" }}
+			/>
+		</span>
+	);
+}
+
+// Brings the panel back after it was closed, like the sidebar launcher.
+export function SideLauncher() {
+	return (
+		<Button
+			className="btn iconbtn"
+			id="sideOpen"
+			type="button"
+			aria-label="Open panel"
+			title="Open panel: Map, Grill and Ask"
+			onPointerDown={(e) => e.stopPropagation()}
+			onClick={() => openSide(PANEL.tab)}
+		>
+			<PanelRightOpen aria-hidden="true" />
+		</Button>
+	);
+}
+const panelHasFocus = () =>
+	!!document.getElementById("side")?.contains(document.activeElement);
+
+// One panel for Ask, Map and Grill: docked on the right on desktop, a bottom drawer on small screens.
+function SidePanelShell({
+	open,
+	small,
+	children,
+}: {
+	open: boolean;
+	small: boolean;
+	children: ReactNode;
+}) {
+	if (small)
+		return (
+			<Drawer
+				direction="bottom"
+				open={open}
+				autoFocus
+				onOpenChange={(next) => {
+					if (!next) dismiss();
+				}}
+			>
+				<DrawerContent
+					id="side"
+					className="cui"
+					aria-describedby={undefined}
+					// The backdrop takes the dismissing tap, so the canvas never sees it.
+					overlayProps={{ id: "sideBack" }}
+				>
+					{children}
+				</DrawerContent>
+			</Drawer>
+		);
+	return (
+		<DialogPrimitive.Root
+			modal={false}
+			open={open}
+			onOpenChange={(next) => {
+				// Escape belongs to the canvas unless focus is in the panel.
+				if (!next && panelHasFocus()) dismiss();
+			}}
+		>
+			<DialogPrimitive.Content
+				asChild
+				aria-describedby={undefined}
+				onOpenAutoFocus={(event) => event.preventDefault()}
+				onCloseAutoFocus={(event) => {
+					event.preventDefault();
+					// Focus left with the panel: hand it to the button that brings it back.
+					if (document.activeElement === document.body)
+						document.getElementById("sideOpen")?.focus();
+				}}
+				onInteractOutside={(event) => event.preventDefault()}
+				onEscapeKeyDown={(event) => {
+					if (!panelHasFocus()) event.preventDefault();
+				}}
+			>
+				<aside id="side">{children}</aside>
+			</DialogPrimitive.Content>
+		</DialogPrimitive.Root>
+	);
+}
+
 export default function SidePanel() {
 	const destination = useFocus<HTMLTextAreaElement>("mapDestination");
+	const ui = useSnapshot(UI, { sync: true });
 	const panel = useSnapshot(PANEL, { sync: true }),
 		grill = useSnapshot(G, { sync: true }),
 		state = useSnapshot(S, { sync: true }),
@@ -152,6 +263,10 @@ export default function SidePanel() {
 					: map?.fog.length && !map.frontier.length && !map.blocked.length
 						? "Only fog is left. Sharpen it into questions once you can phrase them."
 						: "");
+	const title = TITLES[panel.tab] || "Map";
+	const selected =
+		state.sel && state.nodes[String(state.sel)] ? String(state.sel) : null;
+	const thinking = grill.busy || grill.cards.some((card) => card.busy);
 	const scope = grill.scope && state.nodes[grill.scope],
 		firstOpen = grill.cards.find((card) => card.status === "open");
 	function section(
@@ -237,32 +352,40 @@ export default function SidePanel() {
 		);
 	}
 	return (
-		<aside id="side" hidden={!panel.open} aria-label="Map and grill">
+		<SidePanelShell open={panel.open} small={ui.small}>
+			<DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>
 			<header className="sidehead">
-				<fieldset className="seg" aria-label="Panel">
+				<ButtonGroup id="sideTabs" className="bgroup" aria-label="Panel">
 					{[
 						["map", "Map"],
 						["grill", "Grill"],
 						["ask", "Ask"],
 					].map(([key, label]) => (
-						<button
+						<Button
+							className="btn"
 							type="button"
 							key={key}
 							id={`st${label}`}
-							aria-pressed={Boolean(panel.tab === key)}
+							aria-pressed={panel.tab === key}
 							onClick={() => showStab(key)}
 						>
 							{label}
-						</button>
+						</Button>
 					))}
-				</fieldset>
+				</ButtonGroup>
 				<Button
-					className="btn"
+					className="btn iconbtn"
 					id="sideClose"
 					type="button"
+					aria-label="Close panel"
+					title="Close panel"
 					onClick={() => closeSide()}
 				>
-					Close
+					{ui.small ? (
+						<XIcon aria-hidden="true" />
+					) : (
+						<PanelRightClose aria-hidden="true" />
+					)}
 				</Button>
 			</header>
 			<div className="sidebody">
@@ -360,9 +483,10 @@ export default function SidePanel() {
 								className="btn"
 								id="gStartSel"
 								type="button"
-								onClick={() =>
-									startGrill(state.nodes[String(state.sel)] ? state.sel : null)
-								}
+								disabled={!selected}
+								onClick={() => {
+									if (selected) startGrill(selected);
+								}}
 							>
 								Grill the selected node
 							</Button>
@@ -373,16 +497,19 @@ export default function SidePanel() {
 					</div>
 					<div id="gSession" hidden={!grill.active}>
 						<div className="ghead">
-							<span id="gScope">
-								{grill.resolve
-									? "Resolving one question"
-									: scope
-										? `Grilling: ${scope.text.slice(0, 44)}`
-										: "Grilling the whole tree"}
-							</span>
-							<span id="gRound">
-								{grill.resolve ? "" : `Round ${grill.round}`}
-							</span>
+							<GrillThinking thinking={thinking} />
+							<div className="gtitle">
+								<span id="gScope">
+									{grill.resolve
+										? "Resolving one question"
+										: scope
+											? scope.text
+											: "Whole tree"}
+								</span>
+								<span id="gRound" hidden={grill.resolve}>
+									{`Round ${grill.round}`}
+								</span>
+							</div>
 						</div>
 						<div id="gCards">
 							{grill.cards.map((card) => (
@@ -435,6 +562,6 @@ export default function SidePanel() {
 					</div>
 				</section>
 			</div>
-		</aside>
+		</SidePanelShell>
 	);
 }

@@ -1,42 +1,7 @@
 /* ---------- library: Cascades in folders ---------- */
-.btn.small {
-	padding: 4px 10px;
-	font-size: 12.5px;
-}
 .btn.danger {
 	border-color: #d94a2b;
 	color: #d94a2b;
-}
-#libList {
-	max-width: 760px;
-}
-.lib-folder {
-	margin: 0 0 20px;
-}
-.lib-fhead {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex-wrap: wrap;
-	padding: 8px 0;
-	border-bottom: 1px solid var(--line);
-}
-.lib-list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-.lib-row {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex-wrap: wrap;
-	padding: 9px 10px;
-	border-bottom: 1px solid var(--line);
-	border-radius: 9px;
-}
-.lib-row.current {
-	background: var(--paper2);
 }
 .lib-open {
 	border: 0;
@@ -61,22 +26,10 @@
 	color: var(--ink);
 	min-width: 200px;
 }
-.lib-meta {
-	color: var(--ink2);
-	font-size: 12.5px;
-	flex: 1 1 auto;
-}
-.lib-actions {
-	display: flex;
-	gap: 6px;
-	align-items: center;
-	flex-wrap: wrap;
-}
 
 /* one look for every dropdown: same box as .btn, with our own chevron */
 select,
-.field select,
-.lib-actions select {
+.field select {
 	-webkit-appearance: none;
 	appearance: none;
 	font: inherit;
@@ -104,31 +57,55 @@ select option {
 	background: var(--paper);
 	color: var(--ink);
 }
-.lib-actions select {
-	padding: 4px 26px 4px 10px;
-	font-size: 12.5px;
-	background-position: right 9px center;
+/* the shadcn dropdown, in the same box */
+.selectfield {
+	max-width: 100%;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 13px;
+	border-color: var(--line);
+	border-radius: 8px;
+	cursor: pointer;
+}
+.selectfield:hover {
+	border-color: var(--ink2);
+}
+/* above the Settings dialog */
+.selectmenu {
+	z-index: 95;
+	max-height: min(320px, var(--radix-select-content-available-height));
+	background: var(--paper);
+	color: var(--ink);
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+/* items match the sidebar's Actions menu */
+.selectmenu [role="option"] {
+	gap: 10px;
+	padding: 8px 30px 8px 10px;
+	border-radius: 7px;
+	font-size: 13.5px;
+	cursor: pointer;
+}
+.selectmenu [role="option"]:focus {
+	background: var(--paper2);
+	color: var(--ink);
+}
+.selectmenu [data-slot="select-item-indicator"] {
+	right: 10px;
 }
 
-/* which Cascade is open, under the logo */
+/* which Cascade is open, under the logo: a title, not a control */
 .openname {
-	display: block;
-	max-width: 100%;
-	margin: -8px 0 0;
-	padding: 7px 10px;
-	border: 1px solid var(--line);
-	border-radius: 8px;
-	background: var(--paper);
-	font: inherit;
+	flex: 1;
+	min-width: 0;
 	font-size: 13px;
 	line-height: 1.35;
-	text-align: left;
-	cursor: pointer;
 	color: var(--ink);
-	overflow-wrap: anywhere;
-}
-.openname:hover {
-	border-color: var(--ink2);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .openname .cf {
 	color: var(--ink2);

@@ -388,13 +388,10 @@ function globToRegex(glob: string) {
 		if (c === "[") {
 			const j = glob.indexOf("]", i + 2);
 			if (j > 0) {
-				re +=
-					"[" +
-					glob
-						.slice(i + 1, j)
-						.replace(/^!/, "^")
-						.replace(/\\/g, "\\\\") +
-					"]";
+				re += `[${glob
+					.slice(i + 1, j)
+					.replace(/^!/, "^")
+					.replace(/\\/g, "\\\\")}]`;
 				i = j + 1;
 				continue;
 			}
@@ -1258,14 +1255,15 @@ async function readLines(rel: string, start: number, end: number) {
 	if (!f)
 		throw new HttpError(404, "That file isn’t part of the scanned project.");
 	const abs = path.resolve(m.root, rel);
-	if (!abs.startsWith(m.root + path.sep)) throw new HttpError(400, "Bad path.");
+	if (!abs.startsWith(`${m.root}${path.sep}`))
+		throw new HttpError(400, "Bad path.");
 	let real: string;
 	try {
 		real = await fsp.realpath(abs);
 	} catch {
 		throw new HttpError(404, "That file is gone. Rescan the project.");
 	}
-	if (!real.startsWith(m.root + path.sep))
+	if (!real.startsWith(`${m.root}${path.sep}`))
 		throw new HttpError(400, "Bad path.");
 	const text = redactFull(await fsp.readFile(real, "utf8")).text;
 	const lines = text.split("\n");

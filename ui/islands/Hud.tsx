@@ -1,6 +1,14 @@
-import { useLayoutEffect, useMemo } from "react";
+import { CircleHelp, Minus, Plus, Redo2, Undo2 } from "lucide-react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { nodeActions } from "../canvas/layout.ts";
 import { setMode } from "../canvas/view.ts";
 import { ACT, CONNECTION, LOCAL, PREFS, WEB } from "../core/constants.ts";
@@ -8,16 +16,18 @@ import { stage } from "../core/dom.ts";
 import { AI, hist, S, UI } from "../core/state.ts";
 import { isOuter } from "../core/tree.ts";
 import { clearAskHighlight } from "../features/ask.ts";
-import { toggleAsk, toggleMap } from "../features/map.ts";
 import { seedFromProject } from "../features/project.ts";
-import { useFocus } from "../hooks/useFocus.ts";
 import { dismissAll, keepAll, undo } from "../shell/actions.ts";
 import { fitCanvas, stopCanvasAI, zoomCanvas } from "../shell/controls.ts";
+import { RAIL } from "../shell/rail.ts";
 import { runNodeAction, SHORT } from "../shell/responsive.ts";
 import { openSettings } from "../shell/settings.ts";
+import { RailLauncher } from "./Rail.tsx";
+import { SideLauncher } from "./SidePanel.tsx";
 
 export default function Hud() {
-	const settingsButton = useFocus<HTMLButtonElement>("settingsButton");
+	const [tipOpen, setTipOpen] = useState(false);
+	const rail = useSnapshot(RAIL, { sync: true });
 	const state = useSnapshot(S, { sync: true }),
 		prefs = useSnapshot(PREFS, { sync: true }),
 		ui = useSnapshot(UI, { sync: true }),
@@ -52,8 +62,8 @@ export default function Hud() {
 		effectiveModel =
 			connection.server?.providers?.[String(connection.server.active)]
 				?.effectiveModel;
-	const goal = (prefs.goal || "").trim(),
-		ghosts = Object.values(state.nodes).filter((n) => n.ghost).length,
+	const panelOpen = !!ui.panel?.open;
+	const ghosts = Object.values(state.nodes).filter((n) => n.ghost).length,
 		ask = ui.ask;
 	const highlighted = ask?.threads.some(
 		(thread) => thread.on && thread.ids.some((id) => state.nodes[id]),
@@ -87,7 +97,7 @@ export default function Hud() {
 		stage?.classList.toggle("nb", showBar);
 	}, [showBar]);
 	const barSignature = showBar
-		? `${state.sel}|${actions.map((action) => action[0] + action[1]).join()}`
+		? `${state.sel}|${actions.map((action) => `${action[0]}${action[1]}`).join()}`
 		: "";
 	return (
 		<>
@@ -113,170 +123,180 @@ export default function Hud() {
 					</Button>
 				</p>
 			</div>
-			<div id="status" className={`hud pill${ui.busy ? " busy" : ""}`}>
-				<span className="dot" />
-				<span id="stxt">{ui.busy || idle}</span>
-				<button
-					className="linkbtn"
-					id="setLink"
-					type="button"
-					hidden={
-						!((LOCAL || WEB) && ai.checked && !ui.busy && (!available || demo))
-					}
-					onClick={() => openSettings("ai")}
+			<div id="hudTL" className="hud">
+				{!ui.small && !rail.desktop && <RailLauncher />}
+				<div
+					id="status"
+					className={`pill${ui.busy ? " busy" : " idle"}`}
+					role="status"
 				>
-					{demo ? "Use your chat or connect AI" : "Open settings"}
-				</button>
-				<button
-					className="linkbtn"
-					id="stopBtn"
-					type="button"
-					hidden={!(ui.busy && ui.stoppable)}
-					onClick={() => stopCanvasAI()}
+					{ui.busy ? (
+						<>
+							<span className="dot" />
+							<span id="stxt">{ui.busy}</span>
+						</>
+					) : (
+						<Tooltip open={tipOpen} onOpenChange={setTipOpen}>
+							<TooltipTrigger asChild>
+								<button
+									className="helpbtn"
+									id="helpBtn"
+									type="button"
+									aria-label="How to use the canvas"
+									onClick={(event) => {
+										// A tap shows the tip too, so touch screens can read it.
+										event.preventDefault();
+										setTipOpen(true);
+									}}
+								>
+									<CircleHelp aria-hidden="true" />
+								</button>
+							</TooltipTrigger>
+							<TooltipContent
+								id="helpTip"
+								className="cui tip"
+								side="bottom"
+								align="start"
+								sideOffset={6}
+							>
+								{idle}
+							</TooltipContent>
+						</Tooltip>
+					)}
+					<button
+						className="linkbtn"
+						id="setLink"
+						type="button"
+						hidden={
+							!(
+								(LOCAL || WEB) &&
+								ai.checked &&
+								!ui.busy &&
+								(!available || demo)
+							)
+						}
+						onClick={() => openSettings("ai")}
+					>
+						{demo ? "Use your chat or connect AI" : "Open settings"}
+					</button>
+					<button
+						className="linkbtn"
+						id="stopBtn"
+						type="button"
+						hidden={!(ui.busy && ui.stoppable)}
+						onClick={() => stopCanvasAI()}
+					>
+						Stop
+					</button>
+				</div>
+				<div
+					id="provchip"
+					className="pill"
+					hidden={!((LOCAL || connection.cloud) && providerLabel)}
 				>
-					Stop
+					<span className="pt" title="Current AI provider">
+						{`${providerLabel?.replace(/\s*\(.*\)$/, "")}${effectiveModel ? ` · ${effectiveModel}` : ""}`}
+					</span>
+					<button
+						className="linkbtn"
+						id="provBtn"
+						type="button"
+						title="Open Settings > AI model"
+						onClick={() => openSettings("ai")}
+					>
+						Change
+					</button>
+				</div>
+				<button
+					id="hlchip"
+					className="pill"
+					type="button"
+					hidden={!highlighted}
+					title="Clear the highlight"
+					onClick={() => clearAskHighlight()}
+				>
+					<span className="hl">
+						{ask?.q ? `Highlighting: ${ask.q.slice(0, 56)}` : ""}
+					</span>
+					<span className="linkbtn">Clear</span>
 				</button>
 			</div>
-			<button
-				id="goalchip"
-				className={`hud pill${goal ? "" : " unset"}`}
-				type="button"
-				title={goal || "Set an overarching goal to steer the questions"}
-				onClick={() => {
-					openSettings("goal");
-				}}
-			>
-				<span className="gl">{goal ? "Goal" : "No goal set"}</span>
-				<span className="gt">{goal}</span>
-			</button>
-			<div
-				id="provchip"
-				className="hud pill"
-				hidden={!((LOCAL || connection.cloud) && providerLabel)}
-			>
-				<span className="pt" title="Current AI provider">
-					{providerLabel?.replace(/\s*\(.*\)$/, "") +
-						(effectiveModel ? ` · ${effectiveModel}` : "")}
-				</span>
-				<button
-					className="linkbtn"
-					id="provBtn"
-					type="button"
-					title="Open Settings > AI model"
-					onClick={() => openSettings("ai")}
-				>
-					Change
-				</button>
-			</div>
-			<button
-				id="hlchip"
-				className="hud pill"
-				type="button"
-				hidden={!highlighted}
-				title="Clear the highlight"
-				onClick={() => clearAskHighlight()}
-			>
-				<span className="hl">
-					{ask?.q ? `Highlighting: ${ask.q.slice(0, 56)}` : ""}
-				</span>
-				<span className="linkbtn">Clear</span>
-			</button>
 			<div id="ctrl" className="hud">
-				<fieldset className="seg" aria-label="View">
-					<button
+				<ButtonGroup id="historyGroup" className="bgroup" aria-label="History">
+					<Button
+						className="btn iconbtn"
+						id="undoBtn"
 						type="button"
-						id="mDetail"
-						aria-pressed={Boolean(state.mode === "detail")}
-						onClick={() => setMode("detail")}
+						aria-label="Undo"
+						title="Undo (Ctrl+Z)"
+						aria-keyshortcuts="Control+Z Meta+Z"
+						disabled={!history.length}
+						onClick={() => undo()}
 					>
-						Detail
-					</button>
-					<button
+						<Undo2 aria-hidden="true" />
+					</Button>
+					<Button
+						className="btn iconbtn"
+						id="redoBtn"
 						type="button"
-						id="mOuter"
-						aria-pressed={Boolean(state.mode === "outer")}
-						onClick={() => setMode("outer")}
+						aria-label="Redo"
+						title="Redo"
+						disabled
 					>
-						Loops
-					</button>
-				</fieldset>
-				<fieldset className="seg" aria-label="Zoom">
-					<button
-						type="button"
+						<Redo2 aria-hidden="true" />
+					</Button>
+				</ButtonGroup>
+				<ButtonGroup id="zoomGroup" className="bgroup" aria-label="Zoom">
+					<Button
+						className="btn iconbtn"
 						id="zOut"
+						type="button"
 						aria-label="Zoom out"
+						title="Zoom out"
 						onClick={() => zoomCanvas(0.8)}
 					>
-						−
-					</button>
-					<button
-						type="button"
+						<Minus aria-hidden="true" />
+					</Button>
+					<Button
+						className="btn fitbtn"
 						id="zFit"
+						type="button"
 						aria-label="Fit to screen"
+						title="Fit to screen"
 						onClick={() => fitCanvas()}
 					>
 						Fit
-					</button>
-					<button
-						type="button"
+					</Button>
+					<Button
+						className="btn iconbtn"
 						id="zIn"
+						type="button"
 						aria-label="Zoom in"
+						title="Zoom in"
 						onClick={() => zoomCanvas(1.25)}
 					>
-						+
-					</button>
-				</fieldset>
-				<Button
-					className="btn"
-					id="askBtn"
-					type="button"
-					aria-pressed={Boolean(!!ui.panel?.open && ui.panel.tab === "ask")}
-					onClick={() => toggleAsk()}
+						<Plus aria-hidden="true" />
+					</Button>
+				</ButtonGroup>
+				<ToggleGroup
+					type="single"
+					id="viewToggle"
+					className="seg"
+					aria-label="View"
+					value={state.mode}
+					onValueChange={(value) => {
+						// Clicking the active view again keeps it selected.
+						if (value === "detail" || value === "outer") setMode(value);
+					}}
 				>
-					Ask
-				</Button>
-				<Button
-					className="btn"
-					id="mapBtn"
-					type="button"
-					aria-pressed={Boolean(!!ui.panel?.open && ui.panel.tab !== "ask")}
-					onClick={() => toggleMap()}
-				>
-					Map
-				</Button>
-				<Button
-					className="btn"
-					id="undoBtn"
-					type="button"
-					disabled={!history.length}
-					onClick={() => undo()}
-				>
-					Undo
-				</Button>
-				<Button
-					className="btn iconbtn"
-					id="setBtn"
-					ref={settingsButton}
-					type="button"
-					aria-label="Settings"
-					title={ui.settingsTitle}
-					onClick={() => openSettings()}
-				>
-					<svg
-						viewBox="0 0 16 16"
-						width="16"
-						height="16"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="1.5"
-						strokeLinecap="round"
-						aria-hidden="true"
-					>
-						<path d="M2 5h7M12 5h2M2 11h2M7 11h7" />
-						<circle cx="10.5" cy="5" r="1.5" />
-						<circle cx="5.5" cy="11" r="1.5" />
-					</svg>
-				</Button>
+					<ToggleGroupItem value="detail" id="mDetail">
+						Detail
+					</ToggleGroupItem>
+					<ToggleGroupItem value="outer" id="mOuter">
+						Loops
+					</ToggleGroupItem>
+				</ToggleGroup>
+				{!panelOpen && <SideLauncher />}
 			</div>
 			<div
 				id="nodebar"

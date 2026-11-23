@@ -288,7 +288,7 @@ async function startAdmin(t: test.TestContext, { env = {}, args = [] } = {}) {
 	});
 	const base = `http://localhost:${port}`,
 		get = async (u: string, o?: RequestInit) => {
-			const r = await fetch(base + u, o);
+			const r = await fetch(`${base}${u}`, o);
 			const text = await r.text();
 			let j = null;
 			try {

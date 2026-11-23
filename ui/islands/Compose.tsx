@@ -66,7 +66,8 @@ export default function Compose() {
 						onClick={() => closeCompose()}
 					>
 						Cancel
-					</Button>{" "}
+					</Button>
+					&#32;
 					<Button
 						className="btn primary"
 						id="cOk"

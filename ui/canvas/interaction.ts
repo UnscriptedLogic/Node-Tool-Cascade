@@ -15,9 +15,10 @@ import {
 	renameNode,
 } from "../core/tree.ts";
 import { finishBlock } from "../features/map.ts";
-import { openNodeSrc } from "../features/project.ts";
+import { openNodeSrc, SV } from "../features/project.ts";
 import { deleteNode, undo } from "../shell/actions.ts";
 import { closeCompose } from "../shell/compose.ts";
+import { CONFIRM } from "../shell/confirm.ts";
 import { commit, select, showNote } from "../shell/hud.ts";
 import {
 	isMinimal,
@@ -347,10 +348,10 @@ export function startInteraction() {
 		},
 	);
 	world.addEventListener("click", (e) => {
-		const ml = (e.target as HTMLElement).closest(".mindset-label");
+		const ml = (e.target as HTMLElement).closest<HTMLElement>(".mindset-label");
 		if (ml) {
 			e.stopPropagation();
-			showNote([(ml as HTMLElement).title.replace(/\n/g, ". ")], false);
+			showNote([ml.dataset.mindsetDetails.replace(/\n/g, ". ")], false);
 			return;
 		}
 		const sm = (e.target as HTMLElement).closest(".srcmark");
@@ -372,7 +373,13 @@ export function startInteraction() {
 			)
 		)
 			return;
-		if (SETTINGS.open) return;
+		if (
+			SETTINGS.open ||
+			CONFIRM.pending ||
+			SV.open ||
+			document.querySelector('[data-slot$="dialog-overlay"]')
+		)
+			return;
 		if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z") {
 			e.preventDefault();
 			undo();

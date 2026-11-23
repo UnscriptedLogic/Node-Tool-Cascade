@@ -1,4 +1,4 @@
-import { clamp, drawerW } from "../core/constants.ts";
+import { clamp, drawerInsets } from "../core/constants.ts";
 import { stage, world } from "../core/dom.ts";
 import { state as coreStateState, R, S, save } from "../core/state.ts";
 import {
@@ -30,8 +30,7 @@ export function applyView() {
 	}
 	gridEl.style.transform = `translate3d(${v.x % gs}px,${v.y % gs}px,0)`;
 	const far = S.mode === "detail" && v.z < 0.55,
-		flags =
-			(far ? "f" : "") + (S.mode === "outer" ? "o" : "") + (S.layer ? "m" : "");
+		flags = `${far ? "f" : ""}${S.mode === "outer" ? "o" : ""}${S.layer ? "m" : ""}`;
 	if (flags !== state.vflags) {
 		state.vflags = flags;
 		world.classList.toggle("far", far);
@@ -67,8 +66,9 @@ export function fitTo(ids, o) {
 		x1 = Math.max(x1, r.tgt.x + r.w);
 		y1 = Math.max(y1, r.tgt.y + r.h);
 	});
-	const sw = (stage.clientWidth || 900) - drawerW(),
-		sh = stage.clientHeight || 600,
+	const inset = drawerInsets(),
+		sw = (stage.clientWidth || 900) - inset.right,
+		sh = (stage.clientHeight || 600) - inset.bottom,
 		bw = x1 - x0,
 		bh = y1 - y0;
 	const z = clamp(
@@ -97,8 +97,9 @@ export function ensureVisible(id: string) {
 	const r = R[id];
 	if (!r?.shown) return;
 	const v = S.view,
-		sw = stage.clientWidth - drawerW(),
-		sh = stage.clientHeight,
+		inset = drawerInsets(),
+		sw = stage.clientWidth - inset.right,
+		sh = stage.clientHeight - inset.bottom,
 		m = 70;
 	const x0 = r.tgt.x * v.z + v.x,
 		y0 = r.tgt.y * v.z + v.y,

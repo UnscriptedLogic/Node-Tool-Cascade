@@ -92,22 +92,22 @@ test("cloud AI: signed in, the provider screen replaces the browser-only one and
 	);
 	assert.equal(a.$("#aiWeb").hidden, true, "the browser-key screen is hidden");
 	assert.equal(
-		a.$(".prov[data-prov=chatgpt]").hidden,
+		a.$("[data-prov=chatgpt]").hidden,
 		true,
 		"no ChatGPT sign-in on the cloud",
 	);
-	assert.equal(a.$$(".prov[data-prov]").filter((s) => !s.hidden).length, 5);
+	assert.equal(a.$$("[data-prov]").filter((s) => !s.hidden).length, 5);
 	assert.match(
-		a.$(".prov[data-prov=anthropic] [data-role=keyhint]").textContent,
+		a.$("[data-prov=anthropic] [data-role=keyhint]").textContent,
 		/to your account, encrypted/,
 	);
 	assert.equal(
-		a.$(".prov[data-prov=anthropic] input[type=radio]").checked,
-		true,
+		a.$("[data-prov=anthropic] [role=radio]").getAttribute("aria-checked"),
+		"true",
 	);
 	// saving a key sends it to the account server
 	a.type(a.$("#k-openai"), "sk-openai-1234");
-	a.click(a.$(".prov[data-prov=openai] [data-act=saveKey]"));
+	a.click(a.$("[data-prov=openai] [data-act=saveKey]"));
 	await sleep(250);
 	assert.ok(calls.includes("POST /api/settings"));
 	// an AI call goes through the account server, never to a provider from the browser

@@ -114,8 +114,8 @@ const FEATURE_LABEL = {
 const featureLabel = (r) =>
 	r.event === "domain_set"
 		? `Domain: ${r.label}`
-		: FEATURE_LABEL[r.event + (r.label ? `:${r.label}` : "")] ||
-			FEATURE_LABEL[r.event + (r.outcome ? `:${r.outcome}` : "")] ||
+		: FEATURE_LABEL[`${r.event}${r.label ? `:${r.label}` : ""}`] ||
+			FEATURE_LABEL[`${r.event}${r.outcome ? `:${r.outcome}` : ""}`] ||
 			r.event;
 
 // rows: the result of each query, keyed like queries()

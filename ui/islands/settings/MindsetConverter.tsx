@@ -13,7 +13,8 @@ import {
 	setConversionDomain,
 	setConversionField,
 	stopMindsetConversion,
-} from "../features/mindset-converter.ts";
+} from "../../features/mindset-converter.ts";
+import { CheckRow, Disclosure, FileField } from "../controls.tsx";
 
 const conversionDomains: readonly (readonly [string, string])[] = [
 	["general", "General / business"],
@@ -24,28 +25,27 @@ const conversionDomains: readonly (readonly [string, string])[] = [
 export default function MindsetConverter() {
 	const ui = useSnapshot(MSCONVERT, { sync: true });
 	return (
-		<details id="msConverter" className="card">
-			<summary>{"Create a mindset from source material"}</summary>
+		<Disclosure
+			id="msConverter"
+			className="card my-[14px] [&_.field]:my-[18px]! [&>.disclosure-trigger]:cursor-pointer [&>.disclosure-trigger]:font-bold!"
+			title="Create a mindset from source material"
+		>
 			<p className="small">
-				{
-					"Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste text. Files are read on this device. Generate draft sends extracted text in chunks to your connected provider. Review the questions and source references before importing."
-				}
+				Upload PDF, TXT, Markdown, HTML, JSON, CSV, TSV, XML or YAML, or paste
+				text. Cascade reads the files on this device. Generate draft sends
+				extracted text in chunks to your connected provider. Review the
+				questions and source references before importing.
 			</p>
+			<FileField
+				id="mcFiles"
+				label="Source files"
+				multiple={true}
+				accept=".pdf,.txt,.md,.markdown,.html,.htm,.json,.csv,.tsv,.xml,.yaml,.yml,.log,text/*,application/pdf,application/json"
+				disabled={ui.busy}
+				onFiles={(files) => readMindsetSources(files)}
+			/>
 			<div className="field">
-				<Label htmlFor="mcFiles">{"Source files"}</Label>
-				<input
-					id="mcFiles"
-					type="file"
-					multiple={true}
-					accept=".pdf,.txt,.md,.markdown,.html,.htm,.json,.csv,.tsv,.xml,.yaml,.yml,.log,text/*,application/pdf,application/json"
-					disabled={ui.busy}
-					onChange={(e) =>
-						readMindsetSources([...(e.currentTarget.files || [])])
-					}
-				/>
-			</div>
-			<div className="field">
-				<Label htmlFor="mcText">{"Source text"}</Label>
+				<Label htmlFor="mcText">Source text</Label>
 				<Textarea
 					id="mcText"
 					rows={6}
@@ -58,7 +58,7 @@ export default function MindsetConverter() {
 				<small id="mcSourceInfo">{ui.info}</small>
 			</div>
 			<div className="field">
-				<Label htmlFor="mcName">{"Mindset name"}</Label>
+				<Label htmlFor="mcName">Mindset name</Label>
 				<Input
 					id="mcName"
 					type="text"
@@ -70,7 +70,7 @@ export default function MindsetConverter() {
 				/>
 			</div>
 			<div className="field">
-				<Label htmlFor="mcSourceTitle">{"Source title or author"}</Label>
+				<Label htmlFor="mcSourceTitle">Source title or author</Label>
 				<Input
 					id="mcSourceTitle"
 					type="text"
@@ -82,7 +82,7 @@ export default function MindsetConverter() {
 				/>
 			</div>
 			<div className="field">
-				<Label htmlFor="mcEdition">{"Edition or date (optional)"}</Label>
+				<Label htmlFor="mcEdition">Edition or date (optional)</Label>
 				<Input
 					id="mcEdition"
 					type="text"
@@ -93,7 +93,7 @@ export default function MindsetConverter() {
 				/>
 			</div>
 			<div className="field">
-				<Label htmlFor="mcUrl">{"Source link (optional)"}</Label>
+				<Label htmlFor="mcUrl">Source link (optional)</Label>
 				<Input
 					id="mcUrl"
 					type="url"
@@ -103,25 +103,24 @@ export default function MindsetConverter() {
 					onChange={(e) => setConversionField("url", e.currentTarget.value)}
 				/>
 			</div>
-			<fieldset id="mcDomains">
+			<fieldset
+				id="mcDomains"
+				className="my-[18px] rounded-[9px] border border-line p-[12px]"
+			>
 				<legend>Where may these questions be used?</legend>
 				{conversionDomains.map(([value, label]) => (
-					<Label className="check" key={value}>
-						<input
-							type="checkbox"
-							value={value}
-							disabled={ui.busy}
-							checked={ui.domains.includes(value)}
-							onChange={(e) =>
-								setConversionDomain(value, e.currentTarget.checked)
-							}
-						/>
+					<CheckRow
+						key={value}
+						disabled={ui.busy}
+						checked={ui.domains.includes(value)}
+						onChange={(checked) => setConversionDomain(value, checked)}
+					>
 						{label}
-					</Label>
+					</CheckRow>
 				))}
 			</fieldset>
 			<div className="field">
-				<Label htmlFor="mcLimit">{"Maximum entries"}</Label>
+				<Label htmlFor="mcLimit">Maximum entries</Label>
 				<Input
 					id="mcLimit"
 					type="number"
@@ -132,9 +131,9 @@ export default function MindsetConverter() {
 					onChange={(e) => setConversionField("limit", e.currentTarget.value)}
 				/>
 				<small>
-					{
-						"Large sources can require many provider calls. Progress reports how much was processed; stopping or hitting this limit produces a partial draft."
-					}
+					Large sources can take many provider calls. The progress line shows
+					how much is done. Stopping, or reaching this limit, gives a partial
+					draft.
 				</small>
 			</div>
 			<div className="frow">
@@ -145,7 +144,7 @@ export default function MindsetConverter() {
 					disabled={ui.busy}
 					onClick={() => generateMindsetDraft()}
 				>
-					{"Generate draft"}
+					Generate draft
 				</Button>
 				<Button
 					id="mcStop"
@@ -155,37 +154,40 @@ export default function MindsetConverter() {
 					disabled={false}
 					onClick={() => stopMindsetConversion()}
 				>
-					{"Stop conversion"}
+					Stop conversion
 				</Button>
 			</div>
 			<p id="mcStatus" className="small" role="status" aria-live="polite">
 				{ui.status}
 			</p>
 			<section id="mcReview" hidden={!ui.draft}>
-				<h4>{"Review draft"}</h4>
+				<h4>Review draft</h4>
 				<p id="mcReport" className="small">
 					{ui.report}
 				</p>
-				<div id="mcEntries">
+				<div id="mcEntries" className="mb-[18px] max-h-[320px] overflow-auto">
 					{ui.draft?.entries.map((entry) => (
-						<details key={entry.id}>
-							<summary>{`${entry.label}${entry.number ? ` #${entry.number}` : ""}: ${entry.name}`}</summary>
+						<Disclosure
+							key={entry.id}
+							title={`${entry.label}${entry.number ? ` #${entry.number}` : ""}: ${entry.name}`}
+						>
 							<p className="small">{`Topics: ${entry.topics.join(", ")}`}</p>
 							{entry.questions.map((question, i) => (
 								<p key={i}>{question}</p>
 							))}
 							<p className="small">
 								{entry.references
-									.map((ref) => `${ref.source} — ${ref.location}`)
+									.map((ref) => `${ref.source}, ${ref.location}`)
 									.join("; ")}
 							</p>
-						</details>
+						</Disclosure>
 					))}
 				</div>
 				<div className="field">
-					<Label htmlFor="mcJson">{"Mindset JSON (editable)"}</Label>
+					<Label htmlFor="mcJson">Mindset JSON (editable)</Label>
 					<Textarea
 						id="mcJson"
+						className="[font:12px/1.5_ui-monospace,monospace]!"
 						rows={10}
 						spellCheck={false}
 						disabled={ui.busy}
@@ -201,7 +203,7 @@ export default function MindsetConverter() {
 						disabled={ui.busy}
 						onClick={() => importConvertedMindset()}
 					>
-						{"Import reviewed draft"}
+						Import reviewed draft
 					</Button>
 					<Button
 						id="mcDownload"
@@ -210,10 +212,10 @@ export default function MindsetConverter() {
 						disabled={ui.busy}
 						onClick={() => downloadConvertedMindset()}
 					>
-						{"Download JSON"}
+						Download JSON
 					</Button>
 				</div>
 			</section>
-		</details>
+		</Disclosure>
 	);
 }

@@ -316,7 +316,7 @@ test("hosted: trace back is for emotions, delete keeps children, branch delete r
 	assert.ok(a.nodes().length < before - 1);
 	a.click(a.$("#undoBtn"));
 	await sleep(100);
-	a.click(a.$("#clearBtn"));
+	await a.runRailAction("clearBtn");
 	await sleep(200);
 	assert.equal(a.nodes().length, 0);
 	assert.equal(a.$("#empty").hidden, false);
@@ -324,7 +324,7 @@ test("hosted: trace back is for emotions, delete keeps children, branch delete r
 test("hosted: map layer, resolve with pushback, grill rounds and the passivity nudge", async () => {
 	const a = open({ claude: scriptedClaude() });
 	await sleep(400);
-	a.click(a.$("#mapBtn"));
+	await a.openPanel("Map");
 	await sleep(150);
 	assert.ok(a.$("#world").classList.contains("maplayer"));
 	assert.match(a.$("#mLists").textContent, /Up next/);
@@ -372,7 +372,7 @@ test("hosted: map layer, resolve with pushback, grill rounds and the passivity n
 test("hosted: ask the graph highlights threads, offers gaps and summaries, and prunes deleted nodes", async () => {
 	const a = open({ claude: scriptedClaude() });
 	await sleep(400);
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	assert.ok(
 		!a.$("#world").classList.contains("maplayer"),
 		"map layer is off while asking",
@@ -433,7 +433,7 @@ test("hosted: with no AI at all the page still boots and falls back to keywords"
 	await sleep(400);
 	assert.equal(a.nodes().length, 18);
 	assert.deepEqual(a.errs, []);
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	a.type(a.$("#aQ"), "why is traversal slow");
 	a.click(a.$("#aGo"));
 	await sleep(300);
@@ -445,12 +445,12 @@ test("hosted: with no AI at all the page still boots and falls back to keywords"
 test("web: starts in demo mode with a clear way to connect a real AI", async () => {
 	const a = open({ html: webHtml(), url: WEB_URL });
 	await sleep(400);
-	assert.match(a.$("#stxt").textContent, /Demo mode/);
+	assert.match(await a.statusText(), /Demo mode/);
 	assert.equal(a.$("#setLink").hidden, false);
 	assert.equal(a.$("#setLink").textContent, "Use your chat or connect AI");
 	a.click(a.$("#setBtn"));
 	assert.ok(!(a.$("#wOr").closest("[data-modes]") as HTMLElement).hidden);
-	assert.ok(a.$("#wDemoRadio").checked);
+	assert.ok(a.$("#wDemoRadio").getAttribute("aria-checked") === "true");
 	assert.ok(
 		a.$('[data-modes="web"] a[href="https://github.com/example/cascade"]'),
 		"links to the repo for the full version",
@@ -496,7 +496,7 @@ test("web demo: trace back from an emotion links questions to likely causes", as
 test("web demo: chart the map, resolve with pushback, and grill to the end", async () => {
 	const a = open({ html: webHtml(), url: WEB_URL });
 	await sleep(400);
-	a.click(a.$("#mapBtn"));
+	await a.openPanel("Map");
 	a.type(a.$("#mDest"), "Make traversal feel like discovery");
 	a.click(a.$("#mChart"));
 	await sleep(3800);
@@ -537,7 +537,7 @@ test("web demo: chart the map, resolve with pushback, and grill to the end", asy
 test("web demo: ask the graph and summarise, with no account", async () => {
 	const a = open({ html: webHtml(), url: WEB_URL });
 	await sleep(400);
-	a.click(a.$("#askBtn"));
+	await a.openPanel("Ask");
 	a.click(a.$("#aChips .chip"));
 	await sleep(900);
 	assert.equal(a.$("#aVerdict").className, "averdict answered");
@@ -566,7 +566,7 @@ test("web OpenRouter: sign-in sends the user to OpenRouter with a PKCE challenge
 	await sleep(200);
 	assert.equal(a.navigated.length, 1);
 	const u = new URL(a.navigated[0]);
-	assert.equal(u.origin + u.pathname, "https://openrouter.ai/auth");
+	assert.equal(`${u.origin}${u.pathname}`, "https://openrouter.ai/auth");
 	assert.equal(u.searchParams.get("callback_url"), WEB_URL);
 	assert.equal(u.searchParams.get("code_challenge_method"), "S256");
 	const verifier = JSON.parse(
@@ -602,10 +602,10 @@ test("web OpenRouter: coming back with a code trades it for a key, picks a model
 		false,
 		"opens the AI tab so the user can confirm the model",
 	);
-	assert.equal(a.$("#wOrRadio").checked, true);
+	assert.equal(a.$("#wOrRadio").getAttribute("aria-checked"), "true");
 	assert.match(a.$("#wOrKeyHint").textContent, /••••-key/);
 	assert.ok(a.$$("#ml-wor option").length >= 4);
-	assert.match(a.$("#stxt").textContent, /Drag a block/);
+	assert.match(await a.statusText(), /Drag a block/);
 	const ex = mock.log.filter((e) => e.path.endsWith("/auth/keys")).pop().body;
 	assert.equal(ex.code_verifier, verifier);
 });
@@ -671,7 +671,7 @@ test("web OpenRouter: test connection, out-of-credits message, and forgetting th
 		JSON.parse(a.w.localStorage.getItem("cascade-web-ai-v1")).key,
 		"",
 	);
-	assert.ok(a.$("#wDemoRadio").checked);
+	assert.ok(a.$("#wDemoRadio").getAttribute("aria-checked") === "true");
 });
 test("web OpenRouter: a code with no matching verifier is ignored", async () => {
 	const a = open({
@@ -693,7 +693,7 @@ test("web: an unfinished OpenRouter setup says so instead of calling a model", a
 		},
 	});
 	await sleep(400);
-	assert.match(a.$("#stxt").textContent, /No AI connected/);
+	assert.match(await a.statusText(), /No AI connected/);
 	assert.equal(a.$("#setLink").textContent, "Open settings");
 });
 
@@ -761,7 +761,7 @@ test("local: first run offers every way to connect, with the demo already workin
 		"Settings opens itself on first run",
 	);
 	assert.deepEqual(
-		a.$$(".prov[data-prov]").map((e) => e.dataset.prov),
+		a.$$("[data-prov]").map((e) => e.dataset.prov),
 		[
 			"chatgpt",
 			"claudecode",
@@ -772,8 +772,8 @@ test("local: first run offers every way to connect, with the demo already workin
 			"demo",
 		],
 	);
-	assert.ok(a.$(".prov[data-prov=demo]").classList.contains("active"));
-	assert.match(a.$("#stxt").textContent, /Demo mode/);
+	assert.ok(a.$("[data-prov=demo]").hasAttribute("data-active"));
+	assert.match(await a.statusText(), /Demo mode/);
 	assert.ok(
 		a.$("[data-act=cgSignIn]").textContent.includes("Continue with ChatGPT"),
 	);
@@ -815,7 +815,7 @@ test("local: Continue with ChatGPT signs in through the loopback callback and pi
 		"demo",
 		"signing in does not silently switch providers",
 	);
-	a.click(a.$("[data-prov=chatgpt] input[type=radio]"));
+	a.click(a.$("[data-prov=chatgpt] [role=radio]"));
 	await sleep(300);
 	assert.equal(
 		a.$("[data-prov=chatgpt] [data-role=status]").textContent,
@@ -887,10 +887,7 @@ test("local: Continue with OpenRouter stores the key on the server and fetches m
 	assert.equal(settings.providers.openrouter.hasKey, true);
 	assert.ok(!JSON.stringify(settings).includes("sk-or-test-key"));
 	assert.equal(b.w.location.search, "");
-	assert.equal(
-		b.$(".prov[data-prov=openrouter]").classList.contains("active"),
-		true,
-	);
+	assert.equal(b.$("[data-prov=openrouter]").hasAttribute("data-active"), true);
 	assert.equal(b.$("#m-openrouter").value, "anthropic/claude-new-haiku");
 	assert.deepEqual(b.errs, []);
 });
@@ -903,7 +900,7 @@ test("local: server info, quit button and the stopped screen", async (t) => {
 	a.click(a.$("#sQuit"));
 	await sleep(800);
 	assert.equal(a.$("#bye").hidden, false);
-	assert.equal(a.$("#settings").hidden, true);
+	assert.equal(a.$("#settings"), null);
 	assert.equal(s.p.exited, true);
 });
 test("local: saved tree comes back after a reload", async (t) => {

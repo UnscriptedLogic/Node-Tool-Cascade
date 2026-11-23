@@ -6,6 +6,7 @@
 .pill {
 	display: flex;
 	align-items: center;
+	height: 34px;
 	gap: 9px;
 	padding: 7px 13px;
 	border-radius: 999px;
@@ -14,10 +15,67 @@
 	font-size: 13px;
 	color: var(--ink2);
 }
-#status {
+/* top left: sidebar launcher, help or busy status, provider, highlight */
+#hudTL {
 	left: 14px;
 	top: 14px;
-	max-width: calc(100% - 260px);
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	max-width: max(220px, calc(100% - 420px - var(--drawer, 0px)));
+}
+#status {
+	max-width: 100%;
+	min-width: 0;
+}
+#status.idle {
+	padding: 3px;
+	gap: 6px;
+}
+#status.idle:has(#setLink[hidden]) {
+	border-color: transparent;
+	background: transparent;
+}
+#status.idle #setLink {
+	padding-right: 10px;
+}
+.helpbtn {
+	width: 26px;
+	height: 26px;
+	flex: none;
+	display: grid;
+	place-items: center;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--ink2);
+	padding: 0;
+}
+.helpbtn svg {
+	width: 18px;
+	height: 18px;
+}
+.helpbtn:hover,
+.helpbtn[data-state$="open"] {
+	color: var(--ink);
+}
+.tip {
+	z-index: 95;
+	max-width: min(280px, calc(100vw - 24px));
+	font-size: 12.5px;
+	line-height: 1.4;
+}
+#hlchip {
+	max-width: 100%;
+	min-width: 0;
+	font: inherit;
+	font-size: 13px;
+}
+#hlchip .hl {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 #status .dot {
 	width: 8px;
@@ -37,27 +95,50 @@
 	gap: 8px;
 	align-items: center;
 }
+/* a toggle group: its options look like a row of grouped buttons */
 .seg {
 	display: flex;
+	align-items: stretch;
 	margin: 0;
 	padding: 0;
 	min-width: 0;
-	border: 1px solid var(--line);
-	border-radius: 10px;
-	background: var(--paper);
-	overflow: hidden;
 }
-.seg button {
-	border: 0;
-	background: none;
-	padding: 7px 11px;
-	font-size: 13px;
-	color: var(--ink2);
+.seg > button {
+	flex: none;
 	min-width: 34px;
+	margin-left: -1px;
+	padding: 0 12px;
+	border: 1px solid var(--line);
+	border-radius: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-size: 13px;
+	transition:
+		background-color 0.12s,
+		color 0.12s,
+		border-color 0.12s;
 }
-.seg button[aria-pressed="true"] {
+.seg > button:first-child {
+	margin-left: 0;
+	border-radius: 8px 0 0 8px;
+}
+.seg > button:last-child {
+	border-radius: 0 8px 8px 0;
+}
+.seg > button:hover {
+	border-color: var(--ink2);
+}
+.seg > button:hover,
+.seg > button:focus-visible,
+.seg > button[data-state="on"] {
+	position: relative;
+	z-index: 1;
+}
+.seg > button[aria-pressed="true"],
+.seg > button[data-state="on"] {
 	background: var(--ink);
 	color: var(--bg);
+	border-color: var(--ink);
 }
 .btn {
 	border: 1px solid var(--line);
@@ -69,6 +150,15 @@
 }
 .btn:hover {
 	border-color: var(--ink2);
+}
+/* every button, toggle group, dropdown and text field shares one height */
+.btn,
+.selectfield,
+[data-slot="input"]:not([type="file"]) {
+	height: var(--control-h);
+}
+.seg > button {
+	height: var(--control-h);
 }
 .btn.primary {
 	background: var(--ink);
@@ -197,7 +287,7 @@
 }
 #empty {
 	position: absolute;
-	inset: 0;
+	inset: 0 var(--drawer, 0px) 0 0;
 	display: grid;
 	place-items: center;
 	pointer-events: none;
@@ -263,5 +353,125 @@
 	.pending,
 	#status.busy .dot {
 		animation: none;
+	}
+}
+
+/* the canvas toolbar */
+/* buttons that belong together share one outline */
+.bgroup {
+	display: flex;
+	align-items: stretch;
+}
+:is(#ctrl, .sidehead) .bgroup > .btn {
+	border-radius: 0;
+	margin-left: -1px;
+}
+:is(#ctrl, .sidehead) .bgroup > .btn:first-child {
+	border-radius: 8px 0 0 8px;
+	margin-left: 0;
+}
+:is(#ctrl, .sidehead) .bgroup > .btn:last-child {
+	border-radius: 0 8px 8px 0;
+}
+:is(#ctrl, .sidehead) .bgroup > .btn:only-child {
+	border-radius: 8px;
+}
+:is(#ctrl, .sidehead) .bgroup > .btn:hover,
+:is(#ctrl, .sidehead) .bgroup > .btn:focus-visible,
+:is(#ctrl, .sidehead) .bgroup > .btn[aria-pressed="true"] {
+	position: relative;
+	z-index: 1;
+}
+:is(#ctrl, .sidehead) .iconbtn {
+	width: 34px;
+	font-size: 16px;
+}
+#ctrl .fitbtn {
+	padding: 0 12px;
+	font-weight: 600;
+	background: var(--paper2);
+}
+/* the one confirmation for Load example and Clear graph */
+[data-slot="alert-dialog-overlay"] {
+	z-index: 89;
+	background: rgba(8, 14, 26, 0.45);
+}
+#confirm {
+	z-index: 90;
+	width: min(420px, calc(100vw - 32px));
+	max-width: none;
+	gap: 18px;
+	padding: 20px;
+	background: var(--paper);
+	color: var(--ink);
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+#confirm h2 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+}
+#confirm p {
+	margin: 0;
+	color: var(--ink2);
+	font-size: 14px;
+	line-height: 1.45;
+}
+
+/* dialogs fade and scale in and out, menus fade (Radix waits for the exit animation) */
+@media (prefers-reduced-motion: no-preference) {
+	[data-slot="dialog-overlay"],
+	[data-slot="alert-dialog-overlay"],
+	#srcview {
+		animation: fade-in 0.26s ease-out;
+	}
+	[data-slot="dialog-overlay"][data-state="closed"],
+	[data-slot="alert-dialog-overlay"][data-state="closed"],
+	#srcview[data-state="closed"] {
+		animation: fade-out 0.18s ease-in forwards;
+	}
+	/* menus only fade, quickly */
+	[data-slot="dropdown-menu-content"],
+	[data-slot="select-content"] {
+		animation: fade-in 0.12s ease-out;
+	}
+	[data-slot="dropdown-menu-content"][data-state="closed"],
+	[data-slot="select-content"][data-state="closed"] {
+		animation: fade-out 0.1s ease-in forwards;
+	}
+	[data-slot="dialog-content"],
+	[data-slot="alert-dialog-content"],
+	#srcview .svcard {
+		animation: pop-in 0.26s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+	}
+	[data-slot="dialog-content"][data-state="closed"],
+	[data-slot="alert-dialog-content"][data-state="closed"],
+	#srcview[data-state="closed"] .svcard {
+		animation: pop-out 0.18s ease-in forwards;
+	}
+}
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+}
+@keyframes fade-out {
+	to {
+		opacity: 0;
+	}
+}
+@keyframes pop-in {
+	from {
+		opacity: 0;
+		scale: 0.95;
+	}
+}
+@keyframes pop-out {
+	to {
+		opacity: 0;
+		scale: 0.95;
 	}
 }

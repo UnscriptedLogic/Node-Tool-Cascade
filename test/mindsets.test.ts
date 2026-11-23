@@ -209,8 +209,8 @@ function setup(
 	return { a, prompts };
 }
 async function importPack(a, p: unknown = pack()) {
-	a.click(a.$("#setBtn"));
-	a.click(a.$("[data-tab=mindsets]"));
+	a.openSettings("mindsets");
+	await a.expandDisclosure("#msPaste");
 	a.type(a.$("#msJson"), JSON.stringify(p));
 	a.click(a.$("#msPasteImport"));
 	await tick();
@@ -231,7 +231,7 @@ test("mindsets UI: import several, disable, override icons, remove and undo with
 		a.byId("n6").querySelector("[data-act=mindset]"),
 		"existing nodes gain a mindset action immediately",
 	);
-	const on = a.$(".mindset-pack input[type=checkbox]");
+	const on = a.$(".mindset-pack [role=checkbox]");
 	a.click(on);
 	assert.equal(a.api.tree.mindsets[0].enabled, false);
 	a.type(a.$(".mindset-pack input[type=text]"), "💡");
@@ -300,15 +300,9 @@ test("mindsets UI: explicit generation creates labelled question suggestions and
 	assert.equal(q.type, "question");
 	assert.equal(q.ghost, true);
 	assert.equal(q.parent, "n6");
-	assert.equal(
-		a.byId(q.id).querySelector(".mindset-label").textContent,
-		"Lens #CUSTOM-1: Meaningful Return",
-	);
-	assert.match(
-		(a.byId(q.id).querySelector(".mindset-label") as HTMLElement).title,
-		/Traversal repeats/,
-	);
-	a.click(a.byId(q.id).querySelector(".mindset-label"));
+	const label = a.byId(q.id).querySelector<HTMLButtonElement>(".mindset-label");
+	assert.equal(label.textContent, "Lens #CUSTOM-1: Meaningful Return");
+	a.click(label);
 	assert.match(a.$("#ntxt").textContent, /Workshop notes/);
 	assert.match(prompts[0], /ONLY when they directly help/);
 	assert.doesNotMatch(prompts[0], /Readable Combat/);
@@ -474,7 +468,7 @@ test("mindsets UI: disabling a pack while generation runs prevents stale suggest
 	await ready;
 	a.click(a.$("#setBtn"));
 	a.click(a.$("[data-tab=mindsets]"));
-	const on = a.$(".mindset-pack input[type=checkbox]");
+	const on = a.$(".mindset-pack [role=checkbox]");
 	a.click(on);
 	release(JSON.stringify(tagged()));
 	await finish(a);

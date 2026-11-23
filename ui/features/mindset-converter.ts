@@ -102,7 +102,7 @@ export async function extractMindsetPdf(
 			const text = content.items
 				.map((item) =>
 					"str" in item && typeof item.str === "string"
-						? item.str + (item.hasEOL ? "\n" : " ")
+						? `${item.str}${item.hasEOL ? "\n" : " "}`
 						: "",
 				)
 				.join("")
@@ -341,12 +341,15 @@ export function generateMindsetDraft() {
 					!failure &&
 					!c.signal.aborted;
 				const coverage = `${complete ? "Complete extracted-text pass" : "Partial conversion"}: ${processed}/${chunks.length} chunks. ${entries.length} ${entries.length === 1 ? "entry" : "entries"}. ${warnings.join(" ")}`;
-				const report =
-					coverage +
-					(limited ? " Entry limit reached." : "") +
-					(c.signal.aborted ? " Stopped by user or tree change." : "") +
-					(failure ? ` ${failure}` : "") +
-					(rejected ? ` ${rejected} ungrounded entries rejected.` : "");
+				const limitNote = limited ? " Entry limit reached." : "";
+				const stopNote = c.signal.aborted
+					? " Stopped by user or tree change."
+					: "";
+				const failureNote = failure ? ` ${failure}` : "";
+				const rejectionNote = rejected
+					? ` ${rejected} ungrounded entries rejected.`
+					: "";
+				const report = `${coverage}${limitNote}${stopNote}${failureNote}${rejectionNote}`;
 				if (entries.length) {
 					const pack = Mindsets.pack({
 						schemaVersion: 1,

@@ -83,6 +83,8 @@ test("mobile: wide windows are untouched; narrow ones get a layout, and ?layout=
 	// the choice lives in Settings > Behavior and is remembered
 	const c = phone();
 	await sleep(300);
+	c.click(c.$("#railOpen"));
+	await tick();
 	c.click(c.$("#setBtn"));
 	c.click(c.$(".stabs [data-tab=behavior]"));
 	c.click(c.$("#bLayout [data-val=minimal]"));
@@ -243,7 +245,21 @@ test("mobile minimal: suggestions are handled from the menu, and the hint appear
 	const a = phone(web);
 	await sleep(1100);
 	assert.match(a.$("#ntxt").textContent, /Tap empty space for a menu/);
-	await a.drop("question", "Would a bigger map help?", 2300);
+	tapStage(a);
+	await tick();
+	const choose = (label: string) =>
+		a.click(
+			a
+				.$$("#ctx [role=menuitem]")
+				.find((item) => item.querySelector(".lb")?.textContent === label),
+		);
+	choose("Add a block");
+	await tick();
+	choose("Question");
+	await tick();
+	a.type(a.$("#compose textarea"), "Would a bigger map help?");
+	a.click(a.$("#cOk"));
+	await sleep(2300);
 	assert.ok(a.nodes().some((n) => n.classList.contains("ghost")));
 	tapStage(a);
 	await sleep(50);

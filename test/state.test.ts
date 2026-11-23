@@ -12,7 +12,7 @@ test("HUD and rail react to store writes without a manual refresh", async (t) =>
 	a.api.history.push({ s: a.api.serializeTree(), v: null });
 	await sleep(0);
 	assert.equal(a.$("#goalchip .gt").textContent, "A reactive destination");
-	assert.equal(a.$("#mOuter").getAttribute("aria-pressed"), "true");
+	assert.equal(a.$("#mOuter").getAttribute("aria-checked"), "true");
 	assert.equal(a.$("#undoBtn").disabled, false);
 	a.api.ui.library = {
 		...a.api.library,
@@ -81,11 +81,12 @@ test("settings reflect preference writes without reopening or manual syncing", a
 	const a = open();
 	t.after(() => a.dom.window.close());
 	await sleep(20);
+	a.openSettings("goal");
 	a.api.prefs.goal = "A goal from a legacy action";
 	a.api.prefs.domain = "research";
 	await sleep(0);
 	assert.equal(a.$("#gGoal").value, "A goal from a legacy action");
-	assert.equal(a.$("#gDomain").value, "research");
+	assert.equal(a.$("#gDomain").textContent, "Research");
 	assert.match(a.$("#gDomainHelp").textContent, /study/);
 });
 

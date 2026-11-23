@@ -1,6 +1,6 @@
 import Mindsets from "../../shared/mindsets.ts";
 import { hasBridgeGround } from "../ai/prompts.ts";
-import { ACT, ICONS, reduce, TICKET_LABEL } from "../core/constants.ts";
+import { ICONS, reduce, TICKET_LABEL } from "../core/constants.ts";
 import { world } from "../core/dom.ts";
 import { DOM } from "../core/profiles.ts";
 import { state as coreStateState, R, S, spawnAt } from "../core/state.ts";
@@ -20,11 +20,17 @@ import {
 	moodColor,
 	nodeW,
 } from "./look.ts";
+import {
+	type NodeAction,
+	setNodeControls,
+	syncNodeControls,
+} from "./node-controls-state.ts";
 export let clsFor = null;
 /* ================= layout ================= */
 export function syncDom(vis) {
 	for (const id in R) {
 		if (!S.nodes[id]) {
+			setNodeControls(R[id].el, null);
 			R[id].el.remove();
 			delete R[id];
 		}
@@ -38,7 +44,7 @@ export function syncDom(vis) {
 			el.tabIndex = 0;
 			el.style.display = "none";
 			el.innerHTML =
-				'<div class="in blk"><button type="button" class="mindset-label" hidden></button><span class="ico"></span><span class="txt"></span><span class="srcmark" role="button" aria-label="Where this came from"></span><span class="badge"></span><span class="mbadge"></span></div><div class="bar"></div>';
+				'<div class="in blk"><div class="node-control-slot mindset-slot"></div><span class="ico"></span><span class="txt"></span><div class="node-control-slot source-slot"></div><span class="badge"></span><span class="mbadge"></span></div><div class="bar"></div>';
 			world.appendChild(el);
 			R[id] = {
 				el,
@@ -68,9 +74,12 @@ export function syncDom(vis) {
 		if (!show && r.shown) {
 			r.el.style.display = "none";
 			r.shown = false;
+			r.sig = undefined;
+			setNodeControls(r.el, null);
 		}
 		if (show) paint(S.nodes[id]);
 	}
+	syncNodeControls();
 }
 export function stepAttr(el, id) {
 	const t = coreStateState.THMAP[id];
@@ -104,6 +113,9 @@ export function paint(n) {
 	const dots = desc
 		.filter((x) => S.nodes[x].type === "emotion")
 		.map((x) => S.nodes[x].mood || "curiosity");
+	const source = n.src?.length
+		? `From ${n.src[0].f}:${n.src[0].l}${n.src.length > 1 ? ` (+${n.src.length - 1} more)` : ""}`
+		: null;
 	const sig = [
 		n.type,
 		n.text,
@@ -120,7 +132,7 @@ export function paint(n) {
 		coreStateState.MAP.flag[n.id] || "",
 		n.ticket || "",
 		n.state || "",
-		n.src?.length || 0,
+		source,
 		canvasLookState.LOOKVER,
 	].join("|");
 	const actionSig = S.mindsets.length ? "mindsets" : "";
@@ -129,42 +141,10 @@ export function paint(n) {
 	r.actionSig = actionSig;
 	blk.className = `in blk t-${n.type}`;
 	el.style.width = `${decorate(blk as HTMLElement, n.type, n).width}px`;
-	const ml = blk.querySelector(".mindset-label"),
-		mindset = Mindsets.metadata(n.mindset);
-	(ml as HTMLElement).hidden = !mindset;
-	ml.textContent = mindset ? Mindsets.label(mindset, false) : "";
-	(ml as HTMLElement).title = mindset
-		? [
-				mindset.packName,
-				mindset.source.title,
-				mindset.source.edition,
-				mindset.source.url,
-				mindset.source.coverage,
-				...mindset.references.map((r) => `${r.source} — ${r.location}`),
-				mindset.why,
-			]
-				.filter(Boolean)
-				.join("\n")
-		: "";
-	if (mindset)
-		ml.setAttribute(
-			"aria-label",
-			`${Mindsets.label(mindset, false)}. Show source and relevance`,
-		);
+	const mindset = Mindsets.metadata(n.mindset);
 	const ico = blk.querySelector(".ico");
 	if (mindset) ico.textContent = mindset.icon;
 	else ico.innerHTML = ICONS[n.type];
-	{
-		const sm = blk.querySelector(".srcmark");
-		sm.innerHTML = ICONS.file;
-		(sm as HTMLElement).title = n.src?.length
-			? "From " +
-				n.src[0].f +
-				":" +
-				n.src[0].l +
-				(n.src.length > 1 ? ` (+${n.src.length - 1} more)` : "")
-			: "";
-	}
 	if (!r.editing) blk.querySelector(".txt").textContent = n.text;
 	const badge = blk.querySelector(".badge");
 	badge.textContent = "";
@@ -209,17 +189,30 @@ export function paint(n) {
 				f,
 			);
 	}
-	const btns = nodeActions(n, hasKids);
-	el.querySelector(".bar").innerHTML = btns
-		.map(
-			([a, t]) =>
-				`<button type="button" data-act="${a}" title="${t}" aria-label="${t}">${ACT[a]}</button>`,
-		)
-		.join("");
+	setNodeControls(el, {
+		actions: nodeActions(n, hasKids),
+		source,
+		mindset: mindset
+			? {
+					label: Mindsets.label(mindset, false),
+					details: [
+						mindset.packName,
+						mindset.source.title,
+						mindset.source.edition,
+						mindset.source.url,
+						mindset.source.coverage,
+						...mindset.references.map((r) => `${r.source} — ${r.location}`),
+						mindset.why,
+					]
+						.filter(Boolean)
+						.join("\n"),
+				}
+			: null,
+	});
 }
 // what can be done to a block: [action, description] pairs, in order. Used by the desktop bar, the phone action strip and the menus.
 export function nodeActions(n, hasKids) {
-	const btns = [];
+	const btns: NodeAction[] = [];
 	if (S.mode === "outer") {
 		if (isOuter(n)) btns.push(["open", "Open in detail view"]);
 	} else if (n.ghost) {
@@ -234,6 +227,8 @@ export function nodeActions(n, hasKids) {
 			["del", "Delete"],
 		);
 	} else {
+		if (hasKids)
+			btns.push(n.collapsed ? ["expand", "Expand"] : ["collapse", "Collapse"]);
 		if (S.layer && n.type === "question") {
 			btns.push(
 				n.state === "settled"
@@ -243,9 +238,7 @@ export function nodeActions(n, hasKids) {
 			btns.push(
 				[
 					"ticket",
-					"Ticket type: " +
-						TICKET_LABEL[n.ticket || "talk"] +
-						". Click to change",
+					`Ticket type: ${TICKET_LABEL[n.ticket || "talk"]}. Click to change`,
 				],
 				["block", "Blocked by…"],
 				[
@@ -266,7 +259,6 @@ export function nodeActions(n, hasKids) {
 				]);
 			btns.push(["back", DOM().traceTip]);
 		}
-		if (hasKids) btns.push(["collapse", n.collapsed ? "Expand" : "Collapse"]);
 		btns.push([
 			"del",
 			hasKids ? "Delete node (its children move up)" : "Delete",
@@ -280,6 +272,8 @@ export function layout(initial: boolean) {
 	coreStateState.MAP = computeMap();
 	const vis = new Set(visibleIds());
 	syncDom(vis);
+	// The map layer shows ticket and state chips, so turn it on before measuring heights.
+	world.classList.toggle("maplayer", !!S.layer);
 	const ids = [...vis];
 	for (const id of ids) {
 		const r = R[id];

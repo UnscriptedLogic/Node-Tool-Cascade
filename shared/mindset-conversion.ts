@@ -200,9 +200,11 @@ SOURCE DATA:\n${JSON.stringify(chunk.text)}`;
 					)
 					.slice(0, 12);
 			} else {
-				const base = (
-					slug(entry.name) + (entry.number ? `-${slug(entry.number)}` : "")
-				).slice(0, 76);
+				const base =
+					`${slug(entry.name)}${entry.number ? `-${slug(entry.number)}` : ""}`.slice(
+						0,
+						76,
+					);
 				let id = base,
 					n = 2;
 				while (out.some((e: { id: string }) => e.id === id))

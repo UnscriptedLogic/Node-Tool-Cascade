@@ -14,14 +14,10 @@ export default defineConfig({
 			generateBundle(_options, bundle) {
 				const script = bundle["ui.js"];
 				if (script?.type === "chunk") {
-					script.code =
-						"/*!\n" +
-						readFileSync(
-							new URL("./components/ui/LICENSE", import.meta.url),
-							"utf8",
-						) +
-						"\n*/\n" +
-						script.code;
+					script.code = `/*!\n${readFileSync(
+						new URL("./components/ui/LICENSE", import.meta.url),
+						"utf8",
+					)}\n*/\n${script.code}`;
 				}
 			},
 		},

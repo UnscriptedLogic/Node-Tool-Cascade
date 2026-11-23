@@ -1,4 +1,5 @@
 import { memo, useLayoutEffect, useRef } from "react";
+import { CanvasNodeControls } from "./canvas/NodeControls.tsx";
 import { setCanvasElements } from "./core/dom.ts";
 import { useViewport } from "./hooks/useViewport.ts";
 import Compose from "./islands/Compose.tsx";
@@ -59,6 +60,7 @@ export const CanvasHost = memo(function CanvasHost() {
 					<text id="elabel" ref={elabel} className="elabel"></text>
 				</svg>
 			</div>
+			<CanvasNodeControls />
 
 			<div id="hudRoot" className="cui" style={{ display: "contents" }}>
 				<Hud />

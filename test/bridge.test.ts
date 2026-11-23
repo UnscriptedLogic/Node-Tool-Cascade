@@ -112,24 +112,21 @@ test("bridge: when the ends cannot meet, a grill starts with the missing step as
 	const probe = open({ claude: model([], "") });
 	await sleep(300);
 	const emo = `n${probe.api.tree.seq + 1}`;
-	const bridge =
-		[
-			{
-				id: "g1",
-				side: "backward",
-				parent: emo,
-				type: "question",
-				text: "What would produce this?",
-				wave: 1,
-			},
-		]
-			.map((value) => J(value))
-			.join("\n") +
-		"\n" +
-		J({
-			verdict: "gap",
-			gap: "Nothing says how players get from walking to wonder.",
-		});
+	const bridge = `${[
+		{
+			id: "g1",
+			side: "backward",
+			parent: emo,
+			type: "question",
+			text: "What would produce this?",
+			wave: 1,
+		},
+	]
+		.map((value) => J(value))
+		.join("\n")}\n${J({
+		verdict: "gap",
+		gap: "Nothing says how players get from walking to wonder.",
+	})}`;
 	const a = open({ claude: model(prompts, bridge) });
 	await sleep(400);
 	await a.drop("emotion", "Wonder at the end of the road", 2600);

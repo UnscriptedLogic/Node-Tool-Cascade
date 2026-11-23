@@ -31,9 +31,10 @@ import {
 } from "../core/constants.ts";
 import { initServer } from "../core/server.ts";
 import { AI, pushHist, S, save, snap, UI } from "../core/state.ts";
-import { loadProjectData, SV } from "../features/project.ts";
+import { loadProjectData } from "../features/project.ts";
 import type { TreeNode } from "../model.ts";
-import { clearGraph, initialView } from "./actions.ts";
+import { initialView } from "./actions.ts";
+import { askConfirm } from "./confirm.ts";
 import { requestFocus, showNote } from "./hud.ts";
 import { ensureLookUI } from "./look-editor.ts";
 import { applyResponsive } from "./responsive.ts";
@@ -137,7 +138,14 @@ export function showTab(n: string) {
 	});
 	if (n === "look") ensureLookUI();
 }
+// The control that opened Settings gets focus back when it closes.
+let settingsOpener: HTMLElement | null = null;
 export function openSettings(tab?: string) {
+	if (!SETTINGS.open) {
+		const active = document.activeElement;
+		settingsOpener =
+			active instanceof HTMLElement && active !== document.body ? active : null;
+	}
 	updatePreview();
 	updateProviders();
 	updateWeb();
@@ -146,8 +154,25 @@ export function openSettings(tab?: string) {
 	requestFocus(tab === "goal" ? "goal" : "settingsClose");
 }
 export function closeSettings() {
-	SETTINGS.open = false;
-	requestFocus("settingsButton");
+	// Unmount the dialog before returning, so focus and the DOM settle at once.
+	flushSync(() => {
+		SETTINGS.open = false;
+	});
+}
+const shown = (el: Element | null): el is HTMLElement =>
+	el instanceof HTMLElement &&
+	el.isConnected &&
+	!el.closest("[hidden],[inert],[aria-hidden=true]");
+export function restoreSettingsFocus() {
+	const opener = settingsOpener;
+	settingsOpener = null;
+	const target = [
+		opener,
+		document.getElementById("setBtn"),
+		document.getElementById("railOpen"),
+		document.getElementById("stage"),
+	].find(shown);
+	target?.focus({ preventScroll: true });
 }
 
 /* --- preferences --- */
@@ -337,7 +362,7 @@ export async function onProviderAction(p, act: string) {
 			const r = await postJSON("/api/test", draftOf(p));
 			if (r.ok) {
 				AI.off = false;
-				say(`Connected in ${r.ms} ms. The model replied “${r.reply}”.`, "ok");
+				say(`Connected in ${r.ms} ms. The model replied "${r.reply}".`, "ok");
 			} else say(r.error || "The test failed.", "bad");
 			SETTINGS.busy[p] = false;
 		}
@@ -496,7 +521,7 @@ export async function onWebAction(action: string, value?: string) {
 			const result = await webSample("Reply with the single word OK.", {});
 			AI.off = false;
 			say(
-				`Connected in ${Date.now() - started} ms. The model replied “${result.text.trim().slice(0, 40)}”.`,
+				`Connected in ${Date.now() - started} ms. The model replied "${result.text.trim().slice(0, 40)}".`,
 				"ok",
 			);
 		} catch (e) {
@@ -634,8 +659,8 @@ export async function onDataAction(action, file?) {
 			SETTINGS.dataMessage = err.message;
 		}
 	} else if (action === "clear") {
-		closeSettings();
-		clearGraph();
+		// Settings stays open unless the clear is confirmed.
+		askConfirm("clear-graph", closeSettings);
 	} else if (action === "forgetKey") {
 		CONNECTION.web = {
 			provider: "demo",
@@ -671,7 +696,7 @@ export const PROV: Record<
 > = {
 	chatgpt: {
 		label: "ChatGPT plan",
-		sub: "Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s “Sign in with ChatGPT” for open-source apps, which is still a preview.",
+		sub: 'Use your ChatGPT Plus or Pro plan instead of an API key. This uses OpenAI’s "Sign in with ChatGPT" for open-source apps, which is still in preview.',
 	},
 	claudecode: {
 		label: "Claude plan (Claude Code)",
@@ -712,18 +737,12 @@ export const PROV: Record<
 	},
 };
 export const STEER_HELP = {
-	light: "The goal is a gentle lean. Questions still wander.",
+	light: "Questions lean toward the goal but often go elsewhere.",
 	balanced:
 		"Most questions help you move toward the goal, with room for tangents.",
-	strong: "Everything is framed as a step toward the goal. Few tangents.",
+	strong:
+		"The AI frames every question as a step toward the goal, with few tangents.",
 };
-
-export function onSettingsKeyDown(e: KeyboardEvent) {
-	if (e.key === "Escape" && SETTINGS.open && !SV.open) {
-		e.stopPropagation();
-		closeSettings();
-	}
-}
 
 export function startSettings() {
 	UI.providerLabels = Object.fromEntries(

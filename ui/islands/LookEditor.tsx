@@ -1,6 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Textarea } from "@/components/ui/textarea";
 import {
 	state as canvasLookState,
 	decorate,
@@ -38,6 +42,12 @@ import {
 	toHex,
 	wirePreview,
 } from "../shell/look-editor.ts";
+import { Choice, Disclosure, SelectField } from "./controls.tsx";
+
+const lookRow =
+	"mb-3 grid grid-cols-[128px_minmax(0,1fr)_52px] items-center gap-2.5 text-[13.5px] [@media(max-width:760px)]:grid-cols-[104px_minmax(0,1fr)_44px]";
+const colorInput =
+	"h-(--control-h) w-11 rounded-[7px] border border-line bg-paper p-0 disabled:opacity-[0.35]";
 
 const checkpoint = () => lkCheckpoint();
 
@@ -98,22 +108,21 @@ function Range({
 	show = true,
 }: RangeProps) {
 	return (
-		<label className="lk-row" hidden={!show}>
-			<span className="lk-l">{label}</span>
-			<input
-				type="range"
+		<div className={lookRow} hidden={!show}>
+			<span className="font-semibold">{label}</span>
+			<Slider
 				data-f={field}
+				aria-label={label}
 				min={min}
 				max={max}
 				step={step}
-				value={value}
-				onChange={() => {}}
+				value={[value]}
 				onPointerDown={checkpoint}
 				onKeyDown={checkpoint}
-				onInput={(e) => set(+e.currentTarget.value)}
+				onValueChange={([next]) => set(next)}
 			/>
-			<output>{String(Math.round(value * 100) / 100) + unit}</output>
-		</label>
+			<output className="text-right text-[12.5px] text-ink2">{`${Math.round(value * 100) / 100}${unit}`}</output>
+		</div>
 	);
 }
 function Select({
@@ -125,38 +134,34 @@ function Select({
 	show = true,
 }: SelectProps) {
 	return (
-		<div className="lk-row" hidden={!show}>
-			<span className="lk-l">{label}</span>
-			<select
-				data-f={field}
+		<div className={lookRow} hidden={!show}>
+			<span className="font-semibold">{label}</span>
+			<SelectField
+				label={label}
+				attrs={{ "data-f": field }}
+				className="col-[2/span_2] w-full"
 				value={String(value)}
-				onFocus={checkpoint}
-				onChange={(e) => set(e.currentTarget.value)}
-			>
-				{options.map((option) => (
-					<option key={option} value={String(option)}>
-						{String(option)}
-					</option>
-				))}
-			</select>
+				options={options.map((option) => [String(option), String(option)])}
+				onOpen={checkpoint}
+				onChange={set}
+			/>
 		</div>
 	);
 }
 function Check({ label, field, value, set }: CheckProps) {
 	return (
-		<div className="lk-row">
-			<span className="lk-l">{label}</span>
-			<label className="lk-chk">
-				<input
-					type="checkbox"
-					data-f={field}
-					checked={!!value}
-					onChange={(e) => {
-						checkpoint();
-						set(e.currentTarget.checked);
-					}}
-				/>
-			</label>
+		<div className={lookRow}>
+			<span className="font-semibold">{label}</span>
+			<Checkbox
+				className="col-start-2 justify-self-start"
+				data-f={field}
+				aria-label={label}
+				checked={!!value}
+				onCheckedChange={(next) => {
+					checkpoint();
+					set(next === true);
+				}}
+			/>
 		</div>
 	);
 }
@@ -172,11 +177,12 @@ function Color({
 	const lastColor = useRef("#000000");
 	if (!isKeyword) lastColor.current = toHex(value || "#808080");
 	return (
-		<div className="lk-row">
-			<span className="lk-l">{label}</span>
-			<div className="lk-col">
+		<div className={lookRow}>
+			<span className="font-semibold">{label}</span>
+			<div className="col-[2/span_2] flex flex-wrap items-center gap-2.5">
 				<input
 					type="color"
+					className={colorInput}
 					data-f={field}
 					value={lastColor.current}
 					disabled={isKeyword}
@@ -186,21 +192,21 @@ function Color({
 					onInput={(e) => set(e.currentTarget.value)}
 				/>
 				{keyword && (
-					<label className="lk-sub">
-						<input
-							type="checkbox"
+					<Label className="flex items-center gap-1.5 text-[12.5px] text-ink2">
+						<Checkbox
 							data-f={`${field}-kw`}
 							checked={isKeyword}
-							onChange={(e) => {
+							onCheckedChange={(next) => {
 								checkpoint();
-								set(e.currentTarget.checked ? keyword : lastColor.current);
+								set(next === true ? keyword : lastColor.current);
 							}}
 						/>
 						{keywordLabel}
-					</label>
+					</Label>
 				)}
-				<button
+				<Button
 					type="button"
+					variant="ghost"
 					className="lk-mini"
 					title="Back to the default"
 					onClick={() => {
@@ -209,7 +215,7 @@ function Color({
 					}}
 				>
 					default
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
@@ -242,19 +248,15 @@ function Preview({ type, revision }: PreviewProps) {
 }
 function Segment({ id, label, items, value, set, attr = "v" }: SegmentProps) {
 	return (
-		<fieldset className="seg" id={id} aria-label={label}>
-			{items.map(([key, text]) => (
-				<button
-					type="button"
-					key={key}
-					{...{ [`data-${attr}`]: key }}
-					aria-pressed={Boolean(value === key)}
-					onClick={() => set(key)}
-				>
-					{text}
-				</button>
-			))}
-		</fieldset>
+		<Choice
+			id={id}
+			label={label}
+			big={false}
+			attr={attr}
+			items={items as readonly (readonly [string, string])[]}
+			value={String(value ?? "")}
+			onChange={set}
+		/>
 	);
 }
 
@@ -281,11 +283,13 @@ export default function LookEditor() {
 		["wires", "Wires"],
 		["canvas", "Canvas"],
 		["text", "Text"],
-	];
+	] as const;
 	return (
 		<>
-			<div className="lk-bar">
-				<h4>Look</h4>
+			<div className="mt-7 mb-3 flex items-center justify-between gap-2">
+				<h4 className="m-0 text-[17px] font-extrabold tracking-[-0.02em]">
+					Look
+				</h4>
 				<div className="frow">
 					<Button
 						type="button"
@@ -308,58 +312,52 @@ export default function LookEditor() {
 					</Button>
 				</div>
 			</div>
-			<fieldset
-				className="seg big"
+			<Choice
 				id="lkTabs"
-				aria-label="Look sections"
+				label="Look sections"
+				attr="lk"
 				style={{ flexWrap: "wrap" }}
-			>
-				{tabs.map(([key, label]) => (
-					<button
-						type="button"
-						key={key}
-						data-lk={key}
-						aria-pressed={Boolean(state.tab === key)}
-						onClick={() => lkShowTab(key)}
-					>
-						{label}
-					</button>
-				))}
-			</fieldset>
-			<div className="lk-pane" id="lk-presets" hidden={state.tab !== "presets"}>
-				<div className="lk-presets">
+				items={tabs}
+				value={state.tab}
+				onChange={(key) => lkShowTab(key)}
+			/>
+			<div className="mt-4" id="lk-presets" hidden={state.tab !== "presets"}>
+				<div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-2.5">
 					{PRESETS.map((preset) => (
-						<button
+						<Button
 							type="button"
+							variant="ghost"
 							className="lk-preset"
 							data-id={preset.id}
 							key={preset.id}
 							onClick={() => lkPreset(preset.id)}
 						>
-							<b>{preset.name}</b>
-							<small>{preset.desc}</small>
-							<div className="lk-sw">
+							<b className="mb-[3px] block text-[13.5px]">{preset.name}</b>
+							<small className="mb-2 block text-[12px]/[1.35] text-ink2">
+								{preset.desc}
+							</small>
+							<div className="flex gap-[3px]">
 								{preset.sw.map((color, i) => (
-									<i key={i} style={{ background: color }} />
+									<i
+										key={i}
+										className="h-2.5 flex-1 rounded-[3px] border border-[color-mix(in_srgb,var(--ink)_15%,transparent)]"
+										style={{ background: color }}
+									/>
 								))}
 							</div>
-						</button>
+						</Button>
 					))}
 				</div>
 				<p className="small" style={{ marginTop: 14 }}>
 					Presets replace your current look. Undo brings it back.
 				</p>
 			</div>
-			<div
-				className="lk-pane"
-				id="lk-describe"
-				hidden={state.tab !== "describe"}
-			>
+			<div className="mt-4" id="lk-describe" hidden={state.tab !== "describe"}>
 				<p className="small">
 					Describe the look you want in your own words. You can try it, then
 					keep it or put it back.
 				</p>
-				<textarea
+				<Textarea
 					id="lkDesc"
 					className="area"
 					rows={3}
@@ -378,8 +376,9 @@ export default function LookEditor() {
 						"Big red decisions, small grey answers",
 						"Neon with arrows and glowing outlines",
 					].map((description) => (
-						<button
+						<Button
 							type="button"
+							variant="ghost"
 							className="chip"
 							key={description}
 							onClick={() => {
@@ -388,7 +387,7 @@ export default function LookEditor() {
 							}}
 						>
 							{description}
-						</button>
+						</Button>
 					))}
 				</div>
 				<div className="mrow">
@@ -405,9 +404,13 @@ export default function LookEditor() {
 						{state.status}
 					</span>
 				</div>
-				<div className="lk-chg" id="lkResult" hidden={!state.resultOpen}>
+				<div
+					className="my-3 rounded-[10px] border border-line bg-paper px-3 py-2.5 text-[13px]/[1.5]"
+					id="lkResult"
+					hidden={!state.resultOpen}
+				>
 					<b>What changed</b>
-					<ul id="lkChanges">
+					<ul id="lkChanges" className="mt-1.5 mb-2.5 pl-[18px]">
 						{state.changes.map((change, i) => (
 							<li key={i}>{change}</li>
 						))}
@@ -435,7 +438,7 @@ export default function LookEditor() {
 					</div>
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-nodes" hidden={state.tab !== "nodes"}>
+			<div className="mt-4" id="lk-nodes" hidden={state.tab !== "nodes"}>
 				<div className="field">
 					<span className="lbl">Which blocks</span>
 					<div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -640,25 +643,27 @@ export default function LookEditor() {
 				>
 					<span className="lbl">Mood colours</span>
 					<small>
-						Colour is reserved for how people feel. Change what each feeling
-						looks like.
+						Colour only marks how people feel. Change what each feeling looks
+						like.
 					</small>
 					{MOOD_KEYS.map((mood) => (
-						<div className="lk-row" key={mood}>
-							<span className="lk-l">
-								{mood[0].toUpperCase() + mood.slice(1)}
+						<div className={lookRow} key={mood}>
+							<span className="font-semibold">
+								{`${mood[0].toUpperCase()}${mood.slice(1)}`}
 							</span>
-							<div className="lk-col">
+							<div className="col-[2/span_2] flex flex-wrap items-center gap-2.5">
 								<input
 									type="color"
+									className={colorInput}
 									data-mood={mood}
 									value={toHex(moodColor(mood))}
 									onChange={() => {}}
 									onPointerDown={checkpoint}
 									onInput={(e) => lkSetMood(mood, e.currentTarget.value)}
 								/>
-								<button
+								<Button
 									type="button"
+									variant="ghost"
 									className="lk-mini"
 									onClick={() => {
 										checkpoint();
@@ -666,7 +671,7 @@ export default function LookEditor() {
 									}}
 								>
 									default
-								</button>
+								</Button>
 							</div>
 						</div>
 					))}
@@ -683,7 +688,7 @@ export default function LookEditor() {
 					</Button>
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-wires" hidden={state.tab !== "wires"}>
+			<div className="mt-4" id="lk-wires" hidden={state.tab !== "wires"}>
 				<div className="field">
 					<span className="lbl">Wire style</span>
 					<Segment
@@ -691,7 +696,7 @@ export default function LookEditor() {
 						label="Wire style"
 						items={["default", "bezier", "straight", "manhattan"].map((v) => [
 							v,
-							v[0].toUpperCase() + v.slice(1),
+							`${v[0].toUpperCase()}${v.slice(1)}`,
 						])}
 						value={wires.style}
 						set={(v) => {
@@ -792,8 +797,8 @@ export default function LookEditor() {
 				<div className="field">
 					<span className="lbl">Other kinds of link</span>
 					<small>
-						Related links, loop flow, blocking and trace-back wires keep their
-						own look. Override them here.
+						Related links, loop flow, blocking and trace-back wires have their
+						own look. Change them here.
 					</small>
 					{WIRE_KINDS.filter((kind: string) => kind !== "tree").map((kind) => (
 						<div key={kind}>
@@ -820,7 +825,7 @@ export default function LookEditor() {
 					))}
 				</div>
 			</div>
-			<div className="lk-pane" id="lk-canvas" hidden={state.tab !== "canvas"}>
+			<div className="mt-4" id="lk-canvas" hidden={state.tab !== "canvas"}>
 				<Color
 					label="Background"
 					field="cbg"
@@ -835,7 +840,7 @@ export default function LookEditor() {
 						value={canvas.grid}
 						items={["dots", "lines", "none"].map((v) => [
 							v,
-							v[0].toUpperCase() + v.slice(1),
+							`${v[0].toUpperCase()}${v.slice(1)}`,
 						])}
 						set={(v) => {
 							checkpoint();
@@ -880,12 +885,12 @@ export default function LookEditor() {
 					unit="px"
 				/>
 			</div>
-			<div className="lk-pane" id="lk-text" hidden={state.tab !== "text"}>
+			<div className="mt-4" id="lk-text" hidden={state.tab !== "text"}>
 				<p className="small">
 					This is everything you have changed, as text. Edit it, paste one from
 					a friend, or copy yours. Unknown or out-of-range values are ignored.
 				</p>
-				<textarea
+				<Textarea
 					ref={text}
 					id="lkText"
 					spellCheck={false}
@@ -902,7 +907,7 @@ export default function LookEditor() {
 					}}
 				/>
 				<div
-					className={`lk-err${state.textOk ? " ok" : ""}`}
+					className={`mt-1.5 min-h-[18px] text-[13px] ${state.textOk ? "text-[#19877a]" : "text-[#d94a2b]"}`}
 					id="lkTextErr"
 					aria-live="polite"
 				>
@@ -938,8 +943,11 @@ export default function LookEditor() {
 						Copy
 					</Button>
 				</div>
-				<details className="card" style={{ marginTop: 14 }}>
-					<summary>What you can set</summary>
+				<Disclosure
+					className="card"
+					style={{ marginTop: 14 }}
+					title="What you can set"
+				>
 					<pre
 						id="lkSheet"
 						style={{
@@ -951,7 +959,7 @@ export default function LookEditor() {
 					>
 						{lookSheet}
 					</pre>
-				</details>
+				</Disclosure>
 			</div>
 		</>
 	);

@@ -224,7 +224,9 @@ async function main() {
 			await fresh();
 			const f = [];
 			await hold(page, f, 700);
-			await page.click("#askBtn");
+			await page.click("#sideOpen");
+			await sleep(300);
+			await page.click("#stAsk");
 			await sleep(400);
 			await page.type("#aQ", "What is causing the boredom?", { delay: 35 });
 			await hold(page, f, 700);
